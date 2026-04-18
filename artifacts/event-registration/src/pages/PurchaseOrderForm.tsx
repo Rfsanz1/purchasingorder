@@ -12,6 +12,7 @@ interface KledoProduct {
   name: string;
   code: string;
   price: number;
+  base_price: number;
   unit?: { id: number; name: string };
 }
 
@@ -140,7 +141,7 @@ function ProductCombobox({ value, onSelect, onClear, placeholder }: {
       {value ? (
         <div className="po-product-selected" onClick={() => { handleClear(); setFocused(true); }}>
           <div className="po-product-selected-name">{value.name}</div>
-          <div className="po-product-selected-meta">{value.code} · Rp {value.price.toLocaleString("id-ID")}</div>
+          <div className="po-product-selected-meta">{value.code} · Rp {(value.price || value.base_price || 0).toLocaleString("id-ID")}</div>
           <button type="button" className="po-product-clear" onClick={e => { e.stopPropagation(); handleClear(); }}>✕</button>
         </div>
       ) : (
@@ -165,7 +166,7 @@ function ProductCombobox({ value, onSelect, onClear, placeholder }: {
               <div className="po-combo-item-name">{p.name}</div>
               <div className="po-combo-item-meta">
                 <span className="po-combo-sku">{p.code}</span>
-                {p.price > 0 && <span className="po-combo-price">Rp {p.price.toLocaleString("id-ID")}</span>}
+                {(p.price > 0 || p.base_price > 0) && <span className="po-combo-price">Rp {(p.price || p.base_price).toLocaleString("id-ID")}</span>}
                 {p.unit && <span className="po-combo-unit">/ {p.unit.name}</span>}
               </div>
             </li>
@@ -347,7 +348,7 @@ export default function PurchaseOrderForm() {
     updateItem(itemId, {
       selectedProduct: p,
       namaProduk: p.name,
-      hargaProduk: p.price > 0 ? p.price.toLocaleString("id-ID") : "",
+      hargaProduk: (p.price || p.base_price) > 0 ? (p.price || p.base_price).toLocaleString("id-ID") : "",
     });
   };
 
