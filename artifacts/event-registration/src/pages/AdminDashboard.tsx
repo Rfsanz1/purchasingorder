@@ -1,4 +1,9 @@
 import { useEffect, useState } from "react";
+import {
+  Package, Truck, CheckCircle, DollarSign,
+  Search, RefreshCw, LogOut, User, Phone,
+  MapPin, ShoppingCart, Clock, ChevronDown,
+} from "lucide-react";
 
 interface Order {
   id: number;
@@ -30,6 +35,13 @@ const STATUS_COLOR: Record<string, string> = {
   Selesai:    "#10b981",
   Dibatalkan: "#ef4444",
 };
+const STATUS_BG: Record<string, string> = {
+  Menunggu:   "#fef3c7",
+  Diproses:   "#dbeafe",
+  Dikirim:    "#ede9fe",
+  Selesai:    "#d1fae5",
+  Dibatalkan: "#fee2e2",
+};
 
 function formatRupiah(n: number) { return "Rp " + n.toLocaleString("id-ID"); }
 function formatDate(iso: string) {
@@ -38,20 +50,47 @@ function formatDate(iso: string) {
 
 function StatusBadge({ status }: { status: string }) {
   return (
-    <span style={{
-      background: STATUS_COLOR[status] ?? "#6b7280",
-      color: "#fff",
-      borderRadius: "12px",
-      padding: "2px 10px",
-      fontSize: "12px",
-      fontWeight: 600,
+    <span className="dash-status-badge" style={{
+      background: STATUS_BG[status] ?? "#f3f4f6",
+      color: STATUS_COLOR[status] ?? "#6b7280",
+      border: `1.5px solid ${STATUS_COLOR[status] ?? "#d1d5db"}`,
     }}>{status}</span>
   );
 }
 
 function PayBadge({ metode }: { metode: string }) {
-  const map: Record<string, string> = { CASH: "adm-pay--cash", Debit: "adm-pay--debit", Transfer: "adm-pay--transfer" };
-  return <span className={`adm-pay ${map[metode] ?? ""}`}>{metode}</span>;
+  const styles: Record<string, { bg: string; color: string }> = {
+    CASH: { bg: "#fef9c3", color: "#854d0e" },
+    Debit: { bg: "#dbeafe", color: "#1d4ed8" },
+    Transfer: { bg: "#f3e8ff", color: "#7c3aed" },
+  };
+  const s = styles[metode] ?? { bg: "#f3f4f6", color: "#6b7280" };
+  return (
+    <span className="dash-status-badge" style={{ background: s.bg, color: s.color, border: `1.5px solid ${s.color}33` }}>
+      {metode}
+    </span>
+  );
+}
+
+interface StatCardProps {
+  icon: React.ReactNode;
+  value: string | number;
+  label: string;
+  color: string;
+  bg: string;
+}
+function StatCard({ icon, value, label, color, bg }: StatCardProps) {
+  return (
+    <div className="dash-stat">
+      <div className="dash-stat-icon" style={{ background: bg, color }}>
+        {icon}
+      </div>
+      <div className="dash-stat-body">
+        <div className="dash-stat-val" style={{ color }}>{value}</div>
+        <div className="dash-stat-label">{label}</div>
+      </div>
+    </div>
+  );
 }
 
 export default function AdminDashboard({ onLogout }: { onLogout: () => void }) {
@@ -90,154 +129,217 @@ export default function AdminDashboard({ onLogout }: { onLogout: () => void }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ statusPengiriman, ...(driverName !== undefined ? { driverName } : {}) }),
       });
-      setOrders(prev => prev.map(o => o.id === id ? { ...o, statusPengiriman, ...(driverName !== undefined ? { driverName } : {}) } : o));
+      setOrders(prev => prev.map(o => o.id === id
+        ? { ...o, statusPengiriman, ...(driverName !== undefined ? { driverName } : {}) }
+        : o
+      ));
     } finally { setUpdatingId(null); }
   };
 
   return (
-    <div className="adm-bg">
-      <div className="adm-wrap">
-        <div className="adm-header">
-          <div>
-            <h1 className="adm-title">📦 Dashboard Admin</h1>
-            <p className="adm-sub">Kelola pesanan & pengiriman dalam satu tempat</p>
+    <div className="dash-bg">
+      <div className="dash-wrap">
+
+        {/* ── Header ── */}
+        <div className="dash-header">
+          <div className="dash-header-left">
+            <div className="dash-header-icon-wrap">📦</div>
+            <div>
+              <h1 className="dash-title">Dashboard Admin</h1>
+              <p className="dash-sub">Kelola pesanan &amp; pengiriman dalam satu tempat</p>
+            </div>
           </div>
-          <div style={{ display: "flex", gap: "8px" }}>
-            <button className="adm-refresh" onClick={fetchOrders}>🔄 Refresh</button>
-            <button className="adm-refresh" style={{ background: "#fee2e2", color: "#dc2626" }} onClick={onLogout}>Keluar</button>
+          <div className="dash-header-actions">
+            <button className="dash-btn dash-btn--ghost" onClick={fetchOrders}>
+              <RefreshCw size={14} /> Refresh
+            </button>
+            <button className="dash-btn dash-btn--danger" onClick={onLogout}>
+              <LogOut size={14} /> Keluar
+            </button>
           </div>
         </div>
 
-        {/* Stats */}
-        <div className="adm-stats">
-          <div className="adm-stat">
-            <div className="adm-stat-val">{orders.length}</div>
-            <div className="adm-stat-label">Total Order</div>
-          </div>
-          <div className="adm-stat">
-            <div className="adm-stat-val">{orders.filter(o => o.statusPengiriman === "Dikirim").length}</div>
-            <div className="adm-stat-label">Sedang Dikirim</div>
-          </div>
-          <div className="adm-stat">
-            <div className="adm-stat-val">{orders.filter(o => o.statusPengiriman === "Selesai").length}</div>
-            <div className="adm-stat-label">Selesai</div>
-          </div>
-          <div className="adm-stat">
-            <div className="adm-stat-val" style={{ fontSize: "14px" }}>{formatRupiah(totalPendapatan)}</div>
-            <div className="adm-stat-label">Total Pendapatan</div>
-          </div>
+        {/* ── Stats ── */}
+        <div className="dash-stats">
+          <StatCard icon={<Package size={18}/>} value={orders.length} label="Total Order" color="#0284c7" bg="#e0f2fe" />
+          <StatCard icon={<Truck size={18}/>} value={orders.filter(o => o.statusPengiriman === "Dikirim").length} label="Sedang Dikirim" color="#7c3aed" bg="#ede9fe" />
+          <StatCard icon={<CheckCircle size={18}/>} value={orders.filter(o => o.statusPengiriman === "Selesai").length} label="Selesai" color="#059669" bg="#d1fae5" />
+          <StatCard icon={<DollarSign size={18}/>} value={formatRupiah(totalPendapatan)} label="Total Pendapatan" color="#d97706" bg="#fef3c7" />
         </div>
 
-        {/* Tabs */}
-        <div className="adm-tabs">
-          <button
-            className={`adm-tab${tab === "pesanan" ? " adm-tab--active" : ""}`}
-            onClick={() => setTab("pesanan")}
-          >📋 Pesanan Masuk</button>
-          <button
-            className={`adm-tab${tab === "pengiriman" ? " adm-tab--active" : ""}`}
-            onClick={() => setTab("pengiriman")}
-          >🚚 Kelola Pengiriman</button>
+        {/* ── Tabs ── */}
+        <div className="dash-tabs">
+          <button className={`dash-tab${tab === "pesanan" ? " dash-tab--active" : ""}`} onClick={() => setTab("pesanan")}>
+            <ShoppingCart size={14} /> Pesanan Masuk
+          </button>
+          <button className={`dash-tab${tab === "pengiriman" ? " dash-tab--active" : ""}`} onClick={() => setTab("pengiriman")}>
+            <Truck size={14} /> Kelola Pengiriman
+          </button>
         </div>
 
-        {/* Search */}
-        <div className="adm-search-wrap">
-          <span className="adm-search-icon">🔍</span>
+        {/* ── Search ── */}
+        <div className="dash-search-wrap">
+          <Search size={15} className="dash-search-icon" />
           <input
-            className="adm-search"
-            placeholder="Cari nama, nomor, produk, sales..."
+            className="dash-search"
+            placeholder="Cari nama, nomor, produk, sales, order ID..."
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
-          {search && <button className="adm-clear" onClick={() => setSearch("")}>✕</button>}
+          {search && <button className="dash-search-clear" onClick={() => setSearch("")}>✕</button>}
         </div>
 
+        {/* ── Content ── */}
         {loading ? (
-          <div className="adm-empty">⏳ Memuat data...</div>
+          <div className="dash-empty">
+            <div className="dash-empty-icon">⏳</div>
+            <p>Memuat data pesanan...</p>
+          </div>
         ) : error ? (
-          <div className="adm-empty adm-error">⚠️ {error}</div>
+          <div className="dash-empty dash-empty--error">
+            <div className="dash-empty-icon">⚠️</div>
+            <p>{error}</p>
+          </div>
         ) : filtered.length === 0 ? (
-          <div className="adm-empty">{search ? "Tidak ada hasil" : "Belum ada order"}</div>
+          <div className="dash-empty">
+            <div className="dash-empty-icon">{search ? "🔍" : "📭"}</div>
+            <p>{search ? "Tidak ada hasil untuk pencarian ini" : "Belum ada order masuk"}</p>
+          </div>
         ) : tab === "pesanan" ? (
-          /* ── Tab Pesanan Masuk ── */
-          <div className="adm-list">
+
+          /* ── Tab: Pesanan Masuk ── */
+          <div className="dash-list">
             {filtered.map(order => (
-              <div key={order.id} className="adm-card">
-                <div className="adm-card-top">
-                  <div className="adm-card-id">#{order.orderId}</div>
-                  <div className="adm-card-meta">
+              <div key={order.id} className="dash-card" style={{ borderLeftColor: STATUS_COLOR[order.statusPengiriman] ?? "#d1d5db" }}>
+                <div className="dash-card-top">
+                  <div className="dash-card-top-left">
+                    <span className="dash-order-id">#{order.orderId}</span>
+                    <span className="dash-order-time"><Clock size={11} /> {formatDate(order.createdAt)}</span>
+                  </div>
+                  <div className="dash-card-badges">
                     <StatusBadge status={order.statusPengiriman} />
                     <PayBadge metode={order.metodePembayaran} />
-                    <span className={`adm-badge ${order.whatsappSent === "true" ? "adm-badge--ok" : "adm-badge--fail"}`}>
-                      {order.whatsappSent === "true" ? "✅ WA Terkirim" : "❌ WA Gagal"}
+                    <span className={`dash-status-badge ${order.whatsappSent === "true" ? "dash-badge--ok" : "dash-badge--fail"}`}>
+                      {order.whatsappSent === "true" ? "✅ WA" : "❌ WA"}
                     </span>
                   </div>
                 </div>
-                <div className="adm-card-grid">
-                  <div>
-                    <div className="adm-row"><span className="adm-lbl">👤 Nama</span><span className="adm-val adm-bold">{order.namaKontak}</span></div>
-                    <div className="adm-row"><span className="adm-lbl">📱 Telepon</span>
-                      <span className="adm-val">
-                        <a href={`https://wa.me/${order.nomorTelepon.replace(/\D/g,"")}`} target="_blank" rel="noreferrer" className="adm-walink">{order.nomorTelepon}</a>
-                      </span>
+
+                <div className="dash-card-grid">
+                  {/* Left: Customer Info */}
+                  <div className="dash-info-col">
+                    <div className="dash-info-row">
+                      <span className="dash-info-icon"><User size={12}/></span>
+                      <div><div className="dash-info-lbl">Nama</div><div className="dash-info-val dash-bold">{order.namaKontak}</div></div>
                     </div>
-                    <div className="adm-row"><span className="adm-lbl">📍 Alamat</span><span className="adm-val">{order.alamat}</span></div>
-                    <div className="adm-row"><span className="adm-lbl">🗺️ Patokan</span><span className="adm-val">{order.patokanLokasi}</span></div>
-                    <div className="adm-row"><span className="adm-lbl">🧑 Sales</span><span className="adm-val">{order.salesPerson}</span></div>
-                    <div className="adm-row"><span className="adm-lbl">🕐 Waktu</span><span className="adm-val adm-muted">{formatDate(order.createdAt)}</span></div>
-                    {order.driverName && <div className="adm-row"><span className="adm-lbl">🚗 Driver</span><span className="adm-val">{order.driverName}</span></div>}
+                    <div className="dash-info-row">
+                      <span className="dash-info-icon"><Phone size={12}/></span>
+                      <div><div className="dash-info-lbl">Telepon</div>
+                        <a href={`https://wa.me/${order.nomorTelepon.replace(/\D/g,"")}`} target="_blank" rel="noreferrer" className="dash-wa-link">{order.nomorTelepon}</a>
+                      </div>
+                    </div>
+                    <div className="dash-info-row">
+                      <span className="dash-info-icon"><MapPin size={12}/></span>
+                      <div><div className="dash-info-lbl">Alamat</div><div className="dash-info-val">{order.alamat}</div></div>
+                    </div>
+                    {order.patokanLokasi && (
+                      <div className="dash-info-row">
+                        <span className="dash-info-icon">🗺️</span>
+                        <div><div className="dash-info-lbl">Patokan</div><div className="dash-info-val">{order.patokanLokasi}</div></div>
+                      </div>
+                    )}
+                    <div className="dash-info-row">
+                      <span className="dash-info-icon">🧑</span>
+                      <div><div className="dash-info-lbl">Sales</div><div className="dash-info-val">{order.salesPerson}</div></div>
+                    </div>
+                    {order.driverName && (
+                      <div className="dash-info-row">
+                        <span className="dash-info-icon"><Truck size={12}/></span>
+                        <div><div className="dash-info-lbl">Driver</div><div className="dash-info-val">{order.driverName}</div></div>
+                      </div>
+                    )}
                   </div>
-                  <div className="adm-price-col">
-                    <div className="adm-row"><span className="adm-lbl">🛒 Produk</span><span className="adm-val">{order.namaProduk}</span></div>
-                    <div className="adm-row"><span className="adm-lbl">📦 Jumlah</span><span className="adm-val">{order.jumlahProduk} unit</span></div>
-                    <div className="adm-row"><span className="adm-lbl">💰 Harga</span><span className="adm-val">{formatRupiah(order.hargaProduk)}</span></div>
-                    {order.biayaPengiriman ? <div className="adm-row"><span className="adm-lbl">🚚 Ongkir</span><span className="adm-val">{formatRupiah(order.biayaPengiriman)}</span></div> : null}
-                    {order.keteranganPembayaran ? <div className="adm-row"><span className="adm-lbl">📝 Ket</span><span className="adm-val">{order.keteranganPembayaran}</span></div> : null}
-                    <div className="adm-total-row"><span>TOTAL</span><span className="adm-total-val">{formatRupiah(order.totalHarga)}</span></div>
+
+                  {/* Right: Product + Price */}
+                  <div className="dash-price-col">
+                    <div className="dash-info-row">
+                      <span className="dash-info-icon"><ShoppingCart size={12}/></span>
+                      <div><div className="dash-info-lbl">Produk</div><div className="dash-info-val">{order.namaProduk}</div></div>
+                    </div>
+                    <div className="dash-info-row">
+                      <span className="dash-info-icon"><Package size={12}/></span>
+                      <div><div className="dash-info-lbl">Jumlah</div><div className="dash-info-val">{order.jumlahProduk} unit</div></div>
+                    </div>
+                    <div className="dash-info-row">
+                      <span className="dash-info-icon"><DollarSign size={12}/></span>
+                      <div><div className="dash-info-lbl">Harga Satuan</div><div className="dash-info-val">{formatRupiah(order.hargaProduk)}</div></div>
+                    </div>
+                    {order.biayaPengiriman ? (
+                      <div className="dash-info-row">
+                        <span className="dash-info-icon"><Truck size={12}/></span>
+                        <div><div className="dash-info-lbl">Ongkir</div><div className="dash-info-val">{formatRupiah(order.biayaPengiriman)}</div></div>
+                      </div>
+                    ) : null}
+                    {order.keteranganPembayaran ? (
+                      <div className="dash-info-row">
+                        <span className="dash-info-icon">📝</span>
+                        <div><div className="dash-info-lbl">Status Bayar</div><div className="dash-info-val">{order.keteranganPembayaran}</div></div>
+                      </div>
+                    ) : null}
+                    <div className="dash-total-row">
+                      <span>TOTAL</span>
+                      <span className="dash-total-val">{formatRupiah(order.totalHarga)}</span>
+                    </div>
                   </div>
                 </div>
               </div>
             ))}
           </div>
+
         ) : (
-          /* ── Tab Kelola Pengiriman ── */
-          <div className="adm-list">
+
+          /* ── Tab: Kelola Pengiriman ── */
+          <div className="dash-list">
             {filtered.map(order => (
-              <div key={order.id} className="adm-card">
-                <div className="adm-card-top">
-                  <div>
-                    <div className="adm-card-id">#{order.orderId}</div>
-                    <div style={{ fontSize: "13px", color: "#555", marginTop: "2px" }}>
-                      {order.namaKontak} — {order.nomorTelepon}
-                    </div>
+              <div key={order.id} className="dash-card" style={{ borderLeftColor: STATUS_COLOR[order.statusPengiriman] ?? "#d1d5db" }}>
+                <div className="dash-card-top">
+                  <div className="dash-card-top-left">
+                    <span className="dash-order-id">#{order.orderId}</span>
+                    <span className="dash-order-time"><User size={11}/> {order.namaKontak} · {order.nomorTelepon}</span>
                   </div>
                   <StatusBadge status={order.statusPengiriman} />
                 </div>
 
-                <div style={{ padding: "0 12px 4px", fontSize: "13px", color: "#666" }}>
-                  📍 {order.alamat}{order.patokanLokasi ? ` (${order.patokanLokasi})` : ""}
+                <div className="dash-delivery-addr">
+                  <MapPin size={13} />
+                  <span>{order.alamat}{order.patokanLokasi ? ` — ${order.patokanLokasi}` : ""}</span>
                 </div>
-                <div style={{ padding: "0 12px 8px", fontSize: "13px", color: "#666" }}>
-                  🛒 {order.namaProduk} × {order.jumlahProduk} — <strong>{formatRupiah(order.totalHarga)}</strong>
+                <div className="dash-delivery-product">
+                  <ShoppingCart size={13} />
+                  <span>{order.namaProduk} × {order.jumlahProduk}</span>
+                  <span className="dash-delivery-total">{formatRupiah(order.totalHarga)}</span>
                 </div>
 
-                <div className="adm-pengiriman-row">
-                  <div className="adm-pengiriman-group">
-                    <label className="adm-pengiriman-label">Status Pengiriman</label>
-                    <select
-                      className="adm-pengiriman-select"
-                      value={order.statusPengiriman}
-                      disabled={updatingId === order.id}
-                      onChange={e => updateStatus(order.id, e.target.value, order.driverName ?? undefined)}
-                    >
-                      {STATUS_LIST.map(s => <option key={s} value={s}>{s}</option>)}
-                    </select>
+                <div className="dash-delivery-controls">
+                  <div className="dash-delivery-group">
+                    <label className="dash-delivery-label">Status Pengiriman</label>
+                    <div className="dash-delivery-select-wrap">
+                      <select
+                        className="dash-delivery-select"
+                        value={order.statusPengiriman}
+                        disabled={updatingId === order.id}
+                        onChange={e => updateStatus(order.id, e.target.value, order.driverName ?? undefined)}
+                      >
+                        {STATUS_LIST.map(s => <option key={s} value={s}>{s}</option>)}
+                      </select>
+                      <ChevronDown size={13} className="dash-delivery-chevron" />
+                    </div>
                   </div>
-                  <div className="adm-pengiriman-group">
-                    <label className="adm-pengiriman-label">Nama Driver</label>
+                  <div className="dash-delivery-group">
+                    <label className="dash-delivery-label">Nama Driver</label>
                     <input
-                      className="adm-pengiriman-input"
-                      placeholder="Nama driver..."
+                      className="dash-delivery-input"
+                      placeholder="Tulis nama driver..."
                       defaultValue={order.driverName ?? ""}
                       disabled={updatingId === order.id}
                       onBlur={e => {
