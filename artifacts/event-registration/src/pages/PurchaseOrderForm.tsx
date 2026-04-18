@@ -4,6 +4,7 @@ import {
   User, Phone, MapPin, Package, Hash, DollarSign,
   Truck, UserCheck, CreditCard, FileText, ChevronDown, Plus, Trash2,
 } from "lucide-react";
+import { kecamatanList, getKelurahan } from "../data/temanggung";
 
 interface KledoProduct {
   id: number;
@@ -24,7 +25,10 @@ interface OrderItem {
 interface FormData {
   namaKontak: string;
   nomorTelepon: string;
-  alamat: string;
+  kecamatan: string;
+  kelurahan: string;
+  rt: string;
+  rw: string;
   patokanLokasi: string;
   biayaPengiriman: string;
   salesPerson: string;
@@ -33,7 +37,9 @@ interface FormData {
 }
 
 const EMPTY_FORM: FormData = {
-  namaKontak: "", nomorTelepon: "", alamat: "", patokanLokasi: "",
+  namaKontak: "", nomorTelepon: "",
+  kecamatan: "", kelurahan: "", rt: "", rw: "",
+  patokanLokasi: "",
   biayaPengiriman: "", salesPerson: "", metodePembayaran: "", keteranganPembayaran: "",
 };
 
@@ -58,7 +64,10 @@ function parseRupiah(val: string): number {
 function validate(form: FormData, items: OrderItem[]): string | null {
   if (!form.namaKontak.trim()) return "Nama kontak wajib diisi";
   if (!form.nomorTelepon.trim()) return "Nomor telepon wajib diisi";
-  if (!form.alamat.trim()) return "Alamat wajib diisi";
+  if (!form.kecamatan) return "Kecamatan wajib dipilih";
+  if (!form.kelurahan) return "Kelurahan / Desa wajib dipilih";
+  if (!form.rt.trim()) return "RT wajib diisi";
+  if (!form.rw.trim()) return "RW wajib diisi";
   if (!form.patokanLokasi.trim()) return "Patokan lokasi wajib diisi";
   if (items.length === 0) return "Minimal 1 produk harus dipilih";
   for (let i = 0; i < items.length; i++) {
@@ -198,6 +207,11 @@ export default function PurchaseOrderForm() {
   const onFocus = (k: keyof FormData) => setFocused(p => ({ ...p, [k]: true }));
   const onBlur = (k: keyof FormData) => setFocused(p => ({ ...p, [k]: false }));
 
+  const handleKecamatanChange = (val: string) =>
+    setForm(p => ({ ...p, kecamatan: val, kelurahan: "" }));
+
+  const kelurahanList = getKelurahan(form.kecamatan);
+
   const updateItem = (id: string, patch: Partial<OrderItem>) =>
     setItems(prev => prev.map(it => it.id === id ? { ...it, ...patch } : it));
 
@@ -238,13 +252,15 @@ export default function PurchaseOrderForm() {
 
     try {
       const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
+      const alamatFormatted = `${form.kelurahan}, Kec. ${form.kecamatan}, Kab. Temanggung, RT ${form.rt}/RW ${form.rw}`;
+
       const res = await fetch(`${baseUrl}/api/orders`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           namaKontak: form.namaKontak,
           nomorTelepon: form.nomorTelepon,
-          alamat: form.alamat,
+          alamat: alamatFormatted,
           patokanLokasi: form.patokanLokasi,
           biayaPengiriman: ongkir || null,
           salesPerson: form.salesPerson,
@@ -319,13 +335,58 @@ export default function PurchaseOrderForm() {
               onFocus={() => onFocus("nomorTelepon")} onBlur={() => onBlur("nomorTelepon")} />
           </Field>
 
-          <Field icon={<MapPin size={16}/>} label="Alamat"
-            hint="Bisa bantu isikan dengan link google maps. Alamat hanya diisi desa / kelurahan, rt rw, kecamatan"
-            required hasValue={!!form.alamat} isFocused={!!focused.alamat} isTextarea>
-            <textarea className="po-input po-textarea" placeholder=" " value={form.alamat} rows={3}
-              onChange={e => set("alamat", e.target.value)}
-              onFocus={() => onFocus("alamat")} onBlur={() => onBlur("alamat")} />
+          {/* Kecamatan */}
+          <Field icon={<MapPin size={16}/>} label="Kecamatan" required
+            hasValue={!!form.kecamatan} isFocused={!!focused.kecamatan}>
+            <div className="po-select-wrap">
+              <select className="po-input po-select" value={form.kecamatan}
+                onChange={e => handleKecamatanChange(e.target.value)}
+                onFocus={() => onFocus("kecamatan")} onBlur={() => onBlur("kecamatan")}>
+                <option value="" disabled />
+                {kecamatanList.map(kec => (
+                  <option key={kec} value={kec}>{kec}</option>
+                ))}
+              </select>
+              <ChevronDown size={14} className="po-select-arrow" />
+            </div>
           </Field>
+
+          {/* Kelurahan / Desa */}
+          <Field icon={<MapPin size={16}/>} label="Kelurahan / Desa" required
+            hasValue={!!form.kelurahan} isFocused={!!focused.kelurahan}>
+            <div className="po-select-wrap">
+              <select className="po-input po-select" value={form.kelurahan}
+                onChange={e => set("kelurahan", e.target.value)}
+                onFocus={() => onFocus("kelurahan")} onBlur={() => onBlur("kelurahan")}
+                disabled={!form.kecamatan}>
+                <option value="" disabled>
+                  {form.kecamatan ? "" : "Pilih kecamatan dulu"}
+                </option>
+                {kelurahanList.map(kel => (
+                  <option key={kel} value={kel}>{kel}</option>
+                ))}
+              </select>
+              <ChevronDown size={14} className="po-select-arrow" />
+            </div>
+          </Field>
+
+          {/* RT / RW */}
+          <div className="po-row">
+            <Field icon={<MapPin size={16}/>} label="RT" required
+              hasValue={!!form.rt} isFocused={!!focused.rt}>
+              <input className="po-input" placeholder=" " inputMode="numeric"
+                value={form.rt} maxLength={3}
+                onChange={e => set("rt", e.target.value.replace(/\D/g, ""))}
+                onFocus={() => onFocus("rt")} onBlur={() => onBlur("rt")} />
+            </Field>
+            <Field icon={<MapPin size={16}/>} label="RW" required
+              hasValue={!!form.rw} isFocused={!!focused.rw}>
+              <input className="po-input" placeholder=" " inputMode="numeric"
+                value={form.rw} maxLength={3}
+                onChange={e => set("rw", e.target.value.replace(/\D/g, ""))}
+                onFocus={() => onFocus("rw")} onBlur={() => onBlur("rw")} />
+            </Field>
+          </div>
 
           <Field icon={<MapPin size={16}/>} label="Patokan Rumah / Detail Lokasi"
             hint='Bisa bantu detail alamat rumah. Contoh: depan rumah ada kolam nanti masuk'

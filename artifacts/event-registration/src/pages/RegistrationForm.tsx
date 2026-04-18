@@ -12,6 +12,7 @@ import {
   ChevronDown,
   CheckSquare,
 } from "lucide-react";
+import { kecamatanList, getKelurahan } from "../data/temanggung";
 
 interface FormData {
   nama: string;
@@ -19,7 +20,10 @@ interface FormData {
   wa: string;
   gender: string;
   dob: Date | null;
-  alamat: string;
+  kecamatan: string;
+  kelurahan: string;
+  rt: string;
+  rw: string;
   catatan: string;
   agree: boolean;
 }
@@ -32,7 +36,10 @@ function validateForm(data: FormData): string | null {
     return "Nomor WA harus diawali 62 dan panjang 10–17 digit";
   if (!data.gender) return "Pilih jenis kelamin";
   if (!data.dob) return "Tanggal lahir wajib diisi";
-  if (!data.alamat.trim()) return "Alamat wajib diisi";
+  if (!data.kecamatan) return "Kecamatan wajib dipilih";
+  if (!data.kelurahan) return "Kelurahan / Desa wajib dipilih";
+  if (!data.rt.trim()) return "RT wajib diisi";
+  if (!data.rw.trim()) return "RW wajib diisi";
   if (!data.catatan.trim()) return "Catatan wajib diisi";
   if (!data.agree) return "Anda harus menyetujui syarat & ketentuan";
   return null;
@@ -59,18 +66,22 @@ function InputCard({ icon, label, children, hasValue, isFocused }: InputCardProp
   );
 }
 
-export default function RegistrationForm() {
-  const [form, setForm] = useState<FormData>({
-    nama: "",
-    email: "",
-    wa: "",
-    gender: "",
-    dob: null,
-    alamat: "",
-    catatan: "",
-    agree: false,
-  });
+const emptyForm: FormData = {
+  nama: "",
+  email: "",
+  wa: "",
+  gender: "",
+  dob: null,
+  kecamatan: "",
+  kelurahan: "",
+  rt: "",
+  rw: "",
+  catatan: "",
+  agree: false,
+};
 
+export default function RegistrationForm() {
+  const [form, setForm] = useState<FormData>(emptyForm);
   const [focused, setFocused] = useState<Record<string, boolean>>({});
   const [submitting, setSubmitting] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
@@ -82,6 +93,16 @@ export default function RegistrationForm() {
     setFocused((prev) => ({ ...prev, [key]: true }));
   const handleBlur = (key: string) =>
     setFocused((prev) => ({ ...prev, [key]: false }));
+
+  const handleKecamatanChange = (val: string) => {
+    setForm((prev) => ({ ...prev, kecamatan: val, kelurahan: "" }));
+  };
+
+  const kelurahanList = getKelurahan(form.kecamatan);
+
+  const alamatFormatted = form.kecamatan
+    ? `${form.kelurahan ? `${form.kelurahan}, ` : ""}Kec. ${form.kecamatan}, Kab. Temanggung${form.rt ? ` RT ${form.rt}` : ""}${form.rw ? `/RW ${form.rw}` : ""}`
+    : "";
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -104,19 +125,10 @@ export default function RegistrationForm() {
     Swal.fire({
       icon: "success",
       title: "Sukses!",
-      html: `Pendaftaran atas nama <b>${form.nama}</b> berhasil dikirim!`,
+      html: `Pendaftaran atas nama <b>${form.nama}</b> berhasil dikirim!<br/><small>${alamatFormatted}</small>`,
       confirmButtonColor: "#0097e6",
     });
-    setForm({
-      nama: "",
-      email: "",
-      wa: "",
-      gender: "",
-      dob: null,
-      alamat: "",
-      catatan: "",
-      agree: false,
-    });
+    setForm(emptyForm);
     setFocused({});
   };
 
@@ -233,22 +245,95 @@ export default function RegistrationForm() {
             />
           </InputCard>
 
+          {/* ── Bagian Alamat Temanggung ── */}
           <InputCard
             icon={<MapPin size={16} />}
-            label="Alamat / Kota"
-            hasValue={!!form.alamat}
-            isFocused={focused.alamat}
+            label="Kecamatan"
+            hasValue={!!form.kecamatan}
+            isFocused={focused.kecamatan}
           >
-            <input
-              type="text"
-              value={form.alamat}
-              onChange={(e) => setField("alamat", e.target.value)}
-              onFocus={() => handleFocus("alamat")}
-              onBlur={() => handleBlur("alamat")}
-              className="form-input"
-              placeholder=" "
-            />
+            <div className="select-wrapper">
+              <select
+                value={form.kecamatan}
+                onChange={(e) => handleKecamatanChange(e.target.value)}
+                onFocus={() => handleFocus("kecamatan")}
+                onBlur={() => handleBlur("kecamatan")}
+                className="form-input form-select"
+              >
+                <option value="" disabled />
+                {kecamatanList.map((kec) => (
+                  <option key={kec} value={kec}>{kec}</option>
+                ))}
+              </select>
+              <ChevronDown size={14} className="select-arrow" />
+            </div>
           </InputCard>
+
+          <InputCard
+            icon={<MapPin size={16} />}
+            label="Kelurahan / Desa"
+            hasValue={!!form.kelurahan}
+            isFocused={focused.kelurahan}
+          >
+            <div className="select-wrapper">
+              <select
+                value={form.kelurahan}
+                onChange={(e) => setField("kelurahan", e.target.value)}
+                onFocus={() => handleFocus("kelurahan")}
+                onBlur={() => handleBlur("kelurahan")}
+                className="form-input form-select"
+                disabled={!form.kecamatan}
+              >
+                <option value="" disabled>
+                  {form.kecamatan ? "" : "Pilih kecamatan dulu"}
+                </option>
+                {kelurahanList.map((kel) => (
+                  <option key={kel} value={kel}>{kel}</option>
+                ))}
+              </select>
+              <ChevronDown size={14} className="select-arrow" />
+            </div>
+          </InputCard>
+
+          <div className="rt-rw-row">
+            <InputCard
+              icon={<MapPin size={16} />}
+              label="RT"
+              hasValue={!!form.rt}
+              isFocused={focused.rt}
+            >
+              <input
+                type="text"
+                inputMode="numeric"
+                value={form.rt}
+                onChange={(e) => setField("rt", e.target.value.replace(/\D/g, ""))}
+                onFocus={() => handleFocus("rt")}
+                onBlur={() => handleBlur("rt")}
+                className="form-input"
+                placeholder=" "
+                maxLength={3}
+              />
+            </InputCard>
+
+            <InputCard
+              icon={<MapPin size={16} />}
+              label="RW"
+              hasValue={!!form.rw}
+              isFocused={focused.rw}
+            >
+              <input
+                type="text"
+                inputMode="numeric"
+                value={form.rw}
+                onChange={(e) => setField("rw", e.target.value.replace(/\D/g, ""))}
+                onFocus={() => handleFocus("rw")}
+                onBlur={() => handleBlur("rw")}
+                className="form-input"
+                placeholder=" "
+                maxLength={3}
+              />
+            </InputCard>
+          </div>
 
           <InputCard
             icon={<MessageSquare size={16} />}
