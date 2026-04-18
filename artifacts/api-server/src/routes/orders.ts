@@ -111,7 +111,9 @@ router.post("/orders", async (req, res): Promise<void> => {
   } catch (dbErr: unknown) {
     const cause = dbErr instanceof Error ? (dbErr.cause as Error | undefined) : undefined;
     req.log.error({ dbErr, cause, code: (cause as { code?: string })?.code, detail: (cause as { detail?: string })?.detail }, "DB insert failed");
-    throw dbErr;
+    const msg = dbErr instanceof Error ? dbErr.message : String(dbErr);
+    res.status(500).json({ error: `Gagal menyimpan pesanan ke database: ${msg}` });
+    return;
   }
 
   const infoRekening = d.metodePembayaran === "Transfer"
