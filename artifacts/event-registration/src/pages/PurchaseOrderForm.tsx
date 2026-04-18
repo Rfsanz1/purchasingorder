@@ -82,25 +82,6 @@ function validate(form: FormData, items: OrderItem[]): string | null {
   return null;
 }
 
-interface FieldProps {
-  icon: React.ReactNode; label: string; hint?: string; required?: boolean;
-  hasValue: boolean; isFocused: boolean; children: React.ReactNode; isTextarea?: boolean;
-}
-
-function Field({ icon, label, hint, required, hasValue, isFocused, children, isTextarea }: FieldProps) {
-  const floated = hasValue || isFocused;
-  return (
-    <div className="po-field">
-      <span className={`po-icon${isFocused ? " po-icon--focus" : ""}${isTextarea ? " po-icon--top" : ""}`}>{icon}</span>
-      {children}
-      <label className={`po-label${floated ? " po-label--float" : ""}${isFocused ? " po-label--focus" : ""}`}>
-        {label}{required && <span className="po-required"> *</span>}
-      </label>
-      {hint && <p className="po-hint">{hint}</p>}
-    </div>
-  );
-}
-
 // Searchable product combobox
 function ProductCombobox({ value, onSelect, onClear, placeholder }: {
   value: KledoProduct | null;
@@ -198,8 +179,8 @@ function ProductCombobox({ value, onSelect, onClear, placeholder }: {
   );
 }
 
-function AddressDropdown({
-  label, value, options, onChange, disabled, required,
+function FormDropdown({
+  label, value, options, onChange, disabled, required, icon,
 }: {
   label: string;
   value: string;
@@ -207,6 +188,7 @@ function AddressDropdown({
   onChange: (val: string) => void;
   disabled?: boolean;
   required?: boolean;
+  icon?: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -242,7 +224,7 @@ function AddressDropdown({
         onClick={() => !disabled && setOpen(v => !v)}
         disabled={disabled}
       >
-        <MapPin size={15} className="addr-trigger-icon" />
+        <span className="addr-trigger-icon">{icon ?? <MapPin size={15} />}</span>
         <span className="addr-trigger-body">
           <span className="addr-trigger-label">{label}{required && <span className="po-required"> *</span>}</span>
           <span className={`addr-trigger-value${!value ? " addr-trigger-value--empty" : ""}`}>
@@ -283,6 +265,58 @@ function AddressDropdown({
           </ul>
         </div>
       )}
+    </div>
+  );
+}
+
+function FormInput({
+  label, required, hint, icon, value, onChange, onFocus, onBlur,
+  inputMode, placeholder, maxLength, type = "text",
+}: {
+  label: string; required?: boolean; hint?: string; icon?: React.ReactNode;
+  value: string; onChange: (v: string) => void;
+  onFocus?: () => void; onBlur?: () => void;
+  type?: string; inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"];
+  placeholder?: string; maxLength?: number;
+}) {
+  return (
+    <div className="fi-group">
+      <label className="fi-label">{label}{required && <span className="po-required"> *</span>}</label>
+      <div className={`fi-input-wrap${icon ? " fi-input-wrap--icon" : ""}`}>
+        {icon && <span className="fi-icon">{icon}</span>}
+        <input
+          className={`fi-input${icon ? " fi-input--padded" : ""}`}
+          type={type} inputMode={inputMode}
+          placeholder={placeholder || ""}
+          value={value} maxLength={maxLength}
+          onChange={e => onChange(e.target.value)}
+          onFocus={onFocus} onBlur={onBlur}
+        />
+      </div>
+      {hint && <p className="fi-hint">{hint}</p>}
+    </div>
+  );
+}
+
+function FormTextarea({
+  label, required, hint, value, onChange, onFocus, onBlur, placeholder, rows = 2,
+}: {
+  label: string; required?: boolean; hint?: string;
+  value: string; onChange: (v: string) => void;
+  onFocus?: () => void; onBlur?: () => void;
+  placeholder?: string; rows?: number;
+}) {
+  return (
+    <div className="fi-group">
+      <label className="fi-label">{label}{required && <span className="po-required"> *</span>}</label>
+      <textarea
+        className="fi-textarea"
+        placeholder={placeholder || ""}
+        value={value} rows={rows}
+        onChange={e => onChange(e.target.value)}
+        onFocus={onFocus} onBlur={onBlur}
+      />
+      {hint && <p className="fi-hint">{hint}</p>}
     </div>
   );
 }
@@ -411,262 +445,246 @@ export default function PurchaseOrderForm() {
 
         <form onSubmit={handleSubmit} noValidate>
 
-          <div className="po-section-title">👤 Data Pelanggan</div>
+          {/* ── Data Pelanggan ── */}
+          <div className="addr-card">
+            <div className="addr-card-header">
+              <User size={14} />
+              <span>Data Pelanggan</span>
+            </div>
+            <div className="addr-card-body">
+              <FormInput
+                label="Nama Kontak" required
+                icon={<User size={15} />}
+                value={form.namaKontak}
+                onChange={v => set("namaKontak", v)}
+                onFocus={() => onFocus("namaKontak")} onBlur={() => onBlur("namaKontak")}
+                placeholder="Nama lengkap pelanggan"
+              />
+              <FormInput
+                label="Nomor Telepon" required
+                icon={<Phone size={15} />}
+                value={form.nomorTelepon}
+                onChange={v => set("nomorTelepon", v)}
+                onFocus={() => onFocus("nomorTelepon")} onBlur={() => onBlur("nomorTelepon")}
+                placeholder="contoh: 08780000000"
+                inputMode="tel"
+                hint="Isi hanya nomor HP — contoh: 0878xxxxx"
+              />
+            </div>
+          </div>
 
-          <Field icon={<User size={16}/>} label="Nama Kontak" required hasValue={!!form.namaKontak} isFocused={!!focused.namaKontak}>
-            <input className="po-input" placeholder=" " value={form.namaKontak}
-              onChange={e => set("namaKontak", e.target.value)}
-              onFocus={() => onFocus("namaKontak")} onBlur={() => onBlur("namaKontak")} />
-          </Field>
-
-          <Field icon={<Phone size={16}/>} label="Nomor Telepon" hint="Di isikan hanya No contoh: 0878 yang lain kapan kapan" required hasValue={!!form.nomorTelepon} isFocused={!!focused.nomorTelepon}>
-            <input className="po-input" placeholder=" " value={form.nomorTelepon}
-              onChange={e => set("nomorTelepon", e.target.value)}
-              onFocus={() => onFocus("nomorTelepon")} onBlur={() => onBlur("nomorTelepon")} />
-          </Field>
-
-          {/* Address Card */}
+          {/* ── Alamat Pengiriman ── */}
           <div className="addr-card">
             <div className="addr-card-header">
               <MapPin size={14} />
               <span>Alamat Pengiriman</span>
             </div>
-
             <div className="addr-card-body">
-              <AddressDropdown
-                label="Kecamatan"
+              <FormDropdown
+                label="Kecamatan" required
+                icon={<MapPin size={15} />}
                 value={form.kecamatan}
                 options={kecamatanList}
                 onChange={handleKecamatanChange}
-                required
               />
-
-              <AddressDropdown
-                label="Kelurahan / Desa"
+              <FormDropdown
+                label="Kelurahan / Desa" required
+                icon={<MapPin size={15} />}
                 value={form.kelurahan}
                 options={kelurahanList}
                 onChange={v => set("kelurahan", v)}
                 disabled={!form.kecamatan}
-                required
               />
 
-              {/* RT / RW */}
               <div className="addr-rtrw-row">
                 <div className="addr-rtrw-group">
                   <label className="addr-rtrw-label">RT <span className="po-required">*</span></label>
-                  <input
-                    className={`addr-rtrw-input${focused.rt ? " addr-rtrw-input--focus" : ""}`}
-                    placeholder="001"
-                    inputMode="numeric"
-                    value={form.rt}
-                    maxLength={3}
+                  <input className="addr-rtrw-input" placeholder="001" inputMode="numeric"
+                    value={form.rt} maxLength={3}
                     onChange={e => set("rt", e.target.value.replace(/\D/g, ""))}
-                    onFocus={() => onFocus("rt")}
-                    onBlur={() => onBlur("rt")}
-                  />
+                    onFocus={() => onFocus("rt")} onBlur={() => onBlur("rt")} />
                 </div>
                 <div className="addr-rtrw-sep">/</div>
                 <div className="addr-rtrw-group">
                   <label className="addr-rtrw-label">RW <span className="po-required">*</span></label>
-                  <input
-                    className={`addr-rtrw-input${focused.rw ? " addr-rtrw-input--focus" : ""}`}
-                    placeholder="001"
-                    inputMode="numeric"
-                    value={form.rw}
-                    maxLength={3}
+                  <input className="addr-rtrw-input" placeholder="001" inputMode="numeric"
+                    value={form.rw} maxLength={3}
                     onChange={e => set("rw", e.target.value.replace(/\D/g, ""))}
-                    onFocus={() => onFocus("rw")}
-                    onBlur={() => onBlur("rw")}
-                  />
+                    onFocus={() => onFocus("rw")} onBlur={() => onBlur("rw")} />
                 </div>
               </div>
 
-              <div className="addr-patokan-wrap">
-                <label className="addr-rtrw-label">
-                  Patokan / Detail Lokasi <span className="po-required">*</span>
-                </label>
-                <textarea
-                  className={`addr-patokan${focused.patokanLokasi ? " addr-patokan--focus" : ""}`}
-                  placeholder="Contoh: Depan rumah ada kolam, pagar besi biru…"
-                  value={form.patokanLokasi}
-                  rows={2}
-                  onChange={e => set("patokanLokasi", e.target.value)}
-                  onFocus={() => onFocus("patokanLokasi")}
-                  onBlur={() => onBlur("patokanLokasi")}
-                />
-              </div>
+              <FormTextarea
+                label="Patokan / Detail Lokasi" required
+                value={form.patokanLokasi}
+                onChange={v => set("patokanLokasi", v)}
+                onFocus={() => onFocus("patokanLokasi")} onBlur={() => onBlur("patokanLokasi")}
+                placeholder="Contoh: Depan rumah ada kolam, pagar besi biru…"
+              />
 
-              {/* Address preview */}
               {form.kecamatan && form.kelurahan && form.rt && form.rw && (
                 <div className="addr-preview">
                   <span className="addr-preview-icon">📍</span>
                   <span className="addr-preview-text">
-                    {form.kelurahan}, Kec. {form.kecamatan}, Kab. Temanggung
-                    {" "}RT {form.rt}/RW {form.rw}
+                    {form.kelurahan}, Kec. {form.kecamatan}, Kab. Temanggung RT {form.rt}/RW {form.rw}
                   </span>
                 </div>
               )}
             </div>
           </div>
 
-          {/* Section: Detail Produk (multi-item) */}
-          <div className="po-section-title" style={{ marginTop: "24px" }}>🛒 Detail Produk</div>
-          <p className="po-hint" style={{ marginBottom: "12px" }}>Ketik minimal 2 huruf untuk mencari produk dari Kledo. Bisa tambah lebih dari 1 produk.</p>
+          {/* ── Detail Produk ── */}
+          <div className="addr-card">
+            <div className="addr-card-header">
+              <Package size={14} />
+              <span>Detail Produk</span>
+            </div>
+            <div className="addr-card-body">
+              <p className="fi-hint" style={{ marginTop: 0, marginBottom: 2 }}>
+                Ketik minimal 2 huruf untuk mencari produk dari Kledo. Bisa tambah lebih dari 1 produk.
+              </p>
 
-          {items.map((item, idx) => (
-            <div key={item.id} className="po-item-block">
-              {items.length > 1 && (
-                <div className="po-item-header">
-                  <span className="po-item-label">Produk {idx + 1}</span>
-                  <button type="button" className="po-item-remove" onClick={() => removeItem(item.id)}>
-                    <Trash2 size={14} /> Hapus
-                  </button>
+              {items.map((item, idx) => (
+                <div key={item.id} className="po-item-block">
+                  {items.length > 1 && (
+                    <div className="po-item-header">
+                      <span className="po-item-label">Produk {idx + 1}</span>
+                      <button type="button" className="po-item-remove" onClick={() => removeItem(item.id)}>
+                        <Trash2 size={14} /> Hapus
+                      </button>
+                    </div>
+                  )}
+
+                  <ProductCombobox
+                    value={item.selectedProduct}
+                    onSelect={p => handleSelectProduct(item.id, p)}
+                    onClear={() => handleClearProduct(item.id)}
+                    placeholder={items.length > 1 ? `Nama Produk ${idx + 1}` : "Nama Produk"}
+                  />
+
+                  <div className="fi-2col" style={{ marginTop: 10 }}>
+                    <div className="fi-group" style={{ marginBottom: 0 }}>
+                      <label className="fi-label">Jumlah <span className="po-required">*</span></label>
+                      <div className="fi-input-wrap fi-input-wrap--icon">
+                        <span className="fi-icon"><Hash size={14} /></span>
+                        <input className="fi-input fi-input--padded" type="number" min="1"
+                          placeholder="1"
+                          value={item.jumlahProduk}
+                          onChange={e => updateItem(item.id, { jumlahProduk: e.target.value })} />
+                      </div>
+                    </div>
+                    <div className="fi-group" style={{ marginBottom: 0 }}>
+                      <label className="fi-label">Harga (Rp) <span className="po-required">*</span></label>
+                      <div className="fi-input-wrap fi-input-wrap--icon">
+                        <span className="fi-icon"><DollarSign size={14} /></span>
+                        <input className="fi-input fi-input--padded" inputMode="numeric"
+                          placeholder="0"
+                          value={item.hargaProduk}
+                          onChange={e => updateItem(item.id, { hargaProduk: formatRupiahInput(e.target.value) })} />
+                      </div>
+                    </div>
+                  </div>
+
+                  {item.hargaProduk && item.jumlahProduk && (
+                    <div className="po-item-subtotal">
+                      {parseInt(item.jumlahProduk) > 1
+                        ? `${parseInt(item.jumlahProduk)} × Rp ${parseRupiah(item.hargaProduk).toLocaleString("id-ID")} = `
+                        : ""}
+                      <strong>Rp {(parseRupiah(item.hargaProduk) * (parseInt(item.jumlahProduk) || 1)).toLocaleString("id-ID")}</strong>
+                    </div>
+                  )}
                 </div>
-              )}
+              ))}
 
-              <ProductCombobox
-                value={item.selectedProduct}
-                onSelect={p => handleSelectProduct(item.id, p)}
-                onClear={() => handleClearProduct(item.id)}
-                placeholder={items.length > 1 ? `Nama Produk ${idx + 1}` : "Nama Produk"}
+              <button type="button" className="po-add-item" onClick={addItem}>
+                <Plus size={15} /> Tambah Produk
+              </button>
+            </div>
+          </div>
+
+          {/* ── Pengiriman & Pembayaran ── */}
+          <div className="addr-card">
+            <div className="addr-card-header">
+              <CreditCard size={14} />
+              <span>Pengiriman &amp; Pembayaran</span>
+            </div>
+            <div className="addr-card-body">
+              <FormInput
+                label="Biaya Pengiriman (Rp)"
+                icon={<Truck size={15} />}
+                value={form.biayaPengiriman}
+                onChange={v => set("biayaPengiriman", formatRupiahInput(v))}
+                onFocus={() => onFocus("biayaPengiriman")} onBlur={() => onBlur("biayaPengiriman")}
+                placeholder="0"
+                inputMode="numeric"
+                hint="Opsional — kosongkan jika tidak ada ongkir"
               />
 
-              <div className="po-row" style={{ marginTop: "10px" }}>
-                <div className="po-field" style={{ marginBottom: 0 }}>
-                  <span className="po-icon"><Hash size={15} /></span>
-                  <input className="po-input" placeholder=" " type="number" min="1"
-                    value={item.jumlahProduk}
-                    onChange={e => updateItem(item.id, { jumlahProduk: e.target.value })} />
-                  <label className={`po-label${item.jumlahProduk ? " po-label--float" : ""}`}>
-                    Jumlah <span className="po-required">*</span>
-                  </label>
-                </div>
-
-                <div className="po-field" style={{ marginBottom: 0 }}>
-                  <span className="po-icon"><DollarSign size={15} /></span>
-                  <input className="po-input" placeholder=" " inputMode="numeric"
-                    value={item.hargaProduk}
-                    onChange={e => updateItem(item.id, { hargaProduk: formatRupiahInput(e.target.value) })} />
-                  <label className={`po-label${item.hargaProduk ? " po-label--float" : ""}`}>
-                    Harga (Rp) <span className="po-required">*</span>
-                  </label>
-                </div>
-              </div>
-
-              {/* Subtotal per item */}
-              {item.hargaProduk && item.jumlahProduk && (
-                <div className="po-item-subtotal">
-                  {parseInt(item.jumlahProduk) > 1
-                    ? `${parseInt(item.jumlahProduk)} × Rp ${parseRupiah(item.hargaProduk).toLocaleString("id-ID")} = `
-                    : ""}
-                  <strong>Rp {(parseRupiah(item.hargaProduk) * (parseInt(item.jumlahProduk) || 1)).toLocaleString("id-ID")}</strong>
+              {(subtotal > 0 || ongkir > 0) && (
+                <div className="po-total-preview">
+                  {items.length > 1 && <div className="po-total-sub">Subtotal produk: Rp {subtotal.toLocaleString("id-ID")}</div>}
+                  {ongkir > 0 && <div className="po-total-sub">Ongkir: Rp {ongkir.toLocaleString("id-ID")}</div>}
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span>Total Keseluruhan</span>
+                    <span className="po-total-value">Rp {total.toLocaleString("id-ID")}</span>
+                  </div>
                 </div>
               )}
-            </div>
-          ))}
 
-          {/* Tambah Produk button */}
-          <button type="button" className="po-add-item" onClick={addItem}>
-            <Plus size={15} /> Tambah Produk
-          </button>
+              <FormDropdown
+                label="Sales Person" required
+                icon={<UserCheck size={15} />}
+                value={form.salesPerson}
+                options={["LEHAN","PRIYANTO","DHANI","AGUS","WIWIT","IMAM","ANDRE","AGUNG"]}
+                onChange={v => set("salesPerson", v)}
+              />
 
-          <Field icon={<Truck size={16}/>} label="Biaya Pengiriman (Rp)"
-            hint="Opsional — hanya isi jika ada ongkir"
-            hasValue={!!form.biayaPengiriman} isFocused={!!focused.biayaPengiriman}>
-            <input className="po-input" placeholder=" " inputMode="numeric" value={form.biayaPengiriman}
-              onChange={e => set("biayaPengiriman", formatRupiahInput(e.target.value))}
-              onFocus={() => onFocus("biayaPengiriman")} onBlur={() => onBlur("biayaPengiriman")} />
-          </Field>
+              <FormDropdown
+                label="Metode Pembayaran" required
+                icon={<CreditCard size={15} />}
+                value={form.metodePembayaran}
+                options={["CASH","Debit","Transfer"]}
+                onChange={v => set("metodePembayaran", v)}
+              />
 
-          {/* Total preview */}
-          {(subtotal > 0 || ongkir > 0) && (
-            <div className="po-total-preview">
-              {items.length > 1 && <div className="po-total-sub">Subtotal produk: Rp {subtotal.toLocaleString("id-ID")}</div>}
-              {ongkir > 0 && <div className="po-total-sub">Ongkir: Rp {ongkir.toLocaleString("id-ID")}</div>}
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span>Total Keseluruhan</span>
-                <span className="po-total-value">Rp {total.toLocaleString("id-ID")}</span>
-              </div>
-            </div>
-          )}
-
-          <div className="po-section-title" style={{ marginTop: "24px" }}>💳 Pembayaran & Sales</div>
-
-          <Field icon={<UserCheck size={16}/>} label="Sales Person" required hasValue={!!form.salesPerson} isFocused={!!focused.salesPerson}>
-            <div className="po-select-wrap">
-              <select className="po-input po-select" value={form.salesPerson}
-                onChange={e => set("salesPerson", e.target.value)}
-                onFocus={() => onFocus("salesPerson")} onBlur={() => onBlur("salesPerson")}>
-                <option value="" disabled />
-                <option value="LEHAN">LEHAN</option>
-                <option value="PRIYANTO">PRIYANTO</option>
-                <option value="DHANI">DHANI</option>
-                <option value="AGUS">AGUS</option>
-                <option value="WIWIT">WIWIT</option>
-                <option value="IMAM">IMAM</option>
-                <option value="ANDRE">ANDRE</option>
-                <option value="AGUNG">AGUNG</option>
-              </select>
-              <ChevronDown size={14} className="po-select-arrow" />
-            </div>
-          </Field>
-
-          <Field icon={<CreditCard size={16}/>} label="Metode Pembayaran" required hasValue={!!form.metodePembayaran} isFocused={!!focused.metodePembayaran}>
-            <div className="po-select-wrap">
-              <select className="po-input po-select" value={form.metodePembayaran}
-                onChange={e => set("metodePembayaran", e.target.value)}
-                onFocus={() => onFocus("metodePembayaran")} onBlur={() => onBlur("metodePembayaran")}>
-                <option value="" disabled />
-                <option value="CASH">CASH</option>
-                <option value="Debit">Debit</option>
-                <option value="Transfer">Transfer</option>
-              </select>
-              <ChevronDown size={14} className="po-select-arrow" />
-            </div>
-          </Field>
-
-          {form.metodePembayaran === "Transfer" && (
-            <div className="po-transfer-box">
-              <div className="po-transfer-title">🏦 Informasi Rekening</div>
-              <p className="po-transfer-note">Silahkan lakukan pembayaran sebelum <strong>1×24 jam</strong> ke salah satu rekening berikut:</p>
-              <div className="po-transfer-list">
-                <div className="po-transfer-item">
-                  <span className="po-bank-name">BRI</span>
-                  <span className="po-bank-number">0262 01 000031 562</span>
-                  <span className="po-bank-owner">a.n. DIAN PURNAMA REZA T.</span>
+              {form.metodePembayaran === "Transfer" && (
+                <div className="po-transfer-box">
+                  <div className="po-transfer-title">🏦 Informasi Rekening</div>
+                  <p className="po-transfer-note">Silahkan lakukan pembayaran sebelum <strong>1×24 jam</strong> ke salah satu rekening berikut:</p>
+                  <div className="po-transfer-list">
+                    <div className="po-transfer-item">
+                      <span className="po-bank-name">BRI</span>
+                      <span className="po-bank-number">0262 01 000031 562</span>
+                      <span className="po-bank-owner">a.n. DIAN PURNAMA REZA T.</span>
+                    </div>
+                    <div className="po-transfer-item">
+                      <span className="po-bank-name">MANDIRI</span>
+                      <span className="po-bank-number">136 000 4780612</span>
+                      <span className="po-bank-owner">a.n. DIAN PURNAMA</span>
+                    </div>
+                    <div className="po-transfer-item">
+                      <span className="po-bank-name">BCA (GIRO)</span>
+                      <span className="po-bank-number">155 91 99999</span>
+                      <span className="po-bank-owner">a.n. INDARTO WIBOWO</span>
+                    </div>
+                    <div className="po-transfer-item">
+                      <span className="po-bank-name">BNI</span>
+                      <span className="po-bank-number">0822 705 836</span>
+                      <span className="po-bank-owner">a.n. INDARTO WIBOWO</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="po-transfer-item">
-                  <span className="po-bank-name">MANDIRI</span>
-                  <span className="po-bank-number">136 000 4780612</span>
-                  <span className="po-bank-owner">a.n. DIAN PURNAMA</span>
-                </div>
-                <div className="po-transfer-item">
-                  <span className="po-bank-name">BCA (GIRO)</span>
-                  <span className="po-bank-number">155 91 99999</span>
-                  <span className="po-bank-owner">a.n. INDARTO WIBOWO</span>
-                </div>
-                <div className="po-transfer-item">
-                  <span className="po-bank-name">BNI</span>
-                  <span className="po-bank-number">0822 705 836</span>
-                  <span className="po-bank-owner">a.n. INDARTO WIBOWO</span>
-                </div>
-              </div>
-            </div>
-          )}
+              )}
 
-          <Field icon={<FileText size={16}/>} label="Status Pembayaran" required hasValue={!!form.keteranganPembayaran} isFocused={!!focused.keteranganPembayaran}>
-            <div className="po-select-wrap">
-              <select className="po-input po-select" value={form.keteranganPembayaran}
-                onChange={e => set("keteranganPembayaran", e.target.value)}
-                onFocus={() => onFocus("keteranganPembayaran")} onBlur={() => onBlur("keteranganPembayaran")}>
-                <option value="" disabled />
-                <option value="Lunas">Lunas</option>
-                <option value="Dibayar Sebagian">Dibayar Sebagian</option>
-                <option value="COD">COD</option>
-              </select>
-              <ChevronDown size={14} className="po-select-arrow" />
+              <FormDropdown
+                label="Status Pembayaran" required
+                icon={<FileText size={15} />}
+                value={form.keteranganPembayaran}
+                options={["Lunas","Dibayar Sebagian","COD"]}
+                onChange={v => set("keteranganPembayaran", v)}
+              />
             </div>
-          </Field>
+          </div>
 
           <button type="submit" disabled={submitting} className="po-btn">
             {submitting ? "Mengirim..." : "📤 Kirim Pesanan"}

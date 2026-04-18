@@ -251,6 +251,119 @@
 }
 
 /* ═══════════════════════════════════
+   FORM SECTION CARDS — shared layout
+   ═══════════════════════════════════ */
+
+/* Gap between consecutive cards */
+.addr-card + .addr-card {
+  margin-top: 12px;
+}
+
+/* Variant colors for different section headers */
+.addr-card:nth-of-type(1) .addr-card-header { color: #0284c7; }
+.addr-card:nth-of-type(2) .addr-card-header { color: #0097e6; }
+.addr-card:nth-of-type(3) .addr-card-header { color: #7c3aed; }
+.addr-card:nth-of-type(4) .addr-card-header { color: #059669; }
+
+/* ═══════════════════════════════════
+   FORM INPUT — stacked-label inputs
+   ═══════════════════════════════════ */
+
+.fi-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 0;
+}
+
+.fi-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.35px;
+}
+
+.fi-input-wrap {
+  position: relative;
+}
+
+.fi-icon {
+  position: absolute;
+  left: 11px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+  transition: color .2s;
+  z-index: 1;
+}
+
+.fi-input-wrap--icon:focus-within .fi-icon {
+  color: var(--primary);
+}
+
+.fi-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-size: 13.5px;
+  font-family: var(--font);
+  color: var(--text-dark);
+  background: #fff;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+.fi-input--padded { padding-left: 36px; }
+.fi-input::placeholder { color: #b8c2ce; }
+.fi-input:hover { border-color: #74b9ff; box-shadow: 0 0 0 3px rgba(0,151,230,.07); }
+.fi-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0,151,230,.14); }
+
+/* Remove number input arrows */
+.fi-input[type="number"]::-webkit-inner-spin-button,
+.fi-input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+.fi-input[type="number"] { -moz-appearance: textfield; }
+
+.fi-textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-size: 13px;
+  font-family: var(--font);
+  color: var(--text-dark);
+  background: #fff;
+  outline: none;
+  resize: vertical;
+  min-height: 68px;
+  transition: border-color .2s, box-shadow .2s;
+  line-height: 1.5;
+}
+.fi-textarea::placeholder { color: #b8c2ce; }
+.fi-textarea:hover { border-color: #74b9ff; box-shadow: 0 0 0 3px rgba(0,151,230,.07); }
+.fi-textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0,151,230,.14); }
+
+.fi-hint {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-top: 0;
+}
+
+.fi-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+@media (max-width: 400px) {
+  .fi-2col { grid-template-columns: 1fr; }
+}
+
+/* ═══════════════════════════════════
    ADDRESS CARD & DROPDOWN
    ═══════════════════════════════════ */
 
@@ -971,6 +1084,7 @@
   transition: background .2s, border-color .2s;
 }
 .po-add-item:hover { background: #e0f2ff; }
+.addr-card-body .po-add-item { margin-bottom: 0; }
 
 .po-total-sub {
   display: flex;
