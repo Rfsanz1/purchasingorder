@@ -40,23 +40,36 @@ router.get("/kledo/products", async (req, res): Promise<void> => {
   }
 });
 
+// Helper: cek apakah contact Kledo adalah customer (type_id: 3)
+async function isKledoCustomer(contactId: number): Promise<boolean> {
+  try {
+    const resp = await fetch(`${KLEDO_BASE}/contacts/${contactId}`, { headers: kledoHeaders() });
+    const data = await resp.json() as { success: boolean; data: { type_id: number } };
+    return data.success && data.data?.type_id === 3;
+  } catch {
+    return false;
+  }
+}
+
 // Helper: cari contact di Kledo berdasarkan nama, buat baru jika tidak ada
+// Hanya gunakan contact yang tipe customer (type_id: 3) agar bisa dibuat invoice penjualan
 export async function findOrCreateKledoContact(namaKontak: string, nomorTelepon: string, alamat: string): Promise<number | null> {
   try {
     // Cari contact dulu
-    const searchUrl = `${KLEDO_BASE}/contacts?per_page=5&keyword=${encodeURIComponent(namaKontak)}`;
+    const searchUrl = `${KLEDO_BASE}/contacts?per_page=10&keyword=${encodeURIComponent(namaKontak)}`;
     const searchResp = await fetch(searchUrl, { headers: kledoHeaders() });
     const searchData = await searchResp.json() as { success: boolean; data: { data: Array<{ id: number; name: string }> } };
 
     if (searchData.success && searchData.data.data.length > 0) {
-      // Pakai contact pertama yang namanya cocok
-      const match = searchData.data.data.find(c => c.name.toLowerCase() === namaKontak.toLowerCase());
-      if (match) return match.id;
-      // Kalau tidak persis sama, pakai yang pertama
-      return searchData.data.data[0].id;
+      // Cari yang nama persis cocok dan tipe customer
+      for (const c of searchData.data.data) {
+        if (c.name.toLowerCase() === namaKontak.toLowerCase()) {
+          if (await isKledoCustomer(c.id)) return c.id;
+        }
+      }
     }
 
-    // Buat contact baru
+    // Buat contact baru sebagai customer (type_id: 3 = customer di Kledo)
     const createResp = await fetch(`${KLEDO_BASE}/contacts`, {
       method: "POST",
       headers: kledoHeaders(),
@@ -64,7 +77,7 @@ export async function findOrCreateKledoContact(namaKontak: string, nomorTelepon:
         name: namaKontak,
         address: alamat,
         mobile_phone: nomorTelepon,
-        type_ids: [1],
+        type_id: 3,
       }),
     });
     const createData = await createResp.json() as { success: boolean; data: { id: number } };
@@ -104,11 +117,12 @@ export async function createKledoInvoice(params: {
       due_date: today,
       memo: params.memo,
       shipping_cost: params.biayaPengiriman || 0,
-      include_tax: false,
+      include_tax: 0,
       items: params.items.map(item => ({
         finance_account_id: item.kledoProductId,
         qty: item.jumlahProduk,
         price: item.hargaProduk,
+        amount: item.jumlahProduk * item.hargaProduk,
         unit_id: item.kledoUnitId,
         discount_percent: 0,
         discount_amount: 0,

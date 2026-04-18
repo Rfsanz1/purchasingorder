@@ -91,22 +91,28 @@ router.post("/orders", async (req, res): Promise<void> => {
   req.log.info({ orderId, namaKontak: d.namaKontak }, "New purchase order received");
 
   // Simpan ke database
-  await db.insert(ordersTable).values({
-    orderId,
-    namaKontak:           d.namaKontak,
-    nomorTelepon:         d.nomorTelepon,
-    alamat:               d.alamat,
-    patokanLokasi:        d.patokanLokasi,
-    namaProduk:           d.namaProduk,
-    jumlahProduk:         d.jumlahProduk,
-    hargaProduk:          d.hargaProduk,
-    biayaPengiriman:      d.biayaPengiriman ?? null,
-    totalHarga:           total,
-    salesPerson:          d.salesPerson,
-    metodePembayaran:     d.metodePembayaran,
-    keteranganPembayaran: d.keteranganPembayaran ?? null,
-    whatsappSent:         "false",
-  });
+  try {
+    await db.insert(ordersTable).values({
+      orderId,
+      namaKontak:           d.namaKontak,
+      nomorTelepon:         d.nomorTelepon,
+      alamat:               d.alamat,
+      patokanLokasi:        d.patokanLokasi,
+      namaProduk:           d.namaProduk,
+      jumlahProduk:         d.jumlahProduk,
+      hargaProduk:          d.hargaProduk,
+      biayaPengiriman:      d.biayaPengiriman ?? null,
+      totalHarga:           total,
+      salesPerson:          d.salesPerson,
+      metodePembayaran:     d.metodePembayaran,
+      keteranganPembayaran: d.keteranganPembayaran ?? null,
+      whatsappSent:         "false",
+    });
+  } catch (dbErr: unknown) {
+    const cause = dbErr instanceof Error ? (dbErr.cause as Error | undefined) : undefined;
+    req.log.error({ dbErr, cause, code: (cause as { code?: string })?.code, detail: (cause as { detail?: string })?.detail }, "DB insert failed");
+    throw dbErr;
+  }
 
   const infoRekening = d.metodePembayaran === "Transfer"
     ? `\n🏦 *Rekening Pembayaran*\n` +
