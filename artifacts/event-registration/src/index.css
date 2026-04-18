@@ -251,6 +251,340 @@
 }
 
 /* ═══════════════════════════════════
+   ADDRESS CARD & DROPDOWN
+   ═══════════════════════════════════ */
+
+/* Card wrapping all address fields */
+.addr-card {
+  border: 1.5px solid #c8dcf0;
+  border-radius: 14px;
+  overflow: visible;
+  margin-bottom: 14px;
+  background: linear-gradient(160deg, #f5f9ff 0%, #f0f6fe 100%);
+}
+
+.addr-card-header {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 16px;
+  border-bottom: 1.5px solid #dce9f7;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--primary);
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.addr-card-body {
+  padding: 14px 14px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Dropdown container */
+.addr-dd {
+  position: relative;
+  width: 100%;
+}
+
+/* Trigger button */
+.addr-trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  background: #fff;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font);
+  transition: border-color .2s, box-shadow .2s, background .2s;
+}
+.addr-trigger:hover:not(.addr-trigger--disabled) {
+  border-color: #74b9ff;
+  box-shadow: 0 0 0 3px rgba(0,151,230,.07);
+}
+.addr-trigger--open {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(0,151,230,.14);
+  background: #fafcff;
+}
+.addr-trigger--filled {
+  border-color: #a8d4f0;
+}
+.addr-trigger--disabled {
+  background: #f5f6f8;
+  cursor: not-allowed;
+  opacity: .7;
+}
+
+.addr-trigger-icon {
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition: color .2s;
+}
+.addr-trigger--open .addr-trigger-icon,
+.addr-trigger--filled .addr-trigger-icon {
+  color: var(--primary);
+}
+
+.addr-trigger-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.addr-trigger-label {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  line-height: 1;
+}
+.addr-trigger--open .addr-trigger-label,
+.addr-trigger--filled .addr-trigger-label {
+  color: var(--primary);
+}
+
+.addr-trigger-value {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--text-dark);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+}
+.addr-trigger-value--empty {
+  color: var(--text-muted);
+  font-weight: 400;
+  font-style: italic;
+}
+
+.addr-chevron {
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition: transform .22s cubic-bezier(.4,0,.2,1), color .2s;
+}
+.addr-chevron--up {
+  transform: rotate(180deg);
+  color: var(--primary);
+}
+
+/* Dropdown panel */
+.addr-panel {
+  position: absolute;
+  z-index: 200;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 1.5px solid #c8dcf0;
+  border-radius: 12px;
+  box-shadow: 0 8px 28px rgba(0,100,200,.14), 0 2px 8px rgba(0,0,0,.06);
+  animation: addrPanelIn .18s cubic-bezier(.22,1,.36,1);
+  overflow: hidden;
+}
+
+@keyframes addrPanelIn {
+  from { opacity: 0; transform: translateY(-8px) scaleY(.96); }
+  to   { opacity: 1; transform: translateY(0) scaleY(1); }
+}
+
+/* Search row inside panel */
+.addr-search-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid #edf2f8;
+  position: sticky;
+  top: 0;
+  background: #fff;
+  z-index: 1;
+}
+
+.addr-search-icon {
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.addr-search {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 13px;
+  font-family: var(--font);
+  color: var(--text-dark);
+  background: transparent;
+}
+.addr-search::placeholder { color: var(--text-muted); }
+
+.addr-search-clear {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 12px;
+  padding: 2px 4px;
+  line-height: 1;
+  border-radius: 4px;
+}
+.addr-search-clear:hover { background: #f0f0f0; color: #666; }
+
+/* Options list */
+.addr-list {
+  list-style: none;
+  margin: 0;
+  padding: 6px 0;
+  max-height: 220px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #c8dcf0 transparent;
+}
+
+.addr-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  font-size: 13.5px;
+  color: var(--text-dark);
+  cursor: pointer;
+  transition: background .12s;
+  border-radius: 0;
+}
+.addr-option:hover { background: #f0f8ff; }
+.addr-option--active {
+  background: #e6f3fd;
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.addr-option-check {
+  flex-shrink: 0;
+  color: transparent;
+  transition: color .15s;
+}
+.addr-option--active .addr-option-check {
+  color: var(--primary);
+}
+
+.addr-empty {
+  padding: 16px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* RT / RW row */
+.addr-rtrw-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+  transition: border-color .2s, box-shadow .2s;
+}
+.addr-rtrw-row:focus-within {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(0,151,230,.14);
+}
+
+.addr-rtrw-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.addr-rtrw-label {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.addr-rtrw-input {
+  border: none;
+  outline: none;
+  font-size: 14px;
+  font-family: var(--font);
+  font-weight: 600;
+  color: var(--text-dark);
+  background: transparent;
+  width: 100%;
+  letter-spacing: 1px;
+}
+.addr-rtrw-input::placeholder { color: #c0c8d4; font-weight: 400; letter-spacing: 0; }
+
+.addr-rtrw-sep {
+  font-size: 20px;
+  color: #c0c8d4;
+  font-weight: 300;
+  line-height: 1;
+  padding: 0 4px;
+}
+
+/* Patokan textarea */
+.addr-patokan-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.addr-patokan {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-size: 13px;
+  font-family: var(--font);
+  color: var(--text-dark);
+  background: #fff;
+  outline: none;
+  resize: vertical;
+  min-height: 68px;
+  transition: border-color .2s, box-shadow .2s;
+  line-height: 1.5;
+}
+.addr-patokan:hover { border-color: #74b9ff; box-shadow: 0 0 0 3px rgba(0,151,230,.07); }
+.addr-patokan--focus,
+.addr-patokan:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(0,151,230,.14);
+}
+.addr-patokan::placeholder { color: #b8c2ce; }
+
+/* Address preview pill */
+.addr-preview {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  background: linear-gradient(135deg, #e0f2fe, #dbeafe);
+  border: 1px solid #bae6fd;
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-size: 12px;
+  color: #0369a1;
+  line-height: 1.5;
+  animation: addrPanelIn .25s ease;
+}
+
+.addr-preview-icon { flex-shrink: 0; font-size: 13px; margin-top: 1px; }
+.addr-preview-text { font-weight: 500; }
+
+/* ═══════════════════════════════════
    ADMIN PAGE STYLES
    ═══════════════════════════════════ */
 

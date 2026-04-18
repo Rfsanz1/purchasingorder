@@ -3,6 +3,7 @@ import Swal from "sweetalert2";
 import {
   User, Phone, MapPin, Package, Hash, DollarSign,
   Truck, UserCheck, CreditCard, FileText, ChevronDown, Plus, Trash2,
+  Search, Check,
 } from "lucide-react";
 import { kecamatanList, getKelurahan } from "../data/temanggung";
 
@@ -197,6 +198,95 @@ function ProductCombobox({ value, onSelect, onClear, placeholder }: {
   );
 }
 
+function AddressDropdown({
+  label, value, options, onChange, disabled, required,
+}: {
+  label: string;
+  value: string;
+  options: string[];
+  onChange: (val: string) => void;
+  disabled?: boolean;
+  required?: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    function onOutside(e: MouseEvent) {
+      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) {
+        setOpen(false); setSearch("");
+      }
+    }
+    document.addEventListener("mousedown", onOutside);
+    return () => document.removeEventListener("mousedown", onOutside);
+  }, []);
+
+  useEffect(() => {
+    if (open) setTimeout(() => searchRef.current?.focus(), 60);
+  }, [open]);
+
+  const filtered = options.filter(o => o.toLowerCase().includes(search.toLowerCase()));
+
+  return (
+    <div className="addr-dd" ref={wrapRef}>
+      <button
+        type="button"
+        className={[
+          "addr-trigger",
+          open ? "addr-trigger--open" : "",
+          value ? "addr-trigger--filled" : "",
+          disabled ? "addr-trigger--disabled" : "",
+        ].filter(Boolean).join(" ")}
+        onClick={() => !disabled && setOpen(v => !v)}
+        disabled={disabled}
+      >
+        <MapPin size={15} className="addr-trigger-icon" />
+        <span className="addr-trigger-body">
+          <span className="addr-trigger-label">{label}{required && <span className="po-required"> *</span>}</span>
+          <span className={`addr-trigger-value${!value ? " addr-trigger-value--empty" : ""}`}>
+            {value || (disabled ? "Pilih kecamatan dulu" : `Pilih ${label}`)}
+          </span>
+        </span>
+        <ChevronDown size={15} className={`addr-chevron${open ? " addr-chevron--up" : ""}`} />
+      </button>
+
+      {open && (
+        <div className="addr-panel">
+          <div className="addr-search-row">
+            <Search size={13} className="addr-search-icon" />
+            <input
+              ref={searchRef}
+              className="addr-search"
+              placeholder={`Cari ${label.toLowerCase()}…`}
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+            />
+            {search && (
+              <button type="button" className="addr-search-clear" onClick={() => setSearch("")}>✕</button>
+            )}
+          </div>
+          <ul className="addr-list">
+            {filtered.length === 0 ? (
+              <li className="addr-empty">Tidak ditemukan</li>
+            ) : filtered.map(opt => (
+              <li
+                key={opt}
+                className={`addr-option${value === opt ? " addr-option--active" : ""}`}
+                onMouseDown={() => { onChange(opt); setOpen(false); setSearch(""); }}
+              >
+                <Check size={12} className="addr-option-check" />
+                {opt}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function PurchaseOrderForm() {
   const [form, setForm] = useState<FormData>(EMPTY_FORM);
   const [focused, setFocused] = useState<Partial<Record<keyof FormData, boolean>>>({});
@@ -335,66 +425,89 @@ export default function PurchaseOrderForm() {
               onFocus={() => onFocus("nomorTelepon")} onBlur={() => onBlur("nomorTelepon")} />
           </Field>
 
-          {/* Kecamatan */}
-          <Field icon={<MapPin size={16}/>} label="Kecamatan" required
-            hasValue={!!form.kecamatan} isFocused={!!focused.kecamatan}>
-            <div className="po-select-wrap">
-              <select className="po-input po-select" value={form.kecamatan}
-                onChange={e => handleKecamatanChange(e.target.value)}
-                onFocus={() => onFocus("kecamatan")} onBlur={() => onBlur("kecamatan")}>
-                <option value="" disabled />
-                {kecamatanList.map(kec => (
-                  <option key={kec} value={kec}>{kec}</option>
-                ))}
-              </select>
-              <ChevronDown size={14} className="po-select-arrow" />
+          {/* Address Card */}
+          <div className="addr-card">
+            <div className="addr-card-header">
+              <MapPin size={14} />
+              <span>Alamat Pengiriman</span>
             </div>
-          </Field>
 
-          {/* Kelurahan / Desa */}
-          <Field icon={<MapPin size={16}/>} label="Kelurahan / Desa" required
-            hasValue={!!form.kelurahan} isFocused={!!focused.kelurahan}>
-            <div className="po-select-wrap">
-              <select className="po-input po-select" value={form.kelurahan}
-                onChange={e => set("kelurahan", e.target.value)}
-                onFocus={() => onFocus("kelurahan")} onBlur={() => onBlur("kelurahan")}
-                disabled={!form.kecamatan}>
-                <option value="" disabled>
-                  {form.kecamatan ? "" : "Pilih kecamatan dulu"}
-                </option>
-                {kelurahanList.map(kel => (
-                  <option key={kel} value={kel}>{kel}</option>
-                ))}
-              </select>
-              <ChevronDown size={14} className="po-select-arrow" />
+            <div className="addr-card-body">
+              <AddressDropdown
+                label="Kecamatan"
+                value={form.kecamatan}
+                options={kecamatanList}
+                onChange={handleKecamatanChange}
+                required
+              />
+
+              <AddressDropdown
+                label="Kelurahan / Desa"
+                value={form.kelurahan}
+                options={kelurahanList}
+                onChange={v => set("kelurahan", v)}
+                disabled={!form.kecamatan}
+                required
+              />
+
+              {/* RT / RW */}
+              <div className="addr-rtrw-row">
+                <div className="addr-rtrw-group">
+                  <label className="addr-rtrw-label">RT <span className="po-required">*</span></label>
+                  <input
+                    className={`addr-rtrw-input${focused.rt ? " addr-rtrw-input--focus" : ""}`}
+                    placeholder="001"
+                    inputMode="numeric"
+                    value={form.rt}
+                    maxLength={3}
+                    onChange={e => set("rt", e.target.value.replace(/\D/g, ""))}
+                    onFocus={() => onFocus("rt")}
+                    onBlur={() => onBlur("rt")}
+                  />
+                </div>
+                <div className="addr-rtrw-sep">/</div>
+                <div className="addr-rtrw-group">
+                  <label className="addr-rtrw-label">RW <span className="po-required">*</span></label>
+                  <input
+                    className={`addr-rtrw-input${focused.rw ? " addr-rtrw-input--focus" : ""}`}
+                    placeholder="001"
+                    inputMode="numeric"
+                    value={form.rw}
+                    maxLength={3}
+                    onChange={e => set("rw", e.target.value.replace(/\D/g, ""))}
+                    onFocus={() => onFocus("rw")}
+                    onBlur={() => onBlur("rw")}
+                  />
+                </div>
+              </div>
+
+              <div className="addr-patokan-wrap">
+                <label className="addr-rtrw-label">
+                  Patokan / Detail Lokasi <span className="po-required">*</span>
+                </label>
+                <textarea
+                  className={`addr-patokan${focused.patokanLokasi ? " addr-patokan--focus" : ""}`}
+                  placeholder="Contoh: Depan rumah ada kolam, pagar besi biru…"
+                  value={form.patokanLokasi}
+                  rows={2}
+                  onChange={e => set("patokanLokasi", e.target.value)}
+                  onFocus={() => onFocus("patokanLokasi")}
+                  onBlur={() => onBlur("patokanLokasi")}
+                />
+              </div>
+
+              {/* Address preview */}
+              {form.kecamatan && form.kelurahan && form.rt && form.rw && (
+                <div className="addr-preview">
+                  <span className="addr-preview-icon">📍</span>
+                  <span className="addr-preview-text">
+                    {form.kelurahan}, Kec. {form.kecamatan}, Kab. Temanggung
+                    {" "}RT {form.rt}/RW {form.rw}
+                  </span>
+                </div>
+              )}
             </div>
-          </Field>
-
-          {/* RT / RW */}
-          <div className="po-row">
-            <Field icon={<MapPin size={16}/>} label="RT" required
-              hasValue={!!form.rt} isFocused={!!focused.rt}>
-              <input className="po-input" placeholder=" " inputMode="numeric"
-                value={form.rt} maxLength={3}
-                onChange={e => set("rt", e.target.value.replace(/\D/g, ""))}
-                onFocus={() => onFocus("rt")} onBlur={() => onBlur("rt")} />
-            </Field>
-            <Field icon={<MapPin size={16}/>} label="RW" required
-              hasValue={!!form.rw} isFocused={!!focused.rw}>
-              <input className="po-input" placeholder=" " inputMode="numeric"
-                value={form.rw} maxLength={3}
-                onChange={e => set("rw", e.target.value.replace(/\D/g, ""))}
-                onFocus={() => onFocus("rw")} onBlur={() => onBlur("rw")} />
-            </Field>
           </div>
-
-          <Field icon={<MapPin size={16}/>} label="Patokan Rumah / Detail Lokasi"
-            hint='Bisa bantu detail alamat rumah. Contoh: depan rumah ada kolam nanti masuk'
-            required hasValue={!!form.patokanLokasi} isFocused={!!focused.patokanLokasi} isTextarea>
-            <textarea className="po-input po-textarea" placeholder=" " value={form.patokanLokasi} rows={2}
-              onChange={e => set("patokanLokasi", e.target.value)}
-              onFocus={() => onFocus("patokanLokasi")} onBlur={() => onBlur("patokanLokasi")} />
-          </Field>
 
           {/* Section: Detail Produk (multi-item) */}
           <div className="po-section-title" style={{ marginTop: "24px" }}>🛒 Detail Produk</div>
