@@ -4,20 +4,11 @@ WORKDIR /app
 
 # ── Stage 1: Install semua dependencies ──────────────────────────────────────
 FROM base AS deps
-COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
-COPY artifacts/api-server/package.json ./artifacts/api-server/
-COPY artifacts/event-registration/package.json ./artifacts/event-registration/
-COPY artifacts/mockup-sandbox/package.json ./artifacts/mockup-sandbox/
-COPY scripts/package.json ./scripts/
-COPY lib/api-client-react/package.json ./lib/api-client-react/
-COPY lib/api-spec/package.json ./lib/api-spec/
-COPY lib/api-zod/package.json ./lib/api-zod/
-COPY lib/db/package.json ./lib/db/
+COPY . .
 RUN pnpm install --no-frozen-lockfile
 
 # ── Stage 2: Build frontend ───────────────────────────────────────────────────
 FROM deps AS frontend-build
-COPY . .
 ENV NODE_ENV=production
 ENV BASE_PATH=/
 ENV PORT=3000
@@ -25,7 +16,6 @@ RUN pnpm --filter @workspace/event-registration run build
 
 # ── Stage 3: Build backend ────────────────────────────────────────────────────
 FROM deps AS backend-build
-COPY . .
 ENV NODE_ENV=production
 RUN pnpm --filter @workspace/api-server run build
 
