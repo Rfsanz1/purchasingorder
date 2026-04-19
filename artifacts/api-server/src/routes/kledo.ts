@@ -22,8 +22,8 @@ router.get("/kledo/contacts", async (req, res): Promise<void> => {
   }
 
   try {
-    // Fetch multiple pages to get enough candidates for filtering
-    const url = `${KLEDO_BASE}/contacts?per_page=50&keyword=${encodeURIComponent(search)}`;
+    // type_id=3 = customer (kontak penjualan) di Kledo
+    const url = `${KLEDO_BASE}/contacts?per_page=50&keyword=${encodeURIComponent(search)}&type_id=3`;
     const resp = await fetch(url, { headers: kledoHeaders() });
     const data = await resp.json() as {
       success: boolean;
