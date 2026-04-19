@@ -13,6 +13,34 @@ function kledoHeaders() {
   };
 }
 
+// GET /kledo/contacts?search=keyword
+router.get("/kledo/contacts", async (req, res): Promise<void> => {
+  const search = (req.query.search as string) || "";
+  if (!search || search.length < 2) {
+    res.json({ contacts: [] });
+    return;
+  }
+
+  try {
+    const url = `${KLEDO_BASE}/contacts?per_page=15&keyword=${encodeURIComponent(search)}&type_id=3`;
+    const resp = await fetch(url, { headers: kledoHeaders() });
+    const data = await resp.json() as {
+      success: boolean;
+      data: { data: Array<{ id: number; name: string; mobile_phone?: string; email?: string }> };
+    };
+
+    if (!data.success) {
+      res.status(502).json({ error: "Gagal mengambil kontak dari Kledo" });
+      return;
+    }
+
+    res.json({ contacts: data.data.data ?? [] });
+  } catch (err) {
+    logger.error({ err }, "Kledo contacts fetch error");
+    res.status(500).json({ error: "Koneksi ke Kledo gagal" });
+  }
+});
+
 // GET /kledo/products?search=keyword&page=1
 router.get("/kledo/products", async (req, res): Promise<void> => {
   const search = (req.query.search as string) || "";

@@ -7,6 +7,13 @@ import {
 } from "lucide-react";
 import { kecamatanList, getKelurahan } from "../data/temanggung";
 
+interface KledoContact {
+  id: number;
+  name: string;
+  mobile_phone?: string;
+  email?: string;
+}
+
 interface KledoProduct {
   id: number;
   finance_account_id?: number;
@@ -176,6 +183,100 @@ function ProductCombobox({ value, onSelect, onClear, placeholder }: {
       )}
       {open && !loading && search.length >= 2 && results.length === 0 && (
         <div className="po-combo-empty">Produk tidak ditemukan</div>
+      )}
+    </div>
+  );
+}
+
+// Searchable contact combobox — search kontak yang sudah ada di Kledo
+function ContactCombobox({ value, onChange, onSelect }: {
+  value: string;
+  onChange: (name: string) => void;
+  onSelect: (contact: KledoContact) => void;
+}) {
+  const [results, setResults] = useState<KledoContact[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [focused, setFocused] = useState(false);
+  const debounce = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+  useEffect(() => {
+    function onClick(e: MouseEvent) {
+      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) {
+        setOpen(false); setFocused(false);
+      }
+    }
+    document.addEventListener("mousedown", onClick);
+    return () => document.removeEventListener("mousedown", onClick);
+  }, []);
+
+  const doSearch = (q: string) => {
+    onChange(q);
+    if (debounce.current) clearTimeout(debounce.current);
+    if (q.length < 2) { setResults([]); setOpen(false); return; }
+    debounce.current = setTimeout(async () => {
+      setLoading(true);
+      try {
+        const res = await fetch(`${baseUrl}/api/kledo/contacts?search=${encodeURIComponent(q)}`);
+        const data = await res.json();
+        setResults((data.contacts || []) as KledoContact[]);
+        setOpen(true);
+      } catch { setResults([]); }
+      finally { setLoading(false); }
+    }, 350);
+  };
+
+  const handleSelect = (c: KledoContact) => {
+    onSelect(c);
+    setOpen(false);
+    setFocused(false);
+    setResults([]);
+  };
+
+  const floated = !!value || focused;
+
+  return (
+    <div className="po-field po-field--combo" ref={wrapRef}>
+      <span className={`po-icon${focused ? " po-icon--focus" : ""}`}><User size={15} /></span>
+      <input
+        className="po-input po-combobox-input"
+        placeholder=" "
+        value={value}
+        onChange={e => doSearch(e.target.value)}
+        onFocus={() => { setFocused(true); if (value.length >= 2) setOpen(true); }}
+        autoComplete="off"
+      />
+      <label className={`po-label${floated ? " po-label--float" : ""}${focused ? " po-label--focus" : ""}`}>
+        Nama Kontak <span className="po-required">*</span>
+      </label>
+
+      {loading && value.length >= 2 && (
+        <div className="po-combo-dropdown" style={{ padding: "8px 12px", color: "#888", fontSize: 13 }}>
+          Mencari kontak...
+        </div>
+      )}
+
+      {!loading && open && results.length > 0 && (
+        <ul className="po-combo-dropdown">
+          {results.map(c => (
+            <li key={c.id} className="po-combo-item" onMouseDown={() => handleSelect(c)}>
+              <div className="po-combo-item-name">{c.name}</div>
+              {c.mobile_phone && (
+                <div className="po-combo-item-meta">
+                  <span className="po-combo-sku">{c.mobile_phone}</span>
+                </div>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {!loading && open && value.length >= 2 && results.length === 0 && (
+        <div className="po-combo-dropdown" style={{ padding: "8px 12px", color: "#888", fontSize: 13 }}>
+          Tidak ada kontak cocok — akan dibuat kontak baru
+        </div>
       )}
     </div>
   );
@@ -455,13 +556,13 @@ export default function PurchaseOrderForm() {
               <span>Data Pelanggan</span>
             </div>
             <div className="addr-card-body">
-              <FormInput
-                label="Nama Kontak" required
-                icon={<User size={15} />}
+              <ContactCombobox
                 value={form.namaKontak}
                 onChange={v => set("namaKontak", v)}
-                onFocus={() => onFocus("namaKontak")} onBlur={() => onBlur("namaKontak")}
-                placeholder="Nama lengkap pelanggan"
+                onSelect={c => {
+                  set("namaKontak", c.name);
+                  if (c.mobile_phone) set("nomorTelepon", c.mobile_phone);
+                }}
               />
               <FormInput
                 label="Nomor Telepon" required
