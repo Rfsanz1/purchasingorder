@@ -22,8 +22,8 @@ router.get("/kledo/contacts", async (req, res): Promise<void> => {
   }
 
   try {
-    // type_id=3 = customer (kontak penjualan) di Kledo
-    const url = `${KLEDO_BASE}/contacts?per_page=50&keyword=${encodeURIComponent(search)}&type_id=3`;
+    // search= menyaring berdasarkan nama, type_id=3 = customer (kontak penjualan)
+    const url = `${KLEDO_BASE}/contacts?per_page=15&search=${encodeURIComponent(search)}&type_id=3`;
     const resp = await fetch(url, { headers: kledoHeaders() });
     const data = await resp.json() as {
       success: boolean;
@@ -36,14 +36,7 @@ router.get("/kledo/contacts", async (req, res): Promise<void> => {
       return;
     }
 
-    const all = data.data?.data ?? [];
-    const q = search.toLowerCase();
-    // Filter hanya yang namanya mengandung kata kunci
-    const filtered = all
-      .filter(c => c.name.toLowerCase().includes(q))
-      .slice(0, 10);
-
-    res.json({ contacts: filtered });
+    res.json({ contacts: data.data?.data ?? [] });
   } catch (err) {
     logger.error({ err }, "Kledo contacts fetch error");
     res.status(500).json({ error: "Koneksi ke Kledo gagal" });
