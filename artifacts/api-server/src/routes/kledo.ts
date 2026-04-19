@@ -22,7 +22,7 @@ router.get("/kledo/contacts", async (req, res): Promise<void> => {
   }
 
   try {
-    const url = `${KLEDO_BASE}/contacts?per_page=15&keyword=${encodeURIComponent(search)}&type_id=3`;
+    const url = `${KLEDO_BASE}/contacts?per_page=15&keyword=${encodeURIComponent(search)}`;
     const resp = await fetch(url, { headers: kledoHeaders() });
     const data = await resp.json() as {
       success: boolean;
@@ -30,11 +30,12 @@ router.get("/kledo/contacts", async (req, res): Promise<void> => {
     };
 
     if (!data.success) {
+      logger.error({ data }, "Kledo contacts API returned success=false");
       res.status(502).json({ error: "Gagal mengambil kontak dari Kledo" });
       return;
     }
 
-    res.json({ contacts: data.data.data ?? [] });
+    res.json({ contacts: data.data?.data ?? [] });
   } catch (err) {
     logger.error({ err }, "Kledo contacts fetch error");
     res.status(500).json({ error: "Koneksi ke Kledo gagal" });
