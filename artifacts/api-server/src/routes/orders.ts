@@ -219,11 +219,11 @@ router.post("/orders", async (req, res): Promise<void> => {
     try {
       const contactId = await findOrCreateKledoContact(d.namaKontak, d.nomorTelepon, alamatKledo);
       if (contactId) {
+        // Memo (Pesan di Kledo): patokan + info order
         const memo = [
-          `Order #${orderId} via form PO`,
-          `Sales: ${d.salesPerson}`,
-          `Alamat: ${alamatKledo}`,
           d.patokanLokasi ? `Patokan: ${d.patokanLokasi}` : "",
+          `Order #${orderId}`,
+          `Sales: ${d.salesPerson}`,
           `Metode: ${d.metodePembayaran}`,
           d.keteranganPembayaran ? `Ket: ${d.keteranganPembayaran}` : "",
         ].filter(Boolean).join("\n");
@@ -233,6 +233,7 @@ router.post("/orders", async (req, res): Promise<void> => {
           items: kledoItems,
           biayaPengiriman: ongkir,
           memo,
+          billingAddress: alamatKledo,
         });
         if (inv.success) {
           kledoInvoiceId = inv.invoiceId;
