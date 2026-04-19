@@ -480,6 +480,8 @@ export default function PurchaseOrderForm() {
     try {
       const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
       const alamatFormatted = `${form.kelurahan}, Kec. ${form.kecamatan}, Kab. Temanggung, RT ${form.rt}/RW ${form.rw}`;
+      // Alamat khusus Kledo: hanya kecamatan, kelurahan, RT/RW (tanpa kabupaten)
+      const alamatKledo = `RT ${form.rt}/RW ${form.rw}, ${form.kelurahan}, Kec. ${form.kecamatan}`;
 
       const res = await fetch(`${baseUrl}/api/orders`, {
         method: "POST",
@@ -488,6 +490,7 @@ export default function PurchaseOrderForm() {
           namaKontak: form.namaKontak,
           nomorTelepon: form.nomorTelepon,
           alamat: alamatFormatted,
+          alamatKledo,
           patokanLokasi: form.patokanLokasi,
           biayaPengiriman: ongkir || null,
           salesPerson: form.salesPerson,

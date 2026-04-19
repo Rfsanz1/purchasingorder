@@ -210,11 +210,23 @@ router.post("/orders", async (req, res): Promise<void> => {
         }];
       })();
 
+  // alamatKledo: hanya RT/RW, kelurahan, kecamatan (dikirim dari frontend, tanpa kabupaten)
+  const alamatKledo = typeof req.body.alamatKledo === "string" && req.body.alamatKledo
+    ? req.body.alamatKledo
+    : d.alamat;
+
   if (kledoItems.length > 0 && process.env.KLEDO_TOKEN) {
     try {
-      const contactId = await findOrCreateKledoContact(d.namaKontak, d.nomorTelepon, d.alamat);
+      const contactId = await findOrCreateKledoContact(d.namaKontak, d.nomorTelepon, alamatKledo);
       if (contactId) {
-        const memo = `Order #${orderId} via form PO\nSales: ${d.salesPerson}\nAlamat: ${d.alamat}${d.patokanLokasi ? "\nPatokan: " + d.patokanLokasi : ""}\nMetode: ${d.metodePembayaran}${d.keteranganPembayaran ? "\nKet: " + d.keteranganPembayaran : ""}`;
+        const memo = [
+          `Order #${orderId} via form PO`,
+          `Sales: ${d.salesPerson}`,
+          `Alamat: ${alamatKledo}`,
+          d.patokanLokasi ? `Patokan: ${d.patokanLokasi}` : "",
+          `Metode: ${d.metodePembayaran}`,
+          d.keteranganPembayaran ? `Ket: ${d.keteranganPembayaran}` : "",
+        ].filter(Boolean).join("\n");
         const inv = await createKledoInvoice({
           contactId,
           orderId,

@@ -106,6 +106,7 @@ export async function findOrCreateKledoContact(namaKontak: string, nomorTelepon:
       body: JSON.stringify({
         name: namaKontak,
         address: alamat,
+        phone: nomorTelepon,
         mobile_phone: nomorTelepon,
         type_id: 3,
       }),
