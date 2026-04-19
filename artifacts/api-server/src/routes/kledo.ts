@@ -22,11 +22,12 @@ router.get("/kledo/contacts", async (req, res): Promise<void> => {
   }
 
   try {
-    const url = `${KLEDO_BASE}/contacts?per_page=15&keyword=${encodeURIComponent(search)}`;
+    // Fetch multiple pages to get enough candidates for filtering
+    const url = `${KLEDO_BASE}/contacts?per_page=50&keyword=${encodeURIComponent(search)}`;
     const resp = await fetch(url, { headers: kledoHeaders() });
     const data = await resp.json() as {
       success: boolean;
-      data: { data: Array<{ id: number; name: string; mobile_phone?: string; email?: string }> };
+      data: { data: Array<{ id: number; name: string; mobile_phone?: string; phone?: string; email?: string }> };
     };
 
     if (!data.success) {
@@ -35,7 +36,14 @@ router.get("/kledo/contacts", async (req, res): Promise<void> => {
       return;
     }
 
-    res.json({ contacts: data.data?.data ?? [] });
+    const all = data.data?.data ?? [];
+    const q = search.toLowerCase();
+    // Filter hanya yang namanya mengandung kata kunci
+    const filtered = all
+      .filter(c => c.name.toLowerCase().includes(q))
+      .slice(0, 10);
+
+    res.json({ contacts: filtered });
   } catch (err) {
     logger.error({ err }, "Kledo contacts fetch error");
     res.status(500).json({ error: "Koneksi ke Kledo gagal" });
