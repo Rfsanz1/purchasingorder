@@ -86,7 +86,8 @@ router.post("/orders", async (req, res): Promise<void> => {
   const namaToko = process.env.NAMA_TOKO ?? "Toko Kami";
   const adminWA = process.env.ADMIN_WA_NUMBER ?? "";
   const ongkir = d.biayaPengiriman ?? 0;
-  const total = d.hargaProduk * d.jumlahProduk + ongkir;
+  // hargaProduk sudah berisi total semua item (qty × harga), tidak perlu dikali jumlahProduk lagi
+  const total = d.hargaProduk + ongkir;
 
   req.log.info({ orderId, namaKontak: d.namaKontak }, "New purchase order received");
 
