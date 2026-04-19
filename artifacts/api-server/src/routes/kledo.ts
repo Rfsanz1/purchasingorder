@@ -95,6 +95,7 @@ export async function findOrCreateKledoContact(namaKontak: string, nomorTelepon:
 
 export interface KledoInvoiceItem {
   kledoProductId: number;
+  kledoFinanceAccountId?: number;
   kledoUnitId: number;
   jumlahProduk: number;
   hargaProduk: number;
@@ -119,7 +120,8 @@ export async function createKledoInvoice(params: {
       shipping_cost: params.biayaPengiriman || 0,
       include_tax: 0,
       items: params.items.map(item => ({
-        finance_account_id: item.kledoProductId,
+        finance_account_id: item.kledoFinanceAccountId ?? item.kledoProductId,
+        product_id: item.kledoProductId,
         qty: item.jumlahProduk,
         price: item.hargaProduk,
         amount: item.jumlahProduk * item.hargaProduk,
@@ -145,7 +147,7 @@ export async function createKledoInvoice(params: {
       return { success: true, invoiceId: data.data.id, invoiceNumber: data.data.ref_number };
     }
 
-    logger.error({ data, body }, "Kledo invoice creation failed");
+    logger.error({ response: data, requestBody: body, httpStatus: resp.status }, "Kledo invoice creation failed — response from Kledo");
     return { success: false };
   } catch (err) {
     logger.error({ err }, "createKledoInvoice error");

@@ -9,6 +9,7 @@ import { kecamatanList, getKelurahan } from "../data/temanggung";
 
 interface KledoProduct {
   id: number;
+  finance_account_id?: number;
   name: string;
   code: string;
   price: number;
@@ -397,6 +398,7 @@ export default function PurchaseOrderForm() {
             jumlahProduk: parseInt(it.jumlahProduk) || 1,
             hargaProduk: parseRupiah(it.hargaProduk),
             kledoProductId: it.selectedProduct?.id ?? null,
+            kledoFinanceAccountId: it.selectedProduct?.finance_account_id ?? null,
             kledoUnitId: it.selectedProduct?.unit?.id ?? null,
           })),
         }),
