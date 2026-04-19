@@ -85,16 +85,16 @@ async function isKledoCustomer(contactId: number): Promise<boolean> {
 // Hanya gunakan contact yang tipe customer (type_id: 3) agar bisa dibuat invoice penjualan
 export async function findOrCreateKledoContact(namaKontak: string, nomorTelepon: string, alamat: string): Promise<number | null> {
   try {
-    // Cari contact dulu
-    const searchUrl = `${KLEDO_BASE}/contacts?per_page=10&keyword=${encodeURIComponent(namaKontak)}`;
+    // Cari contact dulu — gunakan search= agar Kledo memfilter berdasarkan nama
+    const searchUrl = `${KLEDO_BASE}/contacts?per_page=20&search=${encodeURIComponent(namaKontak)}&type_id=3`;
     const searchResp = await fetch(searchUrl, { headers: kledoHeaders() });
     const searchData = await searchResp.json() as { success: boolean; data: { data: Array<{ id: number; name: string }> } };
 
     if (searchData.success && searchData.data.data.length > 0) {
-      // Cari yang nama persis cocok dan tipe customer
+      // Cari yang nama persis cocok (sudah type_id=3 = customer)
       for (const c of searchData.data.data) {
         if (c.name.toLowerCase() === namaKontak.toLowerCase()) {
-          if (await isKledoCustomer(c.id)) return c.id;
+          return c.id;
         }
       }
     }

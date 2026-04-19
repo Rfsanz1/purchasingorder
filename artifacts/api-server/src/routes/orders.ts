@@ -70,7 +70,7 @@ router.post("/orders", async (req, res): Promise<void> => {
     const totalQty = rawItems.reduce((s, i) => s + (Number(i.jumlahProduk) || 1), 0);
     const totalProductPrice = rawItems.reduce((s, i) => s + (Number(i.hargaProduk) || 0) * (Number(i.jumlahProduk) || 1), 0);
     const namaProduk = rawItems.length === 1
-      ? rawItems[0].namaProduk
+      ? `${rawItems[0].namaProduk} (${rawItems[0].jumlahProduk}x @ Rp ${formatRupiah(Number(rawItems[0].hargaProduk))})`
       : rawItems.map((it, idx) => `${idx + 1}. ${it.namaProduk} (${it.jumlahProduk}x @ Rp ${formatRupiah(Number(it.hargaProduk))})`).join("\n");
     bodyToValidate = { ...req.body, namaProduk, jumlahProduk: totalQty, hargaProduk: totalProductPrice };
   }
@@ -153,7 +153,7 @@ router.post("/orders", async (req, res): Promise<void> => {
     `📍 *Alamat:* ${d.alamat}\n` +
     (d.patokanLokasi ? `🏠 *Patokan:* ${d.patokanLokasi}\n` : "") +
     `\n📦 *Pesanan:*\n` +
-    `${d.namaProduk} x ${d.jumlahProduk} unit\n\n` +
+    `${d.namaProduk}\n\n` +
     `💰 *Total: Rp ${formatRupiah(total)}*` +
     (ongkir ? ` (Ongkir: Rp ${formatRupiah(ongkir)})` : "") + `\n` +
     (d.keteranganPembayaran ? `💳 Pembayaran: ${d.metodePembayaran} – ${d.keteranganPembayaran}\n` : `💳 Pembayaran: ${d.metodePembayaran}\n`) +
