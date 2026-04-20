@@ -204,7 +204,7 @@ router.post("/orders", async (req, res): Promise<void> => {
     try {
       const contactId = await findOrCreateKledoContact(d.namaKontak, d.nomorTelepon, d.alamat);
       if (contactId) {
-        const memo = `Order #${orderId} via form PO\nSales: ${d.salesPerson}\nAlamat: ${d.alamat}${d.patokanLokasi ? "\nPatokan: " + d.patokanLokasi : ""}\nMetode: ${d.metodePembayaran}${d.keteranganPembayaran ? "\nKet: " + d.keteranganPembayaran : ""}`;
+        const memo = `Sales: ${d.salesPerson}`;
         const inv = await createKledoInvoice({
           contactId,
           orderId,
