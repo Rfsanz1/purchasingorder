@@ -52,7 +52,7 @@ async function isKledoCustomer(contactId: number): Promise<boolean> {
 }
 
 // Helper: cari contact di Kledo berdasarkan nama, buat baru jika tidak ada
-// Hanya gunakan contact yang tipe customer (type_id: 3) agar bisa dibuat invoice penjualan
+// Jika kontak sudah ada tapi bukan customer, update tipenya
 export async function findOrCreateKledoContact(namaKontak: string, nomorTelepon: string, alamat: string): Promise<number | null> {
   try {
     // Cari contact dulu
@@ -61,10 +61,26 @@ export async function findOrCreateKledoContact(namaKontak: string, nomorTelepon:
     const searchData = await searchResp.json() as { success: boolean; data: { data: Array<{ id: number; name: string }> } };
 
     if (searchData.success && searchData.data.data.length > 0) {
-      // Cari yang nama persis cocok dan tipe customer
       for (const c of searchData.data.data) {
         if (c.name.toLowerCase() === namaKontak.toLowerCase()) {
+          // Jika sudah customer, langsung pakai
           if (await isKledoCustomer(c.id)) return c.id;
+
+          // Jika ada tapi bukan customer, update type_id jadi customer
+          const updateResp = await fetch(`${KLEDO_BASE}/contacts/${c.id}`, {
+            method: "PUT",
+            headers: kledoHeaders(),
+            body: JSON.stringify({ type_id: 3 }),
+          });
+          const updateData = await updateResp.json() as { success: boolean };
+          if (updateData.success) {
+            logger.info({ contactId: c.id }, "Kledo contact updated to customer type");
+            return c.id;
+          }
+
+          // Update gagal, tetap pakai contact ini (invoice mungkin tetap bisa dibuat)
+          logger.warn({ contactId: c.id }, "Gagal update tipe contact Kledo, tetap pakai ID ini");
+          return c.id;
         }
       }
     }
@@ -80,9 +96,26 @@ export async function findOrCreateKledoContact(namaKontak: string, nomorTelepon:
         type_id: 3,
       }),
     });
-    const createData = await createResp.json() as { success: boolean; data: { id: number } };
+    const createData = await createResp.json() as { success: boolean; data: { id: number }; message?: string };
     if (createData.success && createData.data?.id) {
       return createData.data.id;
+    }
+
+    // Jika gagal karena nama sudah ada, coba cari ulang dengan per_page lebih besar
+    if (typeof createData.message === "string" && createData.message.includes("sudah ada")) {
+      logger.warn({ namaKontak }, "Nama kontak sudah ada, mencari ulang...");
+      const retryUrl = `${KLEDO_BASE}/contacts?per_page=50&keyword=${encodeURIComponent(namaKontak)}`;
+      const retryResp = await fetch(retryUrl, { headers: kledoHeaders() });
+      const retryData = await retryResp.json() as { success: boolean; data: { data: Array<{ id: number; name: string }> } };
+      if (retryData.success && retryData.data.data.length > 0) {
+        for (const c of retryData.data.data) {
+          if (c.name.toLowerCase() === namaKontak.toLowerCase()) {
+            logger.info({ contactId: c.id }, "Kontak ditemukan lewat retry search, dipakai untuk invoice");
+            return c.id;
+          }
+        }
+        logger.error({ namaKontak }, "Nama kontak ada di Kledo tapi tidak ditemukan lewat search — skip invoice");
+      }
     }
 
     logger.error({ createData }, "Gagal membuat contact Kledo");
