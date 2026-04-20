@@ -149,9 +149,10 @@ export async function createKledoInvoice(params: {
       contact_id: params.contactId,
       trans_date: today,
       due_date: today,
-      memo: params.memo,
+      // memo di Kledo ditampilkan sebagai kolom "Referensi" — isi dengan referensi sales
+      memo: params.referensi || params.memo,
       ...(params.billingAddress ? { billing_address: params.billingAddress } : {}),
-      ...(params.referensi ? { ref_number: params.referensi } : {}),
+      // ref_number TIDAK di-set agar Kledo auto-generate nomor invoice
       shipping_cost: params.biayaPengiriman || 0,
       include_tax: 0,
       items: params.items.map(item => ({

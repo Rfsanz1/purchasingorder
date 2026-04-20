@@ -171,7 +171,10 @@ router.post("/orders", async (req, res): Promise<void> => {
     (d.alamat ? `📍 *Alamat:* ${d.alamat}\n` : "") +
     (d.patokanLokasi ? `🏠 *Catatan:* ${d.patokanLokasi}\n` : "") +
     `\n📦 *Pesanan:*\n${d.namaProduk}\n\n` +
-    (d.hargaProduk ? `💰 *Total: Rp ${formatRupiah(total)}*\n` : "") +
+    (d.hargaProduk
+      ? `💰 *Harga: Rp ${formatRupiah(d.hargaProduk)}*` +
+        (ongkir ? ` + Ongkir Rp ${formatRupiah(ongkir)} = *Rp ${formatRupiah(total)}*` : "") + `\n`
+      : "") +
     `\n👨‍💼 *${referensi}*\n\n` +
     `⚡ Yuk langsung di-follow up sebelum dia keburu cancel 😄\n\n` +
     `🕒 ${timestamp}`;

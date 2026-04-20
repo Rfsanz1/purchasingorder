@@ -2,7 +2,7 @@ import { useState, FormEvent, useEffect, useRef } from "react";
 import Swal from "sweetalert2";
 import {
   User, Phone, MapPin, Package, Hash, DollarSign,
-  UserCheck, MessageSquare, ChevronDown, Plus, Trash2,
+  Truck, UserCheck, MessageSquare, ChevronDown, Plus, Trash2,
   Search, Check,
 } from "lucide-react";
 
@@ -48,6 +48,7 @@ interface FormData {
   nomorTelepon: string;
   alamat: string;
   pesan: string;
+  ongkir: string;
   salesPerson: string;
 }
 
@@ -56,6 +57,7 @@ const EMPTY_FORM: FormData = {
   nomorTelepon: "",
   alamat: "",
   pesan: "",
+  ongkir: "",
   salesPerson: "",
 };
 
@@ -450,6 +452,8 @@ export default function PurchaseOrderForm() {
     const qty = parseInt(it.jumlahProduk || "0");
     return s + harga * (qty || 1);
   }, 0);
+  const ongkirValue = parseRupiah(form.ongkir);
+  const total = subtotal + ongkirValue;
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -478,7 +482,7 @@ export default function PurchaseOrderForm() {
           patokanLokasi: form.pesan || "",
           salesPerson: form.salesPerson,
           referensi,
-          // Field opsional — kirim default agar backend tidak error
+          biayaPengiriman: ongkirValue || null,
           metodePembayaran: "CASH",
           // Items array (mendukung multi-produk)
           items: items.map(it => ({
@@ -639,12 +643,23 @@ export default function PurchaseOrderForm() {
                 <Plus size={15} /> Tambah Produk
               </button>
 
-              {subtotal > 0 && (
+              <FormInput
+                label="Biaya Pengiriman / Ongkir (Rp)"
+                icon={<Truck size={15} />}
+                value={form.ongkir}
+                onChange={v => set("ongkir", formatRupiahInput(v))}
+                placeholder="0 — kosongkan jika gratis"
+                inputMode="numeric"
+                hint="Opsional"
+              />
+
+              {(subtotal > 0 || ongkirValue > 0) && (
                 <div className="po-total-preview">
-                  {items.length > 1 && <div className="po-total-sub">Subtotal: Rp {subtotal.toLocaleString("id-ID")}</div>}
+                  {subtotal > 0 && <div className="po-total-sub">Subtotal produk: Rp {subtotal.toLocaleString("id-ID")}</div>}
+                  {ongkirValue > 0 && <div className="po-total-sub">Ongkir: Rp {ongkirValue.toLocaleString("id-ID")}</div>}
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <span>Total</span>
-                    <span className="po-total-value">Rp {subtotal.toLocaleString("id-ID")}</span>
+                    <span className="po-total-value">Rp {total.toLocaleString("id-ID")}</span>
                   </div>
                 </div>
               )}
