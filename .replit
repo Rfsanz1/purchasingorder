@@ -1,4 +1,4 @@
-modules = ["nodejs-24"]
+modules = ["nodejs-20", "web"]
 
 [deployment]
 router = "application"
@@ -9,7 +9,6 @@ args = ["pnpm", "store", "prune"]
 env = { "CI" = "true" }
 
 [workflows]
-runButton = "Project"
 
 [agent]
 stack = "PNPM_WORKSPACE"
@@ -38,3 +37,10 @@ externalPort = 3000
 [[ports]]
 localPort = 23288
 externalPort = 3002
+
+[[ports]]
+localPort = 23289
+externalPort = 4200
+
+[nix]
+channel = "stable-25_05"
