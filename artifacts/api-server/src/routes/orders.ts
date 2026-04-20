@@ -6,6 +6,18 @@ import { randomUUID } from "crypto";
 import { logger } from "../lib/logger";
 import { findOrCreateKledoContact, createKledoInvoice, type KledoInvoiceItem } from "./kledo";
 
+const SALES_PHONE: Record<string, string> = {
+  LEHAN:    "+62 857-2982-4485",
+  AGUS:     "+62 857-3084-5708",
+  IMAM:     "+62 858-9233-3127",
+  AGUNG:    "+62 882-3368-4224",
+  ANDRE:    "+62 821-3763-3912",
+  PRIYANTO: "+62 823-3479-2357",
+  WIWIT:    "+62 857-4115-6110",
+  WIWID:    "+62 857-4115-6110",
+  DHANI:    "+62 812-1599-2058",
+};
+
 const router: IRouter = Router();
 
 function formatRupiah(num: number): string {
@@ -204,7 +216,10 @@ router.post("/orders", async (req, res): Promise<void> => {
     try {
       const contactId = await findOrCreateKledoContact(d.namaKontak, d.nomorTelepon, d.alamat);
       if (contactId) {
-        const memo = `Sales: ${d.salesPerson}`;
+        const salesPhone = SALES_PHONE[d.salesPerson.toUpperCase()] ?? "";
+        const memo = salesPhone
+          ? `Sales: ${d.salesPerson} - ${salesPhone}`
+          : `Sales: ${d.salesPerson}`;
         const inv = await createKledoInvoice({
           contactId,
           orderId,
