@@ -1,10 +1,37 @@
 import { Router, type IRouter } from "express";
-import { SubmitOrderBody } from "@workspace/api-zod";
+import { z } from "zod";
 import { db, ordersTable } from "@workspace/db";
 import { desc, eq } from "drizzle-orm";
 import { randomUUID } from "crypto";
 import { logger } from "../lib/logger";
 import { findOrCreateKledoContact, createKledoInvoice, type KledoInvoiceItem } from "./kledo";
+
+const SALES_DATA: Record<string, string> = {
+  "Lehan":    "+62 857-2982-4485",
+  "Agus":     "+62 857-3084-5708",
+  "Imam":     "+62 858-9233-3127",
+  "Agung":    "0882-3368-4224",
+  "Andre":    "+62 821-3763-3912",
+  "Priyanto": "+62 823-3479-2357",
+  "Wiwid":    "+62 857-4115-6110",
+  "Dhani":    "+62 812-1599-2058",
+};
+
+const OrderBodySchema = z.object({
+  namaKontak:          z.string().min(1, "Nama konsumen wajib diisi"),
+  nomorTelepon:        z.string().optional().default(""),
+  alamat:              z.string().optional().default(""),
+  alamatKledo:         z.string().optional().default(""),
+  patokanLokasi:       z.string().optional().default(""),
+  salesPerson:         z.string().min(1, "Sales person wajib dipilih"),
+  referensi:           z.string().optional().default(""),
+  metodePembayaran:    z.string().optional().default("CASH"),
+  keteranganPembayaran:z.string().optional().nullable().default(null),
+  biayaPengiriman:     z.number().optional().nullable().default(null),
+  namaProduk:          z.string().optional().default(""),
+  jumlahProduk:        z.number().optional().default(1),
+  hargaProduk:         z.number().optional().default(0),
+});
 
 const router: IRouter = Router();
 
@@ -75,7 +102,7 @@ router.post("/orders", async (req, res): Promise<void> => {
     bodyToValidate = { ...req.body, namaProduk, jumlahProduk: totalQty, hargaProduk: totalProductPrice };
   }
 
-  const parsed = SubmitOrderBody.safeParse(bodyToValidate);
+  const parsed = OrderBodySchema.safeParse(bodyToValidate);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
     return;
@@ -83,11 +110,15 @@ router.post("/orders", async (req, res): Promise<void> => {
 
   const d = parsed.data;
   const orderId = randomUUID().slice(0, 8).toUpperCase();
-  const namaToko = process.env.NAMA_TOKO ?? "Toko Kami";
   const adminWA = process.env.ADMIN_WA_NUMBER ?? "";
   const ongkir = d.biayaPengiriman ?? 0;
   // hargaProduk sudah berisi total semua item (qty × harga), tidak perlu dikali jumlahProduk lagi
   const total = d.hargaProduk + ongkir;
+
+  // Pastikan referensi selalu konsisten — generate di backend jika frontend tidak kirim
+  const referensi = d.referensi || (d.salesPerson
+    ? `Sales: ${d.salesPerson} - ${SALES_DATA[d.salesPerson] || "-"}`
+    : "");
 
   req.log.info({ orderId, namaKontak: d.namaKontak }, "New purchase order received");
 
@@ -117,15 +148,6 @@ router.post("/orders", async (req, res): Promise<void> => {
     return;
   }
 
-  const infoRekening = d.metodePembayaran === "Transfer"
-    ? `\n🏦 *Rekening Pembayaran*\n` +
-      `Silahkan lakukan pembayaran sebelum *1×24 jam* ke salah satu rekening:\n\n` +
-      `• *BRI*\n  0262 01 000031 562\n  a.n. DIAN PURNAMA REZA T.\n\n` +
-      `• *MANDIRI*\n  136 000 4780612\n  a.n. DIAN PURNAMA\n\n` +
-      `• *BCA (GIRO)*\n  155 91 99999\n  a.n. INDARTO WIBOWO\n\n` +
-      `• *BNI*\n  0822 705 836\n  a.n. INDARTO WIBOWO\n`
-    : "";
-
   const now = new Date();
   const pad = (n: number) => String(n).padStart(2, "0");
   const timestamp = `${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
@@ -134,30 +156,23 @@ router.post("/orders", async (req, res): Promise<void> => {
     `Halo Kak 👋\n\n` +
     `Terima kasih sudah mengisi form Purchase Order Customer 🙏\n\n` +
     `Pesanan Kakak sudah kami terima dan saat ini sedang diproses oleh tim kami. Berikut ringkasan pesanan Kakak:\n\n` +
-    `📦 *Nama Produk:* ${d.namaProduk}\n` +
+    `📦 *Produk:* ${d.namaProduk}\n` +
     `🔢 *Jumlah:* ${d.jumlahProduk} unit\n` +
-    `💰 *Harga:* Rp ${formatRupiah(d.hargaProduk)}\n` +
-    (ongkir ? `🚚 *Ongkir:* Rp ${formatRupiah(ongkir)}\n` : "") +
-    `📍 *Alamat:* ${d.alamat}` + (d.patokanLokasi ? ` – ${d.patokanLokasi}` : "") + `\n\n` +
-    `💳 *Total Pembayaran: Rp ${formatRupiah(total)}*\n` +
-    infoRekening +
-    `\nUntuk melanjutkan pesanan, silakan lakukan pembayaran sesuai total di atas ya 🙏\n` +
-    `_(Setelah pembayaran, mohon kirim bukti transfer ke chat ini)_\n\n` +
-    `Jika ada pertanyaan, jangan ragu untuk menghubungi kami 😊\n\n` +
+    (d.hargaProduk ? `💰 *Harga:* Rp ${formatRupiah(d.hargaProduk)}\n` : "") +
+    (d.alamat ? `📍 *Alamat:* ${d.alamat}\n` : "") +
+    (d.patokanLokasi ? `🏠 *Catatan:* ${d.patokanLokasi}\n` : "") +
+    `\nJika ada pertanyaan, jangan ragu untuk menghubungi kami 😊\n\n` +
     `Terima kasih atas kepercayaannya 🙌`;
 
   const pesanAdmin =
     `🔔 *Order masuk bossku!* 👀\n\n` +
-    `📌 *Customer:*\n` +
-    `${d.namaKontak} – ${d.nomorTelepon}\n\n` +
-    `📍 *Alamat:* ${d.alamat}\n` +
-    (d.patokanLokasi ? `🏠 *Patokan:* ${d.patokanLokasi}\n` : "") +
-    `\n📦 *Pesanan:*\n` +
-    `${d.namaProduk}\n\n` +
-    `💰 *Total: Rp ${formatRupiah(total)}*` +
-    (ongkir ? ` (Ongkir: Rp ${formatRupiah(ongkir)})` : "") + `\n` +
-    (d.keteranganPembayaran ? `💳 Pembayaran: ${d.metodePembayaran} – ${d.keteranganPembayaran}\n` : `💳 Pembayaran: ${d.metodePembayaran}\n`) +
-    `\n👨‍💼 *Sales:* ${d.salesPerson}\n\n` +
+    `📌 *Customer:* ${d.namaKontak}` +
+    (d.nomorTelepon ? ` – ${d.nomorTelepon}` : "") + `\n` +
+    (d.alamat ? `📍 *Alamat:* ${d.alamat}\n` : "") +
+    (d.patokanLokasi ? `🏠 *Catatan:* ${d.patokanLokasi}\n` : "") +
+    `\n📦 *Pesanan:*\n${d.namaProduk}\n\n` +
+    (d.hargaProduk ? `💰 *Total: Rp ${formatRupiah(total)}*\n` : "") +
+    `\n👨‍💼 *${referensi}*\n\n` +
     `⚡ Yuk langsung di-follow up sebelum dia keburu cancel 😄\n\n` +
     `🕒 ${timestamp}`;
 
@@ -219,13 +234,10 @@ router.post("/orders", async (req, res): Promise<void> => {
     try {
       const contactId = await findOrCreateKledoContact(d.namaKontak, d.nomorTelepon, alamatKledo);
       if (contactId) {
-        // Memo (Pesan di Kledo): patokan + info order
+        // Memo (Notes di Kledo): pesan/catatan dari konsumen
         const memo = [
-          d.patokanLokasi ? `Patokan: ${d.patokanLokasi}` : "",
+          d.patokanLokasi ? `${d.patokanLokasi}` : "",
           `Order #${orderId}`,
-          `Sales: ${d.salesPerson}`,
-          `Metode: ${d.metodePembayaran}`,
-          d.keteranganPembayaran ? `Ket: ${d.keteranganPembayaran}` : "",
         ].filter(Boolean).join("\n");
         const inv = await createKledoInvoice({
           contactId,
@@ -234,6 +246,7 @@ router.post("/orders", async (req, res): Promise<void> => {
           biayaPengiriman: ongkir,
           memo,
           billingAddress: alamatKledo,
+          referensi,
         });
         if (inv.success) {
           kledoInvoiceId = inv.invoiceId;

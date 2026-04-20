@@ -2,10 +2,21 @@ import { useState, FormEvent, useEffect, useRef } from "react";
 import Swal from "sweetalert2";
 import {
   User, Phone, MapPin, Package, Hash, DollarSign,
-  Truck, UserCheck, CreditCard, FileText, ChevronDown, Plus, Trash2,
+  UserCheck, MessageSquare, ChevronDown, Plus, Trash2,
   Search, Check,
 } from "lucide-react";
-import { kecamatanList, getKelurahan } from "../data/temanggung";
+
+const SALES_DATA: Record<string, string> = {
+  "Lehan":    "+62 857-2982-4485",
+  "Agus":     "+62 857-3084-5708",
+  "Imam":     "+62 858-9233-3127",
+  "Agung":    "0882-3368-4224",
+  "Andre":    "+62 821-3763-3912",
+  "Priyanto": "+62 823-3479-2357",
+  "Wiwid":    "+62 857-4115-6110",
+  "Dhani":    "+62 812-1599-2058",
+};
+const SALES_NAMES = Object.keys(SALES_DATA);
 
 interface KledoContact {
   id: number;
@@ -35,22 +46,17 @@ interface OrderItem {
 interface FormData {
   namaKontak: string;
   nomorTelepon: string;
-  kecamatan: string;
-  kelurahan: string;
-  rt: string;
-  rw: string;
-  patokanLokasi: string;
-  biayaPengiriman: string;
+  alamat: string;
+  pesan: string;
   salesPerson: string;
-  metodePembayaran: string;
-  keteranganPembayaran: string;
 }
 
 const EMPTY_FORM: FormData = {
-  namaKontak: "", nomorTelepon: "",
-  kecamatan: "", kelurahan: "", rt: "", rw: "",
-  patokanLokasi: "",
-  biayaPengiriman: "", salesPerson: "", metodePembayaran: "", keteranganPembayaran: "",
+  namaKontak: "",
+  nomorTelepon: "",
+  alamat: "",
+  pesan: "",
+  salesPerson: "",
 };
 
 const newItem = (): OrderItem => ({
@@ -72,22 +78,12 @@ function parseRupiah(val: string): number {
 }
 
 function validate(form: FormData, items: OrderItem[]): string | null {
-  if (!form.namaKontak.trim()) return "Nama kontak wajib diisi";
-  if (!form.nomorTelepon.trim()) return "Nomor telepon wajib diisi";
-  if (!form.kecamatan) return "Kecamatan wajib dipilih";
-  if (!form.kelurahan) return "Kelurahan / Desa wajib dipilih";
-  if (!form.rt.trim()) return "RT wajib diisi";
-  if (!form.rw.trim()) return "RW wajib diisi";
-  if (!form.patokanLokasi.trim()) return "Patokan lokasi wajib diisi";
+  if (!form.namaKontak.trim()) return "Nama konsumen wajib diisi";
   if (items.length === 0) return "Minimal 1 produk harus dipilih";
   for (let i = 0; i < items.length; i++) {
     if (!items[i].namaProduk.trim()) return `Produk ke-${i + 1}: nama produk wajib dipilih`;
-    if (!items[i].jumlahProduk || parseInt(items[i].jumlahProduk) < 1) return `Produk ke-${i + 1}: jumlah tidak valid`;
-    if (!items[i].hargaProduk) return `Produk ke-${i + 1}: harga wajib diisi`;
   }
-  if (!form.salesPerson.trim()) return "Sales person wajib diisi";
-  if (!form.metodePembayaran) return "Metode pembayaran wajib dipilih";
-  if (!form.keteranganPembayaran) return "Status pembayaran wajib dipilih";
+  if (!form.salesPerson) return "Sales person wajib dipilih";
   return null;
 }
 
@@ -426,24 +422,15 @@ function FormTextarea({
 
 export default function PurchaseOrderForm() {
   const [form, setForm] = useState<FormData>(EMPTY_FORM);
-  const [focused, setFocused] = useState<Partial<Record<keyof FormData, boolean>>>({});
   const [items, setItems] = useState<OrderItem[]>([newItem()]);
   const [submitting, setSubmitting] = useState(false);
 
   const set = (k: keyof FormData, v: string) => setForm(p => ({ ...p, [k]: v }));
-  const onFocus = (k: keyof FormData) => setFocused(p => ({ ...p, [k]: true }));
-  const onBlur = (k: keyof FormData) => setFocused(p => ({ ...p, [k]: false }));
-
-  const handleKecamatanChange = (val: string) =>
-    setForm(p => ({ ...p, kecamatan: val, kelurahan: "" }));
-
-  const kelurahanList = getKelurahan(form.kecamatan);
 
   const updateItem = (id: string, patch: Partial<OrderItem>) =>
     setItems(prev => prev.map(it => it.id === id ? { ...it, ...patch } : it));
 
   const addItem = () => setItems(prev => [...prev, newItem()]);
-
   const removeItem = (id: string) => setItems(prev => prev.filter(it => it.id !== id));
 
   const handleSelectProduct = (itemId: string, p: KledoProduct) => {
@@ -458,13 +445,11 @@ export default function PurchaseOrderForm() {
     updateItem(itemId, { selectedProduct: null, namaProduk: "", hargaProduk: "" });
   };
 
-  const ongkir = parseRupiah(form.biayaPengiriman);
   const subtotal = items.reduce((s, it) => {
     const harga = parseRupiah(it.hargaProduk);
     const qty = parseInt(it.jumlahProduk || "0");
     return s + harga * (qty || 1);
   }, 0);
-  const total = subtotal + ongkir;
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -479,23 +464,22 @@ export default function PurchaseOrderForm() {
 
     try {
       const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
-      const alamatFormatted = `${form.kelurahan}, Kec. ${form.kecamatan}, Kab. Temanggung, RT ${form.rt}/RW ${form.rw}`;
-      // Alamat khusus Kledo: hanya kecamatan, kelurahan, RT/RW (tanpa kabupaten)
-      const alamatKledo = `RT ${form.rt}/RW ${form.rw}, ${form.kelurahan}, Kec. ${form.kecamatan}`;
+      // Referensi otomatis dari sales mapping
+      const referensi = `Sales: ${form.salesPerson} - ${SALES_DATA[form.salesPerson] || "-"}`;
 
       const res = await fetch(`${baseUrl}/api/orders`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           namaKontak: form.namaKontak,
-          nomorTelepon: form.nomorTelepon,
-          alamat: alamatFormatted,
-          alamatKledo,
-          patokanLokasi: form.patokanLokasi,
-          biayaPengiriman: ongkir || null,
+          nomorTelepon: form.nomorTelepon || "",
+          alamat: form.alamat || "",
+          alamatKledo: form.alamat || "",
+          patokanLokasi: form.pesan || "",
           salesPerson: form.salesPerson,
-          metodePembayaran: form.metodePembayaran,
-          keteranganPembayaran: form.keteranganPembayaran || null,
+          referensi,
+          // Field opsional — kirim default agar backend tidak error
+          metodePembayaran: "CASH",
           // Items array (mendukung multi-produk)
           items: items.map(it => ({
             namaProduk: it.namaProduk,
@@ -525,7 +509,6 @@ export default function PurchaseOrderForm() {
           confirmButtonColor: "#0097e6",
         });
         setForm(EMPTY_FORM);
-        setFocused({});
         setItems([newItem()]);
       } else {
         Swal.fire({ icon: "error", title: "Gagal", text: data.error || "Terjadi kesalahan", confirmButtonColor: "#0097e6" });
@@ -552,11 +535,11 @@ export default function PurchaseOrderForm() {
 
         <form onSubmit={handleSubmit} noValidate>
 
-          {/* ── Data Pelanggan ── */}
+          {/* ── 1. Nama Konsumen ── */}
           <div className="addr-card">
             <div className="addr-card-header">
               <User size={14} />
-              <span>Data Pelanggan</span>
+              <span>Data Konsumen</span>
             </div>
             <div className="addr-card-body">
               <ContactCombobox
@@ -567,84 +550,33 @@ export default function PurchaseOrderForm() {
                   if (c.mobile_phone) set("nomorTelepon", c.mobile_phone);
                 }}
               />
+
+              {/* ── 2. Nomor Telepon ── */}
               <FormInput
-                label="Nomor Telepon" required
+                label="Nomor Telepon"
                 icon={<Phone size={15} />}
                 value={form.nomorTelepon}
                 onChange={v => set("nomorTelepon", v)}
-                onFocus={() => onFocus("nomorTelepon")} onBlur={() => onBlur("nomorTelepon")}
                 placeholder="contoh: 08780000000"
                 inputMode="tel"
-                hint="Isi hanya nomor HP — contoh: 0878xxxxx"
-              />
-            </div>
-          </div>
-
-          {/* ── Alamat Pengiriman ── */}
-          <div className="addr-card">
-            <div className="addr-card-header">
-              <MapPin size={14} />
-              <span>Alamat Pengiriman</span>
-            </div>
-            <div className="addr-card-body">
-              <FormDropdown
-                label="Kecamatan" required
-                icon={<MapPin size={15} />}
-                value={form.kecamatan}
-                options={kecamatanList}
-                onChange={handleKecamatanChange}
-              />
-              <FormDropdown
-                label="Kelurahan / Desa" required
-                icon={<MapPin size={15} />}
-                value={form.kelurahan}
-                options={kelurahanList}
-                onChange={v => set("kelurahan", v)}
-                disabled={!form.kecamatan}
               />
 
-              <div className="addr-rtrw-row">
-                <div className="addr-rtrw-group">
-                  <label className="addr-rtrw-label">RT <span className="po-required">*</span></label>
-                  <input className="addr-rtrw-input" placeholder="001" inputMode="numeric"
-                    value={form.rt} maxLength={3}
-                    onChange={e => set("rt", e.target.value.replace(/\D/g, ""))}
-                    onFocus={() => onFocus("rt")} onBlur={() => onBlur("rt")} />
-                </div>
-                <div className="addr-rtrw-sep">/</div>
-                <div className="addr-rtrw-group">
-                  <label className="addr-rtrw-label">RW <span className="po-required">*</span></label>
-                  <input className="addr-rtrw-input" placeholder="001" inputMode="numeric"
-                    value={form.rw} maxLength={3}
-                    onChange={e => set("rw", e.target.value.replace(/\D/g, ""))}
-                    onFocus={() => onFocus("rw")} onBlur={() => onBlur("rw")} />
-                </div>
-              </div>
-
+              {/* ── 3. Alamat ── */}
               <FormTextarea
-                label="Patokan / Detail Lokasi" required
-                value={form.patokanLokasi}
-                onChange={v => set("patokanLokasi", v)}
-                onFocus={() => onFocus("patokanLokasi")} onBlur={() => onBlur("patokanLokasi")}
-                placeholder="Contoh: Depan rumah ada kolam, pagar besi biru…"
+                label="Alamat"
+                value={form.alamat}
+                onChange={v => set("alamat", v)}
+                placeholder="Contoh: Jl. Merdeka No. 5, RT 01/RW 02, Temanggung"
+                rows={2}
               />
-
-              {form.kecamatan && form.kelurahan && form.rt && form.rw && (
-                <div className="addr-preview">
-                  <span className="addr-preview-icon">📍</span>
-                  <span className="addr-preview-text">
-                    {form.kelurahan}, Kec. {form.kecamatan}, Kab. Temanggung RT {form.rt}/RW {form.rw}
-                  </span>
-                </div>
-              )}
             </div>
           </div>
 
-          {/* ── Detail Produk ── */}
+          {/* ── 4. Nama Produk ── */}
           <div className="addr-card">
             <div className="addr-card-header">
               <Package size={14} />
-              <span>Detail Produk</span>
+              <span>Produk</span>
             </div>
             <div className="addr-card-body">
               <p className="fi-hint" style={{ marginTop: 0, marginBottom: 2 }}>
@@ -671,7 +603,7 @@ export default function PurchaseOrderForm() {
 
                   <div className="fi-2col" style={{ marginTop: 10 }}>
                     <div className="fi-group" style={{ marginBottom: 0 }}>
-                      <label className="fi-label">Jumlah <span className="po-required">*</span></label>
+                      <label className="fi-label">Jumlah</label>
                       <div className="fi-input-wrap fi-input-wrap--icon">
                         <span className="fi-icon"><Hash size={14} /></span>
                         <input className="fi-input fi-input--padded" type="number" min="1"
@@ -681,7 +613,7 @@ export default function PurchaseOrderForm() {
                       </div>
                     </div>
                     <div className="fi-group" style={{ marginBottom: 0 }}>
-                      <label className="fi-label">Harga (Rp) <span className="po-required">*</span></label>
+                      <label className="fi-label">Harga (Rp)</label>
                       <div className="fi-input-wrap fi-input-wrap--icon">
                         <span className="fi-icon"><DollarSign size={14} /></span>
                         <input className="fi-input fi-input--padded" inputMode="numeric"
@@ -706,90 +638,55 @@ export default function PurchaseOrderForm() {
               <button type="button" className="po-add-item" onClick={addItem}>
                 <Plus size={15} /> Tambah Produk
               </button>
-            </div>
-          </div>
 
-          {/* ── Pengiriman & Pembayaran ── */}
-          <div className="addr-card">
-            <div className="addr-card-header">
-              <CreditCard size={14} />
-              <span>Pengiriman &amp; Pembayaran</span>
-            </div>
-            <div className="addr-card-body">
-              <FormInput
-                label="Biaya Pengiriman (Rp)"
-                icon={<Truck size={15} />}
-                value={form.biayaPengiriman}
-                onChange={v => set("biayaPengiriman", formatRupiahInput(v))}
-                onFocus={() => onFocus("biayaPengiriman")} onBlur={() => onBlur("biayaPengiriman")}
-                placeholder="0"
-                inputMode="numeric"
-                hint="Opsional — kosongkan jika tidak ada ongkir"
-              />
-
-              {(subtotal > 0 || ongkir > 0) && (
+              {subtotal > 0 && (
                 <div className="po-total-preview">
-                  {items.length > 1 && <div className="po-total-sub">Subtotal produk: Rp {subtotal.toLocaleString("id-ID")}</div>}
-                  {ongkir > 0 && <div className="po-total-sub">Ongkir: Rp {ongkir.toLocaleString("id-ID")}</div>}
+                  {items.length > 1 && <div className="po-total-sub">Subtotal: Rp {subtotal.toLocaleString("id-ID")}</div>}
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <span>Total Keseluruhan</span>
-                    <span className="po-total-value">Rp {total.toLocaleString("id-ID")}</span>
+                    <span>Total</span>
+                    <span className="po-total-value">Rp {subtotal.toLocaleString("id-ID")}</span>
                   </div>
                 </div>
               )}
+            </div>
+          </div>
 
+          {/* ── 5. Pesan / Catatan ── */}
+          <div className="addr-card">
+            <div className="addr-card-header">
+              <MessageSquare size={14} />
+              <span>Pesan / Catatan</span>
+            </div>
+            <div className="addr-card-body">
+              <FormTextarea
+                label="Pesan / Catatan"
+                value={form.pesan}
+                onChange={v => set("pesan", v)}
+                placeholder="Contoh: depan kolam, pagar besi biru…"
+                rows={2}
+              />
+            </div>
+          </div>
+
+          {/* ── 6. Sales Person ── */}
+          <div className="addr-card">
+            <div className="addr-card-header">
+              <UserCheck size={14} />
+              <span>Sales Person</span>
+            </div>
+            <div className="addr-card-body">
               <FormDropdown
                 label="Sales Person" required
                 icon={<UserCheck size={15} />}
                 value={form.salesPerson}
-                options={["LEHAN","PRIYANTO","DHANI","AGUS","WIWIT","IMAM","ANDRE","AGUNG"]}
+                options={SALES_NAMES}
                 onChange={v => set("salesPerson", v)}
               />
-
-              <FormDropdown
-                label="Metode Pembayaran" required
-                icon={<CreditCard size={15} />}
-                value={form.metodePembayaran}
-                options={["CASH","Debit","Transfer"]}
-                onChange={v => set("metodePembayaran", v)}
-              />
-
-              {form.metodePembayaran === "Transfer" && (
-                <div className="po-transfer-box">
-                  <div className="po-transfer-title">🏦 Informasi Rekening</div>
-                  <p className="po-transfer-note">Silahkan lakukan pembayaran sebelum <strong>1×24 jam</strong> ke salah satu rekening berikut:</p>
-                  <div className="po-transfer-list">
-                    <div className="po-transfer-item">
-                      <span className="po-bank-name">BRI</span>
-                      <span className="po-bank-number">0262 01 000031 562</span>
-                      <span className="po-bank-owner">a.n. DIAN PURNAMA REZA T.</span>
-                    </div>
-                    <div className="po-transfer-item">
-                      <span className="po-bank-name">MANDIRI</span>
-                      <span className="po-bank-number">136 000 4780612</span>
-                      <span className="po-bank-owner">a.n. DIAN PURNAMA</span>
-                    </div>
-                    <div className="po-transfer-item">
-                      <span className="po-bank-name">BCA (GIRO)</span>
-                      <span className="po-bank-number">155 91 99999</span>
-                      <span className="po-bank-owner">a.n. INDARTO WIBOWO</span>
-                    </div>
-                    <div className="po-transfer-item">
-                      <span className="po-bank-name">BNI</span>
-                      <span className="po-bank-number">0822 705 836</span>
-                      <span className="po-bank-owner">a.n. INDARTO WIBOWO</span>
-                    </div>
-                  </div>
-                </div>
+              {form.salesPerson && (
+                <p className="fi-hint" style={{ marginTop: 4 }}>
+                  Referensi Kledo: <strong>Sales: {form.salesPerson} - {SALES_DATA[form.salesPerson]}</strong>
+                </p>
               )}
-
-              <FormDropdown
-                label="Status Pembayaran" required
-                icon={<FileText size={15} />}
-                value={form.keteranganPembayaran}
-                options={["Lunas","Dibayar Sebagian","COD"]}
-                onChange={v => set("keteranganPembayaran", v)}
-              />
             </div>
           </div>
 
