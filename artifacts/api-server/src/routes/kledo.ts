@@ -95,6 +95,7 @@ export async function findOrCreateKledoContact(namaKontak: string, nomorTelepon:
 
 export interface KledoInvoiceItem {
   kledoProductId: number;
+  kledoFinanceAccountId?: number;
   kledoUnitId: number;
   jumlahProduk: number;
   hargaProduk: number;
@@ -121,7 +122,7 @@ export async function createKledoInvoice(params: {
       shipping_cost: params.biayaPengiriman || 0,
       include_tax: 0,
       items: params.items.map(item => ({
-        finance_account_id: item.kledoProductId,
+        finance_account_id: item.kledoFinanceAccountId ?? item.kledoProductId,
         qty: item.jumlahProduk,
         price: item.hargaProduk,
         amount: item.jumlahProduk * item.hargaProduk,

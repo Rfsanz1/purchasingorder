@@ -74,7 +74,7 @@ router.get("/orders", async (_req, res): Promise<void> => {
 // POST /orders — terima order baru
 router.post("/orders", async (req, res): Promise<void> => {
   // Proses items array jika ada (multi-produk)
-  interface RawItem { namaProduk: string; jumlahProduk: number; hargaProduk: number; kledoProductId?: number; kledoUnitId?: number }
+  interface RawItem { namaProduk: string; jumlahProduk: number; hargaProduk: number; kledoProductId?: number; kledoFinanceAccountId?: number; kledoUnitId?: number }
   const rawItems: RawItem[] = Array.isArray(req.body.items) ? req.body.items : [];
 
   let bodyToValidate = req.body;
@@ -202,6 +202,7 @@ router.post("/orders", async (req, res): Promise<void> => {
         .filter(i => typeof i.kledoProductId === "number" && i.kledoProductId > 0)
         .map(i => ({
           kledoProductId: i.kledoProductId!,
+          kledoFinanceAccountId: typeof i.kledoFinanceAccountId === "number" ? i.kledoFinanceAccountId : undefined,
           kledoUnitId: typeof i.kledoUnitId === "number" ? i.kledoUnitId : 73,
           jumlahProduk: Number(i.jumlahProduk) || 1,
           hargaProduk: Number(i.hargaProduk) || 0,
@@ -209,7 +210,8 @@ router.post("/orders", async (req, res): Promise<void> => {
     : (() => {
         const pid = typeof req.body.kledoProductId === "number" ? req.body.kledoProductId : null;
         if (!pid) return [];
-        return [{ kledoProductId: pid, kledoUnitId: typeof req.body.kledoUnitId === "number" ? req.body.kledoUnitId : 73, jumlahProduk: d.jumlahProduk, hargaProduk: d.hargaProduk }];
+        const faid = typeof req.body.kledoFinanceAccountId === "number" ? req.body.kledoFinanceAccountId : undefined;
+        return [{ kledoProductId: pid, kledoFinanceAccountId: faid, kledoUnitId: typeof req.body.kledoUnitId === "number" ? req.body.kledoUnitId : 73, jumlahProduk: d.jumlahProduk, hargaProduk: d.hargaProduk }];
       })();
 
   if (kledoItems.length > 0 && process.env.KLEDO_TOKEN) {
