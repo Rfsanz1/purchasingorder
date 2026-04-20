@@ -211,6 +211,7 @@ router.post("/orders", async (req, res): Promise<void> => {
           items: kledoItems,
           biayaPengiriman: ongkir,
           memo,
+          patokanLokasi: d.patokanLokasi,
         });
         if (inv.success) {
           kledoInvoiceId = inv.invoiceId;

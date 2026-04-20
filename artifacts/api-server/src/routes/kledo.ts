@@ -107,6 +107,7 @@ export async function createKledoInvoice(params: {
   items: KledoInvoiceItem[];
   biayaPengiriman: number;
   memo: string;
+  patokanLokasi?: string;
 }): Promise<{ success: boolean; invoiceId?: number; invoiceNumber?: string }> {
   try {
     const today = new Date().toISOString().split("T")[0];
@@ -116,6 +117,7 @@ export async function createKledoInvoice(params: {
       trans_date: today,
       due_date: today,
       memo: params.memo,
+      message: params.patokanLokasi || "",
       shipping_cost: params.biayaPengiriman || 0,
       include_tax: 0,
       items: params.items.map(item => ({
