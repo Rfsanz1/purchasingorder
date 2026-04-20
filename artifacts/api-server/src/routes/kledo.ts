@@ -92,7 +92,7 @@ export async function findOrCreateKledoContact(namaKontak: string, nomorTelepon:
       body: JSON.stringify({
         name: namaKontak,
         address: alamat,
-        mobile_phone: nomorTelepon,
+        phone: nomorTelepon,
         type_id: 3,
       }),
     });
