@@ -17,7 +17,7 @@ function kledoHeaders() {
 router.get("/kledo/contacts", async (req, res): Promise<void> => {
   const search = (req.query.search as string) || "";
   try {
-    const url = `${KLEDO_BASE}/contacts?per_page=15&keyword=${encodeURIComponent(search)}`;
+    const url = `${KLEDO_BASE}/contacts?per_page=50&type_id=3&keyword=${encodeURIComponent(search)}`;
     const resp = await fetch(url, { headers: kledoHeaders() });
     const data = await resp.json() as { success: boolean; data: { data: Array<{ id: number; name: string; phone?: string; mobile_phone?: string }> } };
     if (!data.success) {
