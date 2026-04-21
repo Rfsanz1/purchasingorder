@@ -40,6 +40,24 @@ router.get("/kledo/products", async (req, res): Promise<void> => {
   }
 });
 
+// Helper: cari produk Kledo berdasarkan nama, kembalikan ID-nya
+export async function searchKledoProductByName(namaProduk: string): Promise<{ id: number; unitId: number } | null> {
+  try {
+    const url = `${KLEDO_BASE}/products?per_page=20&search=${encodeURIComponent(namaProduk)}`;
+    const resp = await fetch(url, { headers: kledoHeaders() });
+    const data = await resp.json() as { success: boolean; data: { data: Array<{ id: number; unit_id: number; name: string }> } };
+    if (!data.success || !data.data.data.length) return null;
+
+    // Cari nama yang paling cocok (exact dulu, lalu partial)
+    const exact = data.data.data.find(p => p.name.toLowerCase() === namaProduk.toLowerCase());
+    const match = exact ?? data.data.data[0];
+    return { id: match.id, unitId: match.unit_id ?? 73 };
+  } catch (err) {
+    logger.error({ err }, "searchKledoProductByName error");
+    return null;
+  }
+}
+
 // Helper: cek apakah contact Kledo adalah customer (type_id: 3)
 async function isKledoCustomer(contactId: number): Promise<boolean> {
   try {

@@ -4,7 +4,7 @@ import { db, ordersTable } from "@workspace/db";
 import { desc, eq } from "drizzle-orm";
 import { randomUUID } from "crypto";
 import { logger } from "../lib/logger";
-import { findOrCreateKledoContact, createKledoInvoice, type KledoInvoiceItem } from "./kledo";
+import { findOrCreateKledoContact, createKledoInvoice, searchKledoProductByName, type KledoInvoiceItem } from "./kledo";
 
 const SALES_PHONE: Record<string, string> = {
   LEHAN:    "+62 857-2982-4485",
@@ -196,44 +196,67 @@ router.post("/orders", async (req, res): Promise<void> => {
   let kledoInvoiceId: number | undefined;
   let kledoInvoiceNumber: string | undefined;
 
-  // Susun daftar item untuk Kledo (dari items array atau single product)
-  const kledoItems: KledoInvoiceItem[] = rawItems.length > 0
-    ? rawItems
-        .filter(i => typeof i.kledoProductId === "number" && i.kledoProductId > 0)
-        .map(i => ({
-          kledoProductId: i.kledoProductId!,
-          kledoFinanceAccountId: typeof i.kledoFinanceAccountId === "number" ? i.kledoFinanceAccountId : undefined,
-          kledoUnitId: typeof i.kledoUnitId === "number" ? i.kledoUnitId : 73,
-          jumlahProduk: Number(i.jumlahProduk) || 1,
-          hargaProduk: Number(i.hargaProduk) || 0,
-        }))
-    : (() => {
-        const pid = typeof req.body.kledoProductId === "number" ? req.body.kledoProductId : null;
-        if (!pid) return [];
-        const faid = typeof req.body.kledoFinanceAccountId === "number" ? req.body.kledoFinanceAccountId : undefined;
-        return [{ kledoProductId: pid, kledoFinanceAccountId: faid, kledoUnitId: typeof req.body.kledoUnitId === "number" ? req.body.kledoUnitId : 73, jumlahProduk: d.jumlahProduk, hargaProduk: d.hargaProduk }];
-      })();
-
-  if (kledoItems.length > 0 && process.env.KLEDO_TOKEN) {
+  // Susun daftar item untuk Kledo — jika kledoProductId tidak ada, cari otomatis by nama
+  if (process.env.KLEDO_TOKEN) {
     try {
-      const contactId = await findOrCreateKledoContact(d.namaKontak, d.nomorTelepon, d.alamat);
-      if (contactId) {
-        const salesPhone = SALES_PHONE[d.salesPerson.toUpperCase()] ?? "";
-        const memo = salesPhone
-          ? `Sales: ${d.salesPerson} - ${salesPhone}`
-          : `Sales: ${d.salesPerson}`;
-        const inv = await createKledoInvoice({
-          contactId,
-          orderId,
-          items: kledoItems,
-          biayaPengiriman: ongkir,
-          memo,
-          patokanLokasi: d.patokanLokasi,
-        });
-        if (inv.success) {
-          kledoInvoiceId = inv.invoiceId;
-          kledoInvoiceNumber = inv.invoiceNumber;
-          req.log.info({ orderId, kledoInvoiceId, kledoInvoiceNumber }, "Kledo invoice created");
+      const sourceItems = rawItems.length > 0 ? rawItems : [{
+        namaProduk: d.namaProduk,
+        jumlahProduk: d.jumlahProduk,
+        hargaProduk: d.hargaProduk,
+        kledoProductId: typeof req.body.kledoProductId === "number" ? req.body.kledoProductId : undefined,
+        kledoFinanceAccountId: typeof req.body.kledoFinanceAccountId === "number" ? req.body.kledoFinanceAccountId : undefined,
+        kledoUnitId: typeof req.body.kledoUnitId === "number" ? req.body.kledoUnitId : undefined,
+      }];
+
+      const kledoItems: KledoInvoiceItem[] = (await Promise.all(
+        sourceItems.map(async (i): Promise<KledoInvoiceItem | null> => {
+          let productId = typeof i.kledoProductId === "number" && i.kledoProductId > 0 ? i.kledoProductId : null;
+          let unitId = typeof i.kledoUnitId === "number" && i.kledoUnitId > 0 ? i.kledoUnitId : 73;
+
+          // Kalau belum ada ID dari dropdown, cari otomatis di Kledo berdasarkan nama
+          if (!productId && i.namaProduk?.trim()) {
+            const found = await searchKledoProductByName(i.namaProduk.trim());
+            if (found) {
+              productId = found.id;
+              unitId = found.unitId;
+              logger.info({ namaProduk: i.namaProduk, productId }, "Produk Kledo ditemukan otomatis");
+            } else {
+              logger.warn({ namaProduk: i.namaProduk }, "Produk tidak ditemukan di Kledo, item dilewati");
+              return null;
+            }
+          }
+
+          if (!productId) return null;
+          return {
+            kledoProductId: productId,
+            kledoFinanceAccountId: typeof i.kledoFinanceAccountId === "number" ? i.kledoFinanceAccountId : undefined,
+            kledoUnitId: unitId,
+            jumlahProduk: Number(i.jumlahProduk) || 1,
+            hargaProduk: Number(i.hargaProduk) || 0,
+          };
+        })
+      )).filter((item): item is KledoInvoiceItem => item !== null);
+
+      if (kledoItems.length > 0) {
+        const contactId = await findOrCreateKledoContact(d.namaKontak, d.nomorTelepon, d.alamat);
+        if (contactId) {
+          const salesPhone = SALES_PHONE[d.salesPerson.toUpperCase()] ?? "";
+          const memo = salesPhone
+            ? `Sales: ${d.salesPerson} - ${salesPhone}`
+            : `Sales: ${d.salesPerson}`;
+          const inv = await createKledoInvoice({
+            contactId,
+            orderId,
+            items: kledoItems,
+            biayaPengiriman: ongkir,
+            memo,
+            patokanLokasi: d.patokanLokasi,
+          });
+          if (inv.success) {
+            kledoInvoiceId = inv.invoiceId;
+            kledoInvoiceNumber = inv.invoiceNumber;
+            req.log.info({ orderId, kledoInvoiceId, kledoInvoiceNumber }, "Kledo invoice created");
+          }
         }
       }
     } catch (err) {

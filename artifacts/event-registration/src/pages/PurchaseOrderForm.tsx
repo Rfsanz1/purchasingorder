@@ -84,7 +84,6 @@ function validate(form: FormData, items: OrderItem[]): string | null {
   if (items.length === 0) return "Minimal 1 produk harus dipilih";
   for (let i = 0; i < items.length; i++) {
     if (!items[i].namaProduk.trim()) return `Produk ke-${i + 1}: nama produk wajib dipilih`;
-    if (!items[i].selectedProduct) return `Produk ke-${i + 1}: pilih produk dari daftar Kledo agar invoice otomatis terbuat`;
   }
   if (!form.salesPerson) return "Sales person wajib dipilih";
   return null;
@@ -507,7 +506,7 @@ export default function PurchaseOrderForm() {
             `<p>Order ID: <b>#${data.orderId}</b></p>` +
             (data.kledoInvoiceNumber
               ? `<p style="margin-top:6px;color:#0097e6;">📑 Invoice Kledo: <b>${data.kledoInvoiceNumber}</b></p>`
-              : `<p style="margin-top:8px;color:#e67e22;font-weight:600;">⚠️ Invoice Kledo tidak terbuat</p><p style="margin-top:4px;color:#888;font-size:13px;">Pastikan produk dipilih dari daftar Kledo, bukan diketik manual</p>`) +
+              : `<p style="margin-top:8px;color:#e67e22;font-weight:600;">⚠️ Invoice Kledo tidak terbuat</p><p style="margin-top:4px;color:#888;font-size:13px;">Nama produk tidak ditemukan di Kledo — periksa ejaan produk</p>`) +
             (data.whatsappSent
               ? `<p style="margin-top:6px;color:#27ae60;">✅ Notifikasi WA telah dikirim</p>`
               : `<p style="margin-top:6px;color:#888;">📋 Pesanan telah dicatat</p>`),
