@@ -47,7 +47,6 @@ interface OrderItem {
 }
 
 interface FormData {
-  namaPrefix: string;
   namaKontak: string;
   nomorTelepon: string;
   alamat: string;
@@ -57,7 +56,6 @@ interface FormData {
 }
 
 const EMPTY_FORM: FormData = {
-  namaPrefix: "",
   namaKontak: "",
   nomorTelepon: "",
   alamat: "",
@@ -480,7 +478,7 @@ export default function PurchaseOrderForm() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          namaKontak: [form.namaPrefix.trim(), form.namaKontak.trim()].filter(Boolean).join(" "),
+          namaKontak: form.namaKontak,
           nomorTelepon: form.nomorTelepon || "",
           alamat: form.alamat || "",
           alamatKledo: form.alamat || "",
@@ -551,34 +549,14 @@ export default function PurchaseOrderForm() {
               <span>Data Konsumen</span>
             </div>
             <div className="addr-card-body">
-              <div style={{ display: "flex", gap: "8px", alignItems: "flex-end" }}>
-                <div style={{ flex: "0 0 80px" }}>
-                  <label style={{ display: "block", fontSize: "12px", color: "#888", marginBottom: "4px", fontWeight: 500 }}>Prefix</label>
-                  <input
-                    type="text"
-                    value={form.namaPrefix}
-                    onChange={e => set("namaPrefix", e.target.value)}
-                    placeholder="TB, UD…"
-                    maxLength={10}
-                    style={{
-                      width: "100%", boxSizing: "border-box",
-                      padding: "8px 10px", borderRadius: "8px",
-                      border: "1.5px solid #e0e0e0", fontSize: "14px",
-                      outline: "none", background: "#fafafa",
-                    }}
-                  />
-                </div>
-                <div style={{ flex: 1 }}>
-                  <ContactCombobox
-                    value={form.namaKontak}
-                    onChange={v => set("namaKontak", v)}
-                    onSelect={c => {
-                      set("namaKontak", c.name);
-                      if (c.mobile_phone) set("nomorTelepon", c.mobile_phone);
-                    }}
-                  />
-                </div>
-              </div>
+              <ContactCombobox
+                value={form.namaKontak}
+                onChange={v => set("namaKontak", v)}
+                onSelect={c => {
+                  set("namaKontak", c.name);
+                  if (c.mobile_phone) set("nomorTelepon", c.mobile_phone);
+                }}
+              />
 
               {/* ── 2. Nomor Telepon ── */}
               <FormInput
