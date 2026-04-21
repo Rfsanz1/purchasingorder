@@ -7,8 +7,11 @@ import { logger } from "../lib/logger";
 import { findOrCreateKledoContact, createKledoInvoice, searchKledoProductByName, type KledoInvoiceItem } from "./kledo";
 
 const SALES_PHONE: Record<string, string> = {
-  LEHAN:    "+62 857-2982-4485",
-  AGUS:     "+62 857-3084-5708",
+  LEHAN:        "+62 857-2982-4485",
+  AGUS:         "+62 857-3084-5708",
+  IVAN:         "+62 857-1820-0975",
+  DIAS:         "+62 852-2996-0722",
+  "RIO BRANDON":"+62 859-5282-5277",
   IMAM:     "+62 858-9233-3127",
   AGUNG:    "+62 882-3368-4224",
   ANDRE:    "+62 821-3763-3912",

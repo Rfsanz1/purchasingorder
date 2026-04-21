@@ -7,14 +7,17 @@ import {
 } from "lucide-react";
 
 const SALES_DATA: Record<string, string> = {
-  "Lehan":    "+62 857-2982-4485",
-  "Agus":     "+62 857-3084-5708",
-  "Imam":     "+62 858-9233-3127",
-  "Agung":    "0882-3368-4224",
-  "Andre":    "+62 821-3763-3912",
-  "Priyanto": "+62 823-3479-2357",
-  "Wiwid":    "+62 857-4115-6110",
-  "Dhani":    "+62 812-1599-2058",
+  "Lehan":       "+62 857-2982-4485",
+  "Agus":        "+62 857-3084-5708",
+  "Ivan":        "+62 857-1820-0975",
+  "Dias":        "+62 852-2996-0722",
+  "Rio Brandon": "+62 859-5282-5277",
+  "Imam":        "+62 858-9233-3127",
+  "Agung":       "0882-3368-4224",
+  "Andre":       "+62 821-3763-3912",
+  "Priyanto":    "+62 823-3479-2357",
+  "Wiwid":       "+62 857-4115-6110",
+  "Dhani":       "+62 812-1599-2058",
 };
 const SALES_NAMES = Object.keys(SALES_DATA);
 
@@ -44,6 +47,7 @@ interface OrderItem {
 }
 
 interface FormData {
+  namaPrefix: string;
   namaKontak: string;
   nomorTelepon: string;
   alamat: string;
@@ -53,6 +57,7 @@ interface FormData {
 }
 
 const EMPTY_FORM: FormData = {
+  namaPrefix: "",
   namaKontak: "",
   nomorTelepon: "",
   alamat: "",
@@ -475,7 +480,7 @@ export default function PurchaseOrderForm() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          namaKontak: form.namaKontak,
+          namaKontak: [form.namaPrefix.trim(), form.namaKontak.trim()].filter(Boolean).join(" "),
           nomorTelepon: form.nomorTelepon || "",
           alamat: form.alamat || "",
           alamatKledo: form.alamat || "",
@@ -546,14 +551,34 @@ export default function PurchaseOrderForm() {
               <span>Data Konsumen</span>
             </div>
             <div className="addr-card-body">
-              <ContactCombobox
-                value={form.namaKontak}
-                onChange={v => set("namaKontak", v)}
-                onSelect={c => {
-                  set("namaKontak", c.name);
-                  if (c.mobile_phone) set("nomorTelepon", c.mobile_phone);
-                }}
-              />
+              <div style={{ display: "flex", gap: "8px", alignItems: "flex-end" }}>
+                <div style={{ flex: "0 0 80px" }}>
+                  <label style={{ display: "block", fontSize: "12px", color: "#888", marginBottom: "4px", fontWeight: 500 }}>Prefix</label>
+                  <input
+                    type="text"
+                    value={form.namaPrefix}
+                    onChange={e => set("namaPrefix", e.target.value)}
+                    placeholder="TB, UD…"
+                    maxLength={10}
+                    style={{
+                      width: "100%", boxSizing: "border-box",
+                      padding: "8px 10px", borderRadius: "8px",
+                      border: "1.5px solid #e0e0e0", fontSize: "14px",
+                      outline: "none", background: "#fafafa",
+                    }}
+                  />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <ContactCombobox
+                    value={form.namaKontak}
+                    onChange={v => set("namaKontak", v)}
+                    onSelect={c => {
+                      set("namaKontak", c.name);
+                      if (c.mobile_phone) set("nomorTelepon", c.mobile_phone);
+                    }}
+                  />
+                </div>
+              </div>
 
               {/* ── 2. Nomor Telepon ── */}
               <FormInput
