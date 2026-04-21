@@ -101,31 +101,15 @@ async function isKledoCustomer(contactId: number): Promise<boolean> {
 // Jika kontak sudah ada tapi bukan customer, update tipenya
 export async function findOrCreateKledoContact(namaKontak: string, nomorTelepon: string, alamat: string): Promise<number | null> {
   try {
-    // Cari contact dulu
-    const searchUrl = `${KLEDO_BASE}/contacts?per_page=10&keyword=${encodeURIComponent(namaKontak)}`;
+    // Cari contact customer (type_id=3) dulu berdasarkan nama
+    const searchUrl = `${KLEDO_BASE}/contacts?per_page=20&type_id=3&search=${encodeURIComponent(namaKontak)}`;
     const searchResp = await fetch(searchUrl, { headers: kledoHeaders() });
     const searchData = await searchResp.json() as { success: boolean; data: { data: Array<{ id: number; name: string }> } };
 
     if (searchData.success && searchData.data.data.length > 0) {
       for (const c of searchData.data.data) {
         if (c.name.toLowerCase() === namaKontak.toLowerCase()) {
-          // Jika sudah customer, langsung pakai
-          if (await isKledoCustomer(c.id)) return c.id;
-
-          // Jika ada tapi bukan customer, update type_id jadi customer
-          const updateResp = await fetch(`${KLEDO_BASE}/contacts/${c.id}`, {
-            method: "PUT",
-            headers: kledoHeaders(),
-            body: JSON.stringify({ type_id: 3 }),
-          });
-          const updateData = await updateResp.json() as { success: boolean };
-          if (updateData.success) {
-            logger.info({ contactId: c.id }, "Kledo contact updated to customer type");
-            return c.id;
-          }
-
-          // Update gagal, tetap pakai contact ini (invoice mungkin tetap bisa dibuat)
-          logger.warn({ contactId: c.id }, "Gagal update tipe contact Kledo, tetap pakai ID ini");
+          logger.info({ contactId: c.id, namaKontak }, "Kledo customer contact ditemukan");
           return c.id;
         }
       }
@@ -150,7 +134,7 @@ export async function findOrCreateKledoContact(namaKontak: string, nomorTelepon:
     // Jika gagal karena nama sudah ada, coba cari ulang dengan per_page lebih besar
     if (typeof createData.message === "string" && createData.message.includes("sudah ada")) {
       logger.warn({ namaKontak }, "Nama kontak sudah ada, mencari ulang...");
-      const retryUrl = `${KLEDO_BASE}/contacts?per_page=50&keyword=${encodeURIComponent(namaKontak)}`;
+      const retryUrl = `${KLEDO_BASE}/contacts?per_page=50&type_id=3&search=${encodeURIComponent(namaKontak)}`;
       const retryResp = await fetch(retryUrl, { headers: kledoHeaders() });
       const retryData = await retryResp.json() as { success: boolean; data: { data: Array<{ id: number; name: string }> } };
       if (retryData.success && retryData.data.data.length > 0) {
