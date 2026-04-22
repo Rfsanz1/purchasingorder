@@ -19,31 +19,64 @@ router.get("/kledo/contacts", async (req, res): Promise<void> => {
   const digitsOnly = search.replace(/\D/g, "");
   const isPhoneSearch = digitsOnly.length >= 3 && digitsOnly.length === search.replace(/[\s\-\+\(\)\.]/g, "").length;
 
-  try {
-    const url = `${KLEDO_BASE}/contacts?per_page=50&type_id=3&search=${encodeURIComponent(search)}`;
+  const normalize = (p: string) => {
+    const d = (p || "").replace(/\D/g, "");
+    if (d.startsWith("62")) return "0" + d.slice(2);
+    return d;
+  };
+
+  type KledoContact = { id: number; name: string; phone?: string; mobile_phone?: string };
+
+  async function fetchKledo(q: string): Promise<KledoContact[]> {
+    const url = `${KLEDO_BASE}/contacts?per_page=50&type_id=3&search=${encodeURIComponent(q)}`;
     const resp = await fetch(url, { headers: kledoHeaders() });
-    const data = await resp.json() as { success: boolean; data: { data: Array<{ id: number; name: string; phone?: string; mobile_phone?: string }> } };
-    if (!data.success) {
-      res.status(502).json({ error: "Gagal mengambil kontak dari Kledo" });
-      return;
+    const data = await resp.json() as { success: boolean; data: { data: KledoContact[] }; message?: string };
+    if (!data.success) logger.warn({ q, status: resp.status, msg: data.message }, "Kledo contacts query gagal");
+    if (!data.success) return [];
+    return data.data.data;
+  }
+
+  try {
+    let candidates: KledoContact[] = [];
+
+    if (isPhoneSearch) {
+      // Coba beberapa variasi format nomor agar match dengan field phone di Kledo
+      const variants = new Set<string>();
+      const norm = normalize(digitsOnly);
+      variants.add(digitsOnly);
+      variants.add(norm);
+      if (norm.startsWith("0")) {
+        variants.add("62" + norm.slice(1));
+        variants.add("+62" + norm.slice(1));
+      }
+      // 8-digit terakhir untuk match parsial (sering nomor disimpan dgn/ tanpa kode negara)
+      if (norm.length >= 8) variants.add(norm.slice(-9));
+      if (norm.length >= 8) variants.add(norm.slice(-8));
+
+      const seen = new Set<number>();
+      for (const v of variants) {
+        const list = await fetchKledo(v);
+        for (const c of list) {
+          if (!seen.has(c.id)) { seen.add(c.id); candidates.push(c); }
+        }
+      }
+    } else {
+      candidates = await fetchKledo(search);
     }
 
     const lower = search.toLowerCase();
-    const normalize = (p: string) => {
-      const d = p.replace(/\D/g, "");
-      if (d.startsWith("62")) return "0" + d.slice(2);
-      return d;
-    };
     const queryNorm = normalize(digitsOnly);
 
-    const filtered = data.data.data
+    const filtered = candidates
       .filter(c => {
-        const nameMatch = c.name.toLowerCase().includes(lower);
-        const phoneRaw = c.phone || c.mobile_phone || "";
-        const phoneNorm = normalize(phoneRaw);
-        const phoneMatch = isPhoneSearch && queryNorm.length >= 3 &&
-          (phoneNorm.includes(queryNorm) || queryNorm.includes(phoneNorm));
-        return nameMatch || phoneMatch;
+        if (isPhoneSearch) {
+          const phoneNorm = normalize(c.phone || c.mobile_phone || "");
+          if (!phoneNorm) return false;
+          // cocok jika salah satu mengandung yang lain (tangani prefix 0/62)
+          return phoneNorm.includes(queryNorm) || queryNorm.includes(phoneNorm) ||
+            phoneNorm.endsWith(queryNorm) || queryNorm.endsWith(phoneNorm);
+        }
+        return c.name.toLowerCase().includes(lower);
       })
       .slice(0, 10);
 
