@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { SALES_USERNAMES } from "@/lib/salesFilters";
 
+const DRIVER_USERNAMES = ["yanto", "wawan", "chaidar"];
+
 interface Props {
   onForm: () => void;
   onAdmin: () => void;
-  onDriver: () => void;
+  onDriver: (username: string) => void;
   onSales: (username: string) => void;
 }
 
@@ -24,7 +26,10 @@ async function doLogin(
   if (data.ok) {
     sessionStorage.setItem("role", role);
     sessionStorage.setItem("loginAt", Date.now().toString());
-    if (data.username) sessionStorage.setItem("salesUsername", data.username);
+    if (data.username) {
+      const key = role === "driver" ? "driverUsername" : "salesUsername";
+      sessionStorage.setItem(key, data.username);
+    }
     return { ok: true, username: data.username };
   }
   return { ok: false, error: data.error };
@@ -45,11 +50,12 @@ function LoginModal({
   const [loading, setLoading] = useState(false);
 
   const handle = async () => {
-    if (role === "sales" && !user.trim()) { setErr("Pilih nama sales"); return; }
+    if (role === "sales"  && !user.trim()) { setErr("Pilih nama sales"); return; }
+    if (role === "driver" && !user.trim()) { setErr("Pilih nama driver"); return; }
     if (!pw.trim()) { setErr("Masukkan password"); return; }
     setLoading(true);
     setErr("");
-    const r = await doLogin(role, pw, role === "sales" ? user : undefined);
+    const r = await doLogin(role, pw, role === "sales" || role === "driver" ? user : undefined);
     setLoading(false);
     if (r.ok) onSuccess(r.username);
     else setErr(r.error || "Login gagal");
@@ -75,15 +81,17 @@ function LoginModal({
             : "Masukkan password untuk melanjutkan"}
         </p>
 
-        {role === "sales" && (
+        {(role === "sales" || role === "driver") && (
           <select
             className="lp-modal-input"
             value={user}
             onChange={e => setUser(e.target.value)}
             style={{ marginBottom: 10 }}
           >
-            <option value="">— Pilih nama sales —</option>
-            {SALES_USERNAMES.map(u => (
+            <option value="">
+              {role === "sales" ? "— Pilih nama sales —" : "— Pilih nama driver —"}
+            </option>
+            {(role === "sales" ? SALES_USERNAMES : DRIVER_USERNAMES).map(u => (
               <option key={u} value={u}>{u.replace(/\b\w/g, c => c.toUpperCase())}</option>
             ))}
           </select>
@@ -142,7 +150,7 @@ export default function LandingPage({ onForm, onAdmin, onDriver, onSales }: Prop
           <button className="lp-card lp-card--driver" onClick={() => setModal("driver")}>
             <div className="lp-card-icon">🚚</div>
             <div className="lp-card-label">Dashboard Driver</div>
-            <div className="lp-card-desc">Lihat & update status pengiriman</div>
+            <div className="lp-card-desc">Lihat pengiriman & upload bukti foto</div>
           </button>
         </div>
       </div>
@@ -155,7 +163,7 @@ export default function LandingPage({ onForm, onAdmin, onDriver, onSales }: Prop
             const m = modal;
             setModal(null);
             if (m === "admin")  onAdmin();
-            if (m === "driver") onDriver();
+            if (m === "driver") onDriver(username || "");
             if (m === "sales")  onSales(username || "");
           }}
         />

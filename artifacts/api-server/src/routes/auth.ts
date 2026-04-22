@@ -34,9 +34,30 @@ router.post("/auth/login", (req, res): void => {
     return;
   }
 
-  if (role === "driver" && password === driverPass) {
-    res.json({ ok: true, role: "driver" });
-    return;
+  // Driver: kalau username ada → login per orang. Kalau tidak ada → fallback password lama.
+  if (role === "driver") {
+    const name = (username ?? "").trim().toLowerCase();
+    if (name) {
+      const known: Record<string, string> = {
+        yanto:   process.env.DRIVER_PASS_YANTO   ?? "yanto123",
+        wawan:   process.env.DRIVER_PASS_WAWAN   ?? "wawan123",
+        chaidar: process.env.DRIVER_PASS_CHAIDAR ?? "idar123",
+      };
+      if (!(name in known)) {
+        res.status(401).json({ ok: false, error: "Username driver tidak dikenal" });
+        return;
+      }
+      if (password !== known[name]) {
+        res.status(401).json({ ok: false, error: "Password salah" });
+        return;
+      }
+      res.json({ ok: true, role: "driver", username: name });
+      return;
+    }
+    if (password === driverPass) {
+      res.json({ ok: true, role: "driver" });
+      return;
+    }
   }
 
   if (role === "sales") {

@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Truck, CheckCircle, Clock, User, Phone,
-  MapPin, ShoppingCart, RefreshCw, LogOut, Package,
+  MapPin, ShoppingCart, RefreshCw, LogOut, Package, Camera,
 } from "lucide-react";
 
 interface Order {
@@ -88,12 +88,33 @@ function StatusProgress({ status }: { status: string }) {
   );
 }
 
-export default function DriverDashboard({ onLogout }: { onLogout: () => void }) {
+function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(String(r.result));
+    r.onerror = () => reject(r.error);
+    r.readAsDataURL(file);
+  });
+}
+
+export default function DriverDashboard({
+  onLogout,
+  driverUsername,
+}: {
+  onLogout: () => void;
+  driverUsername?: string;
+}) {
+  const driverLabel = driverUsername
+    ? driverUsername.replace(/\b\w/g, c => c.toUpperCase())
+    : "";
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [updatingId, setUpdatingId] = useState<number | null>(null);
+  const [uploadingId, setUploadingId] = useState<number | null>(null);
+  const [uploadMsg, setUploadMsg] = useState<{ id: number; ok: boolean; text: string } | null>(null);
   const [filter, setFilter] = useState<"aktif" | "selesai">("aktif");
+  const fileRefs = useRef<Record<number, HTMLInputElement | null>>({});
 
   const fetchOrders = async () => {
     setLoading(true); setError("");
@@ -107,6 +128,30 @@ export default function DriverDashboard({ onLogout }: { onLogout: () => void }) 
   };
 
   useEffect(() => { fetchOrders(); }, []);
+
+  const uploadFoto = async (id: number, file: File) => {
+    setUploadingId(id);
+    setUploadMsg(null);
+    try {
+      const photoBase64 = await fileToBase64(file);
+      const res = await fetch(`${baseUrl}/api/orders/${id}/foto`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          photoBase64,
+          driverName: driverLabel || undefined,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.ok) throw new Error(data.error || "Upload gagal");
+      setUploadMsg({ id, ok: true, text: "Foto terkirim ke grup WA ✅" });
+    } catch (e) {
+      setUploadMsg({ id, ok: false, text: e instanceof Error ? e.message : "Upload gagal" });
+    } finally {
+      setUploadingId(null);
+      setTimeout(() => setUploadMsg(m => (m && m.id === id ? null : m)), 4000);
+    }
+  };
 
   const updateStatus = async (id: number, status: string) => {
     setUpdatingId(id);
@@ -133,8 +178,10 @@ export default function DriverDashboard({ onLogout }: { onLogout: () => void }) 
           <div className="dash-header-left">
             <div className="dash-header-icon-wrap">🚚</div>
             <div>
-              <h1 className="dash-title">Dashboard Driver</h1>
-              <p className="dash-sub">Daftar pengiriman yang perlu kamu tangani</p>
+              <h1 className="dash-title">
+                Dashboard Driver{driverLabel ? ` — ${driverLabel}` : ""}
+              </h1>
+              <p className="dash-sub">Update status & upload bukti foto pengiriman</p>
             </div>
           </div>
           <div className="dash-header-actions">
@@ -285,6 +332,40 @@ export default function DriverDashboard({ onLogout }: { onLogout: () => void }) 
                         <>{NEXT_LABEL[order.statusPengiriman] ?? "Update Status"}</>
                       )}
                     </button>
+                  )}
+
+                  {/* Upload bukti foto */}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    style={{ display: "none" }}
+                    ref={el => { fileRefs.current[order.id] = el; }}
+                    onChange={e => {
+                      const f = e.target.files?.[0];
+                      if (f) uploadFoto(order.id, f);
+                      e.target.value = "";
+                    }}
+                  />
+                  <button
+                    className="drv-action-btn"
+                    disabled={uploadingId === order.id}
+                    style={{ background: "#0ea5e9", color: "#fff", marginTop: 8 }}
+                    onClick={() => fileRefs.current[order.id]?.click()}
+                  >
+                    {uploadingId === order.id ? (
+                      <><RefreshCw size={14} className="drv-spin" /> Mengirim foto...</>
+                    ) : (
+                      <><Camera size={14} /> Upload Bukti Foto</>
+                    )}
+                  </button>
+                  {uploadMsg && uploadMsg.id === order.id && (
+                    <div style={{
+                      marginTop: 6,
+                      fontSize: 13,
+                      color: uploadMsg.ok ? "#059669" : "#dc2626",
+                      textAlign: "center",
+                    }}>{uploadMsg.text}</div>
                   )}
                 </div>
               );

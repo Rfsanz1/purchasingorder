@@ -39,7 +39,7 @@ function cleanPhoneNumber(raw: string): string | null {
 async function kirimWA(
   target: string,
   message: string,
-  options: { button?: string; footer?: string } = {}
+  options: { button?: string; footer?: string; file?: { buffer: Buffer; filename: string; mime: string } } = {}
 ): Promise<boolean> {
   const token = process.env.FONNTE_TOKEN;
   if (!token) {
@@ -47,14 +47,24 @@ async function kirimWA(
     return false;
   }
   try {
-    const params: Record<string, string> = { target, message };
-    if (options.button)  params.button  = options.button;
-    if (options.footer)  params.footer  = options.footer;
-    const form = new URLSearchParams(params);
     const res = await fetch("https://api.fonnte.com/send", {
       method: "POST",
-      headers: { Authorization: token, "Content-Type": "application/x-www-form-urlencoded" },
-      body: form.toString(),
+      headers: { Authorization: token },
+      body: (() => {
+        const fd = new FormData();
+        fd.append("target", target);
+        fd.append("message", message);
+        if (options.button) fd.append("button", options.button);
+        if (options.footer) fd.append("footer", options.footer);
+        if (options.file) {
+          fd.append(
+            "file",
+            new Blob([new Uint8Array(options.file.buffer)], { type: options.file.mime }),
+            options.file.filename,
+          );
+        }
+        return fd;
+      })(),
     });
     const text = await res.text();
     logger.info({ target, status: res.status, response: text }, "Fonnte WA sent");
@@ -280,6 +290,60 @@ router.post("/orders", async (req, res): Promise<void> => {
     kledoInvoiceId,
     kledoInvoiceNumber,
   });
+});
+
+// POST /orders/:id/foto — driver upload foto bukti pengiriman → kirim ke grup WA
+router.post("/orders/:id/foto", async (req, res): Promise<void> => {
+  const id = Number(req.params.id);
+  const { photoBase64, driverName, caption } = req.body as {
+    photoBase64?: string;
+    driverName?: string;
+    caption?: string;
+  };
+
+  if (!photoBase64) {
+    res.status(400).json({ ok: false, error: "Foto wajib diisi" });
+    return;
+  }
+
+  // Ambil order untuk konteks pesan
+  const orderRows = await db.select().from(ordersTable).where(eq(ordersTable.id, id)).limit(1);
+  const order = orderRows[0];
+  if (!order) {
+    res.status(404).json({ ok: false, error: "Order tidak ditemukan" });
+    return;
+  }
+
+  // Decode base64 (data:image/jpeg;base64,xxxx atau raw base64)
+  const m = photoBase64.match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/);
+  const mime = m ? m[1] : "image/jpeg";
+  const b64  = m ? m[2] : photoBase64;
+  const buffer = Buffer.from(b64, "base64");
+  const ext = mime.split("/")[1]?.split("+")[0] || "jpg";
+  const filename = `bukti-${order.orderId}.${ext}`;
+
+  const groupId = process.env.FONNTE_GROUP_ID ?? "120363356936985289@g.us";
+  const driverLabel = driverName || order.driverName || "Driver";
+
+  const message =
+    `📸 *Bukti Pengiriman*\n\n` +
+    `Order: #${order.orderId}\n` +
+    `Customer: ${order.namaKontak} – ${order.nomorTelepon}\n` +
+    `Alamat: ${order.alamat}` + (order.patokanLokasi ? ` – ${order.patokanLokasi}` : "") + `\n` +
+    `Produk: ${order.namaProduk} × ${order.jumlahProduk}\n` +
+    `Driver: ${driverLabel}` +
+    (caption ? `\n\nCatatan: ${caption}` : "");
+
+  const sent = await kirimWA(groupId, message, {
+    file: { buffer, filename, mime },
+  });
+
+  if (!sent) {
+    res.status(502).json({ ok: false, error: "Gagal mengirim ke grup WA" });
+    return;
+  }
+
+  res.json({ ok: true });
 });
 
 // PATCH /orders/:id/pengiriman — update status pengiriman & driver

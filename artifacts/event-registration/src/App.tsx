@@ -9,17 +9,20 @@ type View = "landing" | "form" | "admin" | "sales" | "driver";
 
 interface StoredSession {
   view: View;
-  salesUsername?: string;
+  username?: string;
 }
 
 function getStoredSession(): StoredSession {
   const role = sessionStorage.getItem("role");
   const loginAt = sessionStorage.getItem("loginAt");
-  const salesUsername = sessionStorage.getItem("salesUsername") || undefined;
+  const username =
+    sessionStorage.getItem("salesUsername") ||
+    sessionStorage.getItem("driverUsername") ||
+    undefined;
   if (role && loginAt) {
     const elapsed = Date.now() - Number(loginAt);
     if (elapsed < 8 * 60 * 60 * 1000) {
-      return { view: role as View, salesUsername };
+      return { view: role as View, username };
     }
     sessionStorage.clear();
   }
@@ -30,6 +33,7 @@ function logout() {
   sessionStorage.removeItem("role");
   sessionStorage.removeItem("loginAt");
   sessionStorage.removeItem("salesUsername");
+  sessionStorage.removeItem("driverUsername");
 }
 
 function App() {
@@ -46,8 +50,8 @@ function App() {
     setSession({ view: "landing" });
   };
 
-  const setView = (view: View, salesUsername?: string) =>
-    setSession({ view, salesUsername });
+  const setView = (view: View, username?: string) =>
+    setSession({ view, username });
 
   return (
     <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
@@ -55,7 +59,7 @@ function App() {
         <LandingPage
           onForm={() => setView("form")}
           onAdmin={() => setView("admin")}
-          onDriver={() => setView("driver")}
+          onDriver={(u) => setView("driver", u)}
           onSales={(u) => setView("sales", u)}
         />
       )}
@@ -69,10 +73,10 @@ function App() {
         <AdminDashboard onLogout={handleLogout} />
       )}
       {session.view === "sales" && (
-        <AdminDashboard onLogout={handleLogout} salesUsername={session.salesUsername} />
+        <AdminDashboard onLogout={handleLogout} salesUsername={session.username} />
       )}
       {session.view === "driver" && (
-        <DriverDashboard onLogout={handleLogout} />
+        <DriverDashboard onLogout={handleLogout} driverUsername={session.username} />
       )}
     </WouterRouter>
   );
