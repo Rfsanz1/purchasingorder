@@ -5,59 +5,73 @@ import AdminDashboard from "@/pages/AdminDashboard";
 import DriverDashboard from "@/pages/DriverDashboard";
 import LandingPage from "@/pages/LandingPage";
 
-type View = "landing" | "form" | "admin" | "driver";
+type View = "landing" | "form" | "admin" | "sales" | "driver";
 
-function getStoredView(): View {
+interface StoredSession {
+  view: View;
+  salesUsername?: string;
+}
+
+function getStoredSession(): StoredSession {
   const role = sessionStorage.getItem("role");
   const loginAt = sessionStorage.getItem("loginAt");
+  const salesUsername = sessionStorage.getItem("salesUsername") || undefined;
   if (role && loginAt) {
     const elapsed = Date.now() - Number(loginAt);
     if (elapsed < 8 * 60 * 60 * 1000) {
-      return role as View;
+      return { view: role as View, salesUsername };
     }
     sessionStorage.clear();
   }
-  return "landing";
+  return { view: "landing" };
 }
 
 function logout() {
   sessionStorage.removeItem("role");
   sessionStorage.removeItem("loginAt");
+  sessionStorage.removeItem("salesUsername");
 }
 
 function App() {
-  const [view, setView] = useState<View>(getStoredView);
+  const [session, setSession] = useState<StoredSession>(getStoredSession);
 
   useEffect(() => {
-    const syncView = () => setView(getStoredView());
-    window.addEventListener("storage", syncView);
-    return () => window.removeEventListener("storage", syncView);
+    const sync = () => setSession(getStoredSession());
+    window.addEventListener("storage", sync);
+    return () => window.removeEventListener("storage", sync);
   }, []);
 
   const handleLogout = () => {
     logout();
-    setView("landing");
+    setSession({ view: "landing" });
   };
+
+  const setView = (view: View, salesUsername?: string) =>
+    setSession({ view, salesUsername });
 
   return (
     <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-      {view === "landing" && (
+      {session.view === "landing" && (
         <LandingPage
           onForm={() => setView("form")}
           onAdmin={() => setView("admin")}
           onDriver={() => setView("driver")}
+          onSales={(u) => setView("sales", u)}
         />
       )}
-      {view === "form" && (
+      {session.view === "form" && (
         <div>
           <button className="lp-back-btn" onClick={() => setView("landing")}>← Kembali</button>
           <PurchaseOrderForm />
         </div>
       )}
-      {view === "admin" && (
+      {session.view === "admin" && (
         <AdminDashboard onLogout={handleLogout} />
       )}
-      {view === "driver" && (
+      {session.view === "sales" && (
+        <AdminDashboard onLogout={handleLogout} salesUsername={session.salesUsername} />
+      )}
+      {session.view === "driver" && (
         <DriverDashboard onLogout={handleLogout} />
       )}
     </WouterRouter>

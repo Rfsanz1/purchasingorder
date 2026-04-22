@@ -1,26 +1,33 @@
 import { useState } from "react";
+import { SALES_USERNAMES } from "@/lib/salesFilters";
 
 interface Props {
   onForm: () => void;
   onAdmin: () => void;
   onDriver: () => void;
+  onSales: (username: string) => void;
 }
 
 const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
 
-async function doLogin(role: "admin" | "driver", password: string): Promise<boolean> {
+async function doLogin(
+  role: "admin" | "driver" | "sales",
+  password: string,
+  username?: string,
+): Promise<{ ok: boolean; username?: string; error?: string }> {
   const res = await fetch(`${baseUrl}/api/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ role, password }),
+    body: JSON.stringify({ role, password, ...(username ? { username } : {}) }),
   });
   const data = await res.json();
   if (data.ok) {
     sessionStorage.setItem("role", role);
     sessionStorage.setItem("loginAt", Date.now().toString());
-    return true;
+    if (data.username) sessionStorage.setItem("salesUsername", data.username);
+    return { ok: true, username: data.username };
   }
-  return false;
+  return { ok: false, error: data.error };
 }
 
 function LoginModal({
@@ -28,38 +35,66 @@ function LoginModal({
   onClose,
   onSuccess,
 }: {
-  role: "admin" | "driver";
+  role: "admin" | "driver" | "sales";
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess: (username?: string) => void;
 }) {
   const [pw, setPw] = useState("");
+  const [user, setUser] = useState("");
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handle = async () => {
+    if (role === "sales" && !user.trim()) { setErr("Pilih nama sales"); return; }
     if (!pw.trim()) { setErr("Masukkan password"); return; }
     setLoading(true);
     setErr("");
-    const ok = await doLogin(role, pw);
+    const r = await doLogin(role, pw, role === "sales" ? user : undefined);
     setLoading(false);
-    if (ok) { onSuccess(); }
-    else { setErr("Password salah. Coba lagi."); }
+    if (r.ok) onSuccess(r.username);
+    else setErr(r.error || "Login gagal");
   };
+
+  const title =
+    role === "admin"  ? "Login Super Admin" :
+    role === "driver" ? "Login Driver" :
+                        "Login Sales";
+  const icon =
+    role === "admin"  ? "🔐" :
+    role === "driver" ? "🚚" :
+                        "🧑‍💼";
 
   return (
     <div className="lp-overlay" onClick={onClose}>
       <div className="lp-modal" onClick={e => e.stopPropagation()}>
-        <div className="lp-modal-icon">{role === "admin" ? "🔐" : "🚚"}</div>
-        <h2 className="lp-modal-title">
-          {role === "admin" ? "Login Admin" : "Login Driver"}
-        </h2>
-        <p className="lp-modal-sub">Masukkan password untuk melanjutkan</p>
+        <div className="lp-modal-icon">{icon}</div>
+        <h2 className="lp-modal-title">{title}</h2>
+        <p className="lp-modal-sub">
+          {role === "sales"
+            ? "Pilih nama lalu masukkan password"
+            : "Masukkan password untuk melanjutkan"}
+        </p>
+
+        {role === "sales" && (
+          <select
+            className="lp-modal-input"
+            value={user}
+            onChange={e => setUser(e.target.value)}
+            style={{ marginBottom: 10 }}
+          >
+            <option value="">— Pilih nama sales —</option>
+            {SALES_USERNAMES.map(u => (
+              <option key={u} value={u}>{u.replace(/\b\w/g, c => c.toUpperCase())}</option>
+            ))}
+          </select>
+        )}
+
         <input
           className={`lp-modal-input${err ? " lp-modal-input--err" : ""}`}
           type="password"
           placeholder="Password"
           value={pw}
-          autoFocus
+          autoFocus={role !== "sales"}
           onChange={e => setPw(e.target.value)}
           onKeyDown={e => e.key === "Enter" && handle()}
         />
@@ -73,8 +108,8 @@ function LoginModal({
   );
 }
 
-export default function LandingPage({ onForm, onAdmin, onDriver }: Props) {
-  const [modal, setModal] = useState<"admin" | "driver" | null>(null);
+export default function LandingPage({ onForm, onAdmin, onDriver, onSales }: Props) {
+  const [modal, setModal] = useState<"admin" | "driver" | "sales" | null>(null);
 
   return (
     <div className="lp-bg">
@@ -94,8 +129,14 @@ export default function LandingPage({ onForm, onAdmin, onDriver }: Props) {
 
           <button className="lp-card lp-card--admin" onClick={() => setModal("admin")}>
             <div className="lp-card-icon">📋</div>
-            <div className="lp-card-label">Dashboard Admin</div>
-            <div className="lp-card-desc">Kelola pesanan & pengiriman</div>
+            <div className="lp-card-label">Dashboard Super Admin</div>
+            <div className="lp-card-desc">Lihat semua pesanan & pengiriman</div>
+          </button>
+
+          <button className="lp-card lp-card--admin" onClick={() => setModal("sales")}>
+            <div className="lp-card-icon">🧑‍💼</div>
+            <div className="lp-card-label">Dashboard Sales</div>
+            <div className="lp-card-desc">Lihat pesanan unit kamu saja</div>
           </button>
 
           <button className="lp-card lp-card--driver" onClick={() => setModal("driver")}>
@@ -110,9 +151,12 @@ export default function LandingPage({ onForm, onAdmin, onDriver }: Props) {
         <LoginModal
           role={modal}
           onClose={() => setModal(null)}
-          onSuccess={() => {
+          onSuccess={(username) => {
+            const m = modal;
             setModal(null);
-            modal === "admin" ? onAdmin() : onDriver();
+            if (m === "admin")  onAdmin();
+            if (m === "driver") onDriver();
+            if (m === "sales")  onSales(username || "");
           }}
         />
       )}

@@ -4,6 +4,7 @@ import {
   Search, RefreshCw, LogOut, User, Phone,
   MapPin, ShoppingCart, Clock, ChevronDown,
 } from "lucide-react";
+import { filterOrdersForSales, SALES_SCOPES } from "@/lib/salesFilters";
 
 interface Order {
   id: number;
@@ -93,7 +94,15 @@ function StatCard({ icon, value, label, color, bg }: StatCardProps) {
   );
 }
 
-export default function AdminDashboard({ onLogout }: { onLogout: () => void }) {
+export default function AdminDashboard({
+  onLogout,
+  salesUsername,
+}: {
+  onLogout: () => void;
+  salesUsername?: string;
+}) {
+  const isSales = !!salesUsername;
+  const scope = salesUsername ? SALES_SCOPES[salesUsername.toLowerCase()] : null;
   const [tab, setTab] = useState<"pesanan" | "pengiriman">("pesanan");
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -114,7 +123,9 @@ export default function AdminDashboard({ onLogout }: { onLogout: () => void }) {
 
   useEffect(() => { fetchOrders(); }, []);
 
-  const filtered = orders.filter(o =>
+  const scoped = isSales ? filterOrdersForSales(orders, salesUsername!) : orders;
+
+  const filtered = scoped.filter(o =>
     [o.namaKontak, o.nomorTelepon, o.namaProduk, o.salesPerson, o.orderId]
       .join(" ").toLowerCase().includes(search.toLowerCase())
   );
@@ -143,10 +154,18 @@ export default function AdminDashboard({ onLogout }: { onLogout: () => void }) {
         {/* ── Header ── */}
         <div className="dash-header">
           <div className="dash-header-left">
-            <div className="dash-header-icon-wrap">📦</div>
+            <div className="dash-header-icon-wrap">{isSales ? "🧑‍💼" : "📦"}</div>
             <div>
-              <h1 className="dash-title">Dashboard Admin</h1>
-              <p className="dash-sub">Kelola pesanan &amp; pengiriman dalam satu tempat</p>
+              <h1 className="dash-title">
+                {isSales
+                  ? `Dashboard Sales — ${salesUsername!.replace(/\b\w/g, c => c.toUpperCase())}`
+                  : "Dashboard Super Admin"}
+              </h1>
+              <p className="dash-sub">
+                {isSales
+                  ? `Unit yang kamu kelola: ${scope?.label ?? salesUsername}`
+                  : "Kelola semua pesanan & pengiriman"}
+              </p>
             </div>
           </div>
           <div className="dash-header-actions">
