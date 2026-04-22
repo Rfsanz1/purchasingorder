@@ -26,6 +26,7 @@ interface KledoContact {
   name: string;
   mobile_phone?: string;
   email?: string;
+  address?: string;
 }
 
 interface KledoProduct {
@@ -265,11 +266,10 @@ function PhoneCombobox({ value, onChange, onSelect }: {
           {results.map(c => (
             <li key={c.id} className="po-combo-item" onMouseDown={() => handleSelect(c)}>
               <div className="po-combo-item-name">{c.name}</div>
-              {c.mobile_phone && (
-                <div className="po-combo-item-meta">
-                  <span className="po-combo-sku">{c.mobile_phone}</span>
-                </div>
-              )}
+              <div className="po-combo-item-meta">
+                {c.mobile_phone && <span className="po-combo-sku">{c.mobile_phone}</span>}
+                {c.address && <span className="po-combo-unit" style={{ marginLeft: 8 }}>{c.address}</span>}
+              </div>
             </li>
           ))}
         </ul>
@@ -651,8 +651,12 @@ export default function PurchaseOrderForm() {
                 value={form.namaKontak}
                 onChange={v => set("namaKontak", v)}
                 onSelect={c => {
-                  set("namaKontak", c.name);
-                  if (c.mobile_phone) set("nomorTelepon", c.mobile_phone);
+                  setForm(p => ({
+                    ...p,
+                    namaKontak: c.name,
+                    nomorTelepon: c.mobile_phone || p.nomorTelepon,
+                    alamat: c.address || p.alamat,
+                  }));
                 }}
               />
 
@@ -661,8 +665,12 @@ export default function PurchaseOrderForm() {
                 value={form.nomorTelepon}
                 onChange={v => set("nomorTelepon", v)}
                 onSelect={c => {
-                  set("namaKontak", c.name);
-                  if (c.mobile_phone) set("nomorTelepon", c.mobile_phone);
+                  setForm(p => ({
+                    ...p,
+                    namaKontak: c.name,
+                    nomorTelepon: c.mobile_phone || p.nomorTelepon,
+                    alamat: c.address || p.alamat,
+                  }));
                 }}
               />
 

@@ -19,74 +19,45 @@ router.get("/kledo/contacts", async (req, res): Promise<void> => {
   const digitsOnly = search.replace(/\D/g, "");
   const isPhoneSearch = digitsOnly.length >= 3 && digitsOnly.length === search.replace(/[\s\-\+\(\)\.]/g, "").length;
 
-  const normalize = (p: string) => {
-    const d = (p || "").replace(/\D/g, "");
-    if (d.startsWith("62")) return "0" + d.slice(2);
-    return d;
-  };
+  type KledoContactList = { id: number; name: string; address?: string };
+  type KledoContactDetail = { id: number; name: string; phone?: string; address?: string };
 
-  type KledoContact = { id: number; name: string; phone?: string; mobile_phone?: string };
-
-  async function fetchKledo(q: string): Promise<KledoContact[]> {
-    const url = `${KLEDO_BASE}/contacts?per_page=50&type_id=3&search=${encodeURIComponent(q)}`;
+  async function fetchKledo(q: string): Promise<KledoContactList[]> {
+    const url = `${KLEDO_BASE}/contacts?per_page=20&type_id=3&search=${encodeURIComponent(q)}`;
     const resp = await fetch(url, { headers: kledoHeaders() });
-    const data = await resp.json() as { success: boolean; data: { data: KledoContact[] }; message?: string };
-    if (!data.success) logger.warn({ q, status: resp.status, msg: data.message }, "Kledo contacts query gagal");
-    if (!data.success) return [];
+    const data = await resp.json() as { success: boolean; data: { data: KledoContactList[] }; message?: string };
+    if (!data.success) {
+      logger.warn({ q, status: resp.status, msg: data.message }, "Kledo contacts query gagal");
+      return [];
+    }
     return data.data.data;
   }
 
+  async function fetchDetail(id: number): Promise<KledoContactDetail | null> {
+    try {
+      const resp = await fetch(`${KLEDO_BASE}/contacts/${id}`, { headers: kledoHeaders() });
+      const data = await resp.json() as { success: boolean; data: KledoContactDetail };
+      return data.success ? data.data : null;
+    } catch { return null; }
+  }
+
   try {
-    let candidates: KledoContact[] = [];
+    // Kledo's `search` param sudah mencari di field nama, telepon, dan address.
+    // Jadi pakai query asli — entah teks atau angka HP — biarkan Kledo yang filter.
+    const queryToSend = isPhoneSearch ? digitsOnly : search;
+    const candidates = (await fetchKledo(queryToSend)).slice(0, 10);
 
-    if (isPhoneSearch) {
-      // Coba beberapa variasi format nomor agar match dengan field phone di Kledo
-      const variants = new Set<string>();
-      const norm = normalize(digitsOnly);
-      variants.add(digitsOnly);
-      variants.add(norm);
-      if (norm.startsWith("0")) {
-        variants.add("62" + norm.slice(1));
-        variants.add("+62" + norm.slice(1));
-      }
-      // 8-digit terakhir untuk match parsial (sering nomor disimpan dgn/ tanpa kode negara)
-      if (norm.length >= 8) variants.add(norm.slice(-9));
-      if (norm.length >= 8) variants.add(norm.slice(-8));
+    // Ambil detail (untuk dapat nomor HP) buat ditampilkan di dropdown
+    const detailed = await Promise.all(candidates.map(c => fetchDetail(c.id)));
 
-      const seen = new Set<number>();
-      for (const v of variants) {
-        const list = await fetchKledo(v);
-        for (const c of list) {
-          if (!seen.has(c.id)) { seen.add(c.id); candidates.push(c); }
-        }
-      }
-    } else {
-      candidates = await fetchKledo(search);
-    }
+    const contacts = candidates.map((c, i) => ({
+      id: c.id,
+      name: c.name,
+      mobile_phone: detailed[i]?.phone || "",
+      address: detailed[i]?.address || c.address || "",
+    }));
 
-    const lower = search.toLowerCase();
-    const queryNorm = normalize(digitsOnly);
-
-    const filtered = candidates
-      .filter(c => {
-        if (isPhoneSearch) {
-          const phoneNorm = normalize(c.phone || c.mobile_phone || "");
-          if (!phoneNorm) return false;
-          // cocok jika salah satu mengandung yang lain (tangani prefix 0/62)
-          return phoneNorm.includes(queryNorm) || queryNorm.includes(phoneNorm) ||
-            phoneNorm.endsWith(queryNorm) || queryNorm.endsWith(phoneNorm);
-        }
-        return c.name.toLowerCase().includes(lower);
-      })
-      .slice(0, 10);
-
-    res.json({
-      contacts: filtered.map(c => ({
-        id: c.id,
-        name: c.name,
-        mobile_phone: c.phone || c.mobile_phone || "",
-      })),
-    });
+    res.json({ contacts });
   } catch (err) {
     logger.error({ err }, "Kledo contacts fetch error");
     res.status(500).json({ error: "Koneksi ke Kledo gagal" });
