@@ -13,9 +13,12 @@ function kledoHeaders() {
   };
 }
 
-// GET /kledo/contacts?search=keyword
+// GET /kledo/contacts?search=keyword (mendukung pencarian by nama atau nomor HP)
 router.get("/kledo/contacts", async (req, res): Promise<void> => {
   const search = (req.query.search as string) || "";
+  const digitsOnly = search.replace(/\D/g, "");
+  const isPhoneSearch = digitsOnly.length >= 3 && digitsOnly.length === search.replace(/[\s\-\+\(\)\.]/g, "").length;
+
   try {
     const url = `${KLEDO_BASE}/contacts?per_page=50&type_id=3&search=${encodeURIComponent(search)}`;
     const resp = await fetch(url, { headers: kledoHeaders() });
@@ -24,10 +27,26 @@ router.get("/kledo/contacts", async (req, res): Promise<void> => {
       res.status(502).json({ error: "Gagal mengambil kontak dari Kledo" });
       return;
     }
+
     const lower = search.toLowerCase();
+    const normalize = (p: string) => {
+      const d = p.replace(/\D/g, "");
+      if (d.startsWith("62")) return "0" + d.slice(2);
+      return d;
+    };
+    const queryNorm = normalize(digitsOnly);
+
     const filtered = data.data.data
-      .filter(c => c.name.toLowerCase().includes(lower))
+      .filter(c => {
+        const nameMatch = c.name.toLowerCase().includes(lower);
+        const phoneRaw = c.phone || c.mobile_phone || "";
+        const phoneNorm = normalize(phoneRaw);
+        const phoneMatch = isPhoneSearch && queryNorm.length >= 3 &&
+          (phoneNorm.includes(queryNorm) || queryNorm.includes(phoneNorm));
+        return nameMatch || phoneMatch;
+      })
       .slice(0, 10);
+
     res.json({
       contacts: filtered.map(c => ({
         id: c.id,

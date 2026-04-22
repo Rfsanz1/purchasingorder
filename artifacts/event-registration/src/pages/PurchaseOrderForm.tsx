@@ -189,6 +189,101 @@ function ProductCombobox({ value, onSelect, onClear, placeholder }: {
   );
 }
 
+// Searchable phone combobox — cari kontak yang pernah membeli berdasarkan nomor HP
+function PhoneCombobox({ value, onChange, onSelect }: {
+  value: string;
+  onChange: (phone: string) => void;
+  onSelect: (contact: KledoContact) => void;
+}) {
+  const [results, setResults] = useState<KledoContact[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [focused, setFocused] = useState(false);
+  const debounce = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+  useEffect(() => {
+    function onClick(e: MouseEvent) {
+      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) {
+        setOpen(false); setFocused(false);
+      }
+    }
+    document.addEventListener("mousedown", onClick);
+    return () => document.removeEventListener("mousedown", onClick);
+  }, []);
+
+  const doSearch = (q: string) => {
+    onChange(q);
+    if (debounce.current) clearTimeout(debounce.current);
+    const digits = q.replace(/\D/g, "");
+    if (digits.length < 3) { setResults([]); setOpen(false); return; }
+    debounce.current = setTimeout(async () => {
+      setLoading(true);
+      try {
+        const res = await fetch(`${baseUrl}/api/kledo/contacts?search=${encodeURIComponent(digits)}`);
+        const data = await res.json();
+        setResults((data.contacts || []) as KledoContact[]);
+        setOpen(true);
+      } catch { setResults([]); }
+      finally { setLoading(false); }
+    }, 350);
+  };
+
+  const handleSelect = (c: KledoContact) => {
+    onSelect(c);
+    setOpen(false);
+    setFocused(false);
+    setResults([]);
+  };
+
+  return (
+    <div className="fi-group" ref={wrapRef} style={{ position: "relative" }}>
+      <label className="fi-label">Nomor Telepon</label>
+      <div className="fi-input-wrap fi-input-wrap--icon">
+        <span className="fi-icon"><Phone size={15} /></span>
+        <input
+          className="fi-input fi-input--padded"
+          type="text"
+          inputMode="tel"
+          placeholder="contoh: 08780000000 — ketik untuk cari konsumen lama"
+          value={value}
+          onChange={e => doSearch(e.target.value)}
+          onFocus={() => { setFocused(true); if (value.replace(/\D/g, "").length >= 3) setOpen(true); }}
+          autoComplete="off"
+        />
+      </div>
+
+      {focused && loading && value.replace(/\D/g, "").length >= 3 && (
+        <div className="po-combo-dropdown" style={{ padding: "8px 12px", color: "#888", fontSize: 13 }}>
+          Mencari konsumen…
+        </div>
+      )}
+
+      {!loading && open && results.length > 0 && (
+        <ul className="po-combo-dropdown">
+          {results.map(c => (
+            <li key={c.id} className="po-combo-item" onMouseDown={() => handleSelect(c)}>
+              <div className="po-combo-item-name">{c.name}</div>
+              {c.mobile_phone && (
+                <div className="po-combo-item-meta">
+                  <span className="po-combo-sku">{c.mobile_phone}</span>
+                </div>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {!loading && open && value.replace(/\D/g, "").length >= 3 && results.length === 0 && (
+        <div className="po-combo-dropdown" style={{ padding: "8px 12px", color: "#888", fontSize: 13 }}>
+          Tidak ada konsumen dengan nomor ini — akan dipakai sebagai nomor baru
+        </div>
+      )}
+    </div>
+  );
+}
+
 // Searchable contact combobox — search kontak yang sudah ada di Kledo
 function ContactCombobox({ value, onChange, onSelect }: {
   value: string;
@@ -439,10 +534,13 @@ export default function PurchaseOrderForm() {
   const removeItem = (id: string) => setItems(prev => prev.filter(it => it.id !== id));
 
   const handleSelectProduct = (itemId: string, p: KledoProduct) => {
+    const basePrice = p.price || p.base_price || 0;
+    // Otomatis tambahkan profit 15% ke harga produk
+    const priceWithProfit = basePrice > 0 ? Math.round(basePrice * 1.15) : 0;
     updateItem(itemId, {
       selectedProduct: p,
       namaProduk: p.name,
-      hargaProduk: (p.price || p.base_price) > 0 ? (p.price || p.base_price).toLocaleString("id-ID") : "",
+      hargaProduk: priceWithProfit > 0 ? priceWithProfit.toLocaleString("id-ID") : "",
     });
   };
 
@@ -558,14 +656,14 @@ export default function PurchaseOrderForm() {
                 }}
               />
 
-              {/* ── 2. Nomor Telepon ── */}
-              <FormInput
-                label="Nomor Telepon"
-                icon={<Phone size={15} />}
+              {/* ── 2. Nomor Telepon — bisa cari konsumen lama dari nomor HP ── */}
+              <PhoneCombobox
                 value={form.nomorTelepon}
                 onChange={v => set("nomorTelepon", v)}
-                placeholder="contoh: 08780000000"
-                inputMode="tel"
+                onSelect={c => {
+                  set("namaKontak", c.name);
+                  if (c.mobile_phone) set("nomorTelepon", c.mobile_phone);
+                }}
               />
 
               {/* ── 3. Alamat ── */}
