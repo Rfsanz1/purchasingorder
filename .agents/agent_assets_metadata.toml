@@ -1,0 +1,8 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "px5XI2t_Slc3v3FCQqX6d"
+uri = "file://artifacts/event-registration/public/app-icon.png"
+type = "image"
+title = "po app icon"
