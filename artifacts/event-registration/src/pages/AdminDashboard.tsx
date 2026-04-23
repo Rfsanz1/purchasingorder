@@ -2,8 +2,128 @@ import { useEffect, useState } from "react";
 import {
   Package, Truck, CheckCircle, DollarSign,
   Search, RefreshCw, LogOut, User, Phone,
-  MapPin, ShoppingCart, Clock, ChevronDown,
+  MapPin, ShoppingCart, Clock, ChevronDown, Map,
 } from "lucide-react";
+
+const DRIVER_LIST = ["Yanto", "Wawan", "Chaidar"];
+
+type DriverAreas = Record<string, string[]>;
+
+function DriverAreasModal({ onClose }: { onClose: () => void }) {
+  const [data, setData] = useState<DriverAreas>(
+    Object.fromEntries(DRIVER_LIST.map(d => [d, []])),
+  );
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [draft, setDraft] = useState<Record<string, string>>({});
+  const [msg, setMsg] = useState("");
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch(`${baseUrl}/api/driver-areas`);
+        if (res.ok) setData(await res.json());
+      } finally { setLoading(false); }
+    })();
+  }, []);
+
+  const addArea = (driver: string) => {
+    const v = (draft[driver] ?? "").trim();
+    if (!v) return;
+    setData(prev => {
+      const exists = (prev[driver] ?? []).some(a => a.toLowerCase() === v.toLowerCase());
+      if (exists) return prev;
+      return { ...prev, [driver]: [...(prev[driver] ?? []), v] };
+    });
+    setDraft(prev => ({ ...prev, [driver]: "" }));
+  };
+
+  const removeArea = (driver: string, area: string) => {
+    setData(prev => ({ ...prev, [driver]: (prev[driver] ?? []).filter(a => a !== area) }));
+  };
+
+  const save = async () => {
+    setSaving(true); setMsg("");
+    try {
+      const res = await fetch(`${baseUrl}/api/driver-areas`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error("Gagal menyimpan");
+      setMsg("✅ Tersimpan");
+      setTimeout(() => setMsg(""), 2000);
+    } catch (e: unknown) {
+      setMsg("⚠️ " + (e instanceof Error ? e.message : "Error"));
+    } finally { setSaving(false); }
+  };
+
+  return (
+    <div className="hc-overlay" onClick={onClose}>
+      <div className="hc-modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 560 }}>
+        <div className="hc-header">
+          <h2 className="hc-title">🗺️ Wilayah Driver per Kecamatan</h2>
+          <button className="hc-close" onClick={onClose}>✕</button>
+        </div>
+        <p className="hc-sub">
+          Tetapkan kecamatan-kecamatan yang menjadi tanggung jawab tiap driver. Saat
+          mengatur pengiriman, Anda bisa lihat referensi ini agar pembagian wilayah konsisten.
+        </p>
+
+        {loading ? (
+          <div className="hc-loading">⏳ Memuat...</div>
+        ) : (
+          <div className="da-list">
+            {DRIVER_LIST.map(driver => (
+              <div key={driver} className="da-driver">
+                <div className="da-driver-head">🚚 {driver}</div>
+                <div className="da-chips">
+                  {(data[driver] ?? []).length === 0 && (
+                    <span className="da-empty">Belum ada kecamatan</span>
+                  )}
+                  {(data[driver] ?? []).map(area => (
+                    <span key={area} className="da-chip">
+                      {area}
+                      <button
+                        type="button"
+                        className="da-chip-x"
+                        onClick={() => removeArea(driver, area)}
+                        aria-label={`Hapus ${area}`}
+                      >×</button>
+                    </span>
+                  ))}
+                </div>
+                <div className="da-add">
+                  <input
+                    className="da-input"
+                    placeholder="Tambah kecamatan, lalu Enter"
+                    value={draft[driver] ?? ""}
+                    onChange={e => setDraft(prev => ({ ...prev, [driver]: e.target.value }))}
+                    onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); addArea(driver); } }}
+                  />
+                  <button type="button" className="da-add-btn" onClick={() => addArea(driver)}>
+                    + Tambah
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {msg && <div className="hc-msg">{msg}</div>}
+
+        <div className="hc-actions">
+          <button className="hc-btn hc-btn-secondary" onClick={onClose} disabled={saving}>
+            Tutup
+          </button>
+          <button className="hc-btn hc-btn-primary" onClick={save} disabled={saving || loading}>
+            {saving ? "Menyimpan..." : "💾 Simpan"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 import { filterOrdersForSales, SALES_SCOPES } from "@/lib/salesFilters";
 
 interface Order {
@@ -109,6 +229,7 @@ export default function AdminDashboard({
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
   const [updatingId, setUpdatingId] = useState<number | null>(null);
+  const [areasOpen, setAreasOpen] = useState(false);
 
   const fetchOrders = async () => {
     setLoading(true); setError("");
@@ -169,6 +290,11 @@ export default function AdminDashboard({
             </div>
           </div>
           <div className="dash-header-actions">
+            {!isSales && (
+              <button className="dash-btn dash-btn--ghost" onClick={() => setAreasOpen(true)}>
+                <Map size={14} /> Wilayah Driver
+              </button>
+            )}
             <button className="dash-btn dash-btn--ghost" onClick={fetchOrders}>
               <RefreshCw size={14} /> Refresh
             </button>
@@ -378,6 +504,7 @@ export default function AdminDashboard({
           </div>
         )}
       </div>
+      {areasOpen && <DriverAreasModal onClose={() => setAreasOpen(false)} />}
     </div>
   );
 }

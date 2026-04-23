@@ -4,6 +4,7 @@ import ordersRouter from "./orders";
 import kledoRouter from "./kledo";
 import authRouter from "./auth";
 import systemRouter from "./system";
+import driverAreasRouter from "./driverAreas";
 
 const router: IRouter = Router();
 
@@ -12,5 +13,6 @@ router.use(authRouter);
 router.use(ordersRouter);
 router.use(kledoRouter);
 router.use(systemRouter);
+router.use(driverAreasRouter);
 
 export default router;
