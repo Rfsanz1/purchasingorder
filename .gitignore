@@ -1,49 +1,25 @@
-# See https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
-
-# compiled output
-dist
-tmp
-out-tsc
-*.tsbuildinfo
-.expo
-.expo-shared
-
-# dependencies
 node_modules
-
-# IDEs and editors
-/.idea
-.project
-.classpath
-.c9/
-*.launch
-.settings/
-*.sublime-workspace
-
-# IDE - VSCode
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-
-# misc
-/.sass-cache
-/connect.lock
-/coverage
-/libpeerconnection.log
-npm-debug.log
-yarn-error.log
-testem.log
-/typings
-
-# System Files
+dist
+build
+.cache
+.replit_cache
 .DS_Store
-Thumbs.db
+*.log
+.env
+.env.local
+.local
 
-.cursor/rules/nx-rules.mdc
-.github/instructions/nx.instructions.md
+# Android build artifacts
+artifacts/event-registration/android/.gradle/
+artifacts/event-registration/android/app/build/
+artifacts/event-registration/android/build/
+artifacts/event-registration/android/captures/
+artifacts/event-registration/android/local.properties
+artifacts/event-registration/android/.idea/
+artifacts/event-registration/android/app/release/
 
-# Replit
-.cache/
-.local/
+# Capacitor
+artifacts/event-registration/android/app/src/main/assets/public/
+artifacts/event-registration/android/app/src/main/assets/capacitor.config.json
+artifacts/event-registration/android/app/src/main/assets/capacitor.plugins.json
+artifacts/event-registration/release/

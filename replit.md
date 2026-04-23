@@ -19,8 +19,16 @@ pnpm workspace monorepo using TypeScript. Each package manages its own dependenc
 
 ## Artifacts
 
-- **event-registration** — Form Purchase Order + Registrasi Event (React + Vite, path `/`)
+- **event-registration** — Form Purchase Order + Registrasi Event (React + Vite, path `/`). Juga di-package menjadi APK Android via Capacitor (folder `android/`, package `com.gentongmas.po`).
 - **api-server** — Express API server (path `/api`)
+
+## APK Android (Capacitor)
+
+- App ID: `com.gentongmas.po`, App name: "Purchase Order Gentong Mas"
+- Strategi auto-update: APK adalah shell native yang load `https://gentongmaspurchasingorder.up.railway.app` via WebView. Setiap deploy ke Railway = update otomatis untuk semua user (tidak perlu install ulang APK kecuali ada perubahan native plugin / permissions).
+- Plugin native: `@capacitor/camera`, `@capacitor-mlkit/barcode-scanning`, `@capacitor/push-notifications`, `@capacitor/app`. Wrapper di `src/lib/native.ts` (aman untuk web — fungsi return null jika bukan native).
+- Push notification: Firebase (`google-services.json` ada di `android/app/`).
+- Build APK: GitHub Actions (`.github/workflows/build-apk.yml`) auto-build debug APK setiap push ke main, hasil di tab Actions → Artifacts. Tag `v*` akan auto-create GitHub Release dengan APK.
 
 ## Features
 
