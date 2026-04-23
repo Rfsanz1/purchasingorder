@@ -242,4 +242,39 @@ export async function createKledoInvoice(params: {
   }
 }
 
+// Helper: catat pembayaran tagihan di Kledo (auto-lunas)
+// Endpoint: POST /finance/bankTrans/invoicePayment
+export async function payInvoiceKledo(params: {
+  invoiceId: number;
+  bankAccountId: number;  // ID akun kas/bank di Kledo (KAS ELEKTRONIK, KAS SULAWESI, EDC, dll)
+  amount: number;
+  transDate?: string;     // YYYY-MM-DD
+  memo?: string;
+}): Promise<{ success: boolean; paymentId?: number }> {
+  try {
+    const trans_date = params.transDate || new Date().toISOString().split("T")[0];
+    const body = {
+      trans_date,
+      bank_account_id: params.bankAccountId,
+      business_tran_id: params.invoiceId,
+      amount: params.amount,
+      memo: params.memo || "",
+    };
+    const resp = await fetch(`${KLEDO_BASE}/bankTrans/invoicePayment`, {
+      method: "POST",
+      headers: kledoHeaders(),
+      body: JSON.stringify(body),
+    });
+    const data = await resp.json() as { success: boolean; data?: { id: number }; message?: string };
+    if (data.success && data.data?.id) {
+      return { success: true, paymentId: data.data.id };
+    }
+    logger.error({ data, body }, "Kledo invoice payment failed");
+    return { success: false };
+  } catch (err) {
+    logger.error({ err }, "payInvoiceKledo error");
+    return { success: false };
+  }
+}
+
 export default router;

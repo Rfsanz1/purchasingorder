@@ -49,6 +49,8 @@ interface OrderItem {
   hargaProduk: string;
 }
 
+type MetodePembayaran = "CASH" | "Debit" | "Transfer";
+
 interface FormData {
   namaKontak: string;
   nomorTelepon: string;
@@ -56,6 +58,9 @@ interface FormData {
   pesan: string;
   ongkir: string;
   salesPerson: string;
+  metodePembayaran: MetodePembayaran;
+  bankAccountId: string;          // sebagai string untuk dropdown
+  buktiTransferDataUrl: string;   // base64 dataURL (opsional)
 }
 
 const EMPTY_FORM: FormData = {
@@ -65,7 +70,22 @@ const EMPTY_FORM: FormData = {
   pesan: "",
   ongkir: "",
   salesPerson: "",
+  metodePembayaran: "CASH",
+  bankAccountId: "",
+  buktiTransferDataUrl: "",
 };
+
+// Daftar bank transfer & EDC yang ada di Kledo
+const TRANSFER_BANKS: { id: number; label: string }[] = [
+  { id: 1470, label: "BCA GIRO – 155 91 99999 (a.n. INDARTO WIBOWO)" },
+  { id: 3,    label: "MANDIRI – 136 000 4780612 (a.n. DIAN PURNAMA)" },
+  { id: 1456, label: "BNI – 0822 705 836 (a.n. INDARTO WIBOWO)" },
+  { id: 1464, label: "BRI – 0262 01 000031 562 (a.n. DIAN PURNAMA REZA T.)" },
+];
+const EDC_BANKS: { id: number; label: string }[] = [
+  { id: 1465, label: "BCA EDC" },
+  { id: 1457, label: "BRI EDC" },
+];
 
 const newItem = (): OrderItem => ({
   id: Math.random().toString(36).slice(2),
@@ -92,6 +112,8 @@ function validate(form: FormData, items: OrderItem[]): string | null {
     if (!items[i].namaProduk.trim()) return `Produk ke-${i + 1}: nama produk wajib dipilih`;
   }
   if (!form.salesPerson) return "Sales person wajib dipilih";
+  if (form.metodePembayaran === "Transfer" && !form.bankAccountId) return "Pilih bank tujuan transfer";
+  if (form.metodePembayaran === "Debit" && !form.bankAccountId) return "Pilih mesin EDC yang dipakai";
   return null;
 }
 
@@ -613,7 +635,9 @@ export default function PurchaseOrderForm() {
           salesPerson: form.salesPerson,
           referensi,
           biayaPengiriman: ongkirValue || null,
-          metodePembayaran: "CASH",
+          metodePembayaran: form.metodePembayaran,
+          kledoBankAccountId: form.bankAccountId ? parseInt(form.bankAccountId, 10) : null,
+          buktiTransferBase64: form.metodePembayaran === "Transfer" ? (form.buktiTransferDataUrl || null) : null,
           // Items array (mendukung multi-produk)
           items: items.map(it => ({
             namaProduk: it.namaProduk,
@@ -622,6 +646,7 @@ export default function PurchaseOrderForm() {
             kledoProductId: it.selectedProduct?.id ?? null,
             kledoFinanceAccountId: it.selectedProduct?.finance_account_id ?? null,
             kledoUnitId: it.selectedProduct?.unit?.id ?? null,
+            kategoriId: it.selectedProduct?.pos_product_category_id ?? null,
           })),
         }),
       });
@@ -819,6 +844,98 @@ export default function PurchaseOrderForm() {
                 placeholder="Contoh: depan kolam, pagar besi biru…"
                 rows={2}
               />
+            </div>
+          </div>
+
+          {/* ── 5b. Metode Pembayaran ── */}
+          <div className="addr-card">
+            <div className="addr-card-header">
+              <span style={{ fontSize: 14 }}>💳</span>
+              <span>Metode Pembayaran</span>
+            </div>
+            <div className="addr-card-body">
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
+                {(["CASH", "Debit", "Transfer"] as const).map(m => (
+                  <label key={m} style={{
+                    flex: "1 1 90px",
+                    display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+                    padding: "10px 12px",
+                    border: form.metodePembayaran === m ? "2px solid #0097e6" : "1px solid #d0d7de",
+                    background: form.metodePembayaran === m ? "#e7f4fb" : "#fff",
+                    borderRadius: 8, cursor: "pointer", fontWeight: 600, fontSize: 14,
+                  }}>
+                    <input
+                      type="radio"
+                      name="metodePembayaran"
+                      value={m}
+                      checked={form.metodePembayaran === m}
+                      onChange={() => setForm(p => ({ ...p, metodePembayaran: m, bankAccountId: "", buktiTransferDataUrl: "" }))}
+                      style={{ display: "none" }}
+                    />
+                    {m === "CASH" ? "💵 Cash" : m === "Debit" ? "💳 Debit (EDC)" : "🏦 Transfer"}
+                  </label>
+                ))}
+              </div>
+
+              {form.metodePembayaran === "Debit" && (
+                <div>
+                  <label style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4, color: "#374151" }}>
+                    Mesin EDC <span style={{ color: "#e74c3c" }}>*</span>
+                  </label>
+                  <select
+                    value={form.bankAccountId}
+                    onChange={e => set("bankAccountId", e.target.value)}
+                    style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #d0d7de", fontSize: 14, background: "#fff" }}
+                  >
+                    <option value="">— Pilih EDC —</option>
+                    {EDC_BANKS.map(b => <option key={b.id} value={String(b.id)}>{b.label}</option>)}
+                  </select>
+                </div>
+              )}
+
+              {form.metodePembayaran === "Transfer" && (
+                <>
+                  <div>
+                    <label style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4, color: "#374151" }}>
+                      Bank Tujuan Transfer <span style={{ color: "#e74c3c" }}>*</span>
+                    </label>
+                    <select
+                      value={form.bankAccountId}
+                      onChange={e => set("bankAccountId", e.target.value)}
+                      style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #d0d7de", fontSize: 14, background: "#fff" }}
+                    >
+                      <option value="">— Pilih bank tujuan —</option>
+                      {TRANSFER_BANKS.map(b => <option key={b.id} value={String(b.id)}>{b.label}</option>)}
+                    </select>
+                  </div>
+                  <div style={{ marginTop: 10 }}>
+                    <label style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4, color: "#374151" }}>
+                      Upload Bukti Transfer (opsional)
+                    </label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) { set("buktiTransferDataUrl", ""); return; }
+                        const reader = new FileReader();
+                        reader.onload = () => set("buktiTransferDataUrl", String(reader.result || ""));
+                        reader.readAsDataURL(file);
+                      }}
+                      style={{ width: "100%", fontSize: 13 }}
+                    />
+                    <p className="fi-hint" style={{ marginTop: 4 }}>
+                      {form.buktiTransferDataUrl
+                        ? "✅ Bukti transfer siap dikirim — invoice akan otomatis Lunas di Kledo."
+                        : "Jika tidak diupload sekarang, invoice tetap dibuat namun status belum Lunas. Bukti bisa dikirim manual ke admin."}
+                    </p>
+                    {form.buktiTransferDataUrl && (
+                      <img src={form.buktiTransferDataUrl} alt="Preview bukti TF"
+                        style={{ marginTop: 8, maxHeight: 160, borderRadius: 6, border: "1px solid #e5e7eb" }} />
+                    )}
+                  </div>
+                </>
+              )}
             </div>
           </div>
 

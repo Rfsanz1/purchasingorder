@@ -4,7 +4,29 @@ import { db, ordersTable } from "@workspace/db";
 import { desc, eq } from "drizzle-orm";
 import { randomUUID } from "crypto";
 import { logger } from "../lib/logger";
-import { findOrCreateKledoContact, createKledoInvoice, searchKledoProductByName, type KledoInvoiceItem } from "./kledo";
+import { findOrCreateKledoContact, createKledoInvoice, searchKledoProductByName, payInvoiceKledo, type KledoInvoiceItem } from "./kledo";
+
+// Akun Kledo untuk auto-lunas
+const KLEDO_KAS_ELEKTRONIK = 1;
+const KLEDO_KAS_SULAWESI = 1466;
+
+// ID kategori produk Kledo yang dianggap ELEKTRONIK
+// (sama dengan daftar di event-registration/src/lib/salesFilters.ts)
+const ELEKTRONIK_CATEGORY_IDS = new Set<number>([
+  3, 4, 5, 6, 7, 8, 10, 11, 13, 14, 15, 16, 17, 21, 22, 23, 29, 35, 36, 37, 38,
+  42, 44, 45, 74, 75, 77, 78, 80, 98, 102, 110, 120, 130, 131, 138, 141, 142,
+  143, 144, 145,
+]);
+
+// Daftar bank rekening transfer + EDC yang dipakai untuk display info di WA
+const BANK_INFO: Record<number, { name: string; rekening: string; atasNama: string }> = {
+  1470: { name: "BCA GIRO",  rekening: "155 91 99999",         atasNama: "INDARTO WIBOWO" },
+  3:    { name: "MANDIRI",   rekening: "136 000 4780612",      atasNama: "DIAN PURNAMA" },
+  1456: { name: "BNI",       rekening: "0822 705 836",         atasNama: "INDARTO WIBOWO" },
+  1464: { name: "BRI",       rekening: "0262 01 000031 562",   atasNama: "DIAN PURNAMA REZA T." },
+  1465: { name: "BCA EDC",   rekening: "(EDC mesin di toko)",   atasNama: "-" },
+  1457: { name: "BRI EDC",   rekening: "(EDC mesin di toko)",   atasNama: "-" },
+};
 
 const SALES_PHONE: Record<string, string> = {
   LEHAN:        "+62 857-2982-4485",
@@ -87,8 +109,13 @@ router.get("/orders", async (_req, res): Promise<void> => {
 // POST /orders — terima order baru
 router.post("/orders", async (req, res): Promise<void> => {
   // Proses items array jika ada (multi-produk)
-  interface RawItem { namaProduk: string; jumlahProduk: number; hargaProduk: number; kledoProductId?: number; kledoFinanceAccountId?: number; kledoUnitId?: number }
+  interface RawItem { namaProduk: string; jumlahProduk: number; hargaProduk: number; kledoProductId?: number; kledoFinanceAccountId?: number; kledoUnitId?: number; kategoriId?: number | null }
   const rawItems: RawItem[] = Array.isArray(req.body.items) ? req.body.items : [];
+
+  // Field tambahan untuk pembayaran (di luar zod schema)
+  const kledoBankAccountId: number | null = typeof req.body.kledoBankAccountId === "number" ? req.body.kledoBankAccountId : null;
+  const buktiTransferBase64: string | null = typeof req.body.buktiTransferBase64 === "string" && req.body.buktiTransferBase64.length > 0
+    ? req.body.buktiTransferBase64 : null;
 
   let bodyToValidate = req.body;
   if (rawItems.length > 0) {
@@ -144,13 +171,13 @@ router.post("/orders", async (req, res): Promise<void> => {
     throw dbErr;
   }
 
-  const infoRekening = d.metodePembayaran === "Transfer"
+  // Info rekening: hanya tampilkan bank yang dipilih customer (bukan semua 4)
+  const selectedBank = kledoBankAccountId ? BANK_INFO[kledoBankAccountId] : null;
+  const infoRekening = (d.metodePembayaran === "Transfer" && selectedBank)
     ? `\n🏦 *Rekening Pembayaran*\n` +
-      `Silahkan lakukan pembayaran sebelum *1×24 jam* ke salah satu rekening:\n\n` +
-      `• *BRI*\n  0262 01 000031 562\n  a.n. DIAN PURNAMA REZA T.\n\n` +
-      `• *MANDIRI*\n  136 000 4780612\n  a.n. DIAN PURNAMA\n\n` +
-      `• *BCA (GIRO)*\n  155 91 99999\n  a.n. INDARTO WIBOWO\n\n` +
-      `• *BNI*\n  0822 705 836\n  a.n. INDARTO WIBOWO\n`
+      `Silahkan transfer ke rekening berikut:\n\n` +
+      `• *${selectedBank.name}*\n  ${selectedBank.rekening}\n  a.n. ${selectedBank.atasNama}\n` +
+      (buktiTransferBase64 ? `\n_(Bukti transfer sudah kami terima ✅)_\n` : "")
     : "";
 
   const now = new Date();
@@ -183,7 +210,12 @@ router.post("/orders", async (req, res): Promise<void> => {
     `${d.namaProduk} x ${d.jumlahProduk} unit\n\n` +
     `💰 *Total: Rp ${formatRupiah(total)}*` +
     (ongkir ? ` (Ongkir: Rp ${formatRupiah(ongkir)})` : "") + `\n` +
-    (d.keteranganPembayaran ? `💳 Pembayaran: ${d.metodePembayaran} – ${d.keteranganPembayaran}\n` : `💳 Pembayaran: ${d.metodePembayaran}\n`) +
+    `💳 Pembayaran: ${d.metodePembayaran}` +
+    (selectedBank ? ` – ${selectedBank.name}` : "") +
+    (d.metodePembayaran === "Transfer"
+      ? (buktiTransferBase64 ? " ✅ (bukti TF terlampir)" : " ⏳ (belum ada bukti TF)")
+      : "") +
+    (d.keteranganPembayaran ? ` – ${d.keteranganPembayaran}` : "") + `\n` +
     `\n👨‍💼 *Sales:* ${d.salesPerson}\n\n` +
     `⚡ Yuk langsung di-follow up sebelum dia keburu cancel 😄\n\n` +
     `🕒 ${timestamp}`;
@@ -274,11 +306,95 @@ router.post("/orders", async (req, res): Promise<void> => {
             kledoInvoiceId = inv.invoiceId;
             kledoInvoiceNumber = inv.invoiceNumber;
             req.log.info({ orderId, kledoInvoiceId, kledoInvoiceNumber }, "Kledo invoice created");
+
+            // === AUTO-LUNAS: catat pembayaran sesuai metode ===
+            try {
+              const paymentMemo = `Order #${orderId} - ${d.salesPerson}`;
+              if (d.metodePembayaran === "CASH") {
+                // Split per kategori: ELEKTRONIK → KAS_ELEKTRONIK, lainnya + ongkir → KAS_SULAWESI
+                let elektronikAmount = 0;
+                let lainnyaAmount = 0;
+                for (const it of sourceItems) {
+                  const lineTotal = (Number(it.hargaProduk) || 0) * (Number(it.jumlahProduk) || 1);
+                  const catId = typeof it.kategoriId === "number" ? it.kategoriId : null;
+                  if (catId !== null && ELEKTRONIK_CATEGORY_IDS.has(catId)) {
+                    elektronikAmount += lineTotal;
+                  } else {
+                    lainnyaAmount += lineTotal;
+                  }
+                }
+                // Ongkir masuk ke kategori dominan (atau SULAWESI kalau seimbang)
+                if (elektronikAmount > 0 && lainnyaAmount === 0) {
+                  elektronikAmount += ongkir;
+                } else {
+                  lainnyaAmount += ongkir;
+                }
+                if (elektronikAmount > 0) {
+                  await payInvoiceKledo({
+                    invoiceId: kledoInvoiceId,
+                    bankAccountId: KLEDO_KAS_ELEKTRONIK,
+                    amount: elektronikAmount,
+                    memo: `${paymentMemo} (CASH-Elektronik)`,
+                  });
+                }
+                if (lainnyaAmount > 0) {
+                  await payInvoiceKledo({
+                    invoiceId: kledoInvoiceId,
+                    bankAccountId: KLEDO_KAS_SULAWESI,
+                    amount: lainnyaAmount,
+                    memo: `${paymentMemo} (CASH-Bahan)`,
+                  });
+                }
+              } else if (d.metodePembayaran === "Debit" && kledoBankAccountId) {
+                await payInvoiceKledo({
+                  invoiceId: kledoInvoiceId,
+                  bankAccountId: kledoBankAccountId,
+                  amount: total,
+                  memo: `${paymentMemo} (Debit)`,
+                });
+              } else if (d.metodePembayaran === "Transfer" && kledoBankAccountId && buktiTransferBase64) {
+                // Transfer hanya auto-lunas jika ada bukti transfer
+                await payInvoiceKledo({
+                  invoiceId: kledoInvoiceId,
+                  bankAccountId: kledoBankAccountId,
+                  amount: total,
+                  memo: `${paymentMemo} (Transfer)`,
+                });
+              }
+            } catch (payErr) {
+              logger.error({ payErr, orderId, kledoInvoiceId }, "Auto-lunas Kledo gagal — invoice tetap dibuat");
+            }
           }
         }
       }
     } catch (err) {
       logger.error({ err, orderId }, "Kledo invoice creation error — order tetap tersimpan");
+    }
+  }
+
+  // === Forward bukti transfer ke grup WA terpisah (jika ada) ===
+  if (buktiTransferBase64 && d.metodePembayaran === "Transfer") {
+    try {
+      const m = buktiTransferBase64.match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/);
+      const mime = m ? m[1] : "image/jpeg";
+      const b64 = m ? m[2] : buktiTransferBase64;
+      const buffer = Buffer.from(b64, "base64");
+      const ext = mime.split("/")[1]?.split("+")[0] || "jpg";
+      const grupBuktiTF = process.env.FONNTE_GROUP_BUKTI_TF ?? adminWA;
+      if (grupBuktiTF) {
+        await kirimWA(grupBuktiTF, (
+          `💸 *Bukti Transfer Masuk*\n\n` +
+          `Order: #${orderId}\n` +
+          `Customer: ${d.namaKontak} – ${d.nomorTelepon}\n` +
+          `Total: Rp ${formatRupiah(total)}\n` +
+          `Bank Tujuan: ${selectedBank?.name ?? "-"}\n` +
+          `Sales: ${d.salesPerson}`
+        ), {
+          file: { buffer, filename: `bukti-tf-${orderId}.${ext}`, mime },
+        });
+      }
+    } catch (waErr) {
+      logger.error({ waErr, orderId }, "Gagal forward bukti transfer ke grup WA");
     }
   }
 
