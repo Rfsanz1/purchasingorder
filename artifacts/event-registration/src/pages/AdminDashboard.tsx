@@ -9,7 +9,7 @@ const DRIVER_LIST = ["Yanto", "Wawan", "Chaidar"];
 
 type DriverAreas = Record<string, string[]>;
 
-function DriverAreasModal({ onClose }: { onClose: () => void }) {
+function DriverAreasPanel() {
   const [data, setData] = useState<DriverAreas>(
     Object.fromEntries(DRIVER_LIST.map(d => [d, []])),
   );
@@ -59,67 +59,61 @@ function DriverAreasModal({ onClose }: { onClose: () => void }) {
   };
 
   return (
-    <div className="hc-overlay" onClick={onClose}>
-      <div className="hc-modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 560 }}>
-        <div className="hc-header">
-          <h2 className="hc-title">🗺️ Wilayah Driver per Kecamatan</h2>
-          <button className="hc-close" onClick={onClose}>✕</button>
-        </div>
-        <p className="hc-sub">
+    <div className="dash-list" style={{ background: "#fff", borderRadius: 12, padding: 20, boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
+      <div style={{ marginBottom: 16 }}>
+        <h2 style={{ fontSize: 18, fontWeight: 600, margin: 0, marginBottom: 6 }}>🗺️ Wilayah Driver per Kecamatan</h2>
+        <p style={{ fontSize: 13, color: "#6b7280", margin: 0 }}>
           Tetapkan kecamatan-kecamatan yang menjadi tanggung jawab tiap driver. Saat
           mengatur pengiriman, Anda bisa lihat referensi ini agar pembagian wilayah konsisten.
         </p>
+      </div>
 
-        {loading ? (
-          <div className="hc-loading">⏳ Memuat...</div>
-        ) : (
-          <div className="da-list">
-            {DRIVER_LIST.map(driver => (
-              <div key={driver} className="da-driver">
-                <div className="da-driver-head">🚚 {driver}</div>
-                <div className="da-chips">
-                  {(data[driver] ?? []).length === 0 && (
-                    <span className="da-empty">Belum ada kecamatan</span>
-                  )}
-                  {(data[driver] ?? []).map(area => (
-                    <span key={area} className="da-chip">
-                      {area}
-                      <button
-                        type="button"
-                        className="da-chip-x"
-                        onClick={() => removeArea(driver, area)}
-                        aria-label={`Hapus ${area}`}
-                      >×</button>
-                    </span>
-                  ))}
-                </div>
-                <div className="da-add">
-                  <input
-                    className="da-input"
-                    placeholder="Tambah kecamatan, lalu Enter"
-                    value={draft[driver] ?? ""}
-                    onChange={e => setDraft(prev => ({ ...prev, [driver]: e.target.value }))}
-                    onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); addArea(driver); } }}
-                  />
-                  <button type="button" className="da-add-btn" onClick={() => addArea(driver)}>
-                    + Tambah
-                  </button>
-                </div>
+      {loading ? (
+        <div className="hc-loading">⏳ Memuat...</div>
+      ) : (
+        <div className="da-list">
+          {DRIVER_LIST.map(driver => (
+            <div key={driver} className="da-driver">
+              <div className="da-driver-head">🚚 {driver}</div>
+              <div className="da-chips">
+                {(data[driver] ?? []).length === 0 && (
+                  <span className="da-empty">Belum ada kecamatan</span>
+                )}
+                {(data[driver] ?? []).map(area => (
+                  <span key={area} className="da-chip">
+                    {area}
+                    <button
+                      type="button"
+                      className="da-chip-x"
+                      onClick={() => removeArea(driver, area)}
+                      aria-label={`Hapus ${area}`}
+                    >×</button>
+                  </span>
+                ))}
               </div>
-            ))}
-          </div>
-        )}
-
-        {msg && <div className="hc-msg">{msg}</div>}
-
-        <div className="hc-actions">
-          <button className="hc-btn hc-btn-secondary" onClick={onClose} disabled={saving}>
-            Tutup
-          </button>
-          <button className="hc-btn hc-btn-primary" onClick={save} disabled={saving || loading}>
-            {saving ? "Menyimpan..." : "💾 Simpan"}
-          </button>
+              <div className="da-add">
+                <input
+                  className="da-input"
+                  placeholder="Tambah kecamatan, lalu Enter"
+                  value={draft[driver] ?? ""}
+                  onChange={e => setDraft(prev => ({ ...prev, [driver]: e.target.value }))}
+                  onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); addArea(driver); } }}
+                />
+                <button type="button" className="da-add-btn" onClick={() => addArea(driver)}>
+                  + Tambah
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
+      )}
+
+      {msg && <div className="hc-msg" style={{ marginTop: 12 }}>{msg}</div>}
+
+      <div className="hc-actions" style={{ marginTop: 16, justifyContent: "flex-end" }}>
+        <button className="hc-btn hc-btn-primary" onClick={save} disabled={saving || loading}>
+          {saving ? "Menyimpan..." : "💾 Simpan Perubahan"}
+        </button>
       </div>
     </div>
   );
@@ -225,13 +219,12 @@ export default function AdminDashboard({
 }) {
   const isSales = !!salesUsername;
   const scope = salesUsername ? SALES_SCOPES[salesUsername.toLowerCase()] : null;
-  const [tab, setTab] = useState<"pesanan" | "pengiriman">("pesanan");
+  const [tab, setTab] = useState<"pesanan" | "pengiriman" | "wilayah">("pesanan");
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
   const [updatingId, setUpdatingId] = useState<number | null>(null);
-  const [areasOpen, setAreasOpen] = useState(false);
 
   const fetchOrders = async () => {
     setLoading(true); setError("");
@@ -292,11 +285,6 @@ export default function AdminDashboard({
             </div>
           </div>
           <div className="dash-header-actions">
-            {!isSales && (
-              <button className="dash-btn dash-btn--ghost" onClick={() => setAreasOpen(true)}>
-                <Map size={14} /> Wilayah Driver
-              </button>
-            )}
             <button className="dash-btn dash-btn--ghost" onClick={fetchOrders}>
               <RefreshCw size={14} /> Refresh
             </button>
@@ -322,22 +310,31 @@ export default function AdminDashboard({
           <button className={`dash-tab${tab === "pengiriman" ? " dash-tab--active" : ""}`} onClick={() => setTab("pengiriman")}>
             <Truck size={14} /> Kelola Pengiriman
           </button>
+          {!isSales && (
+            <button className={`dash-tab${tab === "wilayah" ? " dash-tab--active" : ""}`} onClick={() => setTab("wilayah")}>
+              <Map size={14} /> Wilayah Driver
+            </button>
+          )}
         </div>
 
-        {/* ── Search ── */}
-        <div className="dash-search-wrap">
-          <Search size={15} className="dash-search-icon" />
-          <input
-            className="dash-search"
-            placeholder="Cari nama, nomor, produk, sales, order ID..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-          />
-          {search && <button className="dash-search-clear" onClick={() => setSearch("")}>✕</button>}
-        </div>
+        {/* ── Search (sembunyikan di tab Wilayah) ── */}
+        {tab !== "wilayah" && (
+          <div className="dash-search-wrap">
+            <Search size={15} className="dash-search-icon" />
+            <input
+              className="dash-search"
+              placeholder="Cari nama, nomor, produk, sales, order ID..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+            />
+            {search && <button className="dash-search-clear" onClick={() => setSearch("")}>✕</button>}
+          </div>
+        )}
 
         {/* ── Content ── */}
-        {loading ? (
+        {tab === "wilayah" ? (
+          <DriverAreasPanel />
+        ) : loading ? (
           <div className="dash-empty">
             <div className="dash-empty-icon">⏳</div>
             <p>Memuat data pesanan...</p>
@@ -506,7 +503,6 @@ export default function AdminDashboard({
           </div>
         )}
       </div>
-      {areasOpen && <DriverAreasModal onClose={() => setAreasOpen(false)} />}
     </div>
   );
 }
