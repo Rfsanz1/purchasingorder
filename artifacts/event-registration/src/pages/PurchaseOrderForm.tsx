@@ -5,6 +5,7 @@ import {
   Truck, UserCheck, MessageSquare, ChevronDown, Plus, Trash2,
   Search, Check,
 } from "lucide-react";
+import { SALES_SCOPES } from "@/lib/salesFilters";
 
 const SALES_DATA: Record<string, string> = {
   "Lehan":       "+62 857-2982-4485",
@@ -37,6 +38,7 @@ interface KledoProduct {
   price: number;
   base_price: number;
   unit?: { id: number; name: string };
+  pos_product_category_id?: number | null;
 }
 
 interface OrderItem {
@@ -94,11 +96,12 @@ function validate(form: FormData, items: OrderItem[]): string | null {
 }
 
 // Searchable product combobox
-function ProductCombobox({ value, onSelect, onClear, placeholder }: {
+function ProductCombobox({ value, onSelect, onClear, placeholder, salesPerson }: {
   value: KledoProduct | null;
   onSelect: (p: KledoProduct) => void;
   onClear: () => void;
   placeholder?: string;
+  salesPerson?: string;
 }) {
   const [search, setSearch] = useState("");
   const [results, setResults] = useState<KledoProduct[]>([]);
@@ -125,9 +128,35 @@ function ProductCombobox({ value, onSelect, onClear, placeholder }: {
     debounce.current = setTimeout(async () => {
       setLoading(true);
       try {
-        const res = await fetch(`${baseUrl}/api/kledo/products?search=${encodeURIComponent(q)}&page=1`);
+        // Bila sales merek-spesifik (mis. Lehan/Kansai), tambahkan keyword
+        // mereknya ke query agar hasil dari Kledo lebih relevan sejak awal.
+        const scope = salesPerson ? SALES_SCOPES[salesPerson.toLowerCase()] : null;
+        const brandHint =
+          salesPerson?.toLowerCase() === "lehan"    ? "aqua" :
+          salesPerson?.toLowerCase() === "wiwid"    ? "steko" :
+          salesPerson?.toLowerCase() === "priyanto" ? "changhong" :
+          salesPerson?.toLowerCase() === "agus"     ? "tcl" :
+          salesPerson?.toLowerCase() === "andre"    ? "rsa" :
+          salesPerson?.toLowerCase() === "imam"     ? "sanken" :
+          salesPerson?.toLowerCase() === "dhani"    ? "artugo" :
+          salesPerson?.toLowerCase() === "rio brandon" ? "kansai" :
+          "";
+        const finalQ = brandHint && !q.toLowerCase().includes(brandHint)
+          ? `${brandHint} ${q}` : q;
+
+        const res = await fetch(`${baseUrl}/api/kledo/products?search=${encodeURIComponent(finalQ)}&page=1`);
         const data = await res.json();
-        setResults((data.products || []) as KledoProduct[]);
+        let products = (data.products || []) as KledoProduct[];
+
+        // Filter berdasarkan kategori sales — biar tidak kecampur lintas kategori
+        if (scope) {
+          products = products.filter(p => scope.matchProduct({
+            name: p.name,
+            categoryId: p.pos_product_category_id ?? null,
+          }));
+        }
+
+        setResults(products);
         setOpen(true);
       } catch { setResults([]); }
       finally { setLoading(false); }
@@ -712,6 +741,7 @@ export default function PurchaseOrderForm() {
                     onSelect={p => handleSelectProduct(item.id, p)}
                     onClear={() => handleClearProduct(item.id)}
                     placeholder={items.length > 1 ? `Nama Produk ${idx + 1}` : "Nama Produk"}
+                    salesPerson={form.salesPerson}
                   />
 
                   <div className="fi-2col" style={{ marginTop: 10 }}>
