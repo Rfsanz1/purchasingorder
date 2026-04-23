@@ -356,17 +356,21 @@ export default function AdminDashboard({
                   </div>
                   <div className="dash-delivery-group">
                     <label className="dash-delivery-label">Nama Driver</label>
-                    <input
+                    <select
                       className="dash-delivery-input"
-                      placeholder="Tulis nama driver..."
-                      defaultValue={order.driverName ?? ""}
+                      value={order.driverName ?? ""}
                       disabled={updatingId === order.id}
-                      onBlur={e => {
+                      onChange={e => {
                         if (e.target.value !== (order.driverName ?? "")) {
                           updateStatus(order.id, order.statusPengiriman, e.target.value);
                         }
                       }}
-                    />
+                    >
+                      <option value="">— Pilih driver —</option>
+                      <option value="Yanto">Yanto</option>
+                      <option value="Wawan">Wawan</option>
+                      <option value="Chaidar">Chaidar</option>
+                    </select>
                   </div>
                 </div>
               </div>
