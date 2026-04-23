@@ -848,44 +848,48 @@ export default function PurchaseOrderForm() {
           </div>
 
           {/* ── 5b. Metode Pembayaran ── */}
-          <div className="addr-card">
+          <div className="addr-card pay-card">
             <div className="addr-card-header">
               <span style={{ fontSize: 14 }}>💳</span>
               <span>Metode Pembayaran</span>
             </div>
             <div className="addr-card-body">
-              <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
-                {(["CASH", "Debit", "Transfer"] as const).map(m => (
-                  <label key={m} style={{
-                    flex: "1 1 90px",
-                    display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
-                    padding: "10px 12px",
-                    border: form.metodePembayaran === m ? "2px solid #0097e6" : "1px solid #d0d7de",
-                    background: form.metodePembayaran === m ? "#e7f4fb" : "#fff",
-                    borderRadius: 8, cursor: "pointer", fontWeight: 600, fontSize: 14,
-                  }}>
-                    <input
-                      type="radio"
-                      name="metodePembayaran"
-                      value={m}
-                      checked={form.metodePembayaran === m}
-                      onChange={() => setForm(p => ({ ...p, metodePembayaran: m, bankAccountId: "", buktiTransferDataUrl: "" }))}
-                      style={{ display: "none" }}
-                    />
-                    {m === "CASH" ? "💵 Cash" : m === "Debit" ? "💳 Debit (EDC)" : "🏦 Transfer"}
-                  </label>
-                ))}
+              <div className="pay-method-grid">
+                {([
+                  { v: "CASH", icon: "💵", label: "Cash", desc: "Bayar tunai di tempat" },
+                  { v: "Debit", icon: "💳", label: "Debit (EDC)", desc: "Gesek kartu via mesin EDC" },
+                  { v: "Transfer", icon: "🏦", label: "Transfer", desc: "Transfer ke rekening toko" },
+                ] as const).map(m => {
+                  const active = form.metodePembayaran === m.v;
+                  return (
+                    <label key={m.v} className={`pay-method-card${active ? " active" : ""}`}>
+                      <input
+                        type="radio"
+                        name="metodePembayaran"
+                        value={m.v}
+                        checked={active}
+                        onChange={() => setForm(p => ({ ...p, metodePembayaran: m.v, bankAccountId: "", buktiTransferDataUrl: "" }))}
+                      />
+                      <div className="pay-method-icon">{m.icon}</div>
+                      <div className="pay-method-text">
+                        <div className="pay-method-label">{m.label}</div>
+                        <div className="pay-method-desc">{m.desc}</div>
+                      </div>
+                      <div className="pay-method-check">{active ? "✓" : ""}</div>
+                    </label>
+                  );
+                })}
               </div>
 
               {form.metodePembayaran === "Debit" && (
-                <div>
-                  <label style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4, color: "#374151" }}>
+                <div className="pay-detail-box">
+                  <label className="pay-detail-label">
                     Mesin EDC <span style={{ color: "#e74c3c" }}>*</span>
                   </label>
                   <select
                     value={form.bankAccountId}
                     onChange={e => set("bankAccountId", e.target.value)}
-                    style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #d0d7de", fontSize: 14, background: "#fff" }}
+                    className="pay-select"
                   >
                     <option value="">— Pilih EDC —</option>
                     {EDC_BANKS.map(b => <option key={b.id} value={String(b.id)}>{b.label}</option>)}
@@ -894,47 +898,84 @@ export default function PurchaseOrderForm() {
               )}
 
               {form.metodePembayaran === "Transfer" && (
-                <>
-                  <div>
-                    <label style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4, color: "#374151" }}>
-                      Bank Tujuan Transfer <span style={{ color: "#e74c3c" }}>*</span>
-                    </label>
-                    <select
-                      value={form.bankAccountId}
-                      onChange={e => set("bankAccountId", e.target.value)}
-                      style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #d0d7de", fontSize: 14, background: "#fff" }}
-                    >
-                      <option value="">— Pilih bank tujuan —</option>
-                      {TRANSFER_BANKS.map(b => <option key={b.id} value={String(b.id)}>{b.label}</option>)}
-                    </select>
-                  </div>
-                  <div style={{ marginTop: 10 }}>
-                    <label style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4, color: "#374151" }}>
-                      Upload Bukti Transfer (opsional)
-                    </label>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={async (e) => {
-                        const file = e.target.files?.[0];
-                        if (!file) { set("buktiTransferDataUrl", ""); return; }
-                        const reader = new FileReader();
-                        reader.onload = () => set("buktiTransferDataUrl", String(reader.result || ""));
-                        reader.readAsDataURL(file);
-                      }}
-                      style={{ width: "100%", fontSize: 13 }}
-                    />
-                    <p className="fi-hint" style={{ marginTop: 4 }}>
-                      {form.buktiTransferDataUrl
-                        ? "✅ Bukti transfer siap dikirim — invoice akan otomatis Lunas di Kledo."
-                        : "Jika tidak diupload sekarang, invoice tetap dibuat namun status belum Lunas. Bukti bisa dikirim manual ke admin."}
-                    </p>
-                    {form.buktiTransferDataUrl && (
-                      <img src={form.buktiTransferDataUrl} alt="Preview bukti TF"
-                        style={{ marginTop: 8, maxHeight: 160, borderRadius: 6, border: "1px solid #e5e7eb" }} />
+                <div className="pay-detail-box">
+                  <label className="pay-detail-label">
+                    Bank Tujuan Transfer <span style={{ color: "#e74c3c" }}>*</span>
+                  </label>
+                  <select
+                    value={form.bankAccountId}
+                    onChange={e => set("bankAccountId", e.target.value)}
+                    className="pay-select"
+                  >
+                    <option value="">— Pilih bank tujuan —</option>
+                    {TRANSFER_BANKS.map(b => <option key={b.id} value={String(b.id)}>{b.label}</option>)}
+                  </select>
+
+                  <div className="pay-bukti-section">
+                    <div className="pay-bukti-title">
+                      📸 Bukti Transfer
+                      <span className="pay-bukti-badge">Foto via Kamera</span>
+                    </div>
+
+                    {!form.buktiTransferDataUrl ? (
+                      <label className="pay-camera-btn">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          capture="environment"
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            const reader = new FileReader();
+                            reader.onload = () => set("buktiTransferDataUrl", String(reader.result || ""));
+                            reader.readAsDataURL(file);
+                          }}
+                          style={{ display: "none" }}
+                        />
+                        <span className="pay-camera-icon">📷</span>
+                        <span className="pay-camera-text">
+                          <strong>Ambil Foto Bukti Transfer</strong>
+                          <small>Klik untuk membuka kamera HP</small>
+                        </span>
+                      </label>
+                    ) : (
+                      <div className="pay-bukti-preview">
+                        <img src={form.buktiTransferDataUrl} alt="Preview bukti TF" className="pay-bukti-img" />
+                        <div className="pay-bukti-actions">
+                          <label className="pay-bukti-retake">
+                            <input
+                              type="file"
+                              accept="image/*"
+                              capture="environment"
+                              onChange={async (e) => {
+                                const file = e.target.files?.[0];
+                                if (!file) return;
+                                const reader = new FileReader();
+                                reader.onload = () => set("buktiTransferDataUrl", String(reader.result || ""));
+                                reader.readAsDataURL(file);
+                              }}
+                              style={{ display: "none" }}
+                            />
+                            🔄 Foto Ulang
+                          </label>
+                          <button
+                            type="button"
+                            className="pay-bukti-remove"
+                            onClick={() => set("buktiTransferDataUrl", "")}
+                          >
+                            ✕ Hapus
+                          </button>
+                        </div>
+                      </div>
                     )}
+
+                    <p className="pay-bukti-hint">
+                      {form.buktiTransferDataUrl
+                        ? "✅ Bukti transfer siap dikirim — invoice akan otomatis Lunas di Kledo & foto diteruskan ke grup admin."
+                        : "Foto bukti transfer akan otomatis dikirim ke grup admin di WhatsApp. Jika belum, invoice tetap dibuat namun status belum Lunas."}
+                    </p>
                   </div>
-                </>
+                </div>
               )}
             </div>
           </div>

@@ -380,7 +380,7 @@ router.post("/orders", async (req, res): Promise<void> => {
       const b64 = m ? m[2] : buktiTransferBase64;
       const buffer = Buffer.from(b64, "base64");
       const ext = mime.split("/")[1]?.split("+")[0] || "jpg";
-      const grupBuktiTF = process.env.FONNTE_GROUP_BUKTI_TF ?? adminWA;
+      const grupBuktiTF = process.env.FONNTE_GROUP_BUKTI_TF ?? "120363425112329389@g.us";
       if (grupBuktiTF) {
         await kirimWA(grupBuktiTF, (
           `💸 *Bukti Transfer Masuk*\n\n` +
