@@ -136,7 +136,9 @@ router.post("/orders", async (req, res): Promise<void> => {
   const d = parsed.data;
   const orderId = randomUUID().slice(0, 8).toUpperCase();
   const namaToko = process.env.NAMA_TOKO ?? "Toko Kami";
-  const adminWA = process.env.ADMIN_WA_NUMBER ?? "";
+  // Grup WA tujuan notifikasi order baru (form purchase order).
+  // Hard-coded ke grup "Order Form Masuk".
+  const adminWA = "120363405869453556@g.us";
   const ongkir = d.biayaPengiriman ?? 0;
   // Untuk multi-item: hargaProduk sudah berisi total semua line (qty × price terjumlah)
   // jadi tidak perlu dikalikan lagi dengan jumlahProduk.
