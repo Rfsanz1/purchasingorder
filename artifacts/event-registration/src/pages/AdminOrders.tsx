@@ -55,6 +55,10 @@ export default function AdminOrders() {
   const [healthOpen, setHealthOpen] = useState(false);
   const [healthLoading, setHealthLoading] = useState(false);
   const [health, setHealth] = useState<HealthResponse | null>(null);
+  const [payFilter, setPayFilter] = useState<"ALL" | "CASH" | "Debit" | "Transfer">("ALL");
+  const [waFilter, setWaFilter] = useState<"ALL" | "OK" | "FAIL">("ALL");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
 
   const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -92,12 +96,34 @@ export default function AdminOrders() {
 
   useEffect(() => { fetchOrders(); }, []);
 
-  const filtered = orders.filter(o =>
-    [o.namaKontak, o.nomorTelepon, o.namaProduk, o.salesPerson, o.orderId]
-      .join(" ").toLowerCase().includes(search.toLowerCase())
-  );
+  const fromMs = dateFrom ? new Date(dateFrom + "T00:00:00").getTime() : null;
+  const toMs = dateTo ? new Date(dateTo + "T23:59:59").getTime() : null;
+
+  const filtered = orders.filter(o => {
+    const matchSearch = [o.namaKontak, o.nomorTelepon, o.namaProduk, o.salesPerson, o.orderId]
+      .join(" ").toLowerCase().includes(search.toLowerCase());
+    if (!matchSearch) return false;
+    if (payFilter !== "ALL" && o.metodePembayaran !== payFilter) return false;
+    if (waFilter === "OK" && o.whatsappSent !== "true") return false;
+    if (waFilter === "FAIL" && o.whatsappSent === "true") return false;
+    if (fromMs || toMs) {
+      const t = new Date(o.createdAt).getTime();
+      if (fromMs && t < fromMs) return false;
+      if (toMs && t > toMs) return false;
+    }
+    return true;
+  });
+
+  const filterActive =
+    payFilter !== "ALL" || waFilter !== "ALL" || !!dateFrom || !!dateTo || !!search;
+
+  const resetFilters = () => {
+    setPayFilter("ALL"); setWaFilter("ALL"); setDateFrom(""); setDateTo(""); setSearch("");
+  };
 
   const totalPendapatan = filtered.reduce((s, o) => s + o.totalHarga, 0);
+
+  const countBy = (m: string) => orders.filter(o => o.metodePembayaran === m).length;
 
   return (
     <div className="adm-bg">
@@ -189,6 +215,77 @@ export default function AdminOrders() {
             onChange={e => setSearch(e.target.value)}
           />
           {search && <button className="adm-clear" onClick={() => setSearch("")}>✕</button>}
+        </div>
+
+        {/* Filters */}
+        <div className="adm-filters">
+          <div className="adm-filter-row">
+            <span className="adm-filter-label">Pembayaran:</span>
+            <div className="adm-chips">
+              {([
+                { v: "ALL", l: `Semua (${orders.length})` },
+                { v: "CASH", l: `💵 CASH (${countBy("CASH")})` },
+                { v: "Debit", l: `💳 Debit (${countBy("Debit")})` },
+                { v: "Transfer", l: `🏦 Transfer (${countBy("Transfer")})` },
+              ] as const).map(c => (
+                <button
+                  key={c.v}
+                  type="button"
+                  className={`adm-chip${payFilter === c.v ? " active" : ""}`}
+                  onClick={() => setPayFilter(c.v)}
+                >{c.l}</button>
+              ))}
+            </div>
+          </div>
+
+          <div className="adm-filter-row">
+            <span className="adm-filter-label">Status WA:</span>
+            <div className="adm-chips">
+              {([
+                { v: "ALL", l: "Semua" },
+                { v: "OK", l: "✅ Terkirim" },
+                { v: "FAIL", l: "❌ Gagal" },
+              ] as const).map(c => (
+                <button
+                  key={c.v}
+                  type="button"
+                  className={`adm-chip${waFilter === c.v ? " active" : ""}`}
+                  onClick={() => setWaFilter(c.v)}
+                >{c.l}</button>
+              ))}
+            </div>
+          </div>
+
+          <div className="adm-filter-row">
+            <span className="adm-filter-label">Tanggal:</span>
+            <div className="adm-date-range">
+              <input
+                type="date"
+                className="adm-date"
+                value={dateFrom}
+                onChange={e => setDateFrom(e.target.value)}
+              />
+              <span className="adm-date-sep">s/d</span>
+              <input
+                type="date"
+                className="adm-date"
+                value={dateTo}
+                onChange={e => setDateTo(e.target.value)}
+              />
+            </div>
+            {filterActive && (
+              <button type="button" className="adm-reset" onClick={resetFilters}>
+                ✕ Reset Filter
+              </button>
+            )}
+          </div>
+
+          <div className="adm-filter-summary">
+            Menampilkan <strong>{filtered.length}</strong> dari {orders.length} order
+            {filterActive && filtered.length > 0 && (
+              <> • Total: <strong>{formatRupiah(totalPendapatan)}</strong></>
+            )}
+          </div>
         </div>
 
         {/* Content */}
