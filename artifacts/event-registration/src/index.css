@@ -2288,3 +2288,28 @@
   .adm-filter-label { min-width: 100%; margin-bottom: -4px; }
   .adm-reset { margin-left: 0; width: 100%; text-align: center; }
 }
+
+/* ===== Admin Card Actions ===== */
+.adm-card-actions {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed #e5e7eb;
+  display: flex;
+  justify-content: flex-end;
+}
+.adm-del-btn {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .15s;
+}
+.adm-del-btn:hover:not(:disabled) {
+  background: #fee2e2;
+  border-color: #fca5a5;
+}
+.adm-del-btn:disabled { opacity: .55; cursor: not-allowed; }

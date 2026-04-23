@@ -106,6 +106,23 @@ router.get("/orders", async (_req, res): Promise<void> => {
   res.json(orders);
 });
 
+// DELETE /orders/:id — hapus order (untuk transaksi yang batal)
+router.delete("/orders/:id", async (req, res): Promise<void> => {
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id) || id <= 0) {
+    res.status(400).json({ ok: false, error: "ID order tidak valid" });
+    return;
+  }
+  const existing = await db.select().from(ordersTable).where(eq(ordersTable.id, id)).limit(1);
+  if (existing.length === 0) {
+    res.status(404).json({ ok: false, error: "Order tidak ditemukan" });
+    return;
+  }
+  await db.delete(ordersTable).where(eq(ordersTable.id, id));
+  logger.info({ orderId: existing[0].orderId, id }, "Order deleted by admin");
+  res.json({ ok: true, deleted: existing[0].orderId });
+});
+
 // POST /orders — terima order baru
 router.post("/orders", async (req, res): Promise<void> => {
   // Proses items array jika ada (multi-produk)

@@ -59,6 +59,7 @@ export default function AdminOrders() {
   const [waFilter, setWaFilter] = useState<"ALL" | "OK" | "FAIL">("ALL");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -124,6 +125,26 @@ export default function AdminOrders() {
   const totalPendapatan = filtered.reduce((s, o) => s + o.totalHarga, 0);
 
   const countBy = (m: string) => orders.filter(o => o.metodePembayaran === m).length;
+
+  const handleDelete = async (order: Order) => {
+    const ok = window.confirm(
+      `Hapus order #${order.orderId}?\n\nNama: ${order.namaKontak}\nProduk: ${order.namaProduk}\nTotal: ${formatRupiah(order.totalHarga)}\n\nTindakan ini tidak dapat dibatalkan.`,
+    );
+    if (!ok) return;
+    setDeletingId(order.id);
+    try {
+      const res = await fetch(`${baseUrl}/api/orders/${order.id}`, { method: "DELETE" });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Gagal menghapus order");
+      }
+      setOrders(prev => prev.filter(o => o.id !== order.id));
+    } catch (e: unknown) {
+      alert(e instanceof Error ? e.message : "Error tidak diketahui");
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   return (
     <div className="adm-bg">
@@ -372,6 +393,17 @@ export default function AdminOrders() {
                       <span className="adm-total-val">{formatRupiah(order.totalHarga)}</span>
                     </div>
                   </div>
+                </div>
+
+                <div className="adm-card-actions">
+                  <button
+                    type="button"
+                    className="adm-del-btn"
+                    onClick={() => handleDelete(order)}
+                    disabled={deletingId === order.id}
+                  >
+                    {deletingId === order.id ? "⏳ Menghapus..." : "🗑️ Hapus Order (Batal)"}
+                  </button>
                 </div>
               </div>
             ))}
