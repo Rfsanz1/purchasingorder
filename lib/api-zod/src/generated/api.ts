@@ -27,7 +27,7 @@ export const SubmitOrderBody = zod.object({
   hargaProduk: zod.number(),
   biayaPengiriman: zod.number().nullish(),
   salesPerson: zod.string(),
-  metodePembayaran: zod.enum(["CASH", "Debit", "Transfer"]),
+  metodePembayaran: zod.enum(["CASH", "Debit", "Transfer", "BelumBayar"]),
   keteranganPembayaran: zod.string().nullish(),
 });
 

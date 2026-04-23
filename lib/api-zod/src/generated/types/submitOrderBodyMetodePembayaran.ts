@@ -13,4 +13,5 @@ export const SubmitOrderBodyMetodePembayaran = {
   CASH: "CASH",
   Debit: "Debit",
   Transfer: "Transfer",
+  BelumBayar: "BelumBayar",
 } as const;

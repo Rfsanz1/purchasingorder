@@ -49,7 +49,7 @@ interface OrderItem {
   hargaProduk: string;
 }
 
-type MetodePembayaran = "CASH" | "Debit" | "Transfer";
+type MetodePembayaran = "CASH" | "Debit" | "Transfer" | "BelumBayar";
 
 interface FormData {
   namaKontak: string;
@@ -967,6 +967,7 @@ export default function PurchaseOrderForm() {
                   { v: "CASH", icon: "💵", label: "Cash", desc: "Bayar tunai di tempat" },
                   { v: "Debit", icon: "💳", label: "Debit (EDC)", desc: "Gesek kartu via mesin EDC" },
                   { v: "Transfer", icon: "🏦", label: "Transfer", desc: "Transfer ke rekening toko" },
+                  { v: "BelumBayar", icon: "⏳", label: "Belum Bayar", desc: "Tagih nanti — invoice Kledo tetap terbuka" },
                 ] as const).map(m => {
                   const active = form.metodePembayaran === m.v;
                   return (

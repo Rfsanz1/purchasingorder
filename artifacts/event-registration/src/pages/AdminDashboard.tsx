@@ -184,11 +184,13 @@ function PayBadge({ metode }: { metode: string }) {
     CASH: { bg: "#fef9c3", color: "#854d0e" },
     Debit: { bg: "#dbeafe", color: "#1d4ed8" },
     Transfer: { bg: "#f3e8ff", color: "#7c3aed" },
+    BelumBayar: { bg: "#fee2e2", color: "#b91c1c" },
   };
   const s = styles[metode] ?? { bg: "#f3f4f6", color: "#6b7280" };
+  const label = metode === "BelumBayar" ? "Belum Bayar" : metode;
   return (
     <span className="dash-status-badge" style={{ background: s.bg, color: s.color, border: `1.5px solid ${s.color}33` }}>
-      {metode}
+      {label}
     </span>
   );
 }

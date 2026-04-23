@@ -110,7 +110,7 @@ components:
           type: string
         metodePembayaran:
           type: string
-          enum: [CASH, Debit, Transfer]
+          enum: [CASH, Debit, Transfer, BelumBayar]
         keteranganPembayaran:
           type: string
           nullable: true

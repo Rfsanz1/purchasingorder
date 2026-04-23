@@ -40,8 +40,9 @@ function Badge({ sent }: { sent: string }) {
 }
 
 function PayBadge({ metode }: { metode: string }) {
-  const map: Record<string, string> = { CASH: "adm-pay--cash", Debit: "adm-pay--debit", Transfer: "adm-pay--transfer" };
-  return <span className={`adm-pay ${map[metode] ?? ""}`}>{metode}</span>;
+  const map: Record<string, string> = { CASH: "adm-pay--cash", Debit: "adm-pay--debit", Transfer: "adm-pay--transfer", BelumBayar: "adm-pay--unpaid" };
+  const label = metode === "BelumBayar" ? "Belum Bayar" : metode;
+  return <span className={`adm-pay ${map[metode] ?? ""}`}>{label}</span>;
 }
 
 interface HealthResult { name: string; ok: boolean; detail: string }
@@ -55,7 +56,7 @@ export default function AdminOrders() {
   const [healthOpen, setHealthOpen] = useState(false);
   const [healthLoading, setHealthLoading] = useState(false);
   const [health, setHealth] = useState<HealthResponse | null>(null);
-  const [payFilter, setPayFilter] = useState<"ALL" | "CASH" | "Debit" | "Transfer">("ALL");
+  const [payFilter, setPayFilter] = useState<"ALL" | "CASH" | "Debit" | "Transfer" | "BelumBayar">("ALL");
   const [waFilter, setWaFilter] = useState<"ALL" | "OK" | "FAIL">("ALL");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
@@ -248,6 +249,7 @@ export default function AdminOrders() {
                 { v: "CASH", l: `💵 CASH (${countBy("CASH")})` },
                 { v: "Debit", l: `💳 Debit (${countBy("Debit")})` },
                 { v: "Transfer", l: `🏦 Transfer (${countBy("Transfer")})` },
+                { v: "BelumBayar", l: `⏳ Belum Bayar (${countBy("BelumBayar")})` },
               ] as const).map(c => (
                 <button
                   key={c.v}

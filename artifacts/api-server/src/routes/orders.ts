@@ -229,7 +229,7 @@ router.post("/orders", async (req, res): Promise<void> => {
     `${d.namaProduk} x ${d.jumlahProduk} unit\n\n` +
     `💰 *Total: Rp ${formatRupiah(total)}*` +
     (ongkir ? ` (Ongkir: Rp ${formatRupiah(ongkir)})` : "") + `\n` +
-    `💳 Pembayaran: ${d.metodePembayaran}` +
+    `💳 Pembayaran: ${d.metodePembayaran === "BelumBayar" ? "Belum Bayar ⏳" : d.metodePembayaran}` +
     (selectedBank ? ` – ${selectedBank.name}` : "") +
     (d.metodePembayaran === "Transfer"
       ? (buktiTransferBase64 ? " ✅ (bukti TF terlampir)" : " ⏳ (belum ada bukti TF)")
