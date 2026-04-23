@@ -20,7 +20,7 @@ async function doLogin(
   const res = await fetch(`${baseUrl}/api/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ role, password, ...(username ? { username } : {}) }),
+    body: JSON.stringify({ role, ...(password ? { password } : {}), ...(username ? { username } : {}) }),
   });
   const data = await res.json();
   if (data.ok) {
@@ -52,7 +52,7 @@ function LoginModal({
   const handle = async () => {
     if (role === "sales"  && !user.trim()) { setErr("Pilih nama sales"); return; }
     if (role === "driver" && !user.trim()) { setErr("Pilih nama driver"); return; }
-    if (!pw.trim()) { setErr("Masukkan password"); return; }
+    if (role !== "driver" && !pw.trim()) { setErr("Masukkan password"); return; }
     setLoading(true);
     setErr("");
     const r = await doLogin(role, pw, role === "sales" || role === "driver" ? user : undefined);
@@ -76,9 +76,11 @@ function LoginModal({
         <div className="lp-modal-icon">{icon}</div>
         <h2 className="lp-modal-title">{title}</h2>
         <p className="lp-modal-sub">
-          {role === "sales"
-            ? "Pilih nama lalu masukkan password"
-            : "Masukkan password untuk melanjutkan"}
+          {role === "driver"
+            ? "Pilih nama Anda lalu klik Masuk"
+            : role === "sales"
+              ? "Pilih nama lalu masukkan password"
+              : "Masukkan password untuk melanjutkan"}
         </p>
 
         {(role === "sales" || role === "driver") && (
@@ -97,15 +99,17 @@ function LoginModal({
           </select>
         )}
 
-        <input
-          className={`lp-modal-input${err ? " lp-modal-input--err" : ""}`}
-          type="password"
-          placeholder="Password"
-          value={pw}
-          autoFocus={role !== "sales"}
-          onChange={e => setPw(e.target.value)}
-          onKeyDown={e => e.key === "Enter" && handle()}
-        />
+        {role !== "driver" && (
+          <input
+            className={`lp-modal-input${err ? " lp-modal-input--err" : ""}`}
+            type="password"
+            placeholder="Password"
+            value={pw}
+            autoFocus={role !== "sales"}
+            onChange={e => setPw(e.target.value)}
+            onKeyDown={e => e.key === "Enter" && handle()}
+          />
+        )}
         {err && <div className="lp-modal-err">{err}</div>}
         <button className="lp-modal-btn" onClick={handle} disabled={loading}>
           {loading ? "Memverifikasi..." : "Masuk"}
