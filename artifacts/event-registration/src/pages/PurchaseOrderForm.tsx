@@ -429,6 +429,114 @@ function ContactCombobox({ value, onChange, onSelect }: {
   );
 }
 
+function BankCombobox({
+  options, value, onChange, placeholder, icon,
+}: {
+  options: { id: number; label: string }[];
+  value: string;
+  onChange: (val: string) => void;
+  placeholder: string;
+  icon?: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    function onOutside(e: MouseEvent) {
+      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) {
+        setOpen(false); setSearch("");
+      }
+    }
+    document.addEventListener("mousedown", onOutside);
+    return () => document.removeEventListener("mousedown", onOutside);
+  }, []);
+
+  useEffect(() => {
+    if (open) setTimeout(() => searchRef.current?.focus(), 60);
+  }, [open]);
+
+  const selected = options.find(o => String(o.id) === value) || null;
+  const filtered = options.filter(o => o.label.toLowerCase().includes(search.toLowerCase()));
+
+  const parseLabel = (label: string) => {
+    const dashIdx = label.indexOf("–");
+    if (dashIdx === -1) return { name: label, meta: "" };
+    return { name: label.slice(0, dashIdx).trim(), meta: label.slice(dashIdx + 1).trim() };
+  };
+
+  return (
+    <div className="bank-combo" ref={wrapRef}>
+      {selected ? (
+        <div className="bank-combo-selected" onClick={() => setOpen(true)}>
+          <div className="bank-combo-selected-icon">{icon ?? "🏦"}</div>
+          <div className="bank-combo-selected-body">
+            <div className="bank-combo-selected-name">{parseLabel(selected.label).name}</div>
+            {parseLabel(selected.label).meta && (
+              <div className="bank-combo-selected-meta">{parseLabel(selected.label).meta}</div>
+            )}
+          </div>
+          <button
+            type="button"
+            className="bank-combo-clear"
+            onClick={e => { e.stopPropagation(); onChange(""); }}
+          >✕</button>
+        </div>
+      ) : (
+        <button
+          type="button"
+          className="bank-combo-trigger"
+          onClick={() => setOpen(v => !v)}
+        >
+          <span className="bank-combo-trigger-icon">{icon ?? "🏦"}</span>
+          <span className="bank-combo-trigger-text">{placeholder}</span>
+          <ChevronDown size={16} className={`bank-combo-chev${open ? " up" : ""}`} />
+        </button>
+      )}
+
+      {open && (
+        <div className="bank-combo-panel">
+          {options.length > 4 && (
+            <div className="bank-combo-search-row">
+              <Search size={14} className="bank-combo-search-icon" />
+              <input
+                ref={searchRef}
+                className="bank-combo-search"
+                placeholder="Cari bank…"
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+              />
+            </div>
+          )}
+          <ul className="bank-combo-list">
+            {filtered.length === 0 ? (
+              <li className="bank-combo-empty">Tidak ditemukan</li>
+            ) : filtered.map(opt => {
+              const { name, meta } = parseLabel(opt.label);
+              const active = String(opt.id) === value;
+              return (
+                <li
+                  key={opt.id}
+                  className={`bank-combo-item${active ? " active" : ""}`}
+                  onMouseDown={() => { onChange(String(opt.id)); setOpen(false); setSearch(""); }}
+                >
+                  <div className="bank-combo-item-icon">{icon ?? "🏦"}</div>
+                  <div className="bank-combo-item-body">
+                    <div className="bank-combo-item-name">{name}</div>
+                    {meta && <div className="bank-combo-item-meta">{meta}</div>}
+                  </div>
+                  {active && <Check size={16} className="bank-combo-item-check" />}
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function FormDropdown({
   label, value, options, onChange, disabled, required, icon,
 }: {
@@ -886,14 +994,13 @@ export default function PurchaseOrderForm() {
                   <label className="pay-detail-label">
                     Mesin EDC <span style={{ color: "#e74c3c" }}>*</span>
                   </label>
-                  <select
+                  <BankCombobox
+                    options={EDC_BANKS}
                     value={form.bankAccountId}
-                    onChange={e => set("bankAccountId", e.target.value)}
-                    className="pay-select"
-                  >
-                    <option value="">— Pilih EDC —</option>
-                    {EDC_BANKS.map(b => <option key={b.id} value={String(b.id)}>{b.label}</option>)}
-                  </select>
+                    onChange={v => set("bankAccountId", v)}
+                    placeholder="Pilih mesin EDC…"
+                    icon="💳"
+                  />
                 </div>
               )}
 
@@ -902,14 +1009,13 @@ export default function PurchaseOrderForm() {
                   <label className="pay-detail-label">
                     Bank Tujuan Transfer <span style={{ color: "#e74c3c" }}>*</span>
                   </label>
-                  <select
+                  <BankCombobox
+                    options={TRANSFER_BANKS}
                     value={form.bankAccountId}
-                    onChange={e => set("bankAccountId", e.target.value)}
-                    className="pay-select"
-                  >
-                    <option value="">— Pilih bank tujuan —</option>
-                    {TRANSFER_BANKS.map(b => <option key={b.id} value={String(b.id)}>{b.label}</option>)}
-                  </select>
+                    onChange={v => set("bankAccountId", v)}
+                    placeholder="Pilih bank tujuan transfer…"
+                    icon="🏦"
+                  />
 
                   <div className="pay-bukti-section">
                     <div className="pay-bukti-title">
