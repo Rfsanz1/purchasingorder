@@ -44,13 +44,37 @@ function PayBadge({ metode }: { metode: string }) {
   return <span className={`adm-pay ${map[metode] ?? ""}`}>{metode}</span>;
 }
 
+interface HealthResult { name: string; ok: boolean; detail: string }
+interface HealthResponse { ok: boolean; results: HealthResult[]; group: string }
+
 export default function AdminOrders() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
+  const [healthOpen, setHealthOpen] = useState(false);
+  const [healthLoading, setHealthLoading] = useState(false);
+  const [health, setHealth] = useState<HealthResponse | null>(null);
 
   const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+  const runHealthCheck = async (sendTest: boolean) => {
+    setHealthLoading(true);
+    setHealthOpen(true);
+    try {
+      const res = await fetch(`${baseUrl}/api/system/health-check${sendTest ? "?sendTest=1" : ""}`);
+      const data = await res.json() as HealthResponse;
+      setHealth(data);
+    } catch (e) {
+      setHealth({
+        ok: false,
+        results: [{ name: "Permintaan", ok: false, detail: e instanceof Error ? e.message : "Gagal memanggil server" }],
+        group: "",
+      });
+    } finally {
+      setHealthLoading(false);
+    }
+  };
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -85,8 +109,59 @@ export default function AdminOrders() {
             <h1 className="adm-title">📋 Daftar Order Masuk</h1>
             <p className="adm-sub">Semua pesanan yang dikirim melalui form Purchase Order</p>
           </div>
-          <button className="adm-refresh" onClick={fetchOrders}>🔄 Refresh</button>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <button className="adm-refresh" onClick={() => runHealthCheck(false)}>🩺 Test Koneksi</button>
+            <button className="adm-refresh" onClick={fetchOrders}>🔄 Refresh</button>
+          </div>
         </div>
+
+        {healthOpen && (
+          <div className="hc-modal-bg" onClick={() => setHealthOpen(false)}>
+            <div className="hc-modal" onClick={e => e.stopPropagation()}>
+              <div className="hc-modal-header">
+                <div>
+                  <div className="hc-modal-title">🩺 Test Koneksi WA & Kledo</div>
+                  <div className="hc-modal-sub">Cek status integrasi WhatsApp (Fonnte) dan Kledo ERP</div>
+                </div>
+                <button className="hc-close" onClick={() => setHealthOpen(false)}>✕</button>
+              </div>
+              <div className="hc-modal-body">
+                {healthLoading ? (
+                  <div className="hc-loading">⏳ Sedang memeriksa…</div>
+                ) : health ? (
+                  <>
+                    <div className={`hc-summary ${health.ok ? "ok" : "fail"}`}>
+                      {health.ok ? "✅ Semua koneksi sehat" : "⚠️ Ada masalah pada koneksi"}
+                    </div>
+                    <ul className="hc-list">
+                      {health.results.map((r, i) => (
+                        <li key={i} className={`hc-item ${r.ok ? "ok" : "fail"}`}>
+                          <div className="hc-item-icon">{r.ok ? "✅" : "❌"}</div>
+                          <div className="hc-item-body">
+                            <div className="hc-item-name">{r.name}</div>
+                            <div className="hc-item-detail">{r.detail}</div>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                    <div className="hc-actions">
+                      <button
+                        className="hc-btn-secondary"
+                        onClick={() => runHealthCheck(false)}
+                        disabled={healthLoading}
+                      >🔄 Periksa Ulang</button>
+                      <button
+                        className="hc-btn-primary"
+                        onClick={() => runHealthCheck(true)}
+                        disabled={healthLoading}
+                      >📨 Kirim Pesan Tes ke Grup</button>
+                    </div>
+                  </>
+                ) : null}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Stats */}
         <div className="adm-stats">
