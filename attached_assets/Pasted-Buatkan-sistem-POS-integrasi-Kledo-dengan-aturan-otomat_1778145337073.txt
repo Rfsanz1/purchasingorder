@@ -1,0 +1,151 @@
+Buatkan sistem POS / integrasi Kledo dengan aturan otomatis berikut:
+
+========================================================
+1. PEMISAHAN DIVISI USAHA
+========================================================
+
+Pisahkan transaksi menjadi 2 divisi:
+
+- ELEKTRONIK
+- BAHAN BANGUNAN
+
+Aturan:
+- Produk kategori ELEKTRONIK → masuk ke divisi ELEKTRONIK
+- Produk kategori BAHAN BANGUNAN → masuk ke divisi BAHAN BANGUNAN
+
+========================================================
+2. PEMETAAN AKUN KAS OTOMATIS
+========================================================
+
+IF kategori = ELEKTRONIK
+THEN akun_kas = "Kas Elektronik"
+
+IF kategori = BAHAN_BANGUNAN
+THEN akun_kas = "Kas Sulawesi"
+
+========================================================
+3. PEMETAAN PEMBAYARAN TRANSFER
+========================================================
+
+IF metode_pembayaran = "TRANSFER_BRI"
+THEN akun_bank = "BRI EDC"
+
+IF metode_pembayaran = "TRANSFER_BCA"
+THEN akun_bank = "BCA Giro"
+
+IF metode_pembayaran = "TRANSFER_BNI"
+THEN akun_bank = "BNI"
+
+IF metode_pembayaran = "TRANSFER_MANDIRI"
+THEN akun_bank = "Mandiri"
+
+========================================================
+4. PEMETAAN PEMBAYARAN DEBIT / EDC
+========================================================
+
+IF metode_pembayaran = "DEBIT_BCA"
+THEN akun_bank = "BCA EDC"
+
+IF metode_pembayaran = "DEBIT_BNI"
+THEN akun_bank = "BNI EDC"
+
+IF metode_pembayaran = "DEBIT_BRI"
+THEN akun_bank = "BRI EDC"
+
+IF metode_pembayaran = "DEBIT_MANDIRI"
+THEN akun_bank = "Mandiri EDC"
+
+========================================================
+5. VALIDASI TRANSAKSI CAMPURAN
+========================================================
+
+IF transaksi memiliki kategori campuran
+(ELEKTRONIK + BAHAN_BANGUNAN)
+
+THEN:
+- tampilkan warning:
+  "Transaksi memiliki kategori berbeda"
+- sistem harus:
+  OPTION 1 = pisahkan invoice otomatis
+  OPTION 2 = blok transaksi sampai dipisah
+
+========================================================
+6. VALIDASI DAN NORMALISASI ALAMAT
+========================================================
+
+Masalah yang harus diperbaiki:
+- Alamat Temanggung sering terbaca sebagai Magelang
+- Alamat Parakan kadang tidak masuk ke Kledo
+
+Buat sistem normalisasi alamat otomatis:
+
+RULE:
+
+IF alamat mengandung:
+- "Parakan"
+- "Temanggung"
+- "Kedu"
+- "Ngadirejo"
+- "Kranggan"
+- "Candiroto"
+- "Pringsurat"
+
+THEN:
+- kabupaten = "Temanggung"
+- jangan diarahkan ke Magelang
+
+Tambahkan validasi wilayah:
+- cek kecamatan
+- cek kabupaten
+- jangan hanya membaca nama kota terdekat
+
+========================================================
+7. FORMAT PENYIMPANAN ALAMAT
+========================================================
+
+Gunakan format:
+
+[NAMA PENERIMA]
+[NO HP]
+[JALAN / DUSUN]
+[DESA]
+[KECAMATAN]
+[KABUPATEN]
+[PROVINSI]
+[KODEPOS]
+
+Contoh:
+
+Budi Santoso
+08123456789
+Jl Raya Parakan No 10
+Parakan Kauman
+Parakan
+Temanggung
+Jawa Tengah
+56254
+
+========================================================
+8. OUTPUT SISTEM
+========================================================
+
+Sistem harus menghasilkan:
+
+- laporan penjualan per divisi
+- saldo kas terpisah
+- saldo bank terpisah
+- rekap transfer per bank
+- rekap EDC per bank
+- validasi alamat otomatis
+- normalisasi alamat Temanggung agar tidak masuk Magelang
+
+========================================================
+9. PRIORITAS SISTEM
+========================================================
+
+PRIORITAS UTAMA:
+1. Pemisahan divisi usaha
+2. Akun kas otomatis
+3. Mapping bank otomatis
+4. Validasi alamat akurat
+5. Integrasi aman ke Kledo

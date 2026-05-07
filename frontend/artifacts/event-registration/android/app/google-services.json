@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1060885037671",
+    "project_id": "purchase-order-gentong-mas",
+    "storage_bucket": "purchase-order-gentong-mas.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1060885037671:android:1204726f3d5660eef7cac2",
+        "android_client_info": {
+          "package_name": "com.gentongmas.po"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA8G0FCgOP26WXcNPhAKlNuyMsFaYl9AEM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

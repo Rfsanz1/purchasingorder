@@ -1,0 +1,112 @@
+modules = ["nodejs-20", "php-8.2", "web", "postgresql-16"]
+
+[deployment]
+router = "application"
+deploymentTarget = "autoscale"
+run = ["bash", "start-production.sh"]
+
+[deployment.postBuild]
+args = ["pnpm", "store", "prune"]
+env = { "CI" = "true" }
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Start application"
+
+[[workflows.workflow]]
+name = "Start application"
+author = "agent"
+
+[workflows.workflow.metadata]
+outputType = "webview"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "PORT=5000 bash start.sh"
+waitForPort = 5000
+
+[agent]
+stack = "BEST_EFFORT_FALLBACK"
+expertMode = true
+integrations = ["javascript_database:1.0.0"]
+
+[postMerge]
+path = "scripts/post-merge.sh"
+timeoutMs = 20000
+
+[[ports]]
+localPort = 3001
+externalPort = 3001
+
+[[ports]]
+localPort = 3002
+externalPort = 6000
+
+[[ports]]
+localPort = 3306
+externalPort = 6800
+
+[[ports]]
+localPort = 5000
+externalPort = 80
+
+[[ports]]
+localPort = 5173
+externalPort = 3002
+
+[[ports]]
+localPort = 8080
+externalPort = 8080
+
+[[ports]]
+localPort = 8081
+externalPort = 8081
+
+[[ports]]
+localPort = 8082
+externalPort = 5173
+
+[[ports]]
+localPort = 23287
+externalPort = 3000
+
+[[ports]]
+localPort = 23288
+externalPort = 5000
+
+[[ports]]
+localPort = 23289
+externalPort = 4200
+
+[nix]
+channel = "stable-25_05"
+
+[userenv]
+
+[userenv.shared]
+APP_NAME = "Purchase Order"
+APP_ENV = "local"
+APP_DEBUG = "true"
+APP_LOCALE = "id"
+APP_FALLBACK_LOCALE = "id"
+DB_CONNECTION = "pgsql"
+DB_HOST = "helium"
+DB_PORT = "5432"
+DB_DATABASE = "heliumdb"
+DB_USERNAME = "postgres"
+DB_SSLMODE = "disable"
+SESSION_DRIVER = "file"
+CACHE_STORE = "file"
+QUEUE_CONNECTION = "sync"
+SESSION_SAME_SITE = "none"
+SESSION_SECURE_COOKIE = "true"
+LOG_CHANNEL = "stack"
+LOG_LEVEL = "debug"

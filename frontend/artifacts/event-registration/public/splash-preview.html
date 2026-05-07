@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+    <title>Splash Preview — Gentong Mas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      html, body { width: 100%; height: 100%; overflow: hidden; background: #000; }
+
+      .splash {
+        position: fixed; inset: 0;
+        background: linear-gradient(160deg, #0d1b3e 0%, #1042a0 45%, #2196f3 100%);
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: flex-end;
+        font-family: 'Poppins', sans-serif;
+        overflow: hidden;
+        animation: splashFade .35s ease;
+      }
+      @keyframes splashFade { from { opacity: 0; } to { opacity: 1; } }
+
+      /* Radial glow */
+      .splash::before {
+        content: "";
+        position: absolute;
+        width: 520px; height: 520px;
+        top: 50%; left: 50%;
+        transform: translate(-50%, -54%);
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(255,255,255,.10) 0%, transparent 70%);
+        pointer-events: none;
+        animation: glowPulse 3s ease-in-out infinite;
+      }
+      @keyframes glowPulse {
+        0%,100% { opacity: .6; transform: translate(-50%,-54%) scale(1); }
+        50%     { opacity: 1;  transform: translate(-50%,-54%) scale(1.06); }
+      }
+
+      /* Puzzle pieces container */
+      .pieces {
+        position: absolute;
+        width: 200px; height: 200px;
+        top: 50%; left: 50%;
+        transform: translate(-50%, -60%);
+        z-index: 0;
+      }
+
+      .piece {
+        position: absolute;
+        width: 98px; height: 98px;
+        filter: drop-shadow(0 4px 18px rgba(0,0,0,.3));
+      }
+
+      /* TL – solid white, flies from top-left */
+      .piece--tl {
+        top: 0; left: 0;
+        animation: pieceInTL .65s cubic-bezier(.22,1,.36,1) .05s both;
+      }
+      @keyframes pieceInTL {
+        0%   { opacity: 0; transform: translate(-60px,-60px) scale(.6) rotate(-18deg); }
+        100% { opacity: 1; transform: translate(0,0) scale(1) rotate(0deg); }
+      }
+
+      /* TR – translucent, flies from top-right */
+      .piece--tr {
+        top: 0; right: 0;
+        animation: pieceInTR .65s cubic-bezier(.22,1,.36,1) .18s both;
+      }
+      @keyframes pieceInTR {
+        0%   { opacity: 0; transform: translate(60px,-60px) scale(.6) rotate(18deg); }
+        100% { opacity: 1; transform: translate(0,0) scale(1) rotate(0deg); }
+      }
+
+      /* BL – translucent, flies from bottom-left */
+      .piece--bl {
+        bottom: 0; left: 0;
+        animation: pieceInBL .65s cubic-bezier(.22,1,.36,1) .31s both;
+      }
+      @keyframes pieceInBL {
+        0%   { opacity: 0; transform: translate(-60px,60px) scale(.6) rotate(18deg); }
+        100% { opacity: 1; transform: translate(0,0) scale(1) rotate(0deg); }
+      }
+
+      /* BR – solid white, flies from bottom-right */
+      .piece--br {
+        bottom: 0; right: 0;
+        animation: pieceInBR .65s cubic-bezier(.22,1,.36,1) .44s both;
+      }
+      @keyframes pieceInBR {
+        0%   { opacity: 0; transform: translate(60px,60px) scale(.6) rotate(-18deg); }
+        100% { opacity: 1; transform: translate(0,0) scale(1) rotate(0deg); }
+      }
+
+      /* Logo */
+      .logo-wrap {
+        position: absolute;
+        inset: 0;
+        display: flex; align-items: center; justify-content: center;
+        transform: translateY(-10%);
+        z-index: 1;
+      }
+      .logo {
+        width: min(68vw, 260px);
+        height: auto;
+        object-fit: contain;
+        animation: logoIn .6s cubic-bezier(.22,1,.36,1) .7s both;
+        filter: drop-shadow(0 2px 16px rgba(0,0,0,.4));
+      }
+      @keyframes logoIn {
+        0%   { opacity: 0; transform: scale(.85); }
+        100% { opacity: 1; transform: scale(1); }
+      }
+
+      /* Bottom bar */
+      .bottom {
+        position: relative; z-index: 2;
+        width: 100%; padding: 0 0 52px;
+        display: flex; flex-direction: column; align-items: center; gap: 10px;
+        background: linear-gradient(to top, rgba(0,10,30,.55) 0%, transparent 100%);
+      }
+      .bar-track {
+        width: 140px; height: 3px;
+        background: rgba(255,255,255,.18);
+        border-radius: 999px;
+        overflow: hidden; position: relative;
+      }
+      .bar-track::before {
+        content: "";
+        position: absolute; top: 0; left: -60%;
+        width: 60%; height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,.9) 40%, #fff 60%, transparent);
+        border-radius: 999px;
+        animation: barSlide 1.4s .4s ease-in-out infinite;
+      }
+      @keyframes barSlide {
+        0%   { left: -60%; }
+        100% { left: 120%; }
+      }
+      .label {
+        font-size: 10px; color: rgba(255,255,255,.55);
+        letter-spacing: .7px; text-transform: uppercase;
+      }
+
+      /* Replay button */
+      .replay {
+        position: fixed; bottom: 16px; right: 16px; z-index: 999;
+        background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3);
+        color: #fff; font-size: 11px; font-family: 'Poppins', sans-serif;
+        padding: 6px 16px; border-radius: 20px; cursor: pointer;
+        backdrop-filter: blur(6px);
+      }
+      .replay:hover { background: rgba(255,255,255,.25); }
+    </style>
+  </head>
+  <body>
+    <div class="splash">
+
+      <!-- Puzzle pieces (interlocking 2×2 set) -->
+      <div class="pieces">
+        <!-- TL: tab on right side + tab on bottom -->
+        <svg class="piece piece--tl" viewBox="-13 -13 106 106" overflow="visible" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="
+            M0,0 H33
+            a13,13 0 0,0 26,0
+            H80 V33
+            a13,13 0 0,1 0,26
+            V80 H0 Z
+          " fill="white" filter="url(#sh)"/>
+          <defs><filter id="sh"><feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="rgba(0,0,0,.28)"/></filter></defs>
+        </svg>
+        <!-- TR: blank on left (matches TL right tab) + tab on bottom -->
+        <svg class="piece piece--tr" viewBox="-13 -13 106 106" overflow="visible" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="
+            M0,0 H80 V33
+            a13,13 0 0,1 0,26
+            V80 H47
+            a13,13 0 0,0 -26,0
+            H0 V47
+            a13,13 0 0,1 0,-26
+            V0 Z
+          " fill="rgba(255,255,255,.22)"/>
+        </svg>
+        <!-- BL: blank on top (matches TL bottom tab) + tab on right -->
+        <svg class="piece piece--bl" viewBox="-13 -13 106 106" overflow="visible" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="
+            M0,0 H33
+            a13,13 0 0,1 26,0
+            H80 V80 H47
+            a13,13 0 0,0 -26,0
+            H0 V47
+            a13,13 0 0,0 0,-26
+            V0 Z
+          " fill="rgba(255,255,255,.22)"/>
+        </svg>
+        <!-- BR: blank on left (matches BL right tab) + blank on top (matches TR bottom tab) -->
+        <svg class="piece piece--br" viewBox="-13 -13 106 106" overflow="visible" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="
+            M0,0 H33
+            a13,13 0 0,1 26,0
+            H80 V80 H0 V47
+            a13,13 0 0,1 0,-26
+            V0 Z
+          " fill="white" filter="url(#sh2)"/>
+          <defs><filter id="sh2"><feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="rgba(0,0,0,.28)"/></filter></defs>
+        </svg>
+      </div>
+
+      <!-- Logo -->
+      <div class="logo-wrap">
+        <img class="logo" src="/splash-logo.png" alt="Gentong Mas" />
+      </div>
+
+      <!-- Loading bar -->
+      <div class="bottom">
+        <div class="label">Memuat aplikasi...</div>
+        <div class="bar-track"></div>
+      </div>
+    </div>
+
+    <button class="replay" onclick="location.reload()">↺ Putar ulang</button>
+  </body>
+</html>

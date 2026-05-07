@@ -1,0 +1,13 @@
+uploads = []
+
+[[generated]]
+id = "px5XI2t_Slc3v3FCQqX6d"
+uri = "file://artifacts/event-registration/public/app-icon.png"
+type = "image"
+title = "po app icon"
+
+[[outputs]]
+id = "bwc3SYX-VLta0CfmnHRlQ"
+uri = "file://gentongmas-infinityfree.zip"
+type = "unspecified"
+title = "Gentong Mas ERP - InfinityFree Deploy Package"
