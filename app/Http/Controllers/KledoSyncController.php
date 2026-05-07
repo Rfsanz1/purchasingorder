@@ -114,22 +114,51 @@ class KledoSyncController extends Controller
     {
         if (!$memo) return 'Tidak Diketahui';
 
-        // Format ERP baru: "NamaSales - NomorHP"
-        if (preg_match('/^([^-\n]+?)\s*-\s*(\+62|0)[\d\s\-\(\)\.]{6,}/', trim($memo), $m)) {
+        $text = trim($memo);
+
+        // 1. Format ERP baru: "NamaSales - +62xxx" atau "NamaSales - 08xxx"
+        if (preg_match('/^([^-\n]+?)\s*-\s*(\+62|0)[\d\s\-\(\)\.]{6,}/u', $text, $m)) {
             return $this->normalizeSalesName(trim($m[1]));
         }
 
-        // Format lama: "Sales: NamaSales - Telp"
-        if (preg_match('/Sales:\s*([^-\n|]+)/i', $memo, $m)) {
+        // 2. Format: "Sales: NamaSales" atau "Sales: NamaSales - Telp"
+        if (preg_match('/Sales\s*:\s*([^-\n|]+)/i', $text, $m)) {
             return $this->normalizeSalesName(trim($m[1]));
         }
 
-        // Format: "Order #123 - NamaSales"
-        if (preg_match('/Order\s*#\d+\s*-\s*(.+)/i', $memo, $m)) {
+        // 3. Format tagihan/penjualan Kledo: "Nama Sales | ..."
+        if (preg_match('/^([^|\n]+)\s*\|/u', $text, $m)) {
+            $candidate = trim($m[1]);
+            if ($this->isKnownSales($candidate)) {
+                return $this->normalizeSalesName($candidate);
+            }
+        }
+
+        // 4. Format: "Order #123 - NamaSales"
+        if (preg_match('/Order\s*#\d+\s*-\s*(.+)/i', $text, $m)) {
             return $this->normalizeSalesName(trim($m[1]));
+        }
+
+        // 5. Cek apakah nama sales muncul di mana saja dalam memo
+        $known = ['lehan','agus','ivan','dias','rio brandon','imam','agung','andre','priyanto','wiwid','dhani'];
+        $lower = strtolower($text);
+        foreach ($known as $name) {
+            if (str_contains($lower, $name)) {
+                return ucwords($name);
+            }
         }
 
         return 'Tidak Diketahui';
+    }
+
+    private function isKnownSales(string $name): bool
+    {
+        $known = ['lehan','agus','ivan','dias','rio brandon','imam','agung','andre','priyanto','wiwid','dhani'];
+        $lower = strtolower(trim($name));
+        foreach ($known as $n) {
+            if ($lower === $n || str_contains($lower, $n)) return true;
+        }
+        return false;
     }
 
     // ── Ambil & Mapping Invoice ───────────────────────────────────────────────
