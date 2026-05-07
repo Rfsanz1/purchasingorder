@@ -63,10 +63,15 @@ elif [ -n "$KOYEB_PUBLIC_DOMAIN" ]; then
   set_env APP_URL "https://$KOYEB_PUBLIC_DOMAIN"
 fi
 
-# APP_KEY: generate jika kosong
+# APP_KEY: tulis dari environment, atau generate jika kosong
 if ! grep -q "^APP_KEY=base64:" .env 2>/dev/null; then
-  echo "Generating APP_KEY..."
-  php artisan key:generate --force
+  if [ -n "$APP_KEY" ]; then
+    echo "Menggunakan APP_KEY dari environment..."
+    set_env APP_KEY "$APP_KEY"
+  else
+    echo "Generating APP_KEY..."
+    php artisan key:generate --force
+  fi
 fi
 
 # ── Deteksi database: MySQL atau PostgreSQL ────────────────────────────────────
