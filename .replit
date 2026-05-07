@@ -1,4 +1,4 @@
-modules = ["nodejs-20", "php-8.2", "web", "postgresql-16", "python-3.11"]
+modules = ["nodejs-20", "php-8.2", "web"]
 
 [deployment]
 router = "application"
@@ -88,7 +88,7 @@ channel = "stable-25_05"
 [userenv]
 
 [userenv.shared]
-APP_NAME = "Purchase Order"
+APP_NAME = "Gentong Mas ERP"
 APP_ENV = "local"
 APP_DEBUG = "true"
 APP_LOCALE = "id"
@@ -109,3 +109,5 @@ LOG_LEVEL = "debug"
 APP_KEY = "base64:Htom+SjCBGDXpuFpS99tfoloQFXj/4hHBmwFpaw/X6c="
 ADMIN_PASSWORD = "admin123"
 APP_URL = "http://localhost"
+FONNTE_GROUP_INVOICE = "120363405869453556@g.us"
+FONNTE_GROUP_BUKTI_TF = "120363425112329389@g.us"
