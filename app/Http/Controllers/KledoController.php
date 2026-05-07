@@ -148,11 +148,54 @@ class KledoController extends Controller
             $endDate     = $request->query('end_date', date('Y-m-d'));
             $filterSales = $request->query('sales', '');
 
-            $result = (new \App\Services\KledoService())->rekapPenjualanPerSales($startDate, $endDate, $filterSales);
-            return response()->json($result);
+            // Ambil dari DB cache (kledo_sync_logs) — lebih cepat & tidak bergantung Kledo API
+            $query = \App\Models\KledoSyncLog::query()
+                ->whereBetween('trans_date', [$startDate, $endDate]);
+
+            if ($filterSales) {
+                $query->where('sales', 'ILIKE', "%{$filterSales}%");
+            }
+
+            $rows = $query->orderBy('trans_date', 'desc')->get();
+
+            // Rekap per sales
+            $rekap = [];
+            foreach ($rows as $inv) {
+                $sales = $inv->sales ?: 'Tidak Diketahui';
+                if (!isset($rekap[$sales])) {
+                    $rekap[$sales] = [
+                        'sales'           => $sales,
+                        'jumlah_invoice'  => 0,
+                        'total_penjualan' => 0,
+                        'invoices'        => [],
+                    ];
+                }
+                $rekap[$sales]['jumlah_invoice']++;
+                $rekap[$sales]['total_penjualan'] += (int) $inv->total;
+                $rekap[$sales]['invoices'][] = [
+                    'ref_number'   => $inv->ref_number,
+                    'trans_date'   => $inv->trans_date,
+                    'contact_name' => $inv->contact_name,
+                    'total'        => (int) $inv->total,
+                    'status'       => $inv->status,
+                    'memo'         => $inv->memo,
+                ];
+            }
+
+            usort($rekap, fn($a, $b) => $b['total_penjualan'] <=> $a['total_penjualan']);
+
+            $grandTotal = $rows->sum(fn($r) => (int) $r->total);
+
+            return response()->json([
+                'rekap'         => array_values($rekap),
+                'total_invoice' => $rows->count(),
+                'grand_total'   => $grandTotal,
+                'periode'       => ['dari' => $startDate, 'sampai' => $endDate],
+                'sumber'        => 'cache_db',
+            ]);
         } catch (\Exception $e) {
             \Log::error('laporanPenjualan error: ' . $e->getMessage());
-            return response()->json(['error' => 'Gagal mengambil laporan dari Kledo'], 500);
+            return response()->json(['error' => 'Gagal mengambil laporan: ' . $e->getMessage()], 500);
         }
     }
 

@@ -133,9 +133,10 @@ done
 mkdir -p storage/framework/{sessions,views,cache} storage/logs bootstrap/cache
 chmod -R 775 storage bootstrap/cache 2>/dev/null || true
 
-php artisan config:clear 2>/dev/null || true
-php artisan route:clear 2>/dev/null || true
-php artisan view:clear 2>/dev/null || true
+php artisan config:clear  2>/dev/null || true
+php artisan route:clear   2>/dev/null || true
+php artisan view:clear    2>/dev/null || true
+php artisan config:cache  2>/dev/null || true
 
 PORT="${PORT:-8080}"
 echo "Starting Laravel on port $PORT..."
@@ -144,9 +145,9 @@ echo "Starting Laravel on port $PORT..."
 php artisan serve --host=0.0.0.0 --port="$PORT" &
 SERVER_PID=$!
 
-# Tunggu server benar-benar siap (maks 15 detik)
+# Tunggu server benar-benar siap (maks 20 detik)
 echo "Menunggu server siap..."
-for i in $(seq 1 15); do
+for i in $(seq 1 20); do
   sleep 1
   if kill -0 $SERVER_PID 2>/dev/null; then
     echo "Server sudah jalan (PID: $SERVER_PID)"
@@ -154,7 +155,7 @@ for i in $(seq 1 15); do
   fi
 done
 
-# Jalankan migrasi di background setelah server siap
+# Jalankan migrasi + sync data di background setelah server siap
 (
   echo "Menunggu database siap..."
   MAX_TRIES=30
@@ -168,9 +169,20 @@ done
     echo "Database belum siap, coba lagi... ($COUNT/$MAX_TRIES)"
     sleep 2
   done
+
   echo "Running migrations..."
   php artisan migrate --no-interaction --force 2>&1 || echo "PERINGATAN: Migrasi gagal."
   echo "Migrasi selesai!"
+
+  # Auto-sync data Kledo 20 hari terakhir jika tabel baru dibuat (kosong)
+  COUNT_SYNC=$(php artisan tinker --no-interaction --execute="echo App\Models\KledoSyncLog::count();" 2>/dev/null | tail -1 | tr -d '[:space:]')
+  if [ -n "$KLEDO_TOKEN" ] && [ "${COUNT_SYNC:-0}" -lt "100" ]; then
+    echo "DB kosong — auto-sync data Kledo 20 hari terakhir..."
+    START_DATE=$(date -d "20 days ago" +%Y-%m-%d 2>/dev/null || date -v-20d +%Y-%m-%d 2>/dev/null || echo "2026-04-18")
+    END_DATE=$(date +%Y-%m-%d)
+    php artisan kledo:sync --start="$START_DATE" --end="$END_DATE" --pages=10 2>&1 || echo "PERINGATAN: Sync Kledo gagal."
+    echo "Auto-sync selesai!"
+  fi
 ) &
 
 # Tunggu server process (container tetap hidup)
