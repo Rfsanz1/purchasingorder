@@ -1,0 +1,266 @@
+Buatkan sistem ERP berbasis Laravel dengan arsitektur modular, scalable, dan siap produksi untuk sistem sales, admin, driver, inventory, finance, dan CRM.
+
+Sistem ini menggunakan:
+- Laravel (backend utama)
+- Blade / API hybrid
+- PostgreSQL database
+- WhatsApp integration (FonnteHelper)
+- External ERP integration (KledoService)
+
+========================
+ROOT STRUCTURE
+========================
+
+/
+├── app/
+│   ├── Http/Controllers/
+│   ├── Services/ (KledoService, ERP Integration)
+│   ├── Models/ (Order, Product, Customer, Invoice, Driver, Supplier)
+│   └── Helpers/ (FonnteHelper WhatsApp)
+├── database/migrations/
+├── resources/views/
+├── routes/
+│   ├── web.php
+│   └── api.php
+├── start.sh
+├── start-production.sh
+└── Dockerfile
+
+========================
+ROLE SYSTEM
+========================
+
+- Sales
+- Admin
+- Driver
+- Finance
+- Warehouse (Gudang)
+- Manager
+
+========================
+CORE ACTIVE MODULES
+========================
+
+1. 🏠 Dashboard
+   - Overview penjualan
+   - Total order hari ini
+   - Grafik revenue
+   - Status driver
+   - Quick Access Invoice
+
+2. 🧾 Sales Module
+   - Invoice
+   - Create Order (PO Form)
+   - Riwayat transaksi
+   - Status pembayaran
+   - Diskon & promo
+
+3. 🚚 Delivery Module
+   - Assign driver
+   - Status pengiriman
+   - Tracking GPS (/loc/{token})
+   - Bukti pengiriman
+   - History delivery
+
+4. 👨‍💼 Admin Module
+   - Semua order
+   - Approval order
+   - Assign driver
+   - Monitoring sistem
+
+========================
+ALUR SISTEM
+========================
+
+Sales:
+Sales login → /sales-dashboard
+→ buat order → /po-form
+→ submit:
+   - kirim WhatsApp (FonnteHelper)
+   - create invoice (KledoService)
+   - masuk admin panel
+
+Admin:
+/admin
+→ approve order
+→ assign driver
+→ monitor delivery
+
+Driver:
+/driver
+→ lihat tugas
+→ update status
+→ share GPS tracking
+
+========================
+FULL ERP MENU (SIDEBAR LENGKAP)
+========================
+
+1. Dashboard
+
+2. Sales
+   - Invoice
+   - Orders
+   - Retur
+   - Discount
+
+3. Inventory
+   - Product List
+   - Stock In
+   - Stock Out
+   - Stock Movement
+   - Stock Opname
+   - Warehouse
+   - Barcode Scan
+
+4. Purchase
+   - Supplier
+   - Purchase Order
+   - Goods Receipt
+   - Supplier Payment
+
+5. Finance
+   - Cash In
+   - Cash Out
+   - Profit & Loss
+   - Accounts Payable
+   - Accounts Receivable
+   - Expense
+
+6. Customer CRM
+   - Customer List
+   - Purchase History
+   - Loyalty Points
+   - Customer Notes
+
+7. Delivery
+   - Delivery Order
+   - Driver Assignment
+   - Tracking
+   - Delivery Proof
+
+8. Users & Roles
+   - User Management
+   - Role & Permission
+   - Activity Log
+
+9. Reports
+   - Sales Report
+   - Inventory Report
+   - Finance Report
+   - Driver Report
+   - Customer Report
+
+10. Settings
+   - Company Profile
+   - Tax Settings
+   - Invoice Format
+   - Backup System
+   - API Integration
+
+11. Warehouse
+   - Stock Location
+   - Transfer Stock
+   - Warehouse Mapping
+
+12. Notifications
+   - WhatsApp Logs
+   - System Alerts
+   - Order Notifications
+
+13. Automation
+   - Auto PO from low stock
+   - Auto invoice generation
+   - Smart reorder system
+
+========================
+COMING SOON MODULES (WAJIB ADA UI TAPI BELUM AKTIF)
+========================
+
+Semua modul berikut harus:
+- tampil di sidebar
+- bisa diklik
+- tetapi menampilkan halaman "Coming Soon"
+- tidak boleh error atau blank page
+- tampil dengan UI disabled (grey + badge)
+
+MODULE COMING SOON:
+
+1. 📦 Advanced Inventory AI
+   - prediksi stok
+   - auto reorder AI
+
+2. 🧠 AI Analytics Dashboard
+   - prediksi penjualan
+   - rekomendasi produk
+
+3. 🏬 Multi Branch System
+   - cabang toko
+   - transfer antar cabang
+
+4. 💳 Payment Gateway
+   - midtrans / stripe
+   - online payment
+
+5. 📱 Mobile App Sync
+   - Android / iOS sync system
+
+6. 📊 Business Intelligence
+   - KPI dashboard
+   - advanced analytics
+
+7. 🤖 Chatbot Support System
+   - customer service AI
+
+8. 🧾 Tax & Accounting Full Module
+   - pajak otomatis
+   - laporan akuntansi lengkap
+
+========================
+COMING SOON PAGE DESIGN
+========================
+
+Jika menu diklik:
+
+Tampilkan halaman:
+
+--------------------------------
+🚧 Coming Soon
+--------------------------------
+Title: Coming Soon
+Description:
+"Fitur ini sedang dalam pengembangan dan akan segera tersedia di sistem ERP ini."
+
+UI:
+- modern clean design
+- icon tools / construction
+- soft background
+- centered layout
+- tidak boleh error atau blank page
+
+--------------------------------
+
+========================
+UI RULES
+========================
+
+- Active menu → normal page
+- Coming soon → disabled + badge
+- Sidebar full ERP structure walau belum semua aktif
+- Hover smooth animation
+- Mobile responsive (drawer sidebar)
+
+========================
+TUJUAN SISTEM
+========================
+
+ERP full scale untuk:
+- sales cepat (PO form)
+- admin monitoring
+- driver tracking GPS
+- inventory management
+- finance control
+- CRM customer
+- integrasi WhatsApp & ERP external (Kledo)
+
+Sistem harus scalable seperti Odoo / ERPNext, tetapi tetap ringan dan cocok untuk toko retail & distribusi.

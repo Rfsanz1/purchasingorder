@@ -1,0 +1,38 @@
+services:
+  - type: web
+    name: gentong-mas-erp
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /
+    envVars:
+      - key: PORT
+        value: 8080
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: FONNTE_TOKEN
+        sync: false
+      - key: FONNTE_TOKEN_GROUP
+        sync: false
+      - key: FONNTE_TOKEN_CUSTOMER
+        sync: false
+      - key: FONNTE_GROUP_INVOICE
+        sync: false
+      - key: FONNTE_GROUP_BUKTI_TF
+        sync: false
+      - key: KLEDO_TOKEN
+        sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: gentong-mas-db
+          property: connectionString
+
+databases:
+  - name: gentong-mas-db
+    plan: free
+    databaseName: gentongmas
+    user: gentongmas

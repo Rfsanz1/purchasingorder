@@ -1,0 +1,42 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Product extends Model
+{
+    protected $table = 'products';
+
+    protected $fillable = [
+        'sales_id',
+        'nama_produk',
+        'sku',
+        'brand',
+        'kledo_product_id',
+        'kledo_product_name',
+        'harga',
+        'stok',
+    ];
+
+    protected $casts = [
+        'harga'            => 'integer',
+        'stok'             => 'integer',
+        'kledo_product_id' => 'integer',
+    ];
+
+    public function scopeAvailable($query)
+    {
+        return $query->where('stok', '>=', 1);
+    }
+
+    public function scopeBySales($query, string $salesId)
+    {
+        return $query->where('sales_id', $salesId);
+    }
+
+    public function scopeByBrand($query, string $brand)
+    {
+        return $query->where('brand', $brand);
+    }
+}

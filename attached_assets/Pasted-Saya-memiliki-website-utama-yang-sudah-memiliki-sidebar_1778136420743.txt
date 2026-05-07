@@ -1,0 +1,151 @@
+Saya memiliki website utama yang sudah memiliki sidebar dan dashboard existing.
+
+Saya ingin MENAMBAHKAN fitur baru berupa:
+
+"Shopee Admin Panel"
+
+Konsepnya:
+- Di sidebar utama website tambahkan menu baru:
+  - Shopee Admin
+- Ketika diklik:
+  - menuju halaman login admin Shopee
+- Setelah login berhasil:
+  - masuk ke dashboard khusus Shopee
+- Dashboard Shopee terpisah dari dashboard utama website
+- Dashboard Shopee memiliki sidebar sendiri khusus Shopee API
+
+PENTING:
+- Jangan merusak layout website utama
+- Jangan overwrite CSS existing
+- Jangan membuat ulang dashboard utama
+- Hanya tambahkan module baru
+- Gunakan style/theme existing website
+- Gunakan component/sidebar existing jika memungkinkan
+
+Struktur fitur:
+
+WEBSITE UTAMA
+├── Dashboard Existing
+├── Existing Sidebar
+└── Shopee Admin
+     ├── Login Page
+     └── Shopee Dashboard
+          ├── Sidebar Shopee
+          ├── API Management
+          ├── Product Management
+          ├── Order Management
+          ├── Ads Management
+          ├── Livestream Management
+          └── Analytics
+
+Tambahkan menu sidebar utama:
+
+- Shopee Admin
+  - Login Shopee
+  - Shopee Dashboard
+
+Setelah login Shopee:
+buat dashboard khusus dengan sidebar dynamic berdasarkan Shopee SDK:
+
+https://github.com/congminh1254/shopee-sdk
+
+Gunakan manager SDK sebagai menu sidebar:
+
+- AMSManager
+- ProductManager
+- GlobalProductManager
+- VideoManager
+- ShopManager
+- OrderManager
+- LogisticsManager
+- PaymentManager
+- DiscountManager
+- VoucherManager
+- AdsManager
+- LivestreamManager
+- ReturnsManager
+- AccountHealthManager
+
+Setiap manager otomatis menjadi dropdown menu.
+
+Contoh:
+
+ProductManager
+- getItemList
+- addItem
+- updateItem
+- updatePrice
+- updateStock
+
+OrderManager
+- getOrderList
+- getOrderDetail
+- cancelOrder
+
+AdsManager
+- createManualProductAds
+- getCampaignPerformance
+
+LivestreamManager
+- createSession
+- startSession
+- endSession
+
+Fitur dashboard Shopee:
+- Sidebar accordion dropdown
+- Dynamic menu generator
+- Search menu
+- Responsive sidebar
+- Collapsible sidebar
+- Scrollable sidebar
+- Breadcrumb
+- Dashboard cards
+- API statistics
+- User profile dropdown
+- Notification area
+- Dark mode compatible
+
+Tambahkan:
+- Route khusus Shopee
+- Middleware auth khusus admin Shopee
+- Session/token management
+- Separate layout untuk Shopee dashboard
+- Separate sidebar untuk Shopee dashboard
+
+Gunakan:
+- Existing framework project
+- Existing UI component
+- Existing auth system jika ada
+- Clean architecture
+- Modular folder structure
+
+Buat struktur folder seperti:
+
+/shopee
+   /login
+   /dashboard
+   /components
+   /sidebar
+   /services
+   /sdk
+   /pages
+
+Kriteria:
+- Jangan rewrite website utama
+- Hanya tambah module Shopee
+- Clean scalable architecture
+- Enterprise ready
+- Mudah maintenance
+- Mudah tambah endpoint baru
+- Dynamic sidebar from SDK
+- Production ready structure
+
+Output:
+- Struktur folder
+- Route setup
+- Sidebar integration
+- Login flow
+- Dashboard architecture
+- Dynamic menu system
+- Contoh kode integrasi
+- Hanya kode tambahan yang diperlukan

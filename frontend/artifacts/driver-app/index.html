@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+    <title>Driver App</title>
+    <meta name="theme-color" content="#7c3aed" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Driver App" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+      html, body { margin: 0; padding: 0; background: #0a0f1e; }
+      #initial-splash {
+        position: fixed; inset: 0;
+        background: radial-gradient(ellipse at 50% 40%, #2d1b69 0%, #0a0f1e 70%);
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
+        z-index: 99999;
+        font-family: 'Poppins', system-ui, sans-serif;
+        transition: opacity .3s ease, visibility .3s ease;
+        overflow: hidden;
+      }
+      #initial-splash.is-leaving { opacity: 0; visibility: hidden; }
+      #initial-splash::before {
+        content: "";
+        position: absolute; inset: 0;
+        background-image:
+          radial-gradient(circle, rgba(124,58,237,.2) 1px, transparent 1px),
+          radial-gradient(circle, rgba(255,255,255,.06) 1px, transparent 1px);
+        background-size: 60px 60px, 30px 30px;
+        background-position: 0 0, 15px 15px;
+        animation: isFloat 12s linear infinite;
+      }
+      @keyframes isFloat { 0% { transform: translateY(0); } 100% { transform: translateY(-60px); } }
+      .is-logo-wrap {
+        position: relative;
+        display: flex; align-items: center; justify-content: center;
+        width: 130px; height: 130px;
+        margin-bottom: 32px;
+        animation: isZoomIn .6s cubic-bezier(.34,1.56,.64,1) both;
+      }
+      .is-ring {
+        position: absolute; border-radius: 50%;
+        border: 2px solid rgba(124,58,237,.5);
+        width: 100%; height: 100%;
+        animation: isRipple 2s ease-out infinite;
+      }
+      .is-ring:nth-child(2) { animation-delay: .65s; }
+      .is-ring:nth-child(3) { animation-delay: 1.3s; }
+      @keyframes isRipple { 0% { transform: scale(1); opacity: .7; } 100% { transform: scale(2.2); opacity: 0; } }
+      @keyframes isZoomIn { 0% { transform: scale(.3); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+      .is-badge {
+        width: 100px; height: 100px; border-radius: 50%;
+        background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+        box-shadow: 0 0 40px rgba(124,58,237,.6), 0 8px 32px rgba(0,0,0,.4);
+        display: flex; align-items: center; justify-content: center;
+        position: relative; z-index: 1;
+        font-size: 44px;
+        animation: isIconPop .4s .5s cubic-bezier(.34,1.56,.64,1) both;
+      }
+      @keyframes isIconPop { 0% { transform: scale(0) rotate(-20deg); opacity: 0; } 100% { transform: scale(1) rotate(0); opacity: 1; } }
+      .is-title {
+        color: #fff; font-size: 26px; font-weight: 700;
+        margin: 0 0 6px; letter-spacing: .5px;
+        text-shadow: 0 2px 12px rgba(0,0,0,.4);
+        animation: isSlideUp .5s .4s ease both;
+      }
+      .is-sub {
+        color: rgba(255,255,255,.6); font-size: 13px;
+        margin: 0 0 36px; letter-spacing: .3px;
+        animation: isSlideUp .5s .55s ease both;
+      }
+      @keyframes isSlideUp { 0% { transform: translateY(18px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
+      .is-bar {
+        width: 200px; height: 3px;
+        background: rgba(255,255,255,.12);
+        border-radius: 999px; overflow: hidden; position: relative;
+        animation: isSlideUp .5s .7s ease both;
+      }
+      .is-bar::before {
+        content: ""; position: absolute; top: 0; left: -60%;
+        width: 60%; height: 100%;
+        background: linear-gradient(90deg, transparent, #a78bfa 40%, #fff 60%, transparent);
+        border-radius: 999px;
+        animation: isBarSlide 1.4s .8s ease-in-out infinite;
+      }
+      @keyframes isBarSlide { 0% { left: -60%; } 100% { left: 120%; } }
+    </style>
+  </head>
+  <body>
+    <div id="initial-splash">
+      <div class="is-logo-wrap">
+        <div class="is-ring"></div>
+        <div class="is-ring"></div>
+        <div class="is-ring"></div>
+        <div class="is-badge">🚚</div>
+      </div>
+      <h1 class="is-title">Driver App</h1>
+      <p class="is-sub">Memuat aplikasi pengiriman...</p>
+      <div class="is-bar"></div>
+    </div>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
