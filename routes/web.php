@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\Shopee\ShopeeController;
 
+Route::get('/health', fn() => response()->json(['status' => 'ok']));
 Route::get('/', [PageController::class, 'landing']);
 
 // ===== SHOPEE ADMIN =====
