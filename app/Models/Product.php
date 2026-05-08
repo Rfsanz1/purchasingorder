@@ -33,7 +33,7 @@ class Product extends Model
 
     public function scopeAvailable($query)
     {
-        return $query->where('stok', '>=', 1);
+        return $query;
     }
 
     public function scopeBySales($query, string $salesId)

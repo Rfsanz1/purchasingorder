@@ -45,6 +45,7 @@ Route::get('/kledo/laporan-penjualan', [KledoController::class, 'laporanPenjuala
 
 // Sinkronisasi Kledo ↔ ERP
 Route::post('/kledo/sync',              [KledoSyncController::class, 'sync']);
+Route::post('/kledo/import-sales',      [KledoSyncController::class, 'importSales']);
 Route::get('/kledo/sync/status',        [KledoSyncController::class, 'status']);
 Route::get('/kledo/sync/penjualan',     [KledoSyncController::class, 'penjualan']);
 Route::get('/kledo/memo-sales',         [KledoSyncController::class, 'memoSales']);

@@ -15,10 +15,15 @@ class KledoSyncLog extends Model
         'ref_number',
         'trans_date',
         'contact_name',
+        'alamat',
         'total',
+        'diskon',
+        'pajak',
         'status',
+        'metode_pembayaran',
         'sales',
         'memo',
+        'items',
         'raw_data',
         'synced_at',
         'updated_at',
@@ -26,7 +31,10 @@ class KledoSyncLog extends Model
 
     protected $casts = [
         'raw_data'   => 'array',
+        'items'      => 'array',
         'total'      => 'integer',
+        'diskon'     => 'integer',
+        'pajak'      => 'integer',
         'synced_at'  => 'datetime',
         'updated_at' => 'datetime',
     ];

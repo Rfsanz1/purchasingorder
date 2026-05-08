@@ -19,7 +19,6 @@ class ProductController extends Controller
             'kledoProductId'   => $p->kledo_product_id,
             'kledoProductName' => $p->kledo_product_name,
             'harga'            => $p->harga,
-            'stok'             => $p->stok,
         ];
     }
 
@@ -28,9 +27,8 @@ class ProductController extends Controller
         $salesId = $request->query('sales');
         $brand   = $request->query('brand');
         $search  = $request->query('search', '');
-        $all     = $request->boolean('all');
 
-        $query = $all ? Product::query() : Product::query()->available();
+        $query = Product::query();
 
         if ($salesId) {
             $query->bySales($salesId);
@@ -99,14 +97,14 @@ class ProductController extends Controller
         }
 
         $product = Product::create([
-            'sales_id'          => $data['salesId'],
-            'nama_produk'       => $data['namaProduk'],
-            'sku'               => $data['sku'],
-            'brand'             => $data['brand'] ?? null,
-            'kledo_product_id'  => $data['kledoProductId'] ?? null,
-            'kledo_product_name'=> $data['kledoProductName'] ?? null,
-            'harga'             => $data['harga'],
-            'stok'              => 0,
+            'sales_id'           => $data['salesId'],
+            'nama_produk'        => $data['namaProduk'],
+            'sku'                => $data['sku'],
+            'brand'              => $data['brand'] ?? null,
+            'kledo_product_id'   => $data['kledoProductId'] ?? null,
+            'kledo_product_name' => $data['kledoProductName'] ?? null,
+            'harga'              => $data['harga'],
+            'stok'               => 0,
         ]);
 
         return response()->json(['ok' => true, 'product' => $this->formatProduct($product)], 201);
@@ -124,7 +122,6 @@ class ProductController extends Controller
             'sku'        => 'sometimes|string|max:100',
             'brand'      => 'sometimes|nullable|string|max:100',
             'harga'      => 'sometimes|integer|min:0',
-            'stok'       => 'sometimes|integer|min:0',
         ]);
 
         if (isset($data['sku']) && $data['sku'] !== $product->sku) {
@@ -142,7 +139,6 @@ class ProductController extends Controller
             'sku'         => $data['sku'] ?? null,
             'brand'       => array_key_exists('brand', $data) ? $data['brand'] : null,
             'harga'       => $data['harga'] ?? null,
-            'stok'        => $data['stok'] ?? null,
         ], fn($v) => $v !== null);
 
         if (array_key_exists('brand', $data) && $data['brand'] === null) {
@@ -161,7 +157,6 @@ class ProductController extends Controller
             'kledoProductName' => 'required|string|max:255',
             'brand'            => 'required|string|max:100',
             'salesId'          => 'required|string|max:100',
-            'stok'             => 'required|integer|min:0',
             'harga'            => 'nullable|integer|min:0',
         ]);
 
@@ -169,7 +164,6 @@ class ProductController extends Controller
 
         if ($product) {
             $product->update([
-                'stok'  => $data['stok'],
                 'brand' => $data['brand'],
                 'harga' => $data['harga'] ?? $product->harga,
                 'kledo_product_name' => $data['kledoProductName'],
@@ -183,7 +177,7 @@ class ProductController extends Controller
                 'kledo_product_id'   => $data['kledoProductId'],
                 'kledo_product_name' => $data['kledoProductName'],
                 'harga'              => $data['harga'] ?? 0,
-                'stok'               => $data['stok'],
+                'stok'               => 0,
             ]);
         }
 

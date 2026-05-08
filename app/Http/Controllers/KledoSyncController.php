@@ -20,15 +20,22 @@ use App\Http\Controllers\SalesController;
  */
 class KledoSyncController extends Controller
 {
-    private string $base = 'https://api.kledo.com/api/v1/finance';
+    private string $base;
+    private string $token;
     private int $maxRetry = 3;
+
+    public function __construct()
+    {
+        $this->token = env('KLEDO_API_KEY') ?? env('KLEDO_TOKEN', '');
+        $this->base  = rtrim(env('KLEDO_BASE_URL', 'https://api.kledo.com/api/v1/finance'), '/');
+    }
 
     // ── HTTP ──────────────────────────────────────────────────────────────────
 
     private function headers(): array
     {
         return [
-            'Authorization: Bearer ' . env('KLEDO_TOKEN'),
+            'Authorization: Bearer ' . $this->token,
             'Accept: application/json',
             'Content-Type: application/json',
         ];
@@ -271,21 +278,31 @@ class KledoSyncController extends Controller
             try {
                 $existing = KledoSyncLog::where('kledo_invoice_id', $inv['kledo_invoice_id'])->first();
 
+                $payload = [
+                    'ref_number'        => $inv['ref_number'],
+                    'trans_date'        => $inv['trans_date'],
+                    'contact_name'      => $inv['contact_name'],
+                    'alamat'            => $inv['alamat'] ?? null,
+                    'total'             => $inv['total'],
+                    'diskon'            => $inv['diskon'] ?? 0,
+                    'pajak'             => $inv['pajak'] ?? 0,
+                    'status'            => $inv['status'],
+                    'metode_pembayaran' => $inv['metode_pembayaran'] ?? null,
+                    'memo'              => $inv['memo'],
+                    'sales'             => $inv['sales'],
+                    'items'             => !empty($inv['items']) ? $inv['items'] : null,
+                    'raw_data'          => $inv['raw_data'],
+                    'updated_at'        => now(),
+                ];
+
                 if ($existing) {
-                    $existing->update([
-                        'ref_number'   => $inv['ref_number'],
-                        'trans_date'   => $inv['trans_date'],
-                        'contact_name' => $inv['contact_name'],
-                        'total'        => $inv['total'],
-                        'status'       => $inv['status'],
-                        'memo'         => $inv['memo'],
-                        'sales'        => $inv['sales'],
-                        'raw_data'     => $inv['raw_data'],
-                        'updated_at'   => now(),
-                    ]);
+                    $existing->update($payload);
                     $updated++;
                 } else {
-                    KledoSyncLog::create(array_merge($inv, ['synced_at' => now(), 'updated_at' => now()]));
+                    KledoSyncLog::create(array_merge($payload, [
+                        'kledo_invoice_id' => $inv['kledo_invoice_id'],
+                        'synced_at'        => now(),
+                    ]));
                     $inserted++;
                 }
             } catch (\Exception $e) {
@@ -306,11 +323,11 @@ class KledoSyncController extends Controller
      */
     public function sync(Request $request): JsonResponse
     {
-        if (!env('KLEDO_TOKEN')) {
-            return response()->json(['error' => 'KLEDO_TOKEN belum dikonfigurasi'], 503);
+        if (!$this->token) {
+            return response()->json(['error' => 'KLEDO_API_KEY / KLEDO_TOKEN belum dikonfigurasi'], 503);
         }
 
-        $startDate = $request->input('start_date', '2026-04-08');
+        $startDate = $request->input('start_date', date('Y-m-01'));
         $endDate   = $request->input('end_date', date('Y-m-d'));
 
         Log::info("Kledo sync dimulai: {$startDate} - {$endDate}");
@@ -334,6 +351,148 @@ class KledoSyncController extends Controller
             Log::error("Kledo sync gagal: " . $e->getMessage());
             return response()->json(['error' => 'Sync gagal: ' . $e->getMessage()], 500);
         }
+    }
+
+    // ── API: Import Penjualan Lengkap (dengan detail item) ────────────────────
+
+    /**
+     * POST /api/kledo/import-sales
+     * Import data penjualan dari Kledo ke ERP: invoice + item per baris.
+     * Body (opsional): { start_date, end_date, with_detail: true }
+     * with_detail=true → fetch detail tiap invoice (item, alamat, metode bayar) — lebih lambat.
+     */
+    public function importSales(Request $request): JsonResponse
+    {
+        if (!$this->token) {
+            return response()->json(['error' => 'KLEDO_API_KEY / KLEDO_TOKEN belum dikonfigurasi'], 503);
+        }
+
+        $startDate  = $request->input('start_date', date('Y-m-01'));
+        $endDate    = $request->input('end_date', date('Y-m-d'));
+        $withDetail = (bool) $request->input('with_detail', false);
+        $perPage    = (int) $request->input('per_page', 100);
+
+        Log::info("Kledo import-sales dimulai", compact('startDate', 'endDate', 'withDetail'));
+
+        try {
+            // 1. Fetch semua invoice (paginated)
+            $invoices = $this->fetchInvoicesFromKledo($startDate, $endDate, $perPage);
+
+            if (empty($invoices)) {
+                return response()->json([
+                    'success'   => true,
+                    'message'   => 'Tidak ada invoice ditemukan untuk periode ini',
+                    'periode'   => ['dari' => $startDate, 'sampai' => $endDate],
+                    'total_fetched' => 0,
+                    'inserted'  => 0,
+                    'updated'   => 0,
+                    'errors'    => 0,
+                ]);
+            }
+
+            // 2. Fetch detail tiap invoice (opsional)
+            if ($withDetail) {
+                $invoices = $this->enrichInvoicesWithDetail($invoices);
+            }
+
+            // 3. Upsert ke database
+            $result = $this->upsertInvoices($invoices);
+
+            Log::info("Kledo import-sales selesai", array_merge($result, [
+                'total' => count($invoices),
+                'periode' => "{$startDate} - {$endDate}",
+            ]));
+
+            return response()->json([
+                'success'       => true,
+                'periode'       => ['dari' => $startDate, 'sampai' => $endDate],
+                'with_detail'   => $withDetail,
+                'total_fetched' => count($invoices),
+                'inserted'      => $result['inserted'],
+                'updated'       => $result['updated'],
+                'errors'        => $result['errors'],
+                'synced_at'     => now()->toDateTimeString(),
+            ]);
+        } catch (\Exception $e) {
+            Log::error("Kledo import-sales gagal: " . $e->getMessage());
+            return response()->json(['error' => 'Import gagal: ' . $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Fetch detail tiap invoice dari /invoices/{id}
+     * untuk mendapatkan items, alamat, dan metode bayar.
+     */
+    private function enrichInvoicesWithDetail(array $invoices): array
+    {
+        $enriched = [];
+        foreach ($invoices as $inv) {
+            $detail = $this->httpGetWithRetry("{$this->base}/invoices/{$inv['kledo_invoice_id']}");
+
+            if ($detail && isset($detail['data'])) {
+                $d = $detail['data'];
+                $inv['alamat']            = $d['contact']['address'] ?? $d['address'] ?? $inv['alamat'] ?? null;
+                $inv['diskon']            = (int) ($d['discount_amount'] ?? $inv['diskon'] ?? 0);
+                $inv['pajak']             = (int) ($d['tax_amount'] ?? $inv['pajak'] ?? 0);
+                $inv['metode_pembayaran'] = $this->extractMetodeBayar($d) ?: ($inv['metode_pembayaran'] ?? null);
+                $inv['items']             = $this->extractItemLines($d['items'] ?? []) ?: ($inv['items'] ?? null);
+                $inv['raw_data']          = $d;
+            }
+
+            $enriched[] = $inv;
+            usleep(150000); // 150ms delay untuk hindari rate limit
+        }
+        return $enriched;
+    }
+
+    /**
+     * Extract line items dari array items Kledo.
+     */
+    private function extractItemLines(array $rawItems): array
+    {
+        $result = [];
+        foreach ($rawItems as $item) {
+            $qty      = (float) ($item['qty'] ?? 1);
+            $harga    = (float) ($item['price'] ?? $item['unit_price'] ?? 0);
+            $diskon   = (float) ($item['discount_amount'] ?? 0);
+            if ($diskon === 0.0 && !empty($item['discount_percent'])) {
+                $diskon = round($harga * $qty * (float) $item['discount_percent'] / 100);
+            }
+            $subtotal = (float) ($item['amount'] ?? ($qty * $harga - $diskon));
+            $pajak    = (float) ($item['tax_amount'] ?? 0);
+
+            $result[] = [
+                'nama_produk' => $item['name'] ?? $item['product_name'] ?? $item['finance_account_name'] ?? '-',
+                'sku'         => $item['code'] ?? $item['sku'] ?? '',
+                'qty'         => $qty,
+                'harga'       => (int) round($harga),
+                'diskon'      => (int) round($diskon),
+                'subtotal'    => (int) round($subtotal),
+                'pajak'       => (int) round($pajak),
+            ];
+        }
+        return $result;
+    }
+
+    /**
+     * Ekstrak metode pembayaran dari data invoice Kledo.
+     */
+    private function extractMetodeBayar(array $inv): ?string
+    {
+        if (!empty($inv['payment_method'])) return $inv['payment_method'];
+        if (!empty($inv['bank_account_name'])) return $inv['bank_account_name'];
+
+        $payments = $inv['payments'] ?? $inv['bank_trans'] ?? [];
+        if (!empty($payments) && isset($payments[0]['bank_account_name'])) {
+            return $payments[0]['bank_account_name'];
+        }
+
+        $memo = strtolower($inv['memo'] ?? '');
+        if (str_contains($memo, 'transfer') || str_contains($memo, 'tf')) return 'Transfer';
+        if (str_contains($memo, 'tunai') || str_contains($memo, 'cash')) return 'Tunai';
+        if (str_contains($memo, 'qris')) return 'QRIS';
+
+        return null;
     }
 
     // ── API: Status Sync ──────────────────────────────────────────────────────
