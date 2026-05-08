@@ -40,6 +40,12 @@ set_env QUEUE_CONNECTION sync
 set_env SESSION_SAME_SITE none
 set_env SESSION_SECURE_COOKIE true
 
+# ── Replit native DB: gunakan env vars PGHOST/PGDATABASE/PGUSER/PGPASSWORD ───
+if [ -z "$DATABASE_URL" ] && [ -n "$PGHOST" ]; then
+  export DATABASE_URL="postgresql://${PGUSER}:${PGPASSWORD}@${PGHOST}:${PGPORT:-5432}/${PGDATABASE}?sslmode=disable"
+  echo "DATABASE_URL dibuat dari variabel PGHOST Replit"
+fi
+
 # ── Deteksi database: MySQL atau PostgreSQL ────────────────────────────────────
 if [ -n "$MYSQL_URL" ]; then
   echo "Menggunakan MySQL via MYSQL_URL..."

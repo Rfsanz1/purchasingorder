@@ -92,7 +92,7 @@ channel = "stable-25_05"
 [userenv]
 
 [userenv.shared]
-APP_NAME = "Purchase Order"
+APP_NAME = "Gentong Mas ERP"
 APP_ENV = "local"
 APP_DEBUG = "true"
 APP_LOCALE = "id"
