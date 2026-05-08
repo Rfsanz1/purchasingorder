@@ -47,7 +47,6 @@ Route::any('/__mockup/{path?}', function ($path = '') {
     }
     return response($body, $status)->withHeaders($headers);
 })->where('path', '.*');
-
 Route::get('/', [PageController::class, 'landing']);
 
 // ===== SHOPEE ADMIN =====
@@ -61,7 +60,6 @@ Route::middleware(\App\Http\Middleware\ShopeeAuth::class)->group(function () {
     Route::post('/shopee/sync-to-erp',  [ShopeeController::class, 'syncToErp'])->name('shopee.sync');
     Route::delete('/shopee/orders/{id}', [ShopeeController::class, 'deleteOrder'])->name('shopee.order.delete');
 });
-
 Route::get('/po-form', [PageController::class, 'poForm']);
 Route::get('/admin', [PageController::class, 'admin']);
 Route::get('/driver', [PageController::class, 'driver']);

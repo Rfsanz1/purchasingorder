@@ -23,11 +23,12 @@ php artisan tinker
 ```
 
 **Required env vars:**
-- `DATABASE_URL` — PostgreSQL connection string (Replit native DB / Railway)
-- `FONNTE_TOKEN` — Token Fonnte untuk WhatsApp
+- `DATABASE_URL` — PostgreSQL connection string (Replit native DB / Railway) ✅ sudah dikonfigurasi
+- `KLEDO_TOKEN` — Token API Kledo ERP (wajib untuk semua fitur Kledo)
+- `FONNTE_TOKEN` — Token Fonnte untuk WhatsApp (opsional)
 - `FONNTE_TOKEN_GROUP` — Token Fonnte grup (opsional)
 - `FONNTE_TOKEN_CUSTOMER` — Token Fonnte customer (opsional)
-- `KLEDO_TOKEN` — Token API Kledo ERP
+- `ADMIN_PASSWORD` — Password admin (default: admin123)
 - `ADMIN_PASSWORD` — Password admin (default: admin123)
 - `FONNTE_GROUP_INVOICE` — ID grup WA notifikasi invoice
 - `FONNTE_GROUP_BUKTI_TF` — ID grup WA bukti transfer

@@ -298,19 +298,27 @@ class KledoService
 
     /**
      * Parse nama sales dari memo Kledo.
-     * Format: "Sales: Lehan - +62xxx" atau "Order #123 - Lehan"
+     * Format baru ERP: "NamaSales - NomorHP"  (contoh: "Rizal - +62 857-2982-4485")
+     * Format lama:     "Sales: NamaSales - Telp"
+     * Format lama 2:   "Order #123 - NamaSales"
      */
     private function parseSalesFromMemo(string $memo): string
     {
         if (!$memo) return 'Tidak Diketahui';
 
-        // Format: "Sales: NamaSales - Telp"
+        // Format baru ERP: "NamaSales - NomorHP"
+        // Pola: teks nama, lalu " - ", lalu nomor HP (dimulai +62 atau 0)
+        if (preg_match('/^([^-|\n]+?)\s*-\s*(\+62|0)[\d\s\-\(\)\.]{6,}/', trim($memo), $m)) {
+            return trim($m[1]);
+        }
+
+        // Format lama: "Sales: NamaSales - Telp"
         if (preg_match('/Sales:\s*([^-\n]+)/i', $memo, $m)) {
             return trim($m[1]);
         }
 
-        // Format: "Order #123 - NamaSales"
-        if (preg_match('/Order #\d+\s*-\s*(.+)/i', $memo, $m)) {
+        // Format lama: "Order #123 - NamaSales"
+        if (preg_match('/Order\s*#\d+\s*-\s*(.+)/i', $memo, $m)) {
             return trim($m[1]);
         }
 

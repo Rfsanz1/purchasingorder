@@ -22,7 +22,11 @@ fi
 
 # Generate APP_KEY jika belum ada
 if ! grep -q "^APP_KEY=.\+" .env 2>/dev/null; then
-  php artisan key:generate --force
+  if [ -n "$APP_KEY" ]; then
+    set_env APP_KEY "$APP_KEY"
+  else
+    php artisan key:generate --force
+  fi
 fi
 
 # APP_URL untuk Replit preview

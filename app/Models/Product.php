@@ -16,18 +16,24 @@ class Product extends Model
         'kledo_product_id',
         'kledo_product_name',
         'harga',
+        'harga_kledo',
+        'harga_jual',
+        'hpp',
         'stok',
     ];
 
     protected $casts = [
         'harga'            => 'integer',
+        'harga_kledo'      => 'integer',
+        'harga_jual'       => 'integer',
+        'hpp'              => 'integer',
         'stok'             => 'integer',
         'kledo_product_id' => 'integer',
     ];
 
     public function scopeAvailable($query)
     {
-        return $query->where('stok', '>=', 1);
+        return $query;
     }
 
     public function scopeBySales($query, string $salesId)

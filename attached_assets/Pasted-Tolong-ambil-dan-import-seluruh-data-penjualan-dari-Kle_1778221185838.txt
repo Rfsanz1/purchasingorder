@@ -1,0 +1,84 @@
+Tolong ambil dan import seluruh data penjualan dari Kledo ke database ERP yang ada di project ini:
+
+https://github.com/Rfsanz1/purchasingorder.git
+
+Ketentuan:
+
+* Bukan membuat fitur baru
+* Bukan membuat UI baru
+* Fokus hanya mengambil data penjualan dari Kledo lalu memasukkannya ke database ERP existing
+
+Data yang diambil:
+
+* invoice penjualan
+* tanggal transaksi
+* customer
+* alamat customer
+* produk
+* SKU
+* qty
+* harga
+* diskon
+* subtotal
+* pajak
+* total transaksi
+* metode pembayaran
+* status pembayaran
+
+Periode data:
+
+* seluruh data bulan dan tahun berjalan
+* jika sekarang Mei 2026 maka ambil dari 1 Mei 2026 sampai hari ini
+
+Ketentuan import:
+
+* jangan duplicate invoice
+* jika invoice sudah ada maka update data terbaru
+* gunakan invoice number sebagai unique key
+* gunakan upsert jika memungkinkan
+
+Yang perlu dilakukan:
+
+1. Analisa struktur project existing
+2. Cari struktur database sales/transaksi existing
+3. Hubungkan ke API Kledo menggunakan .env:
+
+   * KLEDO_API_KEY
+   * KLEDO_BASE_URL
+4. Fetch data penjualan dari Kledo
+5. Masukkan data ke database ERP existing
+6. Pastikan data sales dan item sales masuk dengan benar
+7. Pastikan build tetap berjalan normal
+8. Jangan merusak fitur lain
+
+Tambahkan juga:
+
+* logging import berhasil/gagal
+* handle pagination API Kledo
+* handle duplicate data
+* handle token/API error
+
+Hapus juga fitur stock/qty pada tab produk:
+
+* hilangkan kolom stock
+* hilangkan qty
+* hilangkan perhitungan stok
+* hilangkan validasi stok
+* hilangkan tampilan sisa stok
+* jangan gunakan sistem inventory/stok lagi
+* pastikan produk tetap bisa digunakan untuk transaksi tanpa stock management
+
+Pastikan:
+
+* tidak ada error setelah stock dihapus
+* relasi database tetap aman
+* transaksi tetap berjalan normal
+* build berhasil tanpa warning/error
+
+Setelah selesai tampilkan:
+
+* file yang diubah
+* tabel yang digunakan
+* jumlah data yang berhasil diimport
+* cara menjalankan import ulang
+* contoh setting .env

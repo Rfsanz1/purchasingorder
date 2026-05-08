@@ -26,14 +26,14 @@ const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 const STATUS_STEPS = ["Menunggu", "Diproses", "Dikirim", "Selesai"];
 const STATUS_COLOR: Record<string, string> = {
-  Menunggu:   "#f59e0b",
+  Menunggu:   "#6b7280",
   Diproses:   "#3b82f6",
   Dikirim:    "#8b5cf6",
   Selesai:    "#10b981",
   Dibatalkan: "#ef4444",
 };
 const STATUS_BG: Record<string, string> = {
-  Menunggu:   "#fef3c7",
+  Menunggu:   "#f3f4f6",
   Diproses:   "#dbeafe",
   Dikirim:    "#ede9fe",
   Selesai:    "#d1fae5",
@@ -52,7 +52,7 @@ const NEXT_LABEL: Record<string, string> = {
   Dikirim:  "Tandai Selesai",
 };
 const NEXT_COLOR: Record<string, { bg: string; color: string }> = {
-  Menunggu: { bg: "#fef3c7", color: "#92400e" },
+  Menunggu: { bg: "#f3f4f6", color: "#374151" },
   Diproses: { bg: "#8b5cf6", color: "#fff" },
   Dikirim:  { bg: "#10b981", color: "#fff" },
 };

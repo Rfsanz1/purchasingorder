@@ -1,0 +1,108 @@
+Analisa struktur project pada repository ini:
+https://github.com/Rfsanz1/purchasingorder.git
+
+Lalu tambahkan fitur sinkronisasi data penjualan dari Kledo ke ERP existing.
+
+TUJUAN:
+Mengambil seluruh data penjualan dari Kledo mulai tanggal 8 April 2026 sampai 8 Mei 2026 lalu menyimpannya ke database ERP.
+
+FITUR YANG DIBUTUHKAN:
+
+1. Integrasi Kledo API
+- Buat service integrasi API Kledo
+- Gunakan environment variable:
+  - KLEDO_API_KEY
+  - KLEDO_BASE_URL
+- Gunakan axios/fetch sesuai stack existing
+
+2. Sinkronisasi Penjualan
+Ambil data:
+- Invoice penjualan
+- Tanggal transaksi
+- Customer
+- Produk
+- SKU
+- Qty
+- Harga
+- Diskon
+- Pajak
+- Total transaksi
+- Metode pembayaran
+- Status pembayaran
+- Nama kasir/sales jika tersedia
+
+Range data:
+- Dari 2026-04-08
+- Sampai 2026-05-08
+
+3. Database ERP
+Simpan data ke tabel:
+- sales
+- sales_items
+- customers
+
+Buat relasi:
+- sales memiliki banyak sales_items
+- sales terhubung ke customer
+
+4. Ketentuan Sinkronisasi
+- Jangan duplicate invoice
+- Jika invoice sudah ada:
+  - update data terbaru
+- Gunakan invoice number sebagai unique key
+- Buat logging sync
+
+5. Endpoint Sync
+Tambahkan endpoint:
+POST /api/kledo/sync-sales
+
+Function:
+- otomatis fetch data dari Kledo
+- simpan ke database ERP
+- tampilkan jumlah data berhasil sync
+- tampilkan jumlah gagal
+- tampilkan log error
+
+6. Dashboard Riwayat Sync
+Buat halaman:
+- terakhir sync
+- jumlah transaksi berhasil
+- jumlah gagal
+- tombol sync manual
+
+7. Optimasi
+- Gunakan batch insert
+- Gunakan pagination API jika Kledo menggunakan paging
+- Handle rate limit
+- Retry request gagal
+
+8. Error Handling
+Handle:
+- token expired
+- network timeout
+- duplicate invoice
+- invalid data
+
+9. Security
+- simpan API key di .env
+- jangan hardcode token
+
+10. Penting
+- Analisa dulu struktur project existing
+- Ikuti coding pattern existing
+- Jangan merusak fitur lain
+- Pastikan build berhasil
+- Tambahkan komentar kode yang jelas
+- Gunakan async/await
+- Pastikan sinkronisasi aman untuk data besar
+
+11. Tambahan
+Buat scheduler/cron:
+- auto sync setiap 1 jam
+
+12. Output
+Setelah selesai:
+- tampilkan file yang dibuat
+- tampilkan file yang diubah
+- tampilkan cara menjalankan sync
+- tampilkan cara setting .env

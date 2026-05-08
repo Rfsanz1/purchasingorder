@@ -24,7 +24,7 @@
             <p class="text-xs text-gray-400 mt-0.5">Total PO</p>
         </div>
         <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-            <p class="text-2xl font-bold text-yellow-500" x-text="orders.filter(o => !o.statusPengiriman || o.statusPengiriman === 'Menunggu' || o.statusPengiriman === 'Baru').length"></p>
+            <p class="text-2xl font-bold text-gray-500" x-text="orders.filter(o => !o.statusPengiriman || o.statusPengiriman === 'Menunggu' || o.statusPengiriman === 'Baru').length"></p>
             <p class="text-xs text-gray-400 mt-0.5">Menunggu</p>
         </div>
         <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
@@ -240,7 +240,7 @@
                                         <div class="flex items-center gap-2 min-w-0 flex-1">
                                             <span class="shrink-0 text-xs px-2 py-0.5 rounded-full font-semibold"
                                                 :class="{
-                                                    'bg-yellow-100 text-yellow-700': !order.statusPengiriman || order.statusPengiriman==='Menunggu'||order.statusPengiriman==='Baru',
+                                                    'bg-gray-100 text-gray-600': !order.statusPengiriman || order.statusPengiriman==='Menunggu'||order.statusPengiriman==='Baru',
                                                     'bg-blue-100 text-blue-700': order.statusPengiriman==='Diproses',
                                                     'bg-orange-100 text-orange-700': order.statusPengiriman==='Dikirim',
                                                     'bg-green-100 text-green-700': order.statusPengiriman==='Selesai',
@@ -429,7 +429,7 @@
                             <div class="flex items-center gap-2 min-w-0 flex-1">
                                 <span class="shrink-0 text-xs px-2 py-0.5 rounded-full font-semibold"
                                     :class="{
-                                        'bg-yellow-100 text-yellow-700': !order.statusPengiriman || order.statusPengiriman==='Menunggu'||order.statusPengiriman==='Baru',
+                                        'bg-gray-100 text-gray-600': !order.statusPengiriman || order.statusPengiriman==='Menunggu'||order.statusPengiriman==='Baru',
                                         'bg-blue-100 text-blue-700': order.statusPengiriman==='Diproses',
                                         'bg-orange-100 text-orange-700': order.statusPengiriman==='Dikirim',
                                         'bg-green-100 text-green-700': order.statusPengiriman==='Selesai',

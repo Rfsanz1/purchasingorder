@@ -116,7 +116,7 @@
                                 {{-- Status badge --}}
                                 <span class="shrink-0 text-xs px-2 py-0.5 rounded-full font-semibold"
                                     :class="{
-                                        'bg-yellow-100 text-yellow-700': order.statusPengiriman === 'Menunggu',
+                                        'bg-gray-100 text-gray-600': order.statusPengiriman === 'Menunggu',
                                         'bg-blue-100 text-blue-700': order.statusPengiriman === 'Diproses',
                                         'bg-orange-100 text-orange-700': order.statusPengiriman === 'Dikirim',
                                         'bg-green-100 text-green-700': order.statusPengiriman === 'Selesai',

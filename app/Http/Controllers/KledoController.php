@@ -137,7 +137,11 @@ class KledoController extends Controller
             return response()->json($result);
         } catch (\Exception $e) {
             \Log::error('Kledo productsWithStock error: ' . $e->getMessage());
-            return response()->json(['error' => 'Koneksi ke Kledo gagal'], 500);
+            return response()->json([
+                'error'   => 'Koneksi ke Kledo gagal',
+                'detail'  => $e->getMessage(),
+                'class'   => get_class($e),
+            ], 500);
         }
     }
 
@@ -196,112 +200,6 @@ class KledoController extends Controller
         } catch (\Exception $e) {
             \Log::error('laporanPenjualan error: ' . $e->getMessage());
             return response()->json(['error' => 'Gagal mengambil laporan: ' . $e->getMessage()], 500);
-        }
-    }
-
-    public function dataPenjualan(Request $request): JsonResponse
-    {
-        $startDate = $request->query('start_date', '2026-04-08');
-        $endDate   = $request->query('end_date',   date('Y-m-d'));
-        $page      = max(1, (int) $request->query('page', '1'));
-        $perPage   = min(100, max(10, (int) $request->query('per_page', '100')));
-
-        try {
-            $token = env('KLEDO_TOKEN');
-            if (!$token) {
-                return response()->json(['error' => 'Token Kledo belum diatur'], 401);
-            }
-
-            $allInvoices = [];
-            $currentPage = 1;
-            $totalPages  = 1;
-
-            do {
-                $url  = "{$this->kledoBase}/invoices?"
-                      . http_build_query([
-                            'page'      => $currentPage,
-                            'per_page'  => 100,
-                            'dateStart' => $startDate,
-                            'dateEnd'   => $endDate,
-                            'status_id' => '',
-                        ]);
-                $resp = $this->httpGet($url);
-
-                if ($resp['status'] !== 200) {
-                    \Log::error('Kledo invoices fetch failed', ['status' => $resp['status'], 'body' => substr($resp['body'], 0, 500)]);
-                    break;
-                }
-
-                $data = json_decode($resp['body'], true);
-                if (!($data['success'] ?? false)) break;
-
-                $invoiceData = $data['data']['data']    ?? [];
-                $lastPage    = $data['data']['last_page'] ?? 1;
-                $totalPages  = $lastPage;
-
-                foreach ($invoiceData as $inv) {
-                    $memo  = $inv['memo'] ?? '';
-                    $sales = '';
-                    // Ekstrak nama sales dari memo format "NAMA - nomor" atau hanya "NAMA"
-                    if (preg_match('/^([A-Z][A-Z ]+?)(?:\s*-\s*|\s*\|)/u', strtoupper($memo), $m)) {
-                        $sales = trim($m[1]);
-                    }
-
-                    $allInvoices[] = [
-                        'id'           => $inv['id'],
-                        'ref_number'   => $inv['ref_number']   ?? '-',
-                        'trans_date'   => $inv['trans_date']   ?? '',
-                        'contact_name' => $inv['contact']['name'] ?? ($inv['contact_name'] ?? '-'),
-                        'total'        => (int) ($inv['amount']   ?? $inv['total'] ?? 0),
-                        'status'       => $inv['status_name']  ?? ($inv['status'] ?? '-'),
-                        'status_id'    => $inv['status_id']    ?? null,
-                        'memo'         => $memo,
-                        'sales'        => $sales,
-                        'due_date'     => $inv['due_date']     ?? '',
-                    ];
-                }
-
-                $currentPage++;
-            } while ($currentPage <= $totalPages);
-
-            // Rekap per sales
-            $rekapSales = [];
-            $grandTotal = 0;
-            foreach ($allInvoices as $inv) {
-                $s = $inv['sales'] ?: 'Tidak Diketahui';
-                if (!isset($rekapSales[$s])) {
-                    $rekapSales[$s] = ['sales' => $s, 'jumlah' => 0, 'total' => 0];
-                }
-                $rekapSales[$s]['jumlah']++;
-                $rekapSales[$s]['total'] += $inv['total'];
-                $grandTotal += $inv['total'];
-            }
-            usort($rekapSales, fn($a, $b) => $b['total'] <=> $a['total']);
-
-            // Rekap per status
-            $rekapStatus = [];
-            foreach ($allInvoices as $inv) {
-                $st = $inv['status'] ?: '-';
-                if (!isset($rekapStatus[$st])) {
-                    $rekapStatus[$st] = ['status' => $st, 'jumlah' => 0, 'total' => 0];
-                }
-                $rekapStatus[$st]['jumlah']++;
-                $rekapStatus[$st]['total'] += $inv['total'];
-            }
-
-            return response()->json([
-                'success'      => true,
-                'invoices'     => $allInvoices,
-                'total_invoice'=> count($allInvoices),
-                'grand_total'  => $grandTotal,
-                'rekap_sales'  => array_values($rekapSales),
-                'rekap_status' => array_values($rekapStatus),
-                'periode'      => ['dari' => $startDate, 'sampai' => $endDate],
-                'sumber'       => 'kledo_api_langsung',
-            ]);
-        } catch (\Exception $e) {
-            \Log::error('dataPenjualan error: ' . $e->getMessage());
-            return response()->json(['error' => 'Gagal mengambil data dari Kledo: ' . $e->getMessage()], 500);
         }
     }
 
@@ -481,6 +379,112 @@ class KledoController extends Controller
         } catch (\Exception $e) {
             \Log::error('payInvoice error: ' . $e->getMessage());
             return false;
+        }
+    }
+
+    public function dataPenjualan(Request $request): JsonResponse
+    {
+        $startDate = $request->query('start_date', '2026-04-08');
+        $endDate   = $request->query('end_date',   '2026-05-08');
+        $page      = max(1, (int) $request->query('page', '1'));
+        $perPage   = min(100, max(10, (int) $request->query('per_page', '100')));
+
+        try {
+            $token = env('KLEDO_TOKEN');
+            if (!$token) {
+                return response()->json(['error' => 'Token Kledo belum diatur'], 401);
+            }
+
+            $allInvoices = [];
+            $currentPage = 1;
+            $totalPages  = 1;
+
+            do {
+                $url  = "{$this->kledoBase}/invoices?"
+                      . http_build_query([
+                            'page'      => $currentPage,
+                            'per_page'  => 100,
+                            'dateStart' => $startDate,
+                            'dateEnd'   => $endDate,
+                            'status_id' => '',
+                        ]);
+                $resp = $this->httpGet($url);
+
+                if ($resp['status'] !== 200) {
+                    \Log::error('Kledo invoices fetch failed', ['status' => $resp['status'], 'body' => substr($resp['body'], 0, 500)]);
+                    break;
+                }
+
+                $data = json_decode($resp['body'], true);
+                if (!($data['success'] ?? false)) break;
+
+                $invoiceData = $data['data']['data']    ?? [];
+                $lastPage    = $data['data']['last_page'] ?? 1;
+                $totalPages  = $lastPage;
+
+                foreach ($invoiceData as $inv) {
+                    $memo  = $inv['memo'] ?? '';
+                    $sales = '';
+                    // Ekstrak nama sales dari memo format "NAMA - nomor" atau hanya "NAMA"
+                    if (preg_match('/^([A-Z][A-Z ]+?)(?:\s*-\s*|\s*\|)/u', strtoupper($memo), $m)) {
+                        $sales = trim($m[1]);
+                    }
+
+                    $allInvoices[] = [
+                        'id'           => $inv['id'],
+                        'ref_number'   => $inv['ref_number']   ?? '-',
+                        'trans_date'   => $inv['trans_date']   ?? '',
+                        'contact_name' => $inv['contact']['name'] ?? ($inv['contact_name'] ?? '-'),
+                        'total'        => (int) ($inv['amount']   ?? $inv['total'] ?? 0),
+                        'status'       => $inv['status_name']  ?? ($inv['status'] ?? '-'),
+                        'status_id'    => $inv['status_id']    ?? null,
+                        'memo'         => $memo,
+                        'sales'        => $sales,
+                        'due_date'     => $inv['due_date']     ?? '',
+                    ];
+                }
+
+                $currentPage++;
+            } while ($currentPage <= $totalPages);
+
+            // Rekap per sales
+            $rekapSales = [];
+            $grandTotal = 0;
+            foreach ($allInvoices as $inv) {
+                $s = $inv['sales'] ?: 'Tidak Diketahui';
+                if (!isset($rekapSales[$s])) {
+                    $rekapSales[$s] = ['sales' => $s, 'jumlah' => 0, 'total' => 0];
+                }
+                $rekapSales[$s]['jumlah']++;
+                $rekapSales[$s]['total'] += $inv['total'];
+                $grandTotal += $inv['total'];
+            }
+            usort($rekapSales, fn($a, $b) => $b['total'] <=> $a['total']);
+
+            // Rekap per status
+            $rekapStatus = [];
+            foreach ($allInvoices as $inv) {
+                $st = $inv['status'] ?: '-';
+                if (!isset($rekapStatus[$st])) {
+                    $rekapStatus[$st] = ['status' => $st, 'jumlah' => 0, 'total' => 0];
+                }
+                $rekapStatus[$st]['jumlah']++;
+                $rekapStatus[$st]['total'] += $inv['total'];
+            }
+
+            return response()->json([
+                'success'      => true,
+                'invoices'     => $allInvoices,
+                'total_invoice'=> count($allInvoices),
+                'grand_total'  => $grandTotal,
+                'rekap_sales'  => array_values($rekapSales),
+                'rekap_status' => array_values($rekapStatus),
+                'periode'      => ['dari' => $startDate, 'sampai' => $endDate],
+                'sumber'       => 'kledo_api_langsung',
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('dataPenjualan error: ' . $e->getMessage());
+            return response()->json(['error' => 'Gagal mengambil data dari Kledo: ' . $e->getMessage()], 500);
         }
     }
 

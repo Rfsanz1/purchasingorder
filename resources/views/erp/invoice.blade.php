@@ -108,7 +108,7 @@
                             <td class="px-4 py-3">
                                 <span class="text-xs px-2 py-1 rounded-full font-medium"
                                     :class="{
-                                        'bg-yellow-100 text-yellow-700': !o.statusPengiriman || o.statusPengiriman==='Menunggu',
+                                        'bg-gray-100 text-gray-600': !o.statusPengiriman || o.statusPengiriman==='Menunggu',
                                         'bg-blue-100 text-blue-700': o.statusPengiriman==='Diproses',
                                         'bg-purple-100 text-purple-700': o.statusPengiriman==='Dikirim',
                                         'bg-green-100 text-green-700': o.statusPengiriman==='Selesai',

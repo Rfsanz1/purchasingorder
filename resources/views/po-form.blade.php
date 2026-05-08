@@ -418,6 +418,12 @@
                     <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                 </div>
             </div>
+
+            {{-- Auto-preview memo yang akan dikirim ke Kledo --}}
+            <div x-show="form.salesPerson && salesMemo" class="mt-3 bg-blue-50 border border-blue-200 rounded-xl px-4 py-2.5">
+                <p class="text-xs text-blue-500 font-medium mb-0.5">Memo otomatis di Tagihan Kledo:</p>
+                <p class="text-sm text-blue-800 font-semibold font-mono" x-text="salesMemo"></p>
+            </div>
         </div>
 
         <div x-show="submitError" class="bg-red-50 text-red-600 rounded-xl px-4 py-3 text-sm" x-text="submitError"></div>
@@ -457,6 +463,15 @@ const ELEKTRONIK_KEYWORDS = [
     'ac','kulkas','mesin cuci','tv','televisi','speaker','kipas','dispenser',
     'water heater','pompa air','freezer','lemari es','microwave','blender',
     'rice cooker','setrika','vacuum','oven','hair dryer','charger',
+    'antena','parabola','set top box','receiver','television','refrigerator',
+    'showcase','display cooler','chest freezer','washing machine','air purifier',
+    'exhaust fan','air cooler','mixer','chopper','juicer','magicom','magic com',
+    'magic jar','kompor','cup sealer','pest control',
+    'bracket','braket','wall mount','wallmount','tiang antena','tiang tv',
+    'mounting','dudukan tv','dudukan antena','remote','remot',
+    'hdmi','kabel antena','kabel audio','kabel hdmi','kabel tv','kabel speaker',
+    'adaptor','adapter','stabilizer','stavolt','ups','inverter',
+    'digital tv','dvb','set-top','decoder','signal booster','penguat sinyal',
 ];
 
 function poFormApp() {
@@ -472,6 +487,9 @@ function poFormApp() {
 
         // --- Address warning ---
         alamatWarningTemanggung: '',
+
+        // --- Memo otomatis berdasarkan sales ---
+        salesMemo: '',
 
         // --- Form ---
         form: {
@@ -525,8 +543,11 @@ function poFormApp() {
         async init() {
             await this.loadSales();
             const savedSales = sessionStorage.getItem('salesUsername');
+            const savedTelp  = sessionStorage.getItem('salesTelp');
             if (savedSales) {
                 this.form.salesPerson = savedSales;
+                // Restore memo preview
+                this.salesMemo = savedTelp ? `${savedSales} - ${savedTelp}` : savedSales;
             }
             this.loadDraft();
         },
@@ -548,12 +569,17 @@ function poFormApp() {
         selectSalesDirect(s) {
             if (!s) return;
             this.form.salesPerson = s.nama;
+            // Auto-generate memo format: "NamaSales - NomorHP"
+            this.salesMemo = s.telp ? `${s.nama} - ${s.telp}` : s.nama;
             sessionStorage.setItem('salesUsername', s.nama);
+            sessionStorage.setItem('salesTelp', s.telp || '');
         },
 
         clearSales() {
             this.form.salesPerson = '';
+            this.salesMemo = '';
             sessionStorage.removeItem('salesUsername');
+            sessionStorage.removeItem('salesTelp');
         },
 
         // ---- Items ----

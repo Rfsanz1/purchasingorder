@@ -23,11 +23,11 @@
         </div>
         <div class="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm">
             <div class="flex items-center gap-2 mb-2">
-                <div class="w-8 h-8 bg-yellow-50 rounded-xl flex items-center justify-center">
-                    <svg class="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <div class="w-8 h-8 bg-gray-100 rounded-xl flex items-center justify-center">
+                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 </div>
             </div>
-            <p class="text-2xl font-bold text-yellow-600" x-text="stats.pending ?? '—'"></p>
+            <p class="text-2xl font-bold text-gray-500" x-text="stats.pending ?? '—'"></p>
             <p class="text-xs text-gray-400 mt-0.5">Tertunda</p>
         </div>
         <div class="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm">
@@ -97,8 +97,8 @@
                 <template x-for="o in recentOrders" :key="o.orderId">
                     <div class="px-5 py-3 flex items-center gap-3">
                         <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-                            :class="o.statusPengiriman==='Selesai' ? 'bg-green-50' : o.statusPengiriman==='Dikirim' ? 'bg-purple-50' : 'bg-yellow-50'">
-                            <svg class="w-4 h-4" :class="o.statusPengiriman==='Selesai' ? 'text-green-600' : o.statusPengiriman==='Dikirim' ? 'text-purple-600' : 'text-yellow-600'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                            :class="o.statusPengiriman==='Selesai' ? 'bg-green-50' : o.statusPengiriman==='Dikirim' ? 'bg-purple-50' : 'bg-gray-100'">
+                            <svg class="w-4 h-4" :class="o.statusPengiriman==='Selesai' ? 'text-green-600' : o.statusPengiriman==='Dikirim' ? 'text-purple-600' : 'text-gray-500'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
                         </div>
                         <div class="flex-1 min-w-0">
                             <p class="text-sm font-medium text-gray-800 truncate" x-text="o.namaKontak || '-'"></p>
@@ -108,7 +108,7 @@
                             <p class="text-sm font-semibold text-gray-800" x-text="'Rp ' + formatRupiah(o.totalHarga)"></p>
                             <span class="text-xs px-1.5 py-0.5 rounded-full font-medium"
                                 :class="{
-                                    'bg-yellow-100 text-yellow-700': !o.statusPengiriman || o.statusPengiriman==='Menunggu',
+                                    'bg-gray-100 text-gray-600': !o.statusPengiriman || o.statusPengiriman==='Menunggu',
                                     'bg-blue-100 text-blue-700': o.statusPengiriman==='Diproses',
                                     'bg-purple-100 text-purple-700': o.statusPengiriman==='Dikirim',
                                     'bg-green-100 text-green-700': o.statusPengiriman==='Selesai',

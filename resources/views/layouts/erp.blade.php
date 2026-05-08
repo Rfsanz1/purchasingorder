@@ -81,10 +81,11 @@
                     <span>Dashboard</span>
                 </a>
 
+
                 <div class="h-1"></div>
 
                 {{-- ===== SALES ===== --}}
-                @php $salesActive = request()->is('po-form','sales-dashboard','erp/invoice','erp/retur','erp/discount'); @endphp
+                @php $salesActive = request()->is('po-form','sales-dashboard','erp/invoice','erp/riwayat-penjualan','erp/retur','erp/discount'); @endphp
                 <div x-data="{ open: {{ $salesActive ? 'true' : 'false' }} }">
                     <button @click="open=!open" class="group-header w-full {{ $salesActive ? 'has-active' : '' }}">
                         <div class="flex items-center gap-2">
@@ -101,6 +102,10 @@
                         <a href="/sales-dashboard" class="sidebar-item {{ request()->is('sales-dashboard') ? 'active' : 'normal' }}">
                             <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
                             <span>Riwayat Pesanan</span>
+                        </a>
+                        <a href="/erp/riwayat-penjualan" class="sidebar-item {{ request()->is('erp/riwayat-penjualan') ? 'active' : 'normal' }}">
+                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+                            <span>Riwayat Penjualan</span>
                         </a>
                         <a href="/erp/invoice" class="sidebar-item {{ request()->is('erp/invoice') ? 'active' : 'normal' }}">
                             <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
@@ -272,7 +277,7 @@
                 </div>
 
                 {{-- ===== LAPORAN ===== --}}
-                @php $repActive = request()->is('erp/report-sales','erp/report-finance','erp/report-driver','erp/laporan-divisi','erp/laporan-penjualan','erp/riwayat-penjualan','erp/data-penjualan-kledo'); @endphp
+                @php $repActive = request()->is('erp/report-sales','erp/report-finance','erp/report-driver','erp/laporan-divisi','erp/laporan-penjualan','erp/data-penjualan-kledo'); @endphp
                 <div x-data="{ open: {{ $repActive ? 'true' : 'false' }} }">
                     <button @click="open=!open" class="group-header w-full {{ $repActive ? 'has-active' : '' }}">
                         <div class="flex items-center gap-2">
@@ -290,13 +295,10 @@
                             <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/></svg>
                             <span>Laporan Penjualan</span>
                         </a>
-                        <a href="/erp/riwayat-penjualan" class="sidebar-item {{ request()->is('erp/riwayat-penjualan') ? 'active' : 'normal' }}">
-                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-                            <span>Riwayat Penjualan</span>
-                        </a>
                         <a href="/erp/data-penjualan-kledo" class="sidebar-item {{ request()->is('erp/data-penjualan-kledo') ? 'active' : 'normal' }}">
-                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18M10 3v18M14 3v18"/></svg>
-                            <span>Data Penjualan Kledo</span>
+                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                            <span>Data Kledo</span>
+                            <span class="ml-auto text-xs bg-green-100 text-green-600 px-1.5 py-0.5 rounded-full font-semibold">Live</span>
                         </a>
                         <a href="/erp/report-finance" class="sidebar-item coming">
                             <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
@@ -312,7 +314,7 @@
                 </div>
 
                 {{-- ===== SISTEM ===== --}}
-                @php $sysActive = request()->is('erp/users','erp/notifications','admin','erp/integrasi'); @endphp
+                @php $sysActive = request()->is('erp/users','erp/notifications','erp/integrasi','admin'); @endphp
                 <div x-data="{ open: {{ $sysActive ? 'true' : 'false' }} }">
                     <button @click="open=!open" class="group-header w-full {{ $sysActive ? 'has-active' : '' }}">
                         <div class="flex items-center gap-2">
@@ -322,6 +324,10 @@
                         <svg class="w-3.5 h-3.5 chevron" :class="open ? 'open' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
                     </button>
                     <div class="group-items pl-1 space-y-0.5 mt-0.5" :class="open ? 'open' : 'closed'">
+                        <a href="/erp/integrasi" class="sidebar-item {{ request()->is('erp/integrasi') ? 'active' : 'normal' }}">
+                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+                            <span>Integrasi</span>
+                        </a>
                         <a href="/erp/users" class="sidebar-item coming">
                             <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
                             <span>Manajemen User</span>
@@ -331,10 +337,6 @@
                             <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
                             <span>Notifikasi WA</span>
                             <span class="ml-auto text-xs bg-gray-100 text-gray-400 px-1.5 py-0.5 rounded-full">Soon</span>
-                        </a>
-                        <a href="/erp/integrasi" class="sidebar-item {{ request()->is('erp/integrasi') ? 'active' : 'normal' }}">
-                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                            <span>Integrasi</span>
                         </a>
                         <a href="/admin" class="sidebar-item {{ request()->is('admin') ? 'active' : 'normal' }}">
                             <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
@@ -394,11 +396,26 @@
 
                 {{-- ===== SHOPEE ADMIN ===== --}}
                 @php $shopeeActive = request()->is('shopee/*'); @endphp
-                <a href="/shopee/dashboard" class="sidebar-item {{ $shopeeActive ? 'active' : 'normal' }}">
-                    <svg class="w-4 h-4 shrink-0" style="color:#ea580c" fill="currentColor" viewBox="0 0 24 24"><path d="M19 6H5C3.9 6 3 6.9 3 8v11c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-7 3c1.9 0 3.5 1.3 3.9 3H8.1C8.5 10.3 10.1 9 12 9zm5 9H7v-1.5c0-1.4 2.7-2.5 5-2.5s5 1.1 5 2.5V18z"/></svg>
-                    <span style="{{ $shopeeActive ? '' : 'color:#ea580c' }};font-weight:700;">Shopee Admin</span>
-                    <span class="ml-auto text-xs bg-orange-100 text-orange-500 px-1.5 py-0.5 rounded-full">NEW</span>
-                </a>
+                <div x-data="{ open: {{ $shopeeActive ? 'true' : 'false' }} }">
+                    <button @click="open=!open" class="group-header w-full {{ $shopeeActive ? 'has-active' : '' }}" style="{{ $shopeeActive ? '' : 'color:#ea580c' }}">
+                        <div class="flex items-center gap-2">
+                            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 6H5C3.9 6 3 6.9 3 8v11c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-7 3c1.9 0 3.5 1.3 3.9 3H8.1C8.5 10.3 10.1 9 12 9zm5 9H7v-1.5c0-1.4 2.7-2.5 5-2.5s5 1.1 5 2.5V18z"/></svg>
+                            <span style="font-weight:700;">Shopee Admin</span>
+                            <span class="ml-1 text-xs bg-orange-100 text-orange-500 px-1.5 py-0.5 rounded-full">NEW</span>
+                        </div>
+                        <svg class="w-3.5 h-3.5 chevron" :class="open ? 'open' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+                    </button>
+                    <div class="group-items pl-1 space-y-0.5 mt-0.5" :class="open ? 'open' : 'closed'">
+                        <a href="/shopee/orders" class="sidebar-item {{ request()->is('shopee/orders') ? 'active' : 'normal' }}">
+                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                            <span>Data Penjualan</span>
+                        </a>
+                        <a href="/shopee/dashboard" class="sidebar-item {{ request()->is('shopee/dashboard') ? 'active' : 'normal' }}">
+                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                            <span>Manajemen Stok API</span>
+                        </a>
+                    </div>
+                </div>
 
                 <div class="h-4"></div>
             </nav>

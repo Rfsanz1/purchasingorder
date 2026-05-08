@@ -363,14 +363,14 @@ const KATEGORI_OPTIONS: { v: KategoriFilter; label: string; icon: string }[] = [
 const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
 const STATUS_LIST = ["Menunggu", "Diproses", "Dikirim", "Selesai", "Dibatalkan"];
 const STATUS_COLOR: Record<string, string> = {
-  Menunggu:   "#f59e0b",
+  Menunggu:   "#6b7280",
   Diproses:   "#3b82f6",
   Dikirim:    "#8b5cf6",
   Selesai:    "#10b981",
   Dibatalkan: "#ef4444",
 };
 const STATUS_BG: Record<string, string> = {
-  Menunggu:   "#fef3c7",
+  Menunggu:   "#f3f4f6",
   Diproses:   "#dbeafe",
   Dikirim:    "#ede9fe",
   Selesai:    "#d1fae5",
