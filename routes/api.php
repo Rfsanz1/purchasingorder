@@ -11,6 +11,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SalesController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\KledoSyncController;
+use App\Http\Controllers\RiwayatPenjualanController;
 
 Route::post('/auth/login', [AuthController::class, 'login']);
 
@@ -65,3 +66,9 @@ Route::put('/driver-areas', [DriverAreaController::class, 'update']);
 Route::get('/system/health-check', [SystemController::class, 'healthCheck']);
 
 Route::get('/laporan/divisi', [LaporanController::class, 'divisi']);
+
+// Riwayat Penjualan
+Route::get('/riwayat-penjualan/summary', [RiwayatPenjualanController::class, 'summary']);
+Route::get('/riwayat-penjualan/export',  [RiwayatPenjualanController::class, 'export']);
+Route::get('/riwayat-penjualan/{id}',    [RiwayatPenjualanController::class, 'show'])->where('id', '[0-9]+');
+Route::get('/riwayat-penjualan',         [RiwayatPenjualanController::class, 'index']);

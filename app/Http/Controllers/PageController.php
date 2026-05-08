@@ -60,4 +60,9 @@ class PageController extends Controller
     {
         return view('erp.integrasi');
     }
+
+    public function riwayatPenjualan()
+    {
+        return view('erp.riwayat-penjualan');
+    }
 }
