@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\KledoController;
 use App\Http\Controllers\Shopee\ShopeeController;
 
 Route::get('/health', fn() => response()->json(['status' => 'ok']));
@@ -70,6 +71,8 @@ Route::get('/erp/laporan-divisi', [PageController::class, 'laporanDivisi']);
 Route::get('/erp/laporan-penjualan', [PageController::class, 'laporanPenjualan']);
 Route::get('/erp/integrasi', [PageController::class, 'integrasi']);
 Route::get('/erp/riwayat-penjualan', [PageController::class, 'riwayatPenjualan']);
+Route::get('/erp/data-penjualan-kledo', [PageController::class, 'dataPenjualanKledo']);
+Route::get('/api/kledo/data-penjualan', [KledoController::class, 'dataPenjualan']);
 
 // Coming Soon routes
 $comingSoon = [

@@ -65,4 +65,9 @@ class PageController extends Controller
     {
         return view('erp.riwayat-penjualan');
     }
+
+    public function dataPenjualanKledo()
+    {
+        return view('erp.data-penjualan-kledo');
+    }
 }
