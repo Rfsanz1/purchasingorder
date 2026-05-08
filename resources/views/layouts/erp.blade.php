@@ -386,11 +386,26 @@
 
                 {{-- ===== SHOPEE ADMIN ===== --}}
                 @php $shopeeActive = request()->is('shopee/*'); @endphp
-                <a href="/shopee/dashboard" class="sidebar-item {{ $shopeeActive ? 'active' : 'normal' }}">
-                    <svg class="w-4 h-4 shrink-0" style="color:#ea580c" fill="currentColor" viewBox="0 0 24 24"><path d="M19 6H5C3.9 6 3 6.9 3 8v11c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-7 3c1.9 0 3.5 1.3 3.9 3H8.1C8.5 10.3 10.1 9 12 9zm5 9H7v-1.5c0-1.4 2.7-2.5 5-2.5s5 1.1 5 2.5V18z"/></svg>
-                    <span style="{{ $shopeeActive ? '' : 'color:#ea580c' }};font-weight:700;">Shopee Admin</span>
-                    <span class="ml-auto text-xs bg-orange-100 text-orange-500 px-1.5 py-0.5 rounded-full">NEW</span>
-                </a>
+                <div x-data="{ open: {{ $shopeeActive ? 'true' : 'false' }} }">
+                    <button @click="open=!open" class="group-header w-full {{ $shopeeActive ? 'has-active' : '' }}" style="{{ $shopeeActive ? '' : 'color:#ea580c' }}">
+                        <div class="flex items-center gap-2">
+                            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 6H5C3.9 6 3 6.9 3 8v11c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-7 3c1.9 0 3.5 1.3 3.9 3H8.1C8.5 10.3 10.1 9 12 9zm5 9H7v-1.5c0-1.4 2.7-2.5 5-2.5s5 1.1 5 2.5V18z"/></svg>
+                            <span style="font-weight:700;">Shopee Admin</span>
+                            <span class="ml-1 text-xs bg-orange-100 text-orange-500 px-1.5 py-0.5 rounded-full">NEW</span>
+                        </div>
+                        <svg class="w-3.5 h-3.5 chevron" :class="open ? 'open' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+                    </button>
+                    <div class="group-items pl-1 space-y-0.5 mt-0.5" :class="open ? 'open' : 'closed'">
+                        <a href="/shopee/orders" class="sidebar-item {{ request()->is('shopee/orders') ? 'active' : 'normal' }}">
+                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                            <span>Data Penjualan</span>
+                        </a>
+                        <a href="/shopee/dashboard" class="sidebar-item {{ request()->is('shopee/dashboard') ? 'active' : 'normal' }}">
+                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                            <span>Manajemen Stok API</span>
+                        </a>
+                    </div>
+                </div>
 
                 <div class="h-4"></div>
             </nav>

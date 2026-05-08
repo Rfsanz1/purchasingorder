@@ -13,6 +13,10 @@ Route::post('/shopee/login', [ShopeeController::class, 'login'])->name('shopee.l
 Route::get('/shopee/logout', [ShopeeController::class, 'logout'])->name('shopee.logout');
 Route::middleware(\App\Http\Middleware\ShopeeAuth::class)->group(function () {
     Route::get('/shopee/dashboard', [ShopeeController::class, 'dashboard'])->name('shopee.dashboard');
+    Route::get('/shopee/orders',    [ShopeeController::class, 'orders'])->name('shopee.orders');
+    Route::post('/shopee/import-csv',   [ShopeeController::class, 'importCsv'])->name('shopee.import');
+    Route::post('/shopee/sync-to-erp',  [ShopeeController::class, 'syncToErp'])->name('shopee.sync');
+    Route::delete('/shopee/orders/{id}', [ShopeeController::class, 'deleteOrder'])->name('shopee.order.delete');
 });
 Route::get('/po-form', [PageController::class, 'poForm']);
 Route::get('/admin', [PageController::class, 'admin']);

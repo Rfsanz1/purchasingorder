@@ -18,6 +18,19 @@ class IntegrasiController extends Controller
     {
         return [
             [
+                'id'       => 'shopee',
+                'nama'     => 'Shopee Seller Center',
+                'deskripsi'=> 'Import data penjualan dari Shopee. Export CSV dari Seller Center, lalu import ke ERP.',
+                'icon'     => 'shopee',
+                'warna'    => 'orange',
+                'env_key'  => 'SHOPEE_ACCESS_TOKEN',
+                'db_key'   => 'shopee_access_token',
+                'docs_url' => 'https://seller.shopee.co.id/portal/sale/order',
+                'docs_label'=> 'Shopee → Pesanan → Export CSV',
+                'link'     => '/shopee/orders',
+                'link_label'=> 'Buka Dashboard Shopee',
+            ],
+            [
                 'id'       => 'kledo',
                 'nama'     => 'Kledo ERP',
                 'deskripsi'=> 'Sinkronisasi produk, invoice, dan data penjualan dari Kledo.',
