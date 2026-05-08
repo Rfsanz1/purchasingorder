@@ -397,9 +397,10 @@ class OrderController extends Controller
         array $rawItems, string $metodePengiriman,
         string $customerLocToken, string $metodeSummary
     ): void {
-        // Tunggu 5 detik agar response sudah dikirim ke client
-        // dan koneksi ke Kledo lebih stabil
-        sleep(5);
+        // Pastikan PHP tetap jalan meski client disconnect, beri waktu 2 menit
+        ignore_user_abort(true);
+        set_time_limit(120);
+        sleep(2);
         try {
             $whatsappSent   = false;
             $nomorPelanggan = FonnteHelper::cleanPhoneNumber($d['nomorTelepon'] ?? '');
@@ -514,7 +515,6 @@ class OrderController extends Controller
                     if (count($kledoItems) > 0) {
                         $contactId  = KledoController::findOrCreateContact($d['namaKontak'], $d['nomorTelepon'], $d['alamat']);
                         if ($contactId) {
-                            // Format memo: "NamaSales - NomorHP" (sesuai permintaan)
                             $salesPhone = self::SALES_PHONE[strtoupper($d['salesPerson'] ?? '')] ?? '';
                             $baseMemo   = $salesPhone ? "{$d['salesPerson']} - {$salesPhone}" : "{$d['salesPerson']}";
                             $statusMemo = $allUnpaid ? ' | BELUM BAYAR'
@@ -522,11 +522,20 @@ class OrderController extends Controller
                                     ? ' | DP Rp ' . $this->formatRupiah($dpAmount) . ' / Sisa Rp ' . $this->formatRupiah($sisaPembayaran)
                                     : ' | LUNAS');
 
-                            $inv = KledoController::createInvoice([
-                                'contactId' => $contactId, 'orderId' => $orderId,
-                                'items' => $kledoItems, 'biayaPengiriman' => $ongkir,
-                                'memo' => $baseMemo . $statusMemo, 'patokanLokasi' => $d['patokanLokasi'] ?? '',
-                            ]);
+                            // Retry createInvoice sampai 3x dengan jeda 5 detik
+                            $inv      = null;
+                            $attempts = 0;
+                            while ($attempts < 3) {
+                                $attempts++;
+                                $inv = KledoController::createInvoice([
+                                    'contactId' => $contactId, 'orderId' => $orderId,
+                                    'items' => $kledoItems, 'biayaPengiriman' => $ongkir,
+                                    'memo' => $baseMemo . $statusMemo, 'patokanLokasi' => $d['patokanLokasi'] ?? '',
+                                ]);
+                                if ($inv['success'] ?? false) break;
+                                \Log::warning("Kledo createInvoice attempt {$attempts} gagal untuk order {$orderId}", ['response' => $inv]);
+                                if ($attempts < 3) sleep(5);
+                            }
 
                             if (($inv['success'] ?? false) && isset($inv['invoiceId'])) {
                                 $invoiceId  = (int) $inv['invoiceId'];

@@ -243,6 +243,30 @@ function isDraftMeaningful(form: FormData, items: OrderItem[]): boolean {
   );
 }
 
+// ─── Kompresi gambar sebelum dikirim ke server ─────────────────────────────
+// Resize ke max 900px & kompres ke JPEG 55% — kurangi payload dari ~2MB ke ~120KB
+async function compressImage(dataUrl: string, maxSize = 900, quality = 0.55): Promise<string> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      let { width, height } = img;
+      if (width > maxSize || height > maxSize) {
+        if (width > height) { height = Math.round(height * maxSize / width); width = maxSize; }
+        else { width = Math.round(width * maxSize / height); height = maxSize; }
+      }
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) { resolve(dataUrl); return; }
+      ctx.drawImage(img, 0, 0, width, height);
+      resolve(canvas.toDataURL("image/jpeg", quality));
+    };
+    img.onerror = () => resolve(dataUrl);
+    img.src = dataUrl;
+  });
+}
+
 function formatRupiahInput(val: string): string {
   const num = val.replace(/\D/g, "");
   if (!num) return "";
@@ -940,13 +964,16 @@ export default function PurchaseOrderForm() {
     setSubmitting(true);
     Swal.fire({ title: "Mengirim pesanan...", allowOutsideClick: false, didOpen: () => Swal.showLoading() });
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 90_000);
+
     try {
       const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, "");
-      // Referensi otomatis dari sales mapping
       const referensi = `Sales: ${form.salesPerson} - ${SALES_DATA[form.salesPerson] || "-"}`;
 
       const res = await fetch(`${baseUrl}/api/orders`, {
         method: "POST",
+        signal: controller.signal,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           namaKontak: form.namaKontak,
@@ -982,6 +1009,7 @@ export default function PurchaseOrderForm() {
         }),
       });
 
+      clearTimeout(timeoutId);
       const data = await res.json();
 
       if (res.ok && data.success) {
@@ -1002,8 +1030,19 @@ export default function PurchaseOrderForm() {
       } else {
         Swal.fire({ icon: "error", title: "Gagal", text: data.error || "Terjadi kesalahan", confirmButtonColor: "#0097e6" });
       }
-    } catch {
-      Swal.fire({ icon: "error", title: "Koneksi Error", text: "Tidak dapat menghubungi server. Coba lagi.", confirmButtonColor: "#0097e6" });
+    } catch (err) {
+      clearTimeout(timeoutId);
+      if (err instanceof Error && err.name === "AbortError") {
+        Swal.fire({
+          icon: "warning",
+          title: "Koneksi Lambat",
+          html: "<p>Server tidak merespons dalam 90 detik.</p><p style='margin-top:8px;font-size:13px;color:#555;'>Kemungkinan besar pesanan <b>sudah masuk</b> ke sistem. Cek riwayat order di admin sebelum mengirim ulang.</p>",
+          confirmButtonColor: "#0097e6",
+          confirmButtonText: "Mengerti",
+        });
+      } else {
+        Swal.fire({ icon: "error", title: "Koneksi Error", text: "Tidak dapat menghubungi server. Periksa koneksi internet dan coba lagi.", confirmButtonColor: "#0097e6" });
+      }
     } finally {
       setSubmitting(false);
     }
@@ -1393,7 +1432,10 @@ export default function PurchaseOrderForm() {
                                     const file = e.target.files?.[0];
                                     if (!file) return;
                                     const reader = new FileReader();
-                                    reader.onload = () => updateSplit(split.id, { buktiDataUrl: String(reader.result || "") });
+                                    reader.onload = async () => {
+                                      const compressed = await compressImage(String(reader.result || ""));
+                                      updateSplit(split.id, { buktiDataUrl: compressed });
+                                    };
                                     reader.readAsDataURL(file);
                                   }}
                                   style={{ display: "none" }}
@@ -1417,7 +1459,10 @@ export default function PurchaseOrderForm() {
                                         const file = e.target.files?.[0];
                                         if (!file) return;
                                         const reader = new FileReader();
-                                        reader.onload = () => updateSplit(split.id, { buktiDataUrl: String(reader.result || "") });
+                                        reader.onload = async () => {
+                                          const compressed = await compressImage(String(reader.result || ""));
+                                          updateSplit(split.id, { buktiDataUrl: compressed });
+                                        };
                                         reader.readAsDataURL(file);
                                       }}
                                       style={{ display: "none" }}
