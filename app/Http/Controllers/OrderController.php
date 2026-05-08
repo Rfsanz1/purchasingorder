@@ -32,6 +32,11 @@ class OrderController extends Controller
         'chopper','juicer','magicom','magic com','magic jar','rice cooker','setrika',
         'hair dryer','hair dyer','ac ','air conditioner',' ac','speaker','radio',
         'mic ','microphone','kompor','cup sealer','pest control',
+        'bracket','braket','wall mount','wallmount','tiang antena','tiang tv',
+        'mounting','dudukan tv','dudukan antena','remote','remot',
+        'hdmi','kabel antena','kabel audio','kabel hdmi','kabel tv','kabel speaker',
+        'adaptor','adapter','stabilizer','stavolt','ups ','inverter',
+        'digital tv','dvb','set-top','decoder','signal booster','penguat sinyal',
     ];
 
     private const BAHAN_BANGUNAN_KEYWORDS = [
@@ -542,14 +547,21 @@ class OrderController extends Controller
                                             if ($klas === 'Elektronik') $elektrAmount += $lineTotal;
                                             else                        $lainAmount   += $lineTotal;
                                         }
-                                        if ($elektrAmount > 0 && $lainAmount === 0) $elektrAmount += $ongkir;
-                                        else                                         $lainAmount   += $ongkir;
-                                        $totalKat       = $elektrAmount + $lainAmount;
-                                        $ratio          = $totalKat > 0 ? $split['amount'] / $totalKat : 0;
-                                        $scaledElektrik = (int) round($elektrAmount * $ratio);
-                                        $scaledLain     = $split['amount'] - $scaledElektrik;
-                                        if ($scaledElektrik > 0) KledoController::payInvoice($invoiceId, self::KLEDO_KAS_ELEKTRONIK, $scaledElektrik, "{$memo} (CASH-Elektronik)");
-                                        if ($scaledLain > 0)     KledoController::payInvoice($invoiceId, self::KLEDO_KAS_SULAWESI, $scaledLain, "{$memo} (CASH-Bahan)");
+                                        if ($elektrAmount > 0 && $lainAmount === 0) {
+                                            // Semua produk Elektronik — full cash ke Kas Elektronik
+                                            KledoController::payInvoice($invoiceId, self::KLEDO_KAS_ELEKTRONIK, $split['amount'], "{$memo} (CASH-Elektronik)");
+                                        } elseif ($lainAmount > 0 && $elektrAmount === 0) {
+                                            // Semua produk Bahan Bangunan — full cash ke Kas Sulawesi
+                                            KledoController::payInvoice($invoiceId, self::KLEDO_KAS_SULAWESI, $split['amount'], "{$memo} (CASH-Bahan)");
+                                        } else {
+                                            // Campuran — proporsi berdasarkan nilai item
+                                            $totalKat       = $elektrAmount + $lainAmount;
+                                            $ratio          = $totalKat > 0 ? $split['amount'] / $totalKat : 0;
+                                            $scaledElektrik = (int) round($elektrAmount * $ratio);
+                                            $scaledLain     = $split['amount'] - $scaledElektrik;
+                                            if ($scaledElektrik > 0) KledoController::payInvoice($invoiceId, self::KLEDO_KAS_ELEKTRONIK, $scaledElektrik, "{$memo} (CASH-Elektronik)");
+                                            if ($scaledLain > 0)     KledoController::payInvoice($invoiceId, self::KLEDO_KAS_SULAWESI, $scaledLain, "{$memo} (CASH-Bahan)");
+                                        }
                                     } elseif ($split['method'] === 'Debit' && $split['bankAccountId']) {
                                         KledoController::payInvoice($invoiceId, $split['bankAccountId'], $split['amount'], "{$memo} (Debit)");
                                     } elseif ($split['method'] === 'Transfer' && $split['bankAccountId']) {

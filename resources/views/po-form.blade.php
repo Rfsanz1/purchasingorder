@@ -463,6 +463,15 @@ const ELEKTRONIK_KEYWORDS = [
     'ac','kulkas','mesin cuci','tv','televisi','speaker','kipas','dispenser',
     'water heater','pompa air','freezer','lemari es','microwave','blender',
     'rice cooker','setrika','vacuum','oven','hair dryer','charger',
+    'antena','parabola','set top box','receiver','television','refrigerator',
+    'showcase','display cooler','chest freezer','washing machine','air purifier',
+    'exhaust fan','air cooler','mixer','chopper','juicer','magicom','magic com',
+    'magic jar','kompor','cup sealer','pest control',
+    'bracket','braket','wall mount','wallmount','tiang antena','tiang tv',
+    'mounting','dudukan tv','dudukan antena','remote','remot',
+    'hdmi','kabel antena','kabel audio','kabel hdmi','kabel tv','kabel speaker',
+    'adaptor','adapter','stabilizer','stavolt','ups','inverter',
+    'digital tv','dvb','set-top','decoder','signal booster','penguat sinyal',
 ];
 
 function poFormApp() {
