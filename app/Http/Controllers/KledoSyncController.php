@@ -178,34 +178,58 @@ class KledoSyncController extends Controller
         $memo      = $inv['memo'] ?? $inv['message'] ?? '';
         $salesNama = $this->parseSalesFromMemo($memo);
 
+        $statusText = $inv['status'] ?? null;
+        if (!$statusText || $statusText === '-') {
+            $statusText = $this->mapStatusId($inv['status_id'] ?? null);
+        }
+
         return [
-            'kledo_invoice_id' => (string) $inv['id'],
-            'ref_number'       => $inv['ref_number'] ?? '-',
-            'trans_date'       => $inv['trans_date'] ?? '',
-            'contact_name'     => $inv['contact']['name'] ?? $inv['contact_name'] ?? '-',
-            'total'            => (int) ($inv['amount'] ?? $inv['total'] ?? 0),
-            'status'           => $inv['status'] ?? '-',
-            'memo'             => $memo,
-            'sales'            => $salesNama,
-            'raw_data'         => $inv,
+            'kledo_invoice_id'  => (string) $inv['id'],
+            'ref_number'        => $inv['ref_number'] ?? '-',
+            'trans_date'        => $inv['trans_date'] ?? '',
+            'contact_name'      => $inv['contact']['name'] ?? $inv['contact_name'] ?? '-',
+            'alamat'            => $inv['contact']['address'] ?? $inv['address'] ?? null,
+            'total'             => (int) ($inv['amount'] ?? $inv['total'] ?? 0),
+            'diskon'            => (int) ($inv['discount_amount'] ?? 0),
+            'pajak'             => (int) ($inv['tax_amount'] ?? $inv['total_tax'] ?? 0),
+            'status'            => $statusText,
+            'metode_pembayaran' => $this->extractMetodeBayar($inv),
+            'memo'              => $memo,
+            'sales'             => $salesNama,
+            'items'             => $this->extractItemLines($inv['items'] ?? []),
+            'raw_data'          => $inv,
         ];
     }
 
-    // ── Fetch dengan early-stop per tanggal ──────────────────────────────────
-
-    private function fetchInvoicesInRange(string $startDate, string $endDate): array
+    private function mapStatusId(?int $statusId): string
     {
-        $all     = [];
-        $page    = 1;
-        $maxPage = 50; // safety cap per API call
+        return match ($statusId) {
+            1 => 'Draft',
+            2 => 'Belum Bayar',
+            3 => 'Bayar Sebagian',
+            4 => 'Lunas',
+            5 => 'Dibatalkan',
+            6 => 'Expired',
+            default => '-',
+        };
+    }
+
+    // ── Fetch dengan early-stop per tanggal (utama) ──────────────────────────
+    // Kledo API tidak mendukung filter tanggal dengan benar — data diambil
+    // secara descending dan dihentikan saat menemukan tanggal sebelum startDate.
+
+    private function fetchInvoicesInRange(string $startDate, string $endDate, int $perPage = 100): array
+    {
+        $all  = [];
+        $page = 1;
 
         do {
-            $url  = "{$this->base}/invoices?per_page=100&page={$page}&status=all";
-            Log::info("Kledo sync API: fetching halaman {$page}");
+            $url  = "{$this->base}/invoices?per_page={$perPage}&page={$page}&status=all";
+            Log::info("Kledo sync: halaman {$page} ({$startDate} - {$endDate})");
             $data = $this->httpGetWithRetry($url);
 
             if (!$data) {
-                Log::error("Kledo sync API: gagal fetch halaman {$page}");
+                Log::error("Kledo sync: gagal fetch halaman {$page}");
                 break;
             }
 
@@ -223,47 +247,24 @@ class KledoSyncController extends Controller
                 $all[] = $this->mapInvoice($inv);
             }
 
-            if ($stopped) break;
+            Log::info("Kledo sync: page {$page}/{$lastPage}, collected " . count($all) . " so far");
+
+            if ($stopped) {
+                Log::info("Kledo sync: early stop di halaman {$page}, tanggal sudah < {$startDate}");
+                break;
+            }
+
             $page++;
-            if ($page <= min($lastPage, $maxPage)) usleep(200000);
-        } while ($page <= min($lastPage, $maxPage));
+            if ($page <= $lastPage) usleep(200000);
+        } while ($page <= $lastPage);
 
         return $all;
     }
 
-    // ── Fetch Semua Invoice dari Kledo berdasarkan Rentang Tanggal ───────────
-
+    // Alias agar importSales pakai metode yang sama
     private function fetchInvoicesFromKledo(string $startDate, string $endDate, int $perPage = 100): array
     {
-        $all  = [];
-        $page = 1;
-
-        do {
-            $url  = "{$this->base}/invoices?per_page={$perPage}&page={$page}"
-                  . "&start_date=" . urlencode($startDate)
-                  . "&end_date="   . urlencode($endDate)
-                  . "&status=all";
-
-            Log::info("Kledo sync: fetching page {$page} ({$startDate} - {$endDate})");
-            $data = $this->httpGetWithRetry($url);
-
-            if (!$data) {
-                Log::error("Kledo sync: gagal fetch halaman {$page}");
-                break;
-            }
-
-            $items    = $data['data']['data'] ?? [];
-            $lastPage = $data['data']['last_page'] ?? 1;
-
-            foreach ($items as $inv) {
-                $all[] = $this->mapInvoice($inv);
-            }
-
-            Log::info("Kledo sync: page {$page}/{$lastPage}, " . count($items) . " invoice");
-            $page++;
-        } while ($page <= $lastPage);
-
-        return $all;
+        return $this->fetchInvoicesInRange($startDate, $endDate, $perPage);
     }
 
     // ── Upsert ke kledo_sync_logs ─────────────────────────────────────────────

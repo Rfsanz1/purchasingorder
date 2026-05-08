@@ -48,25 +48,25 @@ class KledoImportSales extends Command
         }
         $this->info('Token valid. Mulai fetch data...');
 
-        // 2. Fetch semua invoice
-        $this->line("Mengambil invoice dari Kledo ({$startDate} - {$endDate})...");
-        $invoices = $this->fetchAllInvoices($startDate, $endDate, $perPage);
+        // 2. Fetch invoice dengan early-stop (Kledo tidak support filter tanggal)
+        $this->line("Mengambil invoice periode {$startDate} - {$endDate} (early-stop by date)...");
+        $invoices = $this->fetchWithEarlyStop($startDate, $endDate, $perPage);
 
         if (empty($invoices)) {
             $this->warn("Tidak ada invoice ditemukan untuk periode {$startDate} - {$endDate}.");
             return 0;
         }
 
-        $this->info("Ditemukan " . count($invoices) . " invoice.");
+        $this->info("Ditemukan " . count($invoices) . " invoice dalam periode tersebut.");
 
-        // 3. Fetch detail (opsional)
+        // 3. Fetch detail per invoice (opsional)
         if ($withDetail) {
             $this->line('Mengambil detail tiap invoice (item, alamat, metode bayar)...');
             $invoices = $this->enrichWithDetail($invoices);
         }
 
         // 4. Upsert ke database
-        $this->line('Menyimpan ke database...');
+        $this->line('Menyimpan ke database (upsert by kledo_invoice_id)...');
         $result = $this->upsertInvoices($invoices);
 
         // 5. Laporan
@@ -94,29 +94,23 @@ class KledoImportSales extends Command
         return 0;
     }
 
-    private function checkToken(): bool
+    /**
+     * Fetch invoice dengan early-stop.
+     * Kledo mengurutkan invoice descending (terbaru dulu).
+     * Kita berhenti saat menemukan invoice dengan tanggal < startDate.
+     */
+    private function fetchWithEarlyStop(string $startDate, string $endDate, int $perPage): array
     {
-        $resp = $this->httpGet("{$this->base}/invoices?per_page=1");
-        return $resp !== null;
-    }
-
-    private function fetchAllInvoices(string $startDate, string $endDate, int $perPage): array
-    {
-        $all      = [];
-        $page     = 1;
-        $lastPage = 1;
-        $bar      = null;
+        $all  = [];
+        $page = 1;
+        $bar  = null;
 
         do {
-            $url  = "{$this->base}/invoices?per_page={$perPage}&page={$page}"
-                  . "&start_date=" . urlencode($startDate)
-                  . "&end_date="   . urlencode($endDate)
-                  . "&status=all";
-
+            $url  = "{$this->base}/invoices?per_page={$perPage}&page={$page}&status=all";
             $data = $this->httpGet($url);
 
             if (!$data) {
-                $this->warn("Gagal fetch halaman {$page}, melanjutkan...");
+                $this->warn("  Gagal fetch halaman {$page}, melanjutkan...");
                 Log::warning("kledo:import-sales gagal fetch halaman {$page}");
                 break;
             }
@@ -126,49 +120,71 @@ class KledoImportSales extends Command
             $total    = $data['data']['total'] ?? 0;
 
             if ($page === 1) {
-                $this->line("Total invoice di Kledo: {$total}, halaman: {$lastPage}");
+                $this->line("  Total invoice di Kledo: {$total} | Halaman: {$lastPage}");
                 $bar = $this->output->createProgressBar($lastPage);
                 $bar->start();
             }
 
+            $stopped = false;
             foreach ($items as $inv) {
-                $all[] = $this->mapBasicInvoice($inv);
+                $transDate = $inv['trans_date'] ?? '';
+                // Kledo descending — kalau sudah lebih kecil dari startDate, stop
+                if ($transDate && $transDate < $startDate) {
+                    $stopped = true;
+                    break;
+                }
+                // Skip invoice yang di luar endDate (lebih baru)
+                if ($transDate && $transDate > $endDate) continue;
+
+                $all[] = $this->mapInvoice($inv);
             }
 
             $bar?->advance();
-            $page++;
 
-            if ($page <= $lastPage) {
-                usleep(200000);
+            if ($stopped) {
+                $bar?->finish();
+                $this->newLine();
+                $this->line("  Early stop di halaman {$page} — tanggal sudah sebelum {$startDate}.");
+                break;
             }
+
+            $page++;
+            if ($page <= $lastPage) usleep(200000);
         } while ($page <= $lastPage);
 
-        $bar?->finish();
-        $this->newLine();
+        if ($bar) {
+            $bar->finish();
+            $this->newLine();
+        }
 
         return $all;
     }
 
-    private function mapBasicInvoice(array $inv): array
+    private function mapInvoice(array $inv): array
     {
         $memo  = $inv['memo'] ?? $inv['message'] ?? '';
         $sales = $this->parseSalesFromMemo($memo);
 
+        $statusText = $inv['status'] ?? null;
+        if (!$statusText || $statusText === '-') {
+            $statusText = $this->mapStatusId($inv['status_id'] ?? null);
+        }
+
         return [
-            'kledo_invoice_id' => (string) $inv['id'],
-            'ref_number'       => $inv['ref_number'] ?? '-',
-            'trans_date'       => $inv['trans_date'] ?? '',
-            'contact_name'     => $inv['contact']['name'] ?? $inv['contact_name'] ?? '-',
-            'alamat'           => $inv['contact']['address'] ?? $inv['address'] ?? null,
-            'total'            => (int) ($inv['amount'] ?? $inv['total'] ?? 0),
-            'diskon'           => (int) ($inv['discount_amount'] ?? 0),
-            'pajak'            => (int) ($inv['tax_amount'] ?? 0),
-            'status'           => $inv['status'] ?? '-',
-            'metode_pembayaran'=> $this->extractMetodeBayar($inv),
-            'sales'            => $sales,
-            'memo'             => $memo,
-            'items'            => $this->extractItems($inv['items'] ?? []),
-            'raw_data'         => $inv,
+            'kledo_invoice_id'  => (string) $inv['id'],
+            'ref_number'        => $inv['ref_number'] ?? '-',
+            'trans_date'        => $inv['trans_date'] ?? '',
+            'contact_name'      => $inv['contact']['name'] ?? $inv['contact_name'] ?? '-',
+            'alamat'            => $inv['contact']['address'] ?? $inv['address'] ?? null,
+            'total'             => (int) ($inv['amount'] ?? $inv['total'] ?? 0),
+            'diskon'            => (int) ($inv['discount_amount'] ?? 0),
+            'pajak'             => (int) ($inv['tax_amount'] ?? $inv['total_tax'] ?? 0),
+            'status'            => $statusText,
+            'metode_pembayaran' => $this->extractMetodeBayar($inv),
+            'sales'             => $sales,
+            'memo'              => $memo,
+            'items'             => $this->extractItems($inv['items'] ?? []),
+            'raw_data'          => $inv,
         ];
     }
 
@@ -182,13 +198,13 @@ class KledoImportSales extends Command
 
             if ($detail && isset($detail['data'])) {
                 $d = $detail['data'];
-
                 $inv['alamat']            = $d['contact']['address'] ?? $d['address'] ?? $inv['alamat'];
                 $inv['diskon']            = (int) ($d['discount_amount'] ?? $inv['diskon']);
                 $inv['pajak']             = (int) ($d['tax_amount'] ?? $inv['pajak']);
                 $inv['metode_pembayaran'] = $this->extractMetodeBayar($d) ?: $inv['metode_pembayaran'];
-                $inv['items']             = $this->extractItems($d['items'] ?? []) ?: $inv['items'];
-                $inv['raw_data']          = $d;
+                $items = $this->extractItems($d['items'] ?? []);
+                if (!empty($items)) $inv['items'] = $items;
+                $inv['raw_data'] = $d;
             }
 
             $bar->advance();
@@ -206,11 +222,14 @@ class KledoImportSales extends Command
     {
         $result = [];
         foreach ($rawItems as $item) {
-            $qty       = (float) ($item['qty'] ?? 1);
-            $harga     = (float) ($item['price'] ?? $item['unit_price'] ?? 0);
-            $diskon    = (float) ($item['discount_amount'] ?? ($item['discount_percent'] ?? 0) / 100 * $harga * $qty);
-            $subtotal  = (float) ($item['amount'] ?? $qty * $harga - $diskon);
-            $pajak     = (float) ($item['tax_amount'] ?? 0);
+            $qty      = (float) ($item['qty'] ?? 1);
+            $harga    = (float) ($item['price'] ?? $item['unit_price'] ?? 0);
+            $diskon   = (float) ($item['discount_amount'] ?? 0);
+            if ($diskon === 0.0 && !empty($item['discount_percent'])) {
+                $diskon = round($harga * $qty * (float) $item['discount_percent'] / 100);
+            }
+            $subtotal = (float) ($item['amount'] ?? ($qty * $harga - $diskon));
+            $pajak    = (float) ($item['tax_amount'] ?? 0);
 
             $result[] = [
                 'nama_produk' => $item['name'] ?? $item['product_name'] ?? $item['finance_account_name'] ?? '-',
@@ -227,6 +246,12 @@ class KledoImportSales extends Command
 
     private function extractMetodeBayar(array $inv): ?string
     {
+        // payment_accounts dari list API Kledo: [{id, name, name_id}]
+        $accounts = $inv['payment_accounts'] ?? [];
+        if (!empty($accounts)) {
+            return $accounts[0]['name_id'] ?? $accounts[0]['name'] ?? null;
+        }
+
         if (!empty($inv['payment_method'])) return $inv['payment_method'];
         if (!empty($inv['bank_account_name'])) return $inv['bank_account_name'];
 
@@ -235,14 +260,25 @@ class KledoImportSales extends Command
             return $payments[0]['bank_account_name'];
         }
 
-        if (!empty($inv['memo'])) {
-            $memo = strtolower($inv['memo']);
-            if (str_contains($memo, 'transfer') || str_contains($memo, 'tf')) return 'Transfer';
-            if (str_contains($memo, 'tunai') || str_contains($memo, 'cash')) return 'Tunai';
-            if (str_contains($memo, 'qris')) return 'QRIS';
-        }
+        $memo = strtolower($inv['memo'] ?? '');
+        if (str_contains($memo, 'transfer') || str_contains($memo, 'tf')) return 'Transfer';
+        if (str_contains($memo, 'tunai') || str_contains($memo, 'cash')) return 'Tunai';
+        if (str_contains($memo, 'qris')) return 'QRIS';
 
         return null;
+    }
+
+    private function mapStatusId(?int $statusId): string
+    {
+        return match ($statusId) {
+            1 => 'Draft',
+            2 => 'Belum Bayar',
+            3 => 'Bayar Sebagian',
+            4 => 'Lunas',
+            5 => 'Dibatalkan',
+            6 => 'Expired',
+            default => 'Tidak Diketahui',
+        };
     }
 
     private function upsertInvoices(array $invoices): array
@@ -296,6 +332,11 @@ class KledoImportSales extends Command
         return compact('inserted', 'updated', 'errors');
     }
 
+    private function checkToken(): bool
+    {
+        return $this->httpGet("{$this->base}/invoices?per_page=1") !== null;
+    }
+
     private function httpGet(string $url): ?array
     {
         $headers = [
@@ -319,21 +360,20 @@ class KledoImportSales extends Command
             curl_close($ch);
 
             if ($err) {
-                Log::warning("kledo:import-sales curl error (retry {$retry}): {$err}");
+                Log::warning("kledo:import-sales curl error retry {$retry}: {$err}");
                 $retry++;
                 sleep(1);
                 continue;
             }
 
             if ($status === 429 || $status === 503) {
-                Log::warning("kledo:import-sales rate limit HTTP {$status}, tunggu...");
                 sleep(2 + $retry);
                 $retry++;
                 continue;
             }
 
             if ($status === 401 || $status === 403) {
-                $this->error("Token Kledo ditolak (HTTP {$status}). Periksa KLEDO_API_KEY.");
+                $this->error("Token Kledo ditolak (HTTP {$status}).");
                 return null;
             }
 
@@ -355,11 +395,9 @@ class KledoImportSales extends Command
         if (preg_match('/^([^-\n]+?)\s*-\s*(\+62|0)[\d\s\-\(\)\.]{6,}/u', $text, $m)) {
             return ucwords(strtolower(trim($m[1])));
         }
-
         if (preg_match('/Sales\s*:\s*([^-\n|]+)/i', $text, $m)) {
             return ucwords(strtolower(trim($m[1])));
         }
-
         if (preg_match('/Order\s*#\d+\s*-\s*(.+)/i', $text, $m)) {
             return ucwords(strtolower(trim($m[1])));
         }
