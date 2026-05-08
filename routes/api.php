@@ -35,6 +35,7 @@ Route::post('/orders/loc/{token}', [OrderController::class, 'saveLocation']);
 
 Route::get('/orders/{orderId}/bukti-tf', [OrderController::class, 'buktiTf']);
 Route::get('/orders/{orderId}/bukti-tf/{index}', [OrderController::class, 'buktiTfByIndex']);
+Route::post('/orders/{orderId}/resend-kledo', [OrderController::class, 'resendKledo']);
 
 Route::get('/kledo/contacts', [KledoController::class, 'contacts']);
 Route::get('/kledo/products/with-stock', [KledoController::class, 'productsWithStock']);

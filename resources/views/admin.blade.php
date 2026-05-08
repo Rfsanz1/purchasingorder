@@ -148,7 +148,7 @@
                         </div>
 
                         <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-2">
+                            <div class="flex items-center gap-2 flex-wrap">
                                 <span class="text-xs px-2 py-0.5 rounded-full"
                                     :class="{
                                         'bg-gray-100 text-gray-600': order.statusPengiriman==='Menunggu',
@@ -162,6 +162,23 @@
                                 <template x-if="order.hasBuktiTf">
                                     <a :href="`/api/orders/${order.orderId}/bukti-tf`" target="_blank"
                                         class="text-xs text-blue-600 hover:underline">Bukti TF</a>
+                                </template>
+                                {{-- Status Kledo --}}
+                                <template x-if="order.kledoInvoiceId">
+                                    <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-medium">
+                                        ✓ Kledo #<span x-text="order.kledoInvoiceId"></span>
+                                    </span>
+                                </template>
+                                <template x-if="!order.kledoInvoiceId">
+                                    <button
+                                        @click="resendKledo(order)"
+                                        :disabled="order._kledoLoading"
+                                        class="text-xs px-2 py-0.5 rounded-full font-medium border transition-all"
+                                        :class="order._kledoLoading
+                                            ? 'bg-gray-50 text-gray-400 border-gray-200 cursor-wait'
+                                            : 'bg-orange-50 text-orange-700 border-orange-200 hover:bg-orange-100'"
+                                        x-text="order._kledoLoading ? 'Mengirim...' : '↻ Kirim ke Kledo'">
+                                    </button>
                                 </template>
                             </div>
                             <button @click="deleteOrder(order)" class="text-xs text-red-500 hover:text-red-700 font-medium">Hapus</button>
@@ -523,6 +540,26 @@ function adminApp() {
                 }
             } catch(e) {}
             finally { this.savingSettings = false; }
+        },
+
+        async resendKledo(order) {
+            if (order._kledoLoading) return;
+            if (!confirm(`Kirim ulang invoice ke Kledo untuk order #${order.orderId}?\n\nPastikan order ini belum ada di Kledo.`)) return;
+            order._kledoLoading = true;
+            try {
+                const res = await fetch(`/api/orders/${order.orderId}/resend-kledo`, { method: 'POST' });
+                const data = await res.json();
+                if (data.ok) {
+                    order.kledoInvoiceId = data.invoiceId;
+                    alert(`✅ Invoice Kledo berhasil dibuat! ID: #${data.invoiceId}`);
+                } else {
+                    alert(`❌ Gagal: ${data.error || 'Error tidak diketahui'}`);
+                }
+            } catch(e) {
+                alert('❌ Koneksi gagal. Coba lagi.');
+            } finally {
+                order._kledoLoading = false;
+            }
         },
 
         formatRupiah(n) {

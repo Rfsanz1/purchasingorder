@@ -166,6 +166,7 @@ class OrderController extends Controller
                 'biaya_pengiriman', 'total_harga', 'sales_person', 'metode_pembayaran',
                 'keterangan_pembayaran', 'whatsapp_sent', 'status_pengiriman',
                 'driver_name', 'metode_pengiriman', 'kategori_produk', 'created_at',
+                'kledo_invoice_id',
                 \DB::raw('CASE WHEN bukti_transfer_data IS NOT NULL THEN 1 ELSE 0 END AS hasBuktiTf'),
             ])
             ->orderByDesc('created_at')
@@ -192,6 +193,7 @@ class OrderController extends Controller
                 'kategoriProduk'        => $o->kategori_produk,
                 'createdAt'             => $o->created_at,
                 'hasBuktiTf'            => (bool) $o->hasBuktiTf,
+                'kledoInvoiceId'        => $o->kledo_invoice_id,
             ]);
 
         return response()->json($orders);
@@ -359,6 +361,7 @@ class OrderController extends Controller
                 'bukti_transfer_list'   => count($buktiTfListFinal) > 0 ? $buktiTfListFinal : null,
                 'dp_amount'             => $dpAmount,
                 'sisa_pembayaran'       => $sisaPembayaran,
+                'raw_items'             => count($rawItems) > 0 ? $rawItems : null,
                 'created_at'            => now(),
             ]);
         } catch (\Exception $e) {
@@ -538,7 +541,8 @@ class OrderController extends Controller
                             }
 
                             if (($inv['success'] ?? false) && isset($inv['invoiceId'])) {
-                                $invoiceId  = (int) $inv['invoiceId'];
+                                $invoiceId = (int) $inv['invoiceId'];
+                                Order::where('order_id', $orderId)->update(['kledo_invoice_id' => $invoiceId]);
                                 $firstBukti = null;
                                 foreach ($buktiTfListFinal as $b) { if ($b && strlen($b) > 0) { $firstBukti = $b; break; } }
                                 if ($firstBukti) {
@@ -704,5 +708,113 @@ class OrderController extends Controller
         $order = Order::where('customer_loc_token', $token)->select('order_id', 'nama_kontak')->first();
         \Log::info("Customer shared GPS", ['orderId' => $order->order_id, 'lat' => $lat, 'lng' => $lng]);
         return response()->json(['ok' => true, 'orderId' => $order->order_id]);
+    }
+
+    // ── Kirim Ulang Invoice ke Kledo ───────────────────────────────────────────
+    public function resendKledo(string $orderId): JsonResponse
+    {
+        if (!env('KLEDO_TOKEN')) {
+            return response()->json(['ok' => false, 'error' => 'KLEDO_TOKEN belum dikonfigurasi'], 400);
+        }
+
+        $order = Order::where('order_id', $orderId)
+            ->select(['id', 'order_id', 'kledo_invoice_id', 'raw_items', 'payment_splits',
+                      'bukti_transfer_list', 'nama_kontak', 'nomor_telepon', 'alamat',
+                      'patokan_lokasi', 'sales_person', 'total_harga', 'biaya_pengiriman',
+                      'dp_amount', 'sisa_pembayaran', 'nama_produk', 'jumlah_produk', 'harga_produk'])
+            ->first();
+
+        if (!$order) return response()->json(['ok' => false, 'error' => 'Order tidak ditemukan'], 404);
+        if ($order->kledo_invoice_id) {
+            return response()->json(['ok' => false, 'error' => 'Invoice Kledo sudah ada (#' . $order->kledo_invoice_id . ')'], 400);
+        }
+
+        $rawItems      = $order->raw_items ?? [];
+        $paymentSplits = $order->payment_splits ?? [];
+        $buktiTfList   = $order->bukti_transfer_list ?? [];
+        $ongkir        = (int) $order->biaya_pengiriman;
+        $dpAmount      = (int) $order->dp_amount;
+        $sisaPembayaran = (int) $order->sisa_pembayaran;
+        $allUnpaid     = count(array_filter($paymentSplits, fn($s) => $s['method'] !== 'BelumBayar' && ($s['amount'] ?? 0) > 0)) === 0;
+
+        if (count($rawItems) === 0) {
+            return response()->json(['ok' => false, 'error' => 'Data item produk tidak tersedia (order lama)'], 400);
+        }
+
+        try {
+            $kledoItems = [];
+            foreach ($rawItems as $item) {
+                $productId = isset($item['kledoProductId']) && is_int($item['kledoProductId']) && $item['kledoProductId'] > 0
+                    ? $item['kledoProductId'] : null;
+                $unitId = isset($item['kledoUnitId']) && is_int($item['kledoUnitId']) && $item['kledoUnitId'] > 0
+                    ? $item['kledoUnitId'] : 73;
+
+                if (!$productId && !empty($item['namaProduk'])) {
+                    $found = KledoController::searchProductByName(trim($item['namaProduk']));
+                    if ($found) { $productId = $found['id']; $unitId = $found['unitId']; }
+                    else { continue; }
+                }
+                if (!$productId) continue;
+
+                $kledoItems[] = [
+                    'kledoProductId'        => $productId,
+                    'kledoFinanceAccountId' => $item['kledoFinanceAccountId'] ?? null,
+                    'kledoUnitId'           => $unitId,
+                    'jumlahProduk'          => (int)($item['jumlahProduk'] ?? 1),
+                    'hargaProduk'           => (int)($item['hargaProduk'] ?? 0),
+                ];
+            }
+
+            if (count($kledoItems) === 0) {
+                return response()->json(['ok' => false, 'error' => 'Tidak ada produk valid untuk dikirim ke Kledo'], 400);
+            }
+
+            $contactId = KledoController::findOrCreateContact($order->nama_kontak, $order->nomor_telepon, $order->alamat);
+            if (!$contactId) {
+                return response()->json(['ok' => false, 'error' => 'Gagal membuat/menemukan kontak di Kledo'], 502);
+            }
+
+            $salesPhone = self::SALES_PHONE[strtoupper($order->sales_person ?? '')] ?? '';
+            $baseMemo   = $salesPhone ? "{$order->sales_person} - {$salesPhone}" : "{$order->sales_person}";
+            $statusMemo = $allUnpaid ? ' | BELUM BAYAR'
+                : ($sisaPembayaran > 0
+                    ? ' | DP Rp ' . $this->formatRupiah($dpAmount) . ' / Sisa Rp ' . $this->formatRupiah($sisaPembayaran)
+                    : ' | LUNAS');
+
+            $inv = KledoController::createInvoice([
+                'contactId'       => $contactId,
+                'orderId'         => $orderId,
+                'items'           => $kledoItems,
+                'biayaPengiriman' => $ongkir,
+                'memo'            => $baseMemo . $statusMemo,
+                'patokanLokasi'   => $order->patokan_lokasi ?? '',
+            ]);
+
+            if (!($inv['success'] ?? false) || !isset($inv['invoiceId'])) {
+                \Log::error("resendKledo gagal untuk order {$orderId}", ['response' => $inv]);
+                return response()->json(['ok' => false, 'error' => 'Kledo gagal membuat invoice: ' . ($inv['message'] ?? 'Error tidak diketahui')], 502);
+            }
+
+            $invoiceId = (int) $inv['invoiceId'];
+            Order::where('order_id', $orderId)->update(['kledo_invoice_id' => $invoiceId]);
+
+            // Bayar invoice sesuai splits
+            foreach ($paymentSplits as $idx => $split) {
+                if ($split['method'] === 'BelumBayar' || ($split['amount'] ?? 0) <= 0) continue;
+                $memo = "Order #{$orderId} - {$order->sales_person} [resend]";
+                if ($split['method'] === 'CASH') {
+                    KledoController::payInvoice($invoiceId, self::KLEDO_KAS_ELEKTRONIK, $split['amount'], "{$memo} (CASH)");
+                } elseif (in_array($split['method'], ['Transfer', 'Debit']) && ($split['bankAccountId'] ?? null)) {
+                    KledoController::payInvoice($invoiceId, $split['bankAccountId'], $split['amount'], "{$memo} ({$split['method']})");
+                }
+            }
+
+            \Log::info("resendKledo berhasil", ['orderId' => $orderId, 'invoiceId' => $invoiceId]);
+            return response()->json(['ok' => true, 'invoiceId' => $invoiceId]);
+
+        } catch (\Exception $e) {
+            \Log::error("resendKledo exception untuk order {$orderId}: " . $e->getMessage());
+            return response()->json(['ok' => false, 'error' => 'Error: ' . $e->getMessage()], 500);
+        }
     }
 }

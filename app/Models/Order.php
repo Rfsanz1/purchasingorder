@@ -44,6 +44,8 @@ class Order extends Model
         'bukti_transfer_list',
         'dp_amount',
         'sisa_pembayaran',
+        'kledo_invoice_id',
+        'raw_items',
         'created_at',
     ];
 
@@ -54,8 +56,10 @@ class Order extends Model
         'total_harga'        => 'integer',
         'dp_amount'          => 'integer',
         'sisa_pembayaran'    => 'integer',
+        'kledo_invoice_id'   => 'integer',
         'payment_splits'     => 'array',
         'bukti_transfer_list' => 'array',
+        'raw_items'          => 'array',
         'customer_loc_shared_at' => 'datetime',
         'created_at'         => 'datetime',
     ];
