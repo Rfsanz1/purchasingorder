@@ -116,6 +116,9 @@ class KledoSyncController extends Controller
 
         $text = trim($memo);
 
+        // Strip prefix "Sales: " jika ada (format ERP: "Sales: Lehan - +62...")
+        $text = preg_replace('/^Sales\s*:\s*/i', '', $text);
+
         // 1. Format ERP baru: "NamaSales - +62xxx" atau "NamaSales - 08xxx"
         if (preg_match('/^([^-\n]+?)\s*-\s*(\+62|0)[\d\s\-\(\)\.]{6,}/u', $text, $m)) {
             return $this->normalizeSalesName(trim($m[1]));
