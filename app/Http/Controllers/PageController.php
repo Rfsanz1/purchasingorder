@@ -70,4 +70,14 @@ class PageController extends Controller
     {
         return view('erp.data-penjualan-kledo');
     }
+
+    public function customers()
+    {
+        return view('erp.customers');
+    }
+
+    public function stockOpname()
+    {
+        return view('erp.stock-opname');
+    }
 }

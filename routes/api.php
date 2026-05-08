@@ -12,6 +12,7 @@ use App\Http\Controllers\SalesController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\KledoSyncController;
 use App\Http\Controllers\RiwayatPenjualanController;
+use App\Http\Controllers\StockOpnameController;
 
 Route::post('/auth/login', [AuthController::class, 'login']);
 
@@ -25,6 +26,8 @@ Route::get('/products/brands', [ProductController::class, 'brands']);
 Route::post('/products/stok', [ProductController::class, 'updateStok']);
 
 Route::get('/orders', [OrderController::class, 'index']);
+Route::get('/orders/summary', [OrderController::class, 'summary']);
+Route::get('/orders/{id}', [OrderController::class, 'show'])->where('id', '[0-9]+');
 Route::post('/orders', [OrderController::class, 'store']);
 Route::delete('/orders/{id}', [OrderController::class, 'destroy']);
 Route::post('/orders/{id}/foto', [OrderController::class, 'uploadFoto']);
@@ -43,6 +46,9 @@ Route::get('/kledo/products/{id}', [KledoController::class, 'productDetail']);
 Route::get('/kledo/products', [KledoController::class, 'products']);
 Route::get('/kledo/spm-brands', [KledoController::class, 'spmBrands']);
 Route::get('/kledo/laporan-penjualan', [KledoController::class, 'laporanPenjualan']);
+
+Route::get('/stock-opname/search-product', [StockOpnameController::class, 'searchProduct']);
+Route::post('/stock-opname', [StockOpnameController::class, 'store']);
 
 // Sinkronisasi Kledo ↔ ERP
 Route::post('/kledo/sync',              [KledoSyncController::class, 'sync']);
@@ -74,3 +80,11 @@ Route::get('/riwayat-penjualan/summary', [RiwayatPenjualanController::class, 'su
 Route::get('/riwayat-penjualan/export',  [RiwayatPenjualanController::class, 'export']);
 Route::get('/riwayat-penjualan/{id}',    [RiwayatPenjualanController::class, 'show'])->where('id', '[0-9]+');
 Route::get('/riwayat-penjualan',         [RiwayatPenjualanController::class, 'index']);
+
+// Customer Management
+Route::get('/customers/summary', [App\Http\Controllers\CustomerController::class, 'summary']);
+Route::get('/customers', [App\Http\Controllers\CustomerController::class, 'index']);
+Route::get('/customers/{id}', [App\Http\Controllers\CustomerController::class, 'show'])->where('id', '[0-9]+');
+Route::post('/customers', [App\Http\Controllers\CustomerController::class, 'store']);
+Route::put('/customers/{id}', [App\Http\Controllers\CustomerController::class, 'update'])->where('id', '[0-9]+');
+Route::delete('/customers/{id}', [App\Http\Controllers\CustomerController::class, 'destroy'])->where('id', '[0-9]+');

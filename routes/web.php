@@ -72,6 +72,10 @@ Route::get('/erp/laporan-penjualan', [PageController::class, 'laporanPenjualan']
 Route::get('/erp/integrasi', [PageController::class, 'integrasi']);
 Route::get('/erp/riwayat-penjualan', [PageController::class, 'riwayatPenjualan']);
 Route::get('/erp/data-penjualan-kledo', [PageController::class, 'dataPenjualanKledo']);
+Route::get('/erp/stock-opname', [PageController::class, 'stockOpname'])->name('erp.stock-opname');
+Route::get('/stock-opname', function () {
+    return redirect('/erp/stock-opname');
+});
 Route::get('/api/kledo/data-penjualan', [KledoController::class, 'dataPenjualan']);
 
 // Coming Soon routes
@@ -80,7 +84,6 @@ $comingSoon = [
     'erp/discount'        => ['Diskon & Promo', 'Manajemen program diskon dan promosi penjualan.', ['Buat kode promo', 'Diskon per produk / kategori', 'Periode promosi', 'Laporan efektivitas promo']],
     'erp/stock-in'        => ['Stok Masuk', 'Pencatatan barang masuk ke gudang.', ['Input penerimaan barang', 'Sinkronisasi dari PO', 'Riwayat stok masuk', 'Cetak label']],
     'erp/stock-out'       => ['Stok Keluar', 'Pencatatan barang keluar dari gudang.', ['Input pengeluaran barang', 'Stok keluar per order', 'Riwayat stok keluar']],
-    'erp/stock-opname'    => ['Stock Opname', 'Pencocokan stok fisik dengan data sistem.', ['Jadwal opname', 'Input hitungan fisik', 'Selisih stok otomatis', 'Laporan opname']],
     'erp/warehouse'       => ['Gudang', 'Manajemen lokasi dan zona penyimpanan gudang.', ['Peta gudang', 'Zona penyimpanan', 'Transfer antar lokasi', 'Kapasitas gudang']],
     'erp/supplier'        => ['Supplier', 'Database dan manajemen supplier/vendor.', ['Daftar supplier', 'Kontak & alamat', 'Riwayat transaksi', 'Rating supplier']],
     'erp/purchase-order'  => ['Purchase Order', 'Buat dan kelola PO ke supplier.', ['Buat PO ke supplier', 'Approval PO', 'Status pengiriman supplier', 'Riwayat PO']],
@@ -89,7 +92,6 @@ $comingSoon = [
     'erp/cash-out'        => ['Kas Keluar', 'Pencatatan semua pengeluaran kas.', ['Input pengeluaran', 'Approval pengeluaran', 'Bukti pengeluaran', 'Laporan kas keluar']],
     'erp/profit-loss'     => ['Laba Rugi', 'Laporan laba rugi periode tertentu.', ['Laba rugi harian/bulanan/tahunan', 'Grafik tren', 'Export PDF/Excel', 'Perbandingan periode']],
     'erp/expense'         => ['Pengeluaran', 'Manajemen biaya operasional.', ['Kategori biaya', 'Approval biaya', 'Budget monitoring', 'Laporan pengeluaran']],
-    'erp/customers'       => ['Data Customer', 'CRM dan database pelanggan.', ['Profil customer', 'Riwayat pembelian', 'Catatan penting', 'Segmentasi customer']],
     'erp/loyalty'         => ['Loyalty Points', 'Program poin reward untuk pelanggan setia.', ['Akumulasi poin', 'Redeem poin', 'Level membership', 'Riwayat poin']],
     'erp/delivery-proof'  => ['Bukti Pengiriman', 'Dokumentasi foto bukti pengiriman.', ['Upload foto bukti', 'Tanda tangan digital', 'Koordinat GPS', 'Laporan pengiriman']],
     'erp/report-sales'    => ['Laporan Penjualan', 'Analisis performa penjualan tim sales.', ['Top produk terlaris', 'Performa per sales', 'Tren penjualan', 'Export laporan']],
@@ -111,3 +113,6 @@ foreach ($comingSoon as $path => [$title, $description, $features]) {
         return view('erp.coming-soon', compact('title', 'description', 'features'));
     });
 }
+
+// Active ERP routes
+Route::get('/erp/customers', [PageController::class, 'customers'])->name('erp.customers');

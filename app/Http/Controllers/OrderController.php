@@ -156,47 +156,86 @@ class OrderController extends Controller
         ]);
     }
 
+    private function formatOrder(Order $o): array
+    {
+        return [
+            'id'                    => $o->id,
+            'orderId'               => $o->order_id,
+            'namaKontak'            => $o->nama_kontak,
+            'nomorTelepon'          => $o->nomor_telepon,
+            'alamat'                => $o->alamat,
+            'patokanLokasi'         => $o->patokan_lokasi,
+            'namaProduk'            => $o->nama_produk,
+            'jumlahProduk'          => $o->jumlah_produk,
+            'hargaProduk'           => $o->harga_produk,
+            'biayaPengiriman'       => $o->biaya_pengiriman,
+            'totalHarga'            => $o->total_harga,
+            'salesPerson'           => $o->sales_person,
+            'metodePembayaran'      => $o->metode_pembayaran,
+            'keteranganPembayaran'  => $o->keterangan_pembayaran,
+            'whatsappSent'          => $o->whatsapp_sent,
+            'statusPengiriman'      => $o->status_pengiriman,
+            'driverName'            => $o->driver_name,
+            'metodePengiriman'      => $o->metode_pengiriman,
+            'kategoriProduk'        => $o->kategori_produk,
+            'createdAt'             => $o->created_at,
+            'hasBuktiTf'            => (bool) $o->hasBuktiTf,
+            'kledoInvoiceId'        => $o->kledo_invoice_id,
+        ];
+    }
+
     // ── API Endpoints ─────────────────────────────────────────────────────────
 
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $orders = Order::select([
-                'id', 'order_id', 'nama_kontak', 'nomor_telepon', 'alamat',
-                'patokan_lokasi', 'nama_produk', 'jumlah_produk', 'harga_produk',
-                'biaya_pengiriman', 'total_harga', 'sales_person', 'metode_pembayaran',
-                'keterangan_pembayaran', 'whatsapp_sent', 'status_pengiriman',
-                'driver_name', 'metode_pengiriman', 'kategori_produk', 'created_at',
-                'kledo_invoice_id',
-                \DB::raw('CASE WHEN bukti_transfer_data IS NOT NULL THEN 1 ELSE 0 END AS hasBuktiTf'),
-            ])
-            ->orderByDesc('created_at')
-            ->get()
-            ->map(fn($o) => [
-                'id'                    => $o->id,
-                'orderId'               => $o->order_id,
-                'namaKontak'            => $o->nama_kontak,
-                'nomorTelepon'          => $o->nomor_telepon,
-                'alamat'                => $o->alamat,
-                'patokanLokasi'         => $o->patokan_lokasi,
-                'namaProduk'            => $o->nama_produk,
-                'jumlahProduk'          => $o->jumlah_produk,
-                'hargaProduk'           => $o->harga_produk,
-                'biayaPengiriman'       => $o->biaya_pengiriman,
-                'totalHarga'            => $o->total_harga,
-                'salesPerson'           => $o->sales_person,
-                'metodePembayaran'      => $o->metode_pembayaran,
-                'keteranganPembayaran'  => $o->keterangan_pembayaran,
-                'whatsappSent'          => $o->whatsapp_sent,
-                'statusPengiriman'      => $o->status_pengiriman,
-                'driverName'            => $o->driver_name,
-                'metodePengiriman'      => $o->metode_pengiriman,
-                'kategoriProduk'        => $o->kategori_produk,
-                'createdAt'             => $o->created_at,
-                'hasBuktiTf'            => (bool) $o->hasBuktiTf,
-                'kledoInvoiceId'        => $o->kledo_invoice_id,
-            ]);
+        $query = Order::query();
 
-        return response()->json($orders);
+        if ($status = trim((string) $request->query('status', ''))) {
+            $query->where('status_pengiriman', $status);
+        }
+
+        if ($driver = trim((string) $request->query('driver', ''))) {
+            $query->where('driver_name', 'ilike', "%{$driver}%");
+        }
+
+        if ($sales = trim((string) $request->query('sales', ''))) {
+            $query->where('sales_person', 'ilike', "%{$sales}%");
+        }
+
+        if ($category = trim((string) $request->query('category', ''))) {
+            $query->where('kategori_produk', 'ilike', "%{$category}%");
+        }
+
+        if ($search = trim((string) $request->query('search', ''))) {
+            $query->where(function ($q) use ($search) {
+                $q->where('order_id', 'ilike', "%{$search}%")
+                  ->orWhere('nama_kontak', 'ilike', "%{$search}%")
+                  ->orWhere('nomor_telepon', 'ilike', "%{$search}%")
+                  ->orWhere('alamat', 'ilike', "%{$search}%")
+                  ->orWhere('nama_produk', 'ilike', "%{$search}%")
+                  ->orWhere('sales_person', 'ilike', "%{$search}%");
+            });
+        }
+
+        $perPage = min(max((int) $request->query('per_page', 50), 1), 200);
+        $page    = max((int) $request->query('page', 1), 1);
+        $total   = $query->count();
+
+        $orders = $query->orderByDesc('created_at')
+            ->skip(($page - 1) * $perPage)
+            ->take($perPage)
+            ->get()
+            ->map(fn($o) => $this->formatOrder($o));
+
+        return response()->json([
+            'orders' => $orders,
+            'meta' => [
+                'page'     => $page,
+                'perPage'  => $perPage,
+                'total'    => $total,
+                'returned' => $orders->count(),
+            ],
+        ]);
     }
 
     public function buktiTf(string $orderId): Response|JsonResponse
@@ -249,6 +288,66 @@ class OrderController extends Controller
         $order->delete();
         \Log::info("Order deleted by admin", ['orderId' => $orderId, 'id' => $id]);
         return response()->json(['ok' => true, 'deleted' => $orderId]);
+    }
+
+    public function show(int $id): JsonResponse
+    {
+        $order = Order::with('saleItems')->find($id);
+        if (!$order) {
+            return response()->json(['error' => 'Order tidak ditemukan'], 404);
+        }
+
+        return response()->json([
+            'order' => $this->formatOrder($order),
+            'rawItems' => $order->raw_items ?? [],
+            'paymentSplits' => $order->payment_splits ?? [],
+            'saleItems' => $order->saleItems->map(fn($item) => [
+                'id'           => $item->id,
+                'namaProduk'   => $item->nama_produk,
+                'qty'          => $item->qty,
+                'hargaSatuan'  => $item->harga_satuan,
+                'diskon'       => $item->diskon,
+                'subtotal'     => $item->subtotal,
+                'kategori'     => $item->kategori,
+                'kledoProductId' => $item->kledo_product_id,
+            ]),
+        ]);
+    }
+
+    public function summary(): JsonResponse
+    {
+        $totalOrders = Order::count();
+        $totalRevenue = Order::sum('total_harga');
+        $statusCounts = Order::selectRaw('status_pengiriman AS status, COUNT(*) AS count')
+            ->groupBy('status_pengiriman')
+            ->orderByDesc('count')
+            ->get()
+            ->map(fn($row) => ['status' => $row->status, 'count' => (int)$row->count]);
+
+        $categoryCounts = Order::selectRaw('kategori_produk AS category, COUNT(*) AS count')
+            ->groupBy('kategori_produk')
+            ->orderByDesc('count')
+            ->get()
+            ->map(fn($row) => ['category' => $row->category, 'count' => (int)$row->count]);
+
+        $topSales = Order::selectRaw('sales_person AS sales, COUNT(*) AS count, SUM(total_harga) AS revenue')
+            ->groupBy('sales_person')
+            ->orderByDesc('revenue')
+            ->limit(10)
+            ->get()
+            ->map(fn($row) => [
+                'sales' => $row->sales,
+                'orders' => (int)$row->count,
+                'revenue' => (int)$row->revenue,
+            ]);
+
+        return response()->json([
+            'totalOrders'   => $totalOrders,
+            'totalRevenue'  => $totalRevenue,
+            'statusCounts'  => $statusCounts,
+            'categoryCounts'=> $categoryCounts,
+            'topSales'      => $topSales,
+        ]);
     }
 
     public function store(Request $request): JsonResponse
