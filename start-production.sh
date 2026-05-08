@@ -8,6 +8,12 @@ echo "=== Laravel Production Start ==="
 mkdir -p storage/framework/{sessions,views,cache} storage/logs bootstrap/cache
 chmod -R 775 storage bootstrap/cache 2>/dev/null || true
 
+# Buat .env dari .env.example jika belum ada (penting di deployment environment)
+if [ ! -f .env ]; then
+  echo "File .env tidak ditemukan, membuat dari .env.example..."
+  cp .env.example .env
+fi
+
 # Fungsi set/update env (tidak pernah fail)
 set_env() {
   local KEY="$1" VAL="$2"
@@ -21,8 +27,13 @@ set_env() {
 # ── 1. Konfigurasi .env dari environment variables ──────────────────────────
 echo "Mengkonfigurasi environment..."
 
-# APP_KEY dari environment
-[ -n "$APP_KEY" ] && set_env APP_KEY "$APP_KEY"
+# APP_KEY dari environment atau generate baru
+if [ -n "$APP_KEY" ]; then
+  set_env APP_KEY "$APP_KEY"
+elif ! grep -q "^APP_KEY=.\+" .env 2>/dev/null; then
+  echo "Generating APP_KEY..."
+  php artisan key:generate --force
+fi
 
 # APP_URL dari Railway/Replit
 if [ -n "$RAILWAY_PUBLIC_DOMAIN" ]; then
