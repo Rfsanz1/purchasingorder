@@ -5,6 +5,42 @@ use App\Http\Controllers\PageController;
 use App\Http\Controllers\Shopee\ShopeeController;
 
 Route::get('/health', fn() => response()->json(['status' => 'ok']));
+
+// Proxy ke mockup-sandbox vite server (port 23636)
+Route::any('/__mockup/{path?}', function ($path = '') {
+    $query = request()->getQueryString();
+    $url = 'http://localhost:23636/__mockup/' . $path . ($query ? '?' . $query : '');
+    $ch = curl_init($url);
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_HEADER         => true,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_TIMEOUT        => 10,
+        CURLOPT_HTTPHEADER     => array_filter(array_map(function ($name, $vals) {
+            if (in_array(strtolower($name), ['host', 'content-length'])) return null;
+            return $name . ': ' . implode(', ', $vals);
+        }, array_keys(request()->headers->all()), request()->headers->all())),
+        CURLOPT_CUSTOMREQUEST  => request()->method(),
+        CURLOPT_POSTFIELDS     => request()->getContent() ?: null,
+    ]);
+    $raw      = curl_exec($ch);
+    $info     = curl_getinfo($ch);
+    $hdrSize  = $info['header_size'];
+    $status   = $info['http_code'] ?: 502;
+    curl_close($ch);
+    $headerStr = substr($raw, 0, $hdrSize);
+    $body      = substr($raw, $hdrSize);
+    $headers   = [];
+    foreach (explode("\r\n", $headerStr) as $line) {
+        if (str_contains($line, ':')) {
+            [$k, $v] = explode(':', $line, 2);
+            $k = trim($k);
+            if (in_array(strtolower($k), ['transfer-encoding', 'content-encoding', 'connection'])) continue;
+            $headers[$k] = trim($v);
+        }
+    }
+    return response($body, $status)->withHeaders($headers);
+})->where('path', '.*');
 Route::get('/', [PageController::class, 'landing']);
 
 // ===== SHOPEE ADMIN =====
