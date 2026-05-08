@@ -2,7 +2,51 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\KledoController;
 use App\Http\Controllers\Shopee\ShopeeController;
+
+Route::get('/health', fn() => response()->json(['status' => 'ok']));
+
+// Proxy ke mockup-sandbox vite server (port 23636) — hanya aktif di development
+Route::any('/__mockup/{path?}', function ($path = '') {
+    // Di production Vite dev server tidak berjalan — langsung return 404
+    if (app()->environment('production')) {
+        return response('Not available in production', 404);
+    }
+    $query = request()->getQueryString();
+    $url = 'http://localhost:23636/__mockup/' . $path . ($query ? '?' . $query : '');
+    $ch = curl_init($url);
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_HEADER         => true,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_TIMEOUT        => 10,
+        CURLOPT_CONNECTTIMEOUT => 2,
+        CURLOPT_HTTPHEADER     => array_filter(array_map(function ($name, $vals) {
+            if (in_array(strtolower($name), ['host', 'content-length'])) return null;
+            return $name . ': ' . implode(', ', $vals);
+        }, array_keys(request()->headers->all()), request()->headers->all())),
+        CURLOPT_CUSTOMREQUEST  => request()->method(),
+        CURLOPT_POSTFIELDS     => request()->getContent() ?: null,
+    ]);
+    $raw      = curl_exec($ch);
+    $info     = curl_getinfo($ch);
+    $hdrSize  = $info['header_size'];
+    $status   = $info['http_code'] ?: 502;
+    curl_close($ch);
+    $headerStr = substr($raw, 0, $hdrSize);
+    $body      = substr($raw, $hdrSize);
+    $headers   = [];
+    foreach (explode("\r\n", $headerStr) as $line) {
+        if (str_contains($line, ':')) {
+            [$k, $v] = explode(':', $line, 2);
+            $k = trim($k);
+            if (in_array(strtolower($k), ['transfer-encoding', 'content-encoding', 'connection'])) continue;
+            $headers[$k] = trim($v);
+        }
+    }
+    return response($body, $status)->withHeaders($headers);
+})->where('path', '.*');
 
 Route::get('/', [PageController::class, 'landing']);
 
@@ -12,7 +56,12 @@ Route::post('/shopee/login', [ShopeeController::class, 'login'])->name('shopee.l
 Route::get('/shopee/logout', [ShopeeController::class, 'logout'])->name('shopee.logout');
 Route::middleware(\App\Http\Middleware\ShopeeAuth::class)->group(function () {
     Route::get('/shopee/dashboard', [ShopeeController::class, 'dashboard'])->name('shopee.dashboard');
+    Route::get('/shopee/orders',    [ShopeeController::class, 'orders'])->name('shopee.orders');
+    Route::post('/shopee/import-csv',   [ShopeeController::class, 'importCsv'])->name('shopee.import');
+    Route::post('/shopee/sync-to-erp',  [ShopeeController::class, 'syncToErp'])->name('shopee.sync');
+    Route::delete('/shopee/orders/{id}', [ShopeeController::class, 'deleteOrder'])->name('shopee.order.delete');
 });
+
 Route::get('/po-form', [PageController::class, 'poForm']);
 Route::get('/admin', [PageController::class, 'admin']);
 Route::get('/driver', [PageController::class, 'driver']);
@@ -22,6 +71,10 @@ Route::get('/sales-dashboard', [PageController::class, 'salesDashboard']);
 Route::get('/erp/invoice', [PageController::class, 'erpInvoice']);
 Route::get('/erp/laporan-divisi', [PageController::class, 'laporanDivisi']);
 Route::get('/erp/laporan-penjualan', [PageController::class, 'laporanPenjualan']);
+Route::get('/erp/integrasi', [PageController::class, 'integrasi']);
+Route::get('/erp/riwayat-penjualan', [PageController::class, 'riwayatPenjualan']);
+Route::get('/erp/data-penjualan-kledo', [PageController::class, 'dataPenjualanKledo']);
+Route::get('/api/kledo/data-penjualan', [KledoController::class, 'dataPenjualan']);
 
 // Coming Soon routes
 $comingSoon = [

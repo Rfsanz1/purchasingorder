@@ -10,6 +10,8 @@ use App\Http\Controllers\SystemController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SalesController;
 use App\Http\Controllers\LaporanController;
+use App\Http\Controllers\KledoSyncController;
+use App\Http\Controllers\RiwayatPenjualanController;
 
 Route::post('/auth/login', [AuthController::class, 'login']);
 
@@ -41,8 +43,23 @@ Route::get('/kledo/products', [KledoController::class, 'products']);
 Route::get('/kledo/spm-brands', [KledoController::class, 'spmBrands']);
 Route::get('/kledo/laporan-penjualan', [KledoController::class, 'laporanPenjualan']);
 
+// Sinkronisasi Kledo ↔ ERP
+Route::post('/kledo/sync',              [KledoSyncController::class, 'sync']);
+Route::post('/kledo/import-sales',      [KledoSyncController::class, 'importSales']);
+Route::get('/kledo/sync/status',        [KledoSyncController::class, 'status']);
+Route::get('/kledo/sync/penjualan',     [KledoSyncController::class, 'penjualan']);
+Route::get('/kledo/memo-sales',         [KledoSyncController::class, 'memoSales']);
+Route::get('/kledo/memo-sales/all',     [KledoSyncController::class, 'allMemoSales']);
+Route::get('/kledo/token-status',       [KledoSyncController::class, 'tokenStatus']);
+
 Route::get('/settings', [SettingsController::class, 'index']);
 Route::put('/settings', [SettingsController::class, 'update']);
+
+// Integrasi pihak ketiga
+Route::get('/integrasi',                  [\App\Http\Controllers\IntegrasiController::class, 'index']);
+Route::post('/integrasi/{id}/update',     [\App\Http\Controllers\IntegrasiController::class, 'update']);
+Route::post('/integrasi/{id}/test',       [\App\Http\Controllers\IntegrasiController::class, 'test']);
+Route::delete('/integrasi/{id}/reset',    [\App\Http\Controllers\IntegrasiController::class, 'reset']);
 
 Route::get('/driver-areas', [DriverAreaController::class, 'index']);
 Route::put('/driver-areas', [DriverAreaController::class, 'update']);
@@ -50,3 +67,9 @@ Route::put('/driver-areas', [DriverAreaController::class, 'update']);
 Route::get('/system/health-check', [SystemController::class, 'healthCheck']);
 
 Route::get('/laporan/divisi', [LaporanController::class, 'divisi']);
+
+// Riwayat Penjualan
+Route::get('/riwayat-penjualan/summary', [RiwayatPenjualanController::class, 'summary']);
+Route::get('/riwayat-penjualan/export',  [RiwayatPenjualanController::class, 'export']);
+Route::get('/riwayat-penjualan/{id}',    [RiwayatPenjualanController::class, 'show'])->where('id', '[0-9]+');
+Route::get('/riwayat-penjualan',         [RiwayatPenjualanController::class, 'index']);

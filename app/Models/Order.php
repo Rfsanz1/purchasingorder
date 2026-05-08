@@ -84,4 +84,9 @@ class Order extends Model
     {
         return $query->orderByDesc('created_at');
     }
+
+    public function saleItems()
+    {
+        return $this->hasMany(\App\Models\SaleItem::class, 'order_id', 'order_id');
+    }
 }
