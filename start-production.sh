@@ -115,8 +115,8 @@ echo "Server PID: $SERVER_PID"
   if [ -n "$KLEDO_TOKEN" ]; then
     COUNT_SYNC=$(php artisan tinker --no-interaction --execute="echo App\Models\KledoSyncLog::count();" 2>/dev/null | tail -1 | tr -d '[:space:]')
     if [ "${COUNT_SYNC:-0}" -lt "100" ]; then
-      echo "Auto-sync data Kledo dari 2026-04-18..."
-      php artisan kledo:sync --start="2026-04-18" --end="$(date +%Y-%m-%d)" --pages=10 2>&1 || echo "PERINGATAN: Sync Kledo gagal."
+      echo "Auto-sync data Kledo dari 2026-04-08..."
+      php artisan kledo:sync --start="2026-04-08" --end="$(date +%Y-%m-%d)" --pages=10 2>&1 || echo "PERINGATAN: Sync Kledo gagal."
       echo "Auto-sync selesai."
     fi
   fi

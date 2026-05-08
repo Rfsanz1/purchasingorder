@@ -307,7 +307,7 @@ class KledoSyncController extends Controller
             return response()->json(['error' => 'KLEDO_TOKEN belum dikonfigurasi'], 503);
         }
 
-        $startDate = $request->input('start_date', '2025-04-18');
+        $startDate = $request->input('start_date', '2026-04-08');
         $endDate   = $request->input('end_date', date('Y-m-d'));
 
         Log::info("Kledo sync dimulai: {$startDate} - {$endDate}");
@@ -468,5 +468,65 @@ class KledoSyncController extends Controller
         ], $salesList);
 
         return response()->json(['memos' => $memos]);
+    }
+
+    // ── API: Cek Status Token Kledo ───────────────────────────────────────────
+
+    /**
+     * GET /api/kledo/token-status
+     * Cek apakah KLEDO_TOKEN valid dengan ping ke Kledo API.
+     */
+    public function tokenStatus(): JsonResponse
+    {
+        $token = env('KLEDO_TOKEN');
+
+        if (!$token) {
+            return response()->json([
+                'valid'   => false,
+                'status'  => 'Tidak ada token',
+                'message' => 'KLEDO_TOKEN belum dikonfigurasi di Secrets.',
+            ]);
+        }
+
+        $ch = curl_init('https://api.kledo.com/api/v1/finance/invoices?per_page=1');
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT        => 10,
+            CURLOPT_HTTPHEADER     => [
+                'Authorization: Bearer ' . $token,
+                'Accept: application/json',
+            ],
+        ]);
+        $body   = curl_exec($ch);
+        $http   = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $err    = curl_error($ch);
+        curl_close($ch);
+
+        if ($err) {
+            return response()->json([
+                'valid'   => false,
+                'status'  => 'Koneksi gagal',
+                'message' => 'Tidak bisa terhubung ke Kledo: ' . $err,
+            ]);
+        }
+
+        if ($http === 200) {
+            $data  = json_decode($body, true);
+            $total = $data['data']['total'] ?? '?';
+            return response()->json([
+                'valid'        => true,
+                'status'       => 'Token valid',
+                'message'      => 'Berhasil terhubung ke Kledo. Total invoice di akun: ' . $total,
+                'total_kledo'  => $total,
+                'token_prefix' => substr($token, 0, 20) . '...',
+            ]);
+        }
+
+        return response()->json([
+            'valid'        => false,
+            'status'       => 'Token ditolak (HTTP ' . $http . ')',
+            'message'      => 'Token tidak valid atau sudah expired. Buat token baru di Kledo → Pengaturan → API.',
+            'token_prefix' => substr($token, 0, 20) . '...',
+        ]);
     }
 }

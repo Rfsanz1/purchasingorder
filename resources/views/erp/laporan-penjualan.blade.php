@@ -8,7 +8,7 @@
     <div class="flex items-center justify-between mb-6">
         <div>
             <h1 class="text-xl font-bold text-gray-900">Laporan Penjualan per Sales</h1>
-            <p class="text-sm text-gray-400 mt-0.5">Data invoice & tagihan dari Kledo — periode 18 Apr 2026 s/d hari ini</p>
+            <p class="text-sm text-gray-400 mt-0.5">Data invoice dari Kledo — periode 8 Apr 2026 s/d hari ini, dikelompokkan per sales (dari memo)</p>
         </div>
         <div class="flex gap-2">
             <button @click="syncKledo()" :disabled="syncing || loading"
@@ -25,6 +25,26 @@
                 </svg>
                 <span x-text="loading ? 'Memuat...' : 'Tampilkan'"></span>
             </button>
+        </div>
+    </div>
+
+    {{-- Status Token Kledo --}}
+    <div x-show="tokenStatus !== null" x-cloak
+        :class="tokenValid ? 'bg-green-50 border-green-200 text-green-700' : 'bg-red-50 border-red-200 text-red-700'"
+        class="border rounded-xl px-4 py-3 mb-4 text-sm">
+        <div class="flex items-start gap-2">
+            <svg x-show="tokenValid" class="w-4 h-4 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+            <svg x-show="!tokenValid" class="w-4 h-4 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <div class="flex-1">
+                <p class="font-semibold" x-text="tokenStatus"></p>
+                <p class="text-xs mt-0.5 opacity-80" x-text="tokenMsg"></p>
+                <template x-if="!tokenValid">
+                    <p class="text-xs mt-1 font-medium">
+                        Cara fix: Kledo → Pengaturan → API → Buat Token Baru → Copy → Replit Secrets → KLEDO_TOKEN → Save → Restart app
+                    </p>
+                </template>
+            </div>
+            <button @click="cekToken()" class="text-xs underline opacity-70 hover:opacity-100 whitespace-nowrap">Cek ulang</button>
         </div>
     </div>
 
@@ -188,10 +208,9 @@
 <script>
 function laporanSalesApp() {
     const today   = new Date().toISOString().split('T')[0];
-    const start18 = '2026-04-18';
 
     return {
-        dari: start18,
+        dari: '2026-04-08',
         sampai: today,
         filterSales: '',
         loading: false,
@@ -200,9 +219,26 @@ function laporanSalesApp() {
         error: '',
         syncMsg: '',
         syncOk: true,
+        tokenStatus: null,
+        tokenValid: false,
+        tokenMsg: '',
 
         async init() {
-            await this.load();
+            await Promise.all([this.cekToken(), this.load()]);
+        },
+
+        async cekToken() {
+            try {
+                const res  = await fetch('/api/kledo/token-status');
+                const json = await res.json();
+                this.tokenValid  = json.valid;
+                this.tokenStatus = json.status;
+                this.tokenMsg    = json.message;
+            } catch (e) {
+                this.tokenValid  = false;
+                this.tokenStatus = 'Gagal cek token';
+                this.tokenMsg    = e.message;
+            }
         },
 
         async syncKledo() {

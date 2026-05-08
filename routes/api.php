@@ -48,6 +48,7 @@ Route::get('/kledo/sync/status',        [KledoSyncController::class, 'status']);
 Route::get('/kledo/sync/penjualan',     [KledoSyncController::class, 'penjualan']);
 Route::get('/kledo/memo-sales',         [KledoSyncController::class, 'memoSales']);
 Route::get('/kledo/memo-sales/all',     [KledoSyncController::class, 'allMemoSales']);
+Route::get('/kledo/token-status',       [KledoSyncController::class, 'tokenStatus']);
 
 Route::get('/settings', [SettingsController::class, 'index']);
 Route::put('/settings', [SettingsController::class, 'update']);
