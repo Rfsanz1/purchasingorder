@@ -24,7 +24,7 @@
             <p class="text-xs text-gray-400 mt-0.5">Total</p>
         </div>
         <div class="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
-            <p class="text-2xl font-bold text-yellow-600" x-text="filteredOrders.filter(o=>o.statusPengiriman==='Menunggu').length"></p>
+            <p class="text-2xl font-bold text-gray-500" x-text="filteredOrders.filter(o=>o.statusPengiriman==='Menunggu').length"></p>
             <p class="text-xs text-gray-400 mt-0.5">Menunggu</p>
         </div>
         <div class="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
@@ -151,7 +151,7 @@
                             <div class="flex items-center gap-2">
                                 <span class="text-xs px-2 py-0.5 rounded-full"
                                     :class="{
-                                        'bg-yellow-100 text-yellow-700': order.statusPengiriman==='Menunggu',
+                                        'bg-gray-100 text-gray-600': order.statusPengiriman==='Menunggu',
                                         'bg-blue-100 text-blue-700': order.statusPengiriman==='Diproses',
                                         'bg-purple-100 text-purple-700': order.statusPengiriman==='Dikirim',
                                         'bg-green-100 text-green-700': order.statusPengiriman==='Selesai',
@@ -186,7 +186,7 @@
                         <span class="text-xs font-mono text-gray-400" x-text="'#' + order.orderId"></span>
                         <span class="text-xs px-2 py-0.5 rounded-full font-medium"
                             :class="{
-                                'bg-yellow-100 text-yellow-700': order.statusPengiriman==='Menunggu',
+                                'bg-gray-100 text-gray-600': order.statusPengiriman==='Menunggu',
                                 'bg-blue-100 text-blue-700': order.statusPengiriman==='Diproses',
                                 'bg-purple-100 text-purple-700': order.statusPengiriman==='Dikirim',
                                 'bg-green-100 text-green-700': order.statusPengiriman==='Selesai',
