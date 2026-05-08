@@ -6,8 +6,12 @@ use App\Http\Controllers\Shopee\ShopeeController;
 
 Route::get('/health', fn() => response()->json(['status' => 'ok']));
 
-// Proxy ke mockup-sandbox vite server (port 23636)
+// Proxy ke mockup-sandbox vite server (port 23636) — hanya aktif di development
 Route::any('/__mockup/{path?}', function ($path = '') {
+    // Di production Vite dev server tidak berjalan — langsung return 404
+    if (app()->environment('production')) {
+        return response('Not available in production', 404);
+    }
     $query = request()->getQueryString();
     $url = 'http://localhost:23636/__mockup/' . $path . ($query ? '?' . $query : '');
     $ch = curl_init($url);
@@ -16,6 +20,7 @@ Route::any('/__mockup/{path?}', function ($path = '') {
         CURLOPT_HEADER         => true,
         CURLOPT_FOLLOWLOCATION => true,
         CURLOPT_TIMEOUT        => 10,
+        CURLOPT_CONNECTTIMEOUT => 2,
         CURLOPT_HTTPHEADER     => array_filter(array_map(function ($name, $vals) {
             if (in_array(strtolower($name), ['host', 'content-length'])) return null;
             return $name . ': ' . implode(', ', $vals);

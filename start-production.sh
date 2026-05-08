@@ -72,9 +72,13 @@ if [ -n "$DATABASE_URL" ]; then
   fi
 fi
 
-# ── APP_URL dari Railway ───────────────────────────────────────────────────
+# ── APP_URL dari Railway atau Replit ──────────────────────────────────────
 if [ -n "$RAILWAY_PUBLIC_DOMAIN" ]; then
   update_env APP_URL "https://$RAILWAY_PUBLIC_DOMAIN"
+elif [ -n "$REPLIT_DOMAINS" ]; then
+  # Ambil domain pertama (production .replit.app)
+  REPLIT_PRIMARY_DOMAIN=$(echo "$REPLIT_DOMAINS" | cut -d',' -f1)
+  update_env APP_URL "https://$REPLIT_PRIMARY_DOMAIN"
 fi
 
 # ── APP_KEY generate jika kosong ───────────────────────────────────────────
