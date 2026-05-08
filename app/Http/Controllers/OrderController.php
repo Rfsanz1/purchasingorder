@@ -397,6 +397,9 @@ class OrderController extends Controller
         array $rawItems, string $metodePengiriman,
         string $customerLocToken, string $metodeSummary
     ): void {
+        // Tunggu 5 detik agar response sudah dikirim ke client
+        // dan koneksi ke Kledo lebih stabil
+        sleep(5);
         try {
             $whatsappSent   = false;
             $nomorPelanggan = FonnteHelper::cleanPhoneNumber($d['nomorTelepon'] ?? '');
@@ -544,8 +547,9 @@ class OrderController extends Controller
                                         foreach ($sourceForCash as $it) {
                                             $lineTotal = ((int)($it['hargaProduk'] ?? 0)) * ((int)($it['jumlahProduk'] ?? 1));
                                             $klas      = $this->klasifikasiItem(isset($it['kategoriId']) && is_int($it['kategoriId']) ? $it['kategoriId'] : null, $it['namaProduk'] ?? '');
-                                            if ($klas === 'Elektronik') $elektrAmount += $lineTotal;
-                                            else                        $lainAmount   += $lineTotal;
+                                            // 'unknown' default ke Elektronik — bukan Bahan Bangunan
+                                            if ($klas === 'BahanBangunan') $lainAmount   += $lineTotal;
+                                            else                           $elektrAmount += $lineTotal;
                                         }
                                         if ($elektrAmount > 0 && $lainAmount === 0) {
                                             // Semua produk Elektronik — full cash ke Kas Elektronik
