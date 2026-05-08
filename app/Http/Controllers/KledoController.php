@@ -137,7 +137,11 @@ class KledoController extends Controller
             return response()->json($result);
         } catch (\Exception $e) {
             \Log::error('Kledo productsWithStock error: ' . $e->getMessage());
-            return response()->json(['error' => 'Koneksi ke Kledo gagal'], 500);
+            return response()->json([
+                'error'   => 'Koneksi ke Kledo gagal',
+                'detail'  => $e->getMessage(),
+                'class'   => get_class($e),
+            ], 500);
         }
     }
 
