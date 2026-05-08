@@ -1,0 +1,707 @@
+{
+  "message": "[stage-0 6/8] RUN composer install --no-dev --optimize-autoloader --no-interaction",
+  "timestamp": "2026-05-08T04:09:16.820319101Z",
+  "severity": "error",
+  "children": [
+    {
+      "message": "Installing dependencies from lock file\n",
+      "timestamp": "2026-05-08T04:09:17.440731995Z"
+    },
+    {
+      "message": "Package operations: 77 installs, 0 updates, 0 removals\n",
+      "timestamp": "2026-05-08T04:09:17.480385118Z"
+    },
+    {
+      "message": "  - Downloading doctrine/inflector (2.1.0)\n",
+      "timestamp": "2026-05-08T04:09:17.487617095Z"
+    },
+    {
+      "message": "  - Downloading doctrine/lexer (3.0.1)\n",
+      "timestamp": "2026-05-08T04:09:17.491788127Z"
+    },
+    {
+      "message": "  - Downloading dragonmantank/cron-expression (v3.6.0)\n",
+      "timestamp": "2026-05-08T04:09:17.49222298Z"
+    },
+    {
+      "message": "  - Downloading symfony/polyfill-mbstring (v1.37.0)\n",
+      "timestamp": "2026-05-08T04:09:17.492627628Z"
+    },
+    {
+      "message": "  - Downloading symfony/deprecation-contracts (v3.6.0)\n",
+      "timestamp": "2026-05-08T04:09:17.493100688Z"
+    },
+    {
+      "message": "  - Downloading symfony/http-foundation (v7.4.8)\n",
+      "timestamp": "2026-05-08T04:09:17.493495962Z"
+    },
+    {
+      "message": "  - Downloading psr/http-message (2.0)\n",
+      "timestamp": "2026-05-08T04:09:17.494385517Z"
+    },
+    {
+      "message": "  - Downloading psr/http-client (1.0.3)\n",
+      "timestamp": "2026-05-08T04:09:17.49476747Z"
+    },
+    {
+      "message": "  - Downloading ralouphie/getallheaders (3.0.3)\n",
+      "timestamp": "2026-05-08T04:09:17.495220491Z"
+    },
+    {
+      "message": "  - Downloading psr/http-factory (1.1.0)\n",
+      "timestamp": "2026-05-08T04:09:17.495582254Z"
+    },
+    {
+      "message": "  - Downloading guzzlehttp/psr7 (2.9.0)\n",
+      "timestamp": "2026-05-08T04:09:17.496039029Z"
+    },
+    {
+      "message": "  - Downloading guzzlehttp/promises (2.3.0)\n",
+      "timestamp": "2026-05-08T04:09:17.496364077Z"
+    },
+    {
+      "message": "  - Downloading guzzlehttp/guzzle (7.10.0)\n",
+      "timestamp": "2026-05-08T04:09:17.49658574Z"
+    },
+    {
+      "message": "  - Downloading symfony/polyfill-php80 (v1.37.0)\n",
+      "timestamp": "2026-05-08T04:09:17.496804308Z"
+    },
+    {
+      "message": "  - Downloading guzzlehttp/uri-template (v1.0.5)\n",
+      "timestamp": "2026-05-08T04:09:17.497094925Z"
+    },
+    {
+      "message": "  - Downloading symfony/polyfill-intl-normalizer (v1.37.0)\n",
+      "timestamp": "2026-05-08T04:09:17.497284279Z"
+    },
+    {
+      "message": "  - Downloading symfony/polyfill-intl-grapheme (v1.37.0)\n",
+      "timestamp": "2026-05-08T04:09:17.49751798Z"
+    },
+    {
+      "message": "  - Downloading symfony/polyfill-ctype (v1.37.0)\n",
+      "timestamp": "2026-05-08T04:09:17.497736598Z"
+    },
+    {
+      "message": "  - Downloading symfony/string (v7.4.8)\n",
+      "timestamp": "2026-05-08T04:09:17.497872662Z"
+    },
+    {
+      "message": "  - Downloading psr/container (2.0.2)\n",
+      "timestamp": "2026-05-08T04:09:17.498060054Z"
+    },
+    {
+      "message": "  - Downloading symfony/console (v7.4.9)\n",
+      "timestamp": "2026-05-08T04:09:17.498490269Z"
+    },
+    {
+      "message": "  - Downloading laravel/prompts (v0.3.17)\n",
+      "timestamp": "2026-05-08T04:09:17.49876381Z"
+    },
+    {
+      "message": "  - Downloading voku/portable-ascii (2.1.1)\n",
+      "timestamp": "2026-05-08T04:09:17.499037982Z"
+    },
+    {
+      "message": "  - Downloading phpoption/phpoption (1.9.5)\n",
+      "timestamp": "2026-05-08T04:09:17.499318353Z"
+    },
+    {
+      "message": "  - Downloading graham-campbell/result-type (v1.1.4)\n",
+      "timestamp": "2026-05-08T04:09:17.499625574Z"
+    },
+    {
+      "message": "  - Downloading vlucas/phpdotenv (v5.6.3)\n",
+      "timestamp": "2026-05-08T04:09:17.49989613Z"
+    },
+    {
+      "message": "  - Downloading tijsverkoyen/css-to-inline-styles (v2.4.0)\n",
+      "timestamp": "2026-05-08T04:09:17.500343802Z"
+    },
+    {
+      "message": "  - Downloading symfony/var-dumper (v7.4.8)\n",
+      "timestamp": "2026-05-08T04:09:17.50055514Z"
+    },
+    {
+      "message": "  - Downloading symfony/polyfill-uuid (v1.37.0)\n",
+      "timestamp": "2026-05-08T04:09:17.500789421Z"
+    },
+    {
+      "message": "  - Downloading symfony/uid (v7.4.9)\n",
+      "timestamp": "2026-05-08T04:09:17.500989852Z"
+    },
+    {
+      "message": "  - Downloading symfony/routing (v7.4.9)\n",
+      "timestamp": "2026-05-08T04:09:17.501267329Z"
+    },
+    {
+      "message": "  - Downloading symfony/process (v7.4.8)\n",
+      "timestamp": "2026-05-08T04:09:17.501457835Z"
+    },
+    {
+      "message": "  - Downloading symfony/polyfill-php85 (v1.37.0)\n",
+      "timestamp": "2026-05-08T04:09:17.501703554Z"
+    },
+    {
+      "message": "  - Downloading symfony/polyfill-php84 (v1.37.0)\n",
+      "timestamp": "2026-05-08T04:09:17.501899027Z"
+    },
+    {
+      "message": "  - Downloading symfony/polyfill-php83 (v1.37.0)\n",
+      "timestamp": "2026-05-08T04:09:17.50216722Z"
+    },
+    {
+      "message": "  - Downloading symfony/polyfill-intl-idn (v1.37.0)\n",
+      "timestamp": "2026-05-08T04:09:17.502488732Z"
+    },
+    {
+      "message": "  - Downloading symfony/mime (v7.4.9)\n",
+      "timestamp": "2026-05-08T04:09:17.502575974Z"
+    },
+    {
+      "message": "  - Downloading psr/event-dispatcher (1.0.0)\n",
+      "timestamp": "2026-05-08T04:09:17.502743174Z"
+    },
+    {
+      "message": "  - Downloading symfony/event-dispatcher-contracts (v3.6.0)\n",
+      "timestamp": "2026-05-08T04:09:17.502978688Z"
+    },
+    {
+      "message": "  - Downloading symfony/event-dispatcher (v7.4.9)\n",
+      "timestamp": "2026-05-08T04:09:17.503177577Z"
+    },
+    {
+      "message": "  - Downloading psr/log (3.0.2)\n",
+      "timestamp": "2026-05-08T04:09:17.50340609Z"
+    },
+    {
+      "message": "  - Downloading egulias/email-validator (4.0.4)\n",
+      "timestamp": "2026-05-08T04:09:17.503633441Z"
+    },
+    {
+      "message": "  - Downloading symfony/mailer (v7.4.8)\n",
+      "timestamp": "2026-05-08T04:09:17.503868674Z"
+    },
+    {
+      "message": "  - Downloading symfony/error-handler (v7.4.8)\n",
+      "timestamp": "2026-05-08T04:09:17.504043787Z"
+    },
+    {
+      "message": "  - Downloading symfony/http-kernel (v7.4.8)\n",
+      "timestamp": "2026-05-08T04:09:17.504284459Z"
+    },
+    {
+      "message": "  - Downloading symfony/finder (v7.4.8)\n",
+      "timestamp": "2026-05-08T04:09:17.504476827Z"
+    },
+    {
+      "message": "  - Downloading ramsey/collection (2.1.1)\n",
+      "timestamp": "2026-05-08T04:09:17.50481165Z"
+    },
+    {
+      "message": "  - Downloading brick/math (0.14.8)\n",
+      "timestamp": "2026-05-08T04:09:17.50508485Z"
+    },
+    {
+      "message": "  - Downloading ramsey/uuid (4.9.2)\n",
+      "timestamp": "2026-05-08T04:09:17.505339152Z"
+    },
+    {
+      "message": "  - Downloading psr/simple-cache (3.0.0)\n",
+      "timestamp": "2026-05-08T04:09:17.505495967Z"
+    },
+    {
+      "message": "  - Downloading nunomaduro/termwind (v2.4.0)\n",
+      "timestamp": "2026-05-08T04:09:17.505810479Z"
+    },
+    {
+      "message": "  - Downloading symfony/translation (v7.4.8)\n",
+      "timestamp": "2026-05-08T04:09:17.506222308Z"
+    },
+    {
+      "message": "  - Downloading psr/clock (1.0.0)\n",
+      "timestamp": "2026-05-08T04:09:17.50640995Z"
+    },
+    {
+      "message": "  - Downloading symfony/clock (v7.4.8)\n",
+      "timestamp": "2026-05-08T04:09:17.506622949Z"
+    },
+    {
+      "message": "  - Downloading nesbot/carbon (3.11.4)\n",
+      "timestamp": "2026-05-08T04:09:17.507188689Z"
+    },
+    {
+      "message": "  - Downloading monolog/monolog (3.10.0)\n",
+      "timestamp": "2026-05-08T04:09:17.507466466Z"
+    },
+    {
+      "message": "  - Downloading league/uri-interfaces (7.8.1)\n",
+      "timestamp": "2026-05-08T04:09:17.507729681Z"
+    },
+    {
+      "message": "  - Downloading league/uri (7.8.1)\n",
+      "timestamp": "2026-05-08T04:09:17.507945585Z"
+    },
+    {
+      "message": "  - Downloading league/mime-type-detection (1.16.0)\n",
+      "timestamp": "2026-05-08T04:09:17.508156001Z"
+    },
+    {
+      "message": "  - Downloading league/flysystem-local (3.31.0)\n",
+      "timestamp": "2026-05-08T04:09:17.508353537Z"
+    },
+    {
+      "message": "  - Downloading league/flysystem (3.33.0)\n",
+      "timestamp": "2026-05-08T04:09:17.508566397Z"
+    },
+    {
+      "message": "  - Downloading nette/utils (v4.1.3)\n",
+      "timestamp": "2026-05-08T04:09:17.508835772Z"
+    },
+    {
+      "message": "  - Downloading nette/schema (v1.3.5)\n",
+      "timestamp": "2026-05-08T04:09:17.509140899Z"
+    },
+    {
+      "message": "  - Downloading dflydev/dot-access-data (v3.0.3)\n",
+      "timestamp": "2026-05-08T04:09:17.509414851Z"
+    },
+    {
+      "message": "  - Downloading league/config (v1.2.0)\n",
+      "timestamp": "2026-05-08T04:09:17.509545016Z"
+    },
+    {
+      "message": "  - Downloading league/commonmark (2.8.2)\n",
+      "timestamp": "2026-05-08T04:09:17.509670264Z"
+    },
+    {
+      "message": "  - Downloading laravel/serializable-closure (v2.0.13)\n",
+      "timestamp": "2026-05-08T04:09:17.509824276Z"
+    },
+    {
+      "message": "  - Downloading laravel/framework (v12.58.0)\n",
+      "timestamp": "2026-05-08T04:09:17.509919088Z"
+    },
+    {
+      "message": "  - Downloading laravel/sanctum (v4.3.1)\n",
+      "timestamp": "2026-05-08T04:09:17.510063875Z"
+    },
+    {
+      "message": "  - Downloading nikic/php-parser (v5.7.0)\n",
+      "timestamp": "2026-05-08T04:09:17.510211237Z"
+    },
+    {
+      "message": "  - Downloading psy/psysh (v0.12.22)\n",
+      "timestamp": "2026-05-08T04:09:17.510376975Z"
+    },
+    {
+      "message": "  - Downloading laravel/tinker (v2.11.1)\n",
+      "timestamp": "2026-05-08T04:09:17.510505448Z"
+    },
+    {
+      "message": "  0/77 [>---------------------------]   0%",
+      "timestamp": "2026-05-08T04:09:17.517036734Z"
+    },
+    {
+      "message": "\n  9/77 [===>------------------------]  11%",
+      "timestamp": "2026-05-08T04:09:18.221553045Z"
+    },
+    {
+      "message": "\n 17/77 [======>---------------------]  22%",
+      "timestamp": "2026-05-08T04:09:18.609915104Z"
+    },
+    {
+      "message": "\n 24/77 [========>-------------------]  31%",
+      "timestamp": "2026-05-08T04:09:18.86573912Z"
+    },
+    {
+      "message": "\n 35/77 [============>---------------]  45%",
+      "timestamp": "2026-05-08T04:09:19.191277661Z"
+    },
+    {
+      "message": "\n 41/77 [==============>-------------]  53%",
+      "timestamp": "2026-05-08T04:09:19.421461152Z"
+    },
+    {
+      "message": "\n 47/77 [=================>----------]  61%",
+      "timestamp": "2026-05-08T04:09:19.637611024Z"
+    },
+    {
+      "message": "\n 54/77 [===================>--------]  70%",
+      "timestamp": "2026-05-08T04:09:19.844419862Z"
+    },
+    {
+      "message": "\n 68/77 [========================>---]  88%",
+      "timestamp": "2026-05-08T04:09:20.201118815Z"
+    },
+    {
+      "message": "\n 70/77 [=========================>--]  90%",
+      "timestamp": "2026-05-08T04:09:20.301259439Z"
+    },
+    {
+      "message": "\n 76/77 [===========================>]  98%",
+      "timestamp": "2026-05-08T04:09:21.317765059Z"
+    },
+    {
+      "message": "\n 77/77 [============================] 100%\n",
+      "timestamp": "2026-05-08T04:09:21.336019685Z"
+    },
+    {
+      "message": "  - Installing doctrine/inflector (2.1.0): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.336611764Z"
+    },
+    {
+      "message": "  - Installing doctrine/lexer (3.0.1): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.342832864Z"
+    },
+    {
+      "message": "  - Installing dragonmantank/cron-expression (v3.6.0): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.34814527Z"
+    },
+    {
+      "message": "  - Installing symfony/polyfill-mbstring (v1.37.0): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.352236191Z"
+    },
+    {
+      "message": "  - Installing symfony/deprecation-contracts (v3.6.0): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.357298462Z"
+    },
+    {
+      "message": "  - Installing symfony/http-foundation (v7.4.8): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.36148053Z"
+    },
+    {
+      "message": "  - Installing fruitcake/php-cors (v1.4.0): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.365978734Z"
+    },
+    {
+      "message": "  - Installing psr/http-message (2.0): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.370168764Z"
+    },
+    {
+      "message": "  - Installing psr/http-client (1.0.3): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.374197112Z"
+    },
+    {
+      "message": "  - Installing ralouphie/getallheaders (3.0.3): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.378156917Z"
+    },
+    {
+      "message": "  - Installing psr/http-factory (1.1.0): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.382183853Z"
+    },
+    {
+      "message": "  - Installing guzzlehttp/psr7 (2.9.0): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.382789863Z"
+    },
+    {
+      "message": "  - Installing guzzlehttp/promises (2.3.0): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.383324846Z"
+    },
+    {
+      "message": "  - Installing guzzlehttp/guzzle (7.10.0): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.383695923Z"
+    },
+    {
+      "message": "  - Installing symfony/polyfill-php80 (v1.37.0): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.38407399Z"
+    },
+    {
+      "message": "  - Installing guzzlehttp/uri-template (v1.0.5): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.384457186Z"
+    },
+    {
+      "message": "  - Installing symfony/polyfill-intl-normalizer (v1.37.0): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.384829655Z"
+    },
+    {
+      "message": "  - Installing symfony/polyfill-intl-grapheme (v1.37.0): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.385289025Z"
+    },
+    {
+      "message": "  - Installing symfony/polyfill-ctype (v1.37.0): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.38565866Z"
+    },
+    {
+      "message": "  - Installing symfony/string (v7.4.8): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.386004599Z"
+    },
+    {
+      "message": "  - Installing psr/container (2.0.2): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.386472011Z"
+    },
+    {
+      "message": "  - Installing symfony/service-contracts (v3.6.1): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.386839262Z"
+    },
+    {
+      "message": "  - Installing symfony/console (v7.4.9): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.387562017Z"
+    },
+    {
+      "message": "  - Installing laravel/prompts (v0.3.17): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.388168888Z"
+    },
+    {
+      "message": "  - Installing voku/portable-ascii (2.1.1): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.388698133Z"
+    },
+    {
+      "message": "  - Installing phpoption/phpoption (1.9.5): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.38908238Z"
+    },
+    {
+      "message": "  - Installing graham-campbell/result-type (v1.1.4): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.389494098Z"
+    },
+    {
+      "message": "  - Installing vlucas/phpdotenv (v5.6.3): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.389935691Z"
+    },
+    {
+      "message": "  - Installing symfony/css-selector (v7.4.9): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.390283293Z"
+    },
+    {
+      "message": "  - Installing tijsverkoyen/css-to-inline-styles (v2.4.0): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.390615742Z"
+    },
+    {
+      "message": "  - Installing symfony/var-dumper (v7.4.8): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.390920019Z"
+    },
+    {
+      "message": "  - Installing symfony/polyfill-uuid (v1.37.0): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.391301471Z"
+    },
+    {
+      "message": "  - Installing symfony/uid (v7.4.9): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.391650686Z"
+    },
+    {
+      "message": "  - Installing symfony/routing (v7.4.9): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.392008453Z"
+    },
+    {
+      "message": "  - Installing symfony/process (v7.4.8): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.392375264Z"
+    },
+    {
+      "message": "  - Installing symfony/polyfill-php85 (v1.37.0): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.392692109Z"
+    },
+    {
+      "message": "  - Installing symfony/polyfill-php84 (v1.37.0): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.39314543Z"
+    },
+    {
+      "message": "  - Installing symfony/polyfill-php83 (v1.37.0): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.393460863Z"
+    },
+    {
+      "message": "  - Installing symfony/polyfill-intl-idn (v1.37.0): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.393658199Z"
+    },
+    {
+      "message": "  - Installing symfony/mime (v7.4.9): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.393943458Z"
+    },
+    {
+      "message": "  - Installing psr/event-dispatcher (1.0.0): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.394046242Z"
+    },
+    {
+      "message": "  - Installing symfony/event-dispatcher-contracts (v3.6.0): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.394210148Z"
+    },
+    {
+      "message": "  - Installing symfony/event-dispatcher (v7.4.9): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.39443128Z"
+    },
+    {
+      "message": "  - Installing psr/log (3.0.2): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.394608777Z"
+    },
+    {
+      "message": "  - Installing egulias/email-validator (4.0.4): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.39485069Z"
+    },
+    {
+      "message": "  - Installing symfony/mailer (v7.4.8): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.395068727Z"
+    },
+    {
+      "message": "  - Installing symfony/error-handler (v7.4.8): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.395324011Z"
+    },
+    {
+      "message": "  - Installing symfony/http-kernel (v7.4.8): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.395487245Z"
+    },
+    {
+      "message": "  - Installing symfony/finder (v7.4.8): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.395681587Z"
+    },
+    {
+      "message": "  - Installing ramsey/collection (2.1.1): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.395866585Z"
+    },
+    {
+      "message": "  - Installing brick/math (0.14.8): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.396085163Z"
+    },
+    {
+      "message": "  - Installing ramsey/uuid (4.9.2): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.39630296Z"
+    },
+    {
+      "message": "  - Installing psr/simple-cache (3.0.0): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.396526165Z"
+    },
+    {
+      "message": "  - Installing nunomaduro/termwind (v2.4.0): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.396793406Z"
+    },
+    {
+      "message": "  - Installing symfony/translation-contracts (v3.6.1): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.396998855Z"
+    },
+    {
+      "message": "  - Installing symfony/translation (v7.4.8): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.397269281Z"
+    },
+    {
+      "message": "  - Installing psr/clock (1.0.0): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.397463563Z"
+    },
+    {
+      "message": "  - Installing symfony/clock (v7.4.8): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.397655631Z"
+    },
+    {
+      "message": "  - Installing carbonphp/carbon-doctrine-types (3.2.0): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.397859497Z"
+    },
+    {
+      "message": "  - Installing nesbot/carbon (3.11.4): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.398064365Z"
+    },
+    {
+      "message": "  - Installing monolog/monolog (3.10.0): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.398279388Z"
+    },
+    {
+      "message": "  - Installing league/uri-interfaces (7.8.1): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.398478797Z"
+    },
+    {
+      "message": "  - Installing league/uri (7.8.1): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.398717535Z"
+    },
+    {
+      "message": "  - Installing league/mime-type-detection (1.16.0): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.398936945Z"
+    },
+    {
+      "message": "  - Installing league/flysystem-local (3.31.0): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.399110596Z"
+    },
+    {
+      "message": "  - Installing league/flysystem (3.33.0): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.39934006Z"
+    },
+    {
+      "message": "  - Installing nette/utils (v4.1.3): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.399545999Z"
+    },
+    {
+      "message": "  - Installing nette/schema (v1.3.5): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.399735824Z"
+    },
+    {
+      "message": "  - Installing dflydev/dot-access-data (v3.0.3): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.39996653Z"
+    },
+    {
+      "message": "  - Installing league/config (v1.2.0): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.40016564Z"
+    },
+    {
+      "message": "  - Installing league/commonmark (2.8.2): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.400343567Z"
+    },
+    {
+      "message": "  - Installing laravel/serializable-closure (v2.0.13): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.400574153Z"
+    },
+    {
+      "message": "  - Installing laravel/framework (v12.58.0): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.400794874Z"
+    },
+    {
+      "message": "  - Installing laravel/sanctum (v4.3.1): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.401059591Z"
+    },
+    {
+      "message": "  - Installing nikic/php-parser (v5.7.0): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.401286552Z"
+    },
+    {
+      "message": "  - Installing psy/psysh (v0.12.22): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.401477859Z"
+    },
+    {
+      "message": "  - Installing laravel/tinker (v2.11.1): Extracting archive\n",
+      "timestamp": "2026-05-08T04:09:21.40171131Z"
+    },
+    {
+      "message": "  0/77 [>---------------------------]   0%",
+      "timestamp": "2026-05-08T04:09:21.427978856Z"
+    },
+    {
+      "message": "\n 24/77 [========>-------------------]  31%",
+      "timestamp": "2026-05-08T04:09:21.552536098Z"
+    },
+    {
+      "message": "\n 38/77 [=============>--------------]  49%",
+      "timestamp": "2026-05-08T04:09:21.659548709Z"
+    },
+    {
+      "message": "\n 47/77 [=================>----------]  61%",
+      "timestamp": "2026-05-08T04:09:21.759583704Z"
+    },
+    {
+      "message": "\n 63/77 [======================>-----]  81%",
+      "timestamp": "2026-05-08T04:09:21.876149929Z"
+    },
+    {
+      "message": "\n 75/77 [===========================>]  97%",
+      "timestamp": "2026-05-08T04:09:21.976213186Z"
+    },
+    {
+      "message": "\n 77/77 [============================] 100%\n",
+      "timestamp": "2026-05-08T04:09:22.089880509Z"
+    },
+    {
+      "message": "Generating optimized autoload files\n",
+      "timestamp": "2026-05-08T04:09:22.342165832Z"
+    },
+    {
+      "message": "> Illuminate\\Foundation\\ComposerScripts::postAutoloadDump\n",
+      "timestamp": "2026-05-08T04:09:23.161464739Z"
+    },
+    {
+      "message": "> @php artisan package:discover --ansi\n",
+      "timestamp": "2026-05-08T04:09:23.172762161Z"
+    },
+    {
+      "message": "Could not open input file: artisan\n",
+      "timestamp": "2026-05-08T04:09:23.207544871Z"
+    },
+    {
+      "message": "Script @php artisan package:discover --ansi handling the post-autoload-dump event returned with error code 1\n",
+      "timestamp": "2026-05-08T04:09:23.213068954Z"
+    }
+  ]
+}

@@ -10,14 +10,14 @@ ENV COMPOSER_ALLOW_SUPERUSER=1
 
 WORKDIR /app
 
-COPY composer.json composer.lock ./
-RUN composer install --no-dev --optimize-autoloader --no-interaction
-
 COPY . .
 
 RUN mkdir -p bootstrap/cache storage/framework/{sessions,views,cache} storage/logs \
-    && chmod -R 775 bootstrap/cache storage \
-    && cp .env.example .env \
+    && chmod -R 775 bootstrap/cache storage
+
+RUN composer install --no-dev --optimize-autoloader --no-interaction
+
+RUN cp .env.example .env \
     && sed -i 's/APP_ENV=local/APP_ENV=production/' .env \
     && sed -i 's/APP_DEBUG=true/APP_DEBUG=false/' .env \
     && sed -i 's/LOG_CHANNEL=stack/LOG_CHANNEL=stderr/' .env \
