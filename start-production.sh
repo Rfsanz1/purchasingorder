@@ -29,6 +29,9 @@ if [ -n "$RAILWAY_PUBLIC_DOMAIN" ]; then
   set_env APP_URL "https://$RAILWAY_PUBLIC_DOMAIN"
 elif [ -n "$RAILWAY_STATIC_URL" ]; then
   set_env APP_URL "https://$RAILWAY_STATIC_URL"
+elif [ -n "$REPLIT_DOMAINS" ]; then
+  FIRST_DOMAIN=$(echo "$REPLIT_DOMAINS" | cut -d',' -f1 | tr -d ' ')
+  set_env APP_URL "https://$FIRST_DOMAIN"
 elif [ -n "$REPLIT_DEV_DOMAIN" ]; then
   set_env APP_URL "https://$REPLIT_DEV_DOMAIN"
 fi

@@ -4,6 +4,7 @@ modules = ["nodejs-20", "php-8.2", "web"]
 router = "application"
 deploymentTarget = "autoscale"
 run = ["bash", "start-production.sh"]
+build = ["bash", "-c", "composer install --no-dev --optimize-autoloader --no-interaction"]
 
 [deployment.postBuild]
 args = ["pnpm", "store", "prune"]
