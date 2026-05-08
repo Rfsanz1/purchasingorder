@@ -304,7 +304,7 @@
                 </div>
 
                 {{-- ===== SISTEM ===== --}}
-                @php $sysActive = request()->is('erp/users','erp/notifications','admin'); @endphp
+                @php $sysActive = request()->is('erp/users','erp/notifications','erp/integrasi','admin'); @endphp
                 <div x-data="{ open: {{ $sysActive ? 'true' : 'false' }} }">
                     <button @click="open=!open" class="group-header w-full {{ $sysActive ? 'has-active' : '' }}">
                         <div class="flex items-center gap-2">
@@ -314,6 +314,10 @@
                         <svg class="w-3.5 h-3.5 chevron" :class="open ? 'open' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
                     </button>
                     <div class="group-items pl-1 space-y-0.5 mt-0.5" :class="open ? 'open' : 'closed'">
+                        <a href="/erp/integrasi" class="sidebar-item {{ request()->is('erp/integrasi') ? 'active' : 'normal' }}">
+                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+                            <span>Integrasi</span>
+                        </a>
                         <a href="/erp/users" class="sidebar-item coming">
                             <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
                             <span>Manajemen User</span>

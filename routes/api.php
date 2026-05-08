@@ -53,6 +53,12 @@ Route::get('/kledo/token-status',       [KledoSyncController::class, 'tokenStatu
 Route::get('/settings', [SettingsController::class, 'index']);
 Route::put('/settings', [SettingsController::class, 'update']);
 
+// Integrasi pihak ketiga
+Route::get('/integrasi',                  [\App\Http\Controllers\IntegrasiController::class, 'index']);
+Route::post('/integrasi/{id}/update',     [\App\Http\Controllers\IntegrasiController::class, 'update']);
+Route::post('/integrasi/{id}/test',       [\App\Http\Controllers\IntegrasiController::class, 'test']);
+Route::delete('/integrasi/{id}/reset',    [\App\Http\Controllers\IntegrasiController::class, 'reset']);
+
 Route::get('/driver-areas', [DriverAreaController::class, 'index']);
 Route::put('/driver-areas', [DriverAreaController::class, 'update']);
 

@@ -23,6 +23,7 @@ Route::get('/sales-dashboard', [PageController::class, 'salesDashboard']);
 Route::get('/erp/invoice', [PageController::class, 'erpInvoice']);
 Route::get('/erp/laporan-divisi', [PageController::class, 'laporanDivisi']);
 Route::get('/erp/laporan-penjualan', [PageController::class, 'laporanPenjualan']);
+Route::get('/erp/integrasi', [PageController::class, 'integrasi']);
 
 // Coming Soon routes
 $comingSoon = [
