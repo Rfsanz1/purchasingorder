@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Product;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
 class KledoService
@@ -197,23 +198,26 @@ class KledoService
 
     public function getProducts(string $search = '', int $page = 1, int $perPage = 20): array
     {
-        $url  = "{$this->base}/products?per_page={$perPage}&page={$page}&search=" . urlencode($search);
-        $data = $this->httpGet($url, 180);
+        $cacheKey = 'kledo_products_search:' . md5(strtolower($search) . ':' . $page . ':' . $perPage);
+        return Cache::remember($cacheKey, 30, function () use ($search, $page, $perPage) {
+            $url  = "{$this->base}/products?per_page={$perPage}&page={$page}&search=" . urlencode($search);
+            $data = $this->httpGet($url, 180);
 
-        if (!$data) {
+            if (!$data) {
+                return [
+                    'products' => [], 'total' => 0,
+                    'currentPage' => 1, 'lastPage' => 1,
+                    'error' => 'Gagal mengambil produk dari Kledo',
+                ];
+            }
+
             return [
-                'products' => [], 'total' => 0,
-                'currentPage' => 1, 'lastPage' => 1,
-                'error' => 'Gagal mengambil produk dari Kledo',
+                'products'    => array_map(fn($p) => $this->transformProduct($p), $data['data']['data'] ?? []),
+                'total'       => $data['data']['total'] ?? 0,
+                'currentPage' => $data['data']['current_page'] ?? 1,
+                'lastPage'    => $data['data']['last_page'] ?? 1,
             ];
-        }
-
-        return [
-            'products'    => array_map(fn($p) => $this->transformProduct($p), $data['data']['data'] ?? []),
-            'total'       => $data['data']['total'] ?? 0,
-            'currentPage' => $data['data']['current_page'] ?? 1,
-            'lastPage'    => $data['data']['last_page'] ?? 1,
-        ];
+        });
     }
 
     // ============================================================

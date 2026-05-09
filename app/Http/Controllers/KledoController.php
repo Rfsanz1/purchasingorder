@@ -4,11 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Cache;
 
 class KledoController extends Controller
 {
     private string $kledoBase = 'https://api.kledo.com/api/v1/finance';
-    private array $cache = [];
 
     protected static function getToken(): string
     {
@@ -50,9 +50,9 @@ class KledoController extends Controller
         $isPhone    = strlen($digitsOnly) >= 3 && strlen($digitsOnly) === strlen(preg_replace('/[\s\-\+\(\)\.]/','', $search));
         $query      = $isPhone ? $digitsOnly : $search;
 
-        $cacheKey = "contacts:{$search}";
-        if (isset($this->cache[$cacheKey]) && $this->cache[$cacheKey]['exp'] > time()) {
-            return response()->json($this->cache[$cacheKey]['data']);
+        $cacheKey = 'kledo_contacts_search:' . md5(strtolower($query));
+        if (Cache::has($cacheKey)) {
+            return response()->json(Cache::get($cacheKey));
         }
 
         try {
@@ -68,32 +68,20 @@ class KledoController extends Controller
             $contacts   = [];
 
             foreach ($candidates as $c) {
-                $detail = $this->fetchContactDetail($c['id']);
                 $contacts[] = [
                     'id'           => $c['id'],
-                    'name'         => $c['name'],
-                    'mobile_phone' => $detail['phone'] ?? '',
-                    'address'      => $detail['address'] ?? $c['address'] ?? '',
+                    'name'         => $c['name'] ?? '',
+                    'mobile_phone' => $c['phone'] ?? $c['mobile_phone'] ?? '',
+                    'address'      => $c['address'] ?? '',
                 ];
             }
 
             $result = ['contacts' => $contacts];
-            $this->cache[$cacheKey] = ['data' => $result, 'exp' => time() + 60];
+            Cache::put($cacheKey, $result, 60);
             return response()->json($result);
         } catch (\Exception $e) {
             \Log::error('Kledo contacts fetch error: ' . $e->getMessage());
             return response()->json(['error' => 'Koneksi ke Kledo gagal'], 500);
-        }
-    }
-
-    private function fetchContactDetail(int $id): ?array
-    {
-        try {
-            $resp = $this->httpGet("{$this->kledoBase}/contacts/{$id}");
-            $data = json_decode($resp['body'], true);
-            return ($data['success'] ?? false) ? $data['data'] : null;
-        } catch (\Exception $e) {
-            return null;
         }
     }
 

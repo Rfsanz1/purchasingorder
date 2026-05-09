@@ -610,7 +610,7 @@ function poFormApp() {
         // ---- Contact search (Kledo) ----
         async searchContacts() {
             const q = this.contactSearch.trim();
-            if (q.length < 2) { this.contactResults = []; return; }
+            if (q.length < 3) { this.contactResults = []; return; }
             this.contactLoading = true;
             try {
                 const res = await fetch(`/api/kledo/contacts?search=${encodeURIComponent(q)}`);
@@ -676,7 +676,7 @@ function poFormApp() {
         async searchProducts(idx) {
             const item = this.form.items[idx];
             const q = item._search?.trim();
-            if (!q || q.length < 2) { item._results = []; return; }
+            if (!q || q.length < 3) { item._results = []; return; }
             item._loading = true;
             try {
                 const res = await fetch(`/api/kledo/products/with-stock?search=${encodeURIComponent(q)}`);
