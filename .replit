@@ -4,6 +4,7 @@ modules = ["nodejs-20", "php-8.2", "web", "postgresql-16"]
 router = "application"
 deploymentTarget = "autoscale"
 run = ["bash", "start-production.sh"]
+build = ["bash", "-c", "composer install --no-dev --optimize-autoloader --no-interaction"]
 
 [deployment.postBuild]
 args = ["pnpm", "store", "prune"]
@@ -93,8 +94,6 @@ channel = "stable-25_05"
 
 [userenv.shared]
 APP_NAME = "Gentong Mas ERP"
-APP_ENV = "local"
-APP_DEBUG = "true"
 APP_LOCALE = "id"
 APP_FALLBACK_LOCALE = "id"
 DB_CONNECTION = "pgsql"
@@ -108,5 +107,14 @@ CACHE_STORE = "file"
 QUEUE_CONNECTION = "sync"
 SESSION_SAME_SITE = "none"
 SESSION_SECURE_COOKIE = "true"
-LOG_CHANNEL = "stack"
-LOG_LEVEL = "debug"
+APP_KEY = "base64:77bISlISnpVyiKgTWeA+WYUcrOa0KZSySnHqiVg+B3A="
+
+[userenv.development]
+APP_ENV = "local"
+APP_DEBUG = "true"
+
+[userenv.production]
+APP_ENV = "production"
+APP_DEBUG = "false"
+LOG_CHANNEL = "stderr"
+LOG_LEVEL = "error"

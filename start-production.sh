@@ -7,6 +7,13 @@ echo "=== Laravel Production Start ==="
 mkdir -p storage/framework/{sessions,views,cache} storage/logs bootstrap/cache
 chmod -R 775 storage bootstrap/cache 2>/dev/null || true
 
+# Install PHP dependencies jika vendor/ belum ada
+if [ ! -f vendor/autoload.php ]; then
+  echo "Installing PHP dependencies..."
+  composer install --no-dev --optimize-autoloader --no-interaction 2>&1 || \
+  composer install --optimize-autoloader --no-interaction 2>&1
+fi
+
 # Buat .env jika belum ada
 if [ ! -f .env ]; then
   cp .env.example .env
