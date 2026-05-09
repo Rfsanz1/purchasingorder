@@ -31,6 +31,14 @@ class KledoSyncController extends Controller
         $this->base  = rtrim(env('KLEDO_BASE_URL', 'https://api.kledo.com/api/v1/finance'), '/');
     }
 
+    private function isAdminAuthorized(Request $request): bool
+    {
+        $adminPass = env('ADMIN_PASSWORD', 'admin123');
+        $header    = $request->header('X-Admin-Token', '');
+        $body      = $request->input('admin_token', '');
+        return hash_equals($adminPass, $header) || hash_equals($adminPass, $body);
+    }
+
     // ── HTTP ──────────────────────────────────────────────────────────────────
 
     private function headers(): array
@@ -325,6 +333,10 @@ class KledoSyncController extends Controller
      */
     public function sync(Request $request): JsonResponse
     {
+        if (!$this->isAdminAuthorized($request)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
         if (!$this->token) {
             return response()->json(['error' => 'KLEDO_API_KEY / KLEDO_TOKEN belum dikonfigurasi'], 503);
         }
@@ -701,6 +713,10 @@ class KledoSyncController extends Controller
      */
     public function autoSync(Request $request): JsonResponse
     {
+        if (!$this->isAdminAuthorized($request)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
         $hours = (int) $request->input('hours', 1);
         $force = (bool) $request->input('force', false);
 

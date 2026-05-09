@@ -246,9 +246,10 @@ function laporanSalesApp() {
             this.syncMsg = '';
             this.error = '';
             try {
+                const adminToken = sessionStorage.getItem('admin_token') || '';
                 const res  = await fetch('/api/kledo/sync', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content || '' },
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content || '', 'X-Admin-Token': adminToken },
                     body: JSON.stringify({ start_date: this.dari, end_date: this.sampai }),
                 });
                 const json = await res.json();
