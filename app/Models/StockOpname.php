@@ -20,3 +20,9 @@ class StockOpname extends Model
     protected $casts = [
         'approved_at' => 'datetime',
     ];
+
+    public function items(): HasMany
+    {
+        return $this->hasMany(StockOpnameItem::class);
+    }
+}

@@ -33,7 +33,7 @@ services:
       APP_ENV: production
       APP_DEBUG: "false"
       LOG_CHANNEL: stderr
-      KLEDO_TOKEN: kledo_pat_000Gfu_AAToivtoDtAI903kS6fht9Tdk8NcN9bkCFB_0CfTKPQcVCaFRXsHRtjFWwCUyybEpFpinWkzucxxq0OK
+      KLEDO_TOKEN: ${KLEDO_TOKEN}
     depends_on:
       postgres:
         condition: service_healthy

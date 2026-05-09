@@ -705,10 +705,6 @@ class KledoSyncController extends Controller
         $force = (bool) $request->input('force', false);
 
         try {
-            // Debug: check environment variables
-            Log::info('KLEDO_TOKEN from env: ' . env('KLEDO_TOKEN'));
-            Log::info('KLEDO_TOKEN from config: ' . config('services.kledo.token', 'NOT_SET'));
-
             // Jalankan command dengan Process facade
             $command = '/usr/local/bin/php ' . base_path('artisan') . ' kledo:auto-sync --hours=' . $hours;
             if ($force) {
