@@ -88,10 +88,18 @@ if ! grep -q "^APP_KEY=.\+" .env 2>/dev/null; then
 fi
 
 php artisan config:clear 2>/dev/null || true
+php artisan route:clear 2>/dev/null || true
+php artisan view:clear 2>/dev/null || true
 
 # ── Migrasi ────────────────────────────────────────────────────────────────
 echo "Running migrations..."
 php artisan migrate --no-interaction --force 2>&1 || echo "WARN: Migrasi gagal"
+
+# ── Cache setelah env vars tersedia ────────────────────────────────────────
+echo "Caching config, routes, views..."
+php artisan config:cache 2>/dev/null || true
+php artisan route:cache 2>/dev/null || true
+php artisan view:cache 2>/dev/null || true
 
 # ── Start server ───────────────────────────────────────────────────────────
 PORT="${PORT:-8080}"

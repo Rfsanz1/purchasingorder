@@ -37,11 +37,9 @@ RUN cp .env.example .env \
 RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
 
 # Sekarang vendor/ sudah ada, baru jalankan artisan
+# config/route/view:cache TIDAK dijalankan di build — env vars belum ada saat build
 RUN php artisan key:generate --force \
     && php artisan package:discover --ansi \
-    && php artisan config:cache \
-    && php artisan route:cache \
-    && php artisan view:cache \
     && chmod +x start-production.sh
 
 EXPOSE 8080
