@@ -142,8 +142,8 @@
 
                 <div class="h-1"></div>
 
-                {{-- ===== SALES ===== --}}
-                @php $salesActive = request()->is('po-form','sales-dashboard','erp/invoice','erp/riwayat-penjualan','erp/retur','erp/discount'); @endphp
+                {{-- ===== OPERASIONAL (Sales, Inventory, Purchase) ===== --}}
+                @php $operationalActive = request()->is('po-form','sales-dashboard','erp/invoice','erp/riwayat-penjualan','erp/retur','erp/discount','products','erp/stock-opname','erp/supplier','erp/purchase-order'); @endphp
                 <div x-data="{ open: {{ $salesActive ? 'true' : 'false' }} }">
                     <button @click="open=!open" class="group-header w-full {{ $salesActive ? 'has-active' : '' }}">
                         <div class="flex items-center gap-2">
