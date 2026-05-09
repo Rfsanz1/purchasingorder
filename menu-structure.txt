@@ -1,7 +1,9 @@
-Menu Utama
+# 🏢 GENTONG MAS ERP - MENU STRUCTURE
+
+## Menu Utama
 - Dashboard: /
 
-Sales
+## SALES
 - Buat Order: /po-form
 - Riwayat Pesanan: /sales-dashboard
 - Riwayat Penjualan: /erp/riwayat-penjualan
@@ -9,45 +11,179 @@ Sales
 - Retur: /erp/retur (coming soon)
 - Diskon & Promo: /erp/discount (coming soon)
 
-Inventory
+## INVENTORY
 - Produk: /products
 - Stok Masuk: /erp/stock-in (coming soon)
 - Stok Keluar: /erp/stock-out (coming soon)
 - Stock Opname: /erp/stock-opname
 - Gudang: /erp/warehouse (coming soon)
 
-Purchase
+## PURCHASE
 - Supplier: /erp/supplier (coming soon)
 - Purchase Order: /erp/purchase-order (coming soon)
 - Penerimaan Barang: /erp/goods-receipt (coming soon)
 
-Finance
+## FINANCE
 - Kas Masuk: /erp/cash-in (coming soon)
 - Kas Keluar: /erp/cash-out (coming soon)
 - Laba Rugi: /erp/profit-loss (coming soon)
 - Pengeluaran: /erp/expense (coming soon)
 
-CRM
+## CRM
 - Data Customer: /erp/customers
 - Loyalty Points: /erp/loyalty (coming soon)
 
-Pengiriman
+## PENGIRIMAN
 - Kelola Pengiriman: /admin
 - Dashboard Driver: /driver
 - Bukti Pengiriman: /erp/delivery-proof (coming soon)
 
-Laporan
+## LAPORAN
 - Laporan Per Divisi: /erp/laporan-divisi
 - Laporan Penjualan: /erp/laporan-penjualan
 - Data Kledo: /erp/data-penjualan-kledo
 - Laporan Keuangan: /erp/report-finance (coming soon)
 - Laporan Driver: /erp/report-driver (coming soon)
 
-Sistem
+## SISTEM
 - Integrasi: /erp/integrasi
 - Manajemen User: /erp/users (coming soon)
 - Notifikasi WA: /erp/notifications (coming soon)
 - Pengaturan: /admin
+
+---
+
+## 🆕 ERP MODULES - COMING SOON
+
+### MASTER DATA
+- Kategori Produk: /erp/product-categories
+- Brand Produk: /erp/brands
+- Satuan Barang: /erp/units
+- Tipe Harga: /erp/price-types
+- Pajak: /erp/taxes
+- Data Cabang: /erp/branches
+- Data Salesman: /erp/salesman
+- Metode Pembayaran: /erp/payment-methods
+
+### AKUNTANSI
+- Chart of Accounts (COA): /erp/chart-of-accounts
+- Jurnal Umum: /erp/journal
+- Buku Besar: /erp/general-ledger
+- Neraca: /erp/balance-sheet
+- Arus Kas: /erp/cash-flow
+- Hutang Supplier: /erp/account-payable
+- Piutang Customer: /erp/account-receivable
+- Rekonsiliasi Bank: /erp/bank-reconciliation
+
+### MANAJEMEN STOK
+- Mutasi Stok: /erp/stock-mutation
+- Transfer Antar Gudang: /erp/warehouse-transfer
+- Minimum Stock Alert: /erp/min-stock
+- Serial Number / IMEI: /erp/serial-number
+- Batch Produk: /erp/product-batch
+- History Pergerakan Barang: /erp/stock-history
+
+### PURCHASE FLOW
+- Permintaan Pembelian: /erp/purchase-request
+- Approval Purchase: /erp/purchase-approval
+- Invoice Supplier: /erp/supplier-invoice
+- Hutang Jatuh Tempo: /erp/payable-due
+
+### SALES FLOW
+- Quotation / Penawaran: /erp/quotation
+- Sales Target: /erp/sales-target
+- Komisi Sales: /erp/sales-commission
+- Piutang Penjualan: /erp/sales-receivable
+- Tracking Status Order: /erp/order-tracking
+
+### HR / KARYAWAN
+- Data Karyawan: /erp/employees
+- Absensi: /erp/attendance
+- Gaji: /erp/payroll
+- Role & Hak Akses: /erp/roles
+- Aktivitas User / Audit Log: /erp/audit-log
+
+### DASHBOARD ANALYTICS
+- Analytics Dashboard: /erp/analytics
+
+### FITUR TOKO ELEKTRONIK
+- Servis Barang: /erp/service
+- Klaim Garansi: /erp/warranty
+- Tracking Perbaikan: /erp/service-tracking
+- Kredit Customer: /erp/installment
+- Jatuh Tempo Cicilan: /erp/installment-due
+
+### OMNICHANNEL / MARKETPLACE
+- Marketplace Dashboard: /erp/marketplace
+
+#### Shopee
+- Dashboard Shopee: /marketplace/shopee
+- Pesanan Shopee: /marketplace/shopee/orders
+- Produk Shopee: /marketplace/shopee/products
+- Stok Shopee: /marketplace/shopee/stocks
+- Chat Shopee: /marketplace/shopee/chat
+- Pengiriman Shopee: /marketplace/shopee/shipping
+- Voucher Shopee: /marketplace/shopee/vouchers
+- Customer Shopee: /marketplace/shopee/customers
+- Analytics Shopee: /marketplace/shopee/analytics
+- Pengaturan API Shopee: /marketplace/shopee/settings
+
+#### TikTok Shop
+- Dashboard TikTok Shop: /marketplace/tiktok-shop
+- Pesanan TikTok Shop: /marketplace/tiktok-shop/orders
+- Produk TikTok Shop: /marketplace/tiktok-shop/products
+- Stok TikTok Shop: /marketplace/tiktok-shop/stocks
+- Chat TikTok Shop: /marketplace/tiktok-shop/chat
+- Pengiriman TikTok Shop: /marketplace/tiktok-shop/shipping
+- Voucher TikTok Shop: /marketplace/tiktok-shop/vouchers
+- Customer TikTok Shop: /marketplace/tiktok-shop/customers
+- Analytics TikTok Shop: /marketplace/tiktok-shop/analytics
+- Pengaturan API TikTok Shop: /marketplace/tiktok-shop/settings
+
+#### Tokopedia
+- Dashboard Tokopedia: /marketplace/tokopedia
+- Pesanan Tokopedia: /marketplace/tokopedia/orders
+- Produk Tokopedia: /marketplace/tokopedia/products
+- Stok Tokopedia: /marketplace/tokopedia/stocks
+- Chat Tokopedia: /marketplace/tokopedia/chat
+- Pengiriman Tokopedia: /marketplace/tokopedia/shipping
+- Voucher Tokopedia: /marketplace/tokopedia/vouchers
+- Customer Tokopedia: /marketplace/tokopedia/customers
+- Analytics Tokopedia: /marketplace/tokopedia/analytics
+- Pengaturan API Tokopedia: /marketplace/tokopedia/settings
+
+#### Lazada
+- Dashboard Lazada: /marketplace/lazada
+- Pesanan Lazada: /marketplace/lazada/orders
+- Produk Lazada: /marketplace/lazada/products
+- Stok Lazada: /marketplace/lazada/stocks
+- Chat Lazada: /marketplace/lazada/chat
+- Pengiriman Lazada: /marketplace/lazada/shipping
+- Voucher Lazada: /marketplace/lazada/vouchers
+- Customer Lazada: /marketplace/lazada/customers
+- Analytics Lazada: /marketplace/lazada/analytics
+- Pengaturan API Lazada: /marketplace/lazada/settings
+
+### FITUR ENTERPRISE
+- Approval System: /erp/approval-system
+- Workflow Automation: /erp/workflow-automation
+- Export PDF/Excel: /erp/export-pdf-excel
+- Template Invoice: /erp/template-invoice
+- Multi Currency: /erp/multi-currency
+- Multi Pajak: /erp/multi-tax
+- Backup System: /erp/backup-system
+- API Public: /erp/api-public
+- Webhook: /erp/webhook
+- Activity Timeline: /erp/activity-timeline
+
+---
+
+## 📊 STATISTICS
+- Total Menu Items: 120+
+- Active Features: 15
+- Coming Soon Features: 105+
+- ERP Modules: 9 categories
+- Marketplace Integrations: 4 platforms (Shopee, TikTok, Tokopedia, Lazada)
 
 Fitur Lanjutan
 - AI Inventory: /erp/ai-inventory (coming soon)
