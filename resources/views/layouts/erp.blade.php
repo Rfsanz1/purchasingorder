@@ -144,8 +144,8 @@
 
                 {{-- ===== OPERASIONAL (Sales, Inventory, Purchase) ===== --}}
                 @php $operationalActive = request()->is('po-form','sales-dashboard','erp/invoice','erp/riwayat-penjualan','erp/retur','erp/discount','products','erp/stock-opname','erp/supplier','erp/purchase-order'); @endphp
-                <div x-data="{ open: {{ $salesActive ? 'true' : 'false' }} }">
-                    <button @click="open=!open" class="group-header w-full {{ $salesActive ? 'has-active' : '' }}">
+                <div x-data="{ open: {{ $operationalActive ? 'true' : 'false' }} }">
+                    <button @click="open=!open" class="group-header w-full {{ $operationalActive ? 'has-active' : '' }}">
                         <div class="flex items-center gap-2">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
                             <span>Sales</span>
