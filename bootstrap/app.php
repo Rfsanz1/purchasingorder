@@ -17,6 +17,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->append(\Illuminate\Http\Middleware\HandleCors::class);
         // Trust semua proxy (Railway, Replit, Render, dll pakai load balancer)
         $middleware->trustProxies(at: '*');
+        // Middleware aliases
+        $middleware->alias([
+            'marketplace.auth' => \App\Http\Middleware\MarketplaceAuth::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->render(function (\Throwable $e, Request $request) {
