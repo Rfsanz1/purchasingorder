@@ -44,6 +44,64 @@
         }
         .group-items.open { max-height: 1000px; opacity: 1; }
         .group-items.closed { max-height: 0; opacity: 0; }
+
+        /* ─── CRITICAL MOBILE LAYOUT ─────────────────────────────────────────────
+           CSS ini memastikan sidebar tetap fixed di mobile SEBELUM Tailwind CDN
+           selesai dimuat, mencegah blank white space besar di atas konten.
+           Selector element (aside) memiliki specificity rendah sehingga class
+           Tailwind (.translate-x-0, .fixed, dll) tetap bisa override.
+        ─────────────────────────────────────────────────────────────────────── */
+        html { overflow-x: hidden; }
+        body { overflow-x: hidden; }
+
+        /* Sidebar: selalu fixed di mobile agar tidak mendorong konten ke bawah */
+        aside {
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: auto;
+            width: 15rem;           /* w-60 */
+            z-index: 40;
+            background: #ffffff;
+            border-right: 1px solid #f3f4f6;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            overflow-x: hidden;
+            transform: translateX(-100%);
+            transition: transform 0.2s ease;
+        }
+
+        /* Desktop: sidebar kembali ke posisi relatif dalam flex */
+        @media (min-width: 1024px) {
+            aside {
+                position: relative;
+                top: auto; left: auto; bottom: auto; right: auto;
+                transform: translateX(0);
+                z-index: auto;
+                overflow-y: auto;
+            }
+        }
+
+        /* Wrapper utama: flex row */
+        .erp-wrapper {
+            display: flex;
+            min-height: 100vh;
+            /* Gunakan dvh jika browser mendukung (fix Android address bar) */
+            min-height: 100dvh;
+        }
+
+        /* Main content: flex column, isi sisa ruang */
+        .erp-main {
+            flex: 1 1 0%;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            width: 100%;
+            /* Pada mobile, pastikan mengambil lebar penuh */
+            max-width: 100%;
+        }
+
+        /* Fix overflow konten pada mobile */
+        main { overflow-x: hidden; }
     </style>
     @stack('head')
 </head>
@@ -52,7 +110,7 @@
     {{-- Mobile overlay --}}
     <div x-show="sidebarOpen" x-cloak class="fixed inset-0 z-30 bg-black/40 lg:hidden" @click="sidebarOpen=false"></div>
 
-    <div class="flex min-h-screen">
+    <div class="flex erp-wrapper">
 
         {{-- ===== SIDEBAR ===== --}}
         <aside
@@ -969,7 +1027,7 @@
         </aside>
 
         {{-- ===== MAIN CONTENT ===== --}}
-        <div class="flex-1 flex flex-col min-w-0">
+        <div class="erp-main">
 
             {{-- Top bar (mobile) --}}
             <div class="lg:hidden flex items-center gap-3 px-4 py-3 bg-white border-b border-gray-100 sticky top-0 z-20">
