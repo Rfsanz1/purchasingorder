@@ -392,6 +392,167 @@
                     </div>
                 </div>
 
+                {{-- ===== MARKETPLACE ===== --}}
+                @php $marketplaceActive = request()->is('marketplace', 'marketplace/*'); @endphp
+                <div x-data="{ open: {{ $marketplaceActive ? 'true' : 'false' }} }">
+                    <button @click="open=!open" class="group-header w-full {{ $marketplaceActive ? 'has-active' : '' }}">
+                        <div class="flex items-center gap-2">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 7h18M3 12h18M3 17h18"/></svg>
+                            <span>Marketplace</span>
+                        </div>
+                        <svg class="w-3.5 h-3.5 chevron" :class="open ? 'open' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+                    </button>
+                    <div class="group-items pl-1 space-y-0.5 mt-0.5" :class="open ? 'open' : 'closed'">
+                        <a href="/marketplace" class="sidebar-item {{ request()->is('marketplace') ? 'active' : 'normal' }}">
+                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V5a2 2 0 00-2-2H6a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2zM9 21h6M12 17v4"/></svg>
+                            <span>Marketplace Center</span>
+                        </a>
+                        <div class="pl-3 pt-2 text-xs uppercase tracking-wide text-gray-400">Shopee</div>
+                        <a href="/marketplace/shopee" class="sidebar-item {{ request()->is('marketplace/shopee') ? 'active' : 'normal' }}">
+                            <span>Dashboard Shopee</span>
+                        </a>
+                        <a href="/marketplace/shopee/orders" class="sidebar-item {{ request()->is('marketplace/shopee/orders') ? 'active' : 'normal' }}">
+                            <span>Pesanan Shopee</span>
+                        </a>
+                        <a href="/marketplace/shopee/products" class="sidebar-item {{ request()->is('marketplace/shopee/products') ? 'active' : 'normal' }}">
+                            <span>Produk Shopee</span>
+                        </a>
+                        <a href="/marketplace/shopee/stocks" class="sidebar-item {{ request()->is('marketplace/shopee/stocks') ? 'active' : 'normal' }}">
+                            <span>Stok Shopee</span>
+                        </a>
+                        <a href="/marketplace/shopee/chat" class="sidebar-item {{ request()->is('marketplace/shopee/chat') ? 'active' : 'normal' }}">
+                            <span>Chat Shopee</span>
+                        </a>
+                        <a href="/marketplace/shopee/shipping" class="sidebar-item {{ request()->is('marketplace/shopee/shipping') ? 'active' : 'normal' }}">
+                            <span>Pengiriman Shopee</span>
+                        </a>
+                        <a href="/marketplace/shopee/vouchers" class="sidebar-item {{ request()->is('marketplace/shopee/vouchers') ? 'active' : 'normal' }}">
+                            <span>Voucher Shopee</span>
+                        </a>
+                        <a href="/marketplace/shopee/customers" class="sidebar-item {{ request()->is('marketplace/shopee/customers') ? 'active' : 'normal' }}">
+                            <span>Customer Shopee</span>
+                        </a>
+                        <a href="/marketplace/shopee/analytics" class="sidebar-item {{ request()->is('marketplace/shopee/analytics') ? 'active' : 'normal' }}">
+                            <span>Analytics Shopee</span>
+                        </a>
+                        <a href="/marketplace/shopee/settings" class="sidebar-item {{ request()->is('marketplace/shopee/settings') ? 'active' : 'normal' }}">
+                            <span>Pengaturan API Shopee</span>
+                        </a>
+                        <div class="pl-3 pt-2 text-xs uppercase tracking-wide text-gray-400">TikTok Shop</div>
+                        <a href="/marketplace/tiktok-shop" class="sidebar-item {{ request()->is('marketplace/tiktok-shop') ? 'active' : 'normal' }}">
+                            <span>Dashboard TikTok Shop</span>
+                        </a>
+                        <a href="/marketplace/tiktok-shop/orders" class="sidebar-item {{ request()->is('marketplace/tiktok-shop/orders') ? 'active' : 'normal' }}">
+                            <span>Pesanan TikTok Shop</span>
+                        </a>
+                        <a href="/marketplace/tiktok-shop/products" class="sidebar-item {{ request()->is('marketplace/tiktok-shop/products') ? 'active' : 'normal' }}">
+                            <span>Produk TikTok Shop</span>
+                        </a>
+                        <a href="/marketplace/tiktok-shop/stocks" class="sidebar-item {{ request()->is('marketplace/tiktok-shop/stocks') ? 'active' : 'normal' }}">
+                            <span>Stok TikTok Shop</span>
+                        </a>
+                        <a href="/marketplace/tiktok-shop/chat" class="sidebar-item {{ request()->is('marketplace/tiktok-shop/chat') ? 'active' : 'normal' }}">
+                            <span>Chat TikTok Shop</span>
+                        </a>
+                        <a href="/marketplace/tiktok-shop/shipping" class="sidebar-item {{ request()->is('marketplace/tiktok-shop/shipping') ? 'active' : 'normal' }}">
+                            <span>Pengiriman TikTok Shop</span>
+                        </a>
+                        <a href="/marketplace/tiktok-shop/vouchers" class="sidebar-item {{ request()->is('marketplace/tiktok-shop/vouchers') ? 'active' : 'normal' }}">
+                            <span>Voucher TikTok Shop</span>
+                        </a>
+                        <a href="/marketplace/tiktok-shop/customers" class="sidebar-item {{ request()->is('marketplace/tiktok-shop/customers') ? 'active' : 'normal' }}">
+                            <span>Customer TikTok Shop</span>
+                        </a>
+                        <a href="/marketplace/tiktok-shop/analytics" class="sidebar-item {{ request()->is('marketplace/tiktok-shop/analytics') ? 'active' : 'normal' }}">
+                            <span>Analytics TikTok Shop</span>
+                        </a>
+                        <a href="/marketplace/tiktok-shop/settings" class="sidebar-item {{ request()->is('marketplace/tiktok-shop/settings') ? 'active' : 'normal' }}">
+                            <span>Pengaturan API TikTok Shop</span>
+                        </a>
+                        <div class="pl-3 pt-2 text-xs uppercase tracking-wide text-gray-400">Tokopedia</div>
+                        <a href="/marketplace/tokopedia" class="sidebar-item {{ request()->is('marketplace/tokopedia') ? 'active' : 'normal' }}">
+                            <span>Dashboard Tokopedia</span>
+                        </a>
+                        <a href="/marketplace/tokopedia/orders" class="sidebar-item {{ request()->is('marketplace/tokopedia/orders') ? 'active' : 'normal' }}">
+                            <span>Pesanan Tokopedia</span>
+                        </a>
+                        <a href="/marketplace/tokopedia/products" class="sidebar-item {{ request()->is('marketplace/tokopedia/products') ? 'active' : 'normal' }}">
+                            <span>Produk Tokopedia</span>
+                        </a>
+                        <a href="/marketplace/tokopedia/stocks" class="sidebar-item {{ request()->is('marketplace/tokopedia/stocks') ? 'active' : 'normal' }}">
+                            <span>Stok Tokopedia</span>
+                        </a>
+                        <a href="/marketplace/tokopedia/chat" class="sidebar-item {{ request()->is('marketplace/tokopedia/chat') ? 'active' : 'normal' }}">
+                            <span>Chat Tokopedia</span>
+                        </a>
+                        <a href="/marketplace/tokopedia/shipping" class="sidebar-item {{ request()->is('marketplace/tokopedia/shipping') ? 'active' : 'normal' }}">
+                            <span>Pengiriman Tokopedia</span>
+                        </a>
+                        <a href="/marketplace/tokopedia/vouchers" class="sidebar-item {{ request()->is('marketplace/tokopedia/vouchers') ? 'active' : 'normal' }}">
+                            <span>Voucher Tokopedia</span>
+                        </a>
+                        <a href="/marketplace/tokopedia/customers" class="sidebar-item {{ request()->is('marketplace/tokopedia/customers') ? 'active' : 'normal' }}">
+                            <span>Customer Tokopedia</span>
+                        </a>
+                        <a href="/marketplace/tokopedia/analytics" class="sidebar-item {{ request()->is('marketplace/tokopedia/analytics') ? 'active' : 'normal' }}">
+                            <span>Analytics Tokopedia</span>
+                        </a>
+                        <a href="/marketplace/tokopedia/settings" class="sidebar-item {{ request()->is('marketplace/tokopedia/settings') ? 'active' : 'normal' }}">
+                            <span>Pengaturan API Tokopedia</span>
+                        </a>
+                        <div class="pl-3 pt-2 text-xs uppercase tracking-wide text-gray-400">Lazada</div>
+                        <a href="/marketplace/lazada" class="sidebar-item {{ request()->is('marketplace/lazada') ? 'active' : 'normal' }}">
+                            <span>Dashboard Lazada</span>
+                        </a>
+                        <a href="/marketplace/lazada/orders" class="sidebar-item {{ request()->is('marketplace/lazada/orders') ? 'active' : 'normal' }}">
+                            <span>Pesanan Lazada</span>
+                        </a>
+                        <a href="/marketplace/lazada/products" class="sidebar-item {{ request()->is('marketplace/lazada/products') ? 'active' : 'normal' }}">
+                            <span>Produk Lazada</span>
+                        </a>
+                        <a href="/marketplace/lazada/stocks" class="sidebar-item {{ request()->is('marketplace/lazada/stocks') ? 'active' : 'normal' }}">
+                            <span>Stok Lazada</span>
+                        </a>
+                        <a href="/marketplace/lazada/chat" class="sidebar-item {{ request()->is('marketplace/lazada/chat') ? 'active' : 'normal' }}">
+                            <span>Chat Lazada</span>
+                        </a>
+                        <a href="/marketplace/lazada/shipping" class="sidebar-item {{ request()->is('marketplace/lazada/shipping') ? 'active' : 'normal' }}">
+                            <span>Pengiriman Lazada</span>
+                        </a>
+                        <a href="/marketplace/lazada/vouchers" class="sidebar-item {{ request()->is('marketplace/lazada/vouchers') ? 'active' : 'normal' }}">
+                            <span>Voucher Lazada</span>
+                        </a>
+                        <a href="/marketplace/lazada/customers" class="sidebar-item {{ request()->is('marketplace/lazada/customers') ? 'active' : 'normal' }}">
+                            <span>Customer Lazada</span>
+                        </a>
+                        <a href="/marketplace/lazada/analytics" class="sidebar-item {{ request()->is('marketplace/lazada/analytics') ? 'active' : 'normal' }}">
+                            <span>Analytics Lazada</span>
+                        </a>
+                        <a href="/marketplace/lazada/settings" class="sidebar-item {{ request()->is('marketplace/lazada/settings') ? 'active' : 'normal' }}">
+                            <span>Pengaturan API Lazada</span>
+                        </a>
+                        <div class="pl-3 pt-2 text-xs uppercase tracking-wide text-gray-400">Global Marketplace</div>
+                        <a href="/marketplace/sync" class="sidebar-item {{ request()->is('marketplace/sync') ? 'active' : 'normal' }}">
+                            <span>Sinkronisasi Semua Marketplace</span>
+                        </a>
+                        <a href="/marketplace/mapping" class="sidebar-item {{ request()->is('marketplace/mapping') ? 'active' : 'normal' }}">
+                            <span>Mapping Produk Marketplace</span>
+                        </a>
+                        <a href="/marketplace/all-orders" class="sidebar-item {{ request()->is('marketplace/all-orders') ? 'active' : 'normal' }}">
+                            <span>Multi Channel Order</span>
+                        </a>
+                        <a href="/marketplace/all-chat" class="sidebar-item {{ request()->is('marketplace/all-chat') ? 'active' : 'normal' }}">
+                            <span>Multi Channel Chat</span>
+                        </a>
+                        <a href="/marketplace/all-analytics" class="sidebar-item {{ request()->is('marketplace/all-analytics') ? 'active' : 'normal' }}">
+                            <span>Multi Channel Analytics</span>
+                        </a>
+                        <a href="/marketplace/all-shipping" class="sidebar-item {{ request()->is('marketplace/all-shipping') ? 'active' : 'normal' }}">
+                            <span>Multi Channel Shipping</span>
+                        </a>
+                    </div>
+                </div>
+
                 {{-- ===== SHOPEE ADMIN ===== --}}
                 @php $shopeeActive = request()->is('shopee/*'); @endphp
                 <div x-data="{ open: {{ $shopeeActive ? 'true' : 'false' }} }">

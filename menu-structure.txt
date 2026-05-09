@@ -1,0 +1,122 @@
+Menu Utama
+- Dashboard: /
+
+Sales
+- Buat Order: /po-form
+- Riwayat Pesanan: /sales-dashboard
+- Riwayat Penjualan: /erp/riwayat-penjualan
+- Invoice: /erp/invoice
+- Retur: /erp/retur (coming soon)
+- Diskon & Promo: /erp/discount (coming soon)
+
+Inventory
+- Produk: /products
+- Stok Masuk: /erp/stock-in (coming soon)
+- Stok Keluar: /erp/stock-out (coming soon)
+- Stock Opname: /erp/stock-opname
+- Gudang: /erp/warehouse (coming soon)
+
+Purchase
+- Supplier: /erp/supplier (coming soon)
+- Purchase Order: /erp/purchase-order (coming soon)
+- Penerimaan Barang: /erp/goods-receipt (coming soon)
+
+Finance
+- Kas Masuk: /erp/cash-in (coming soon)
+- Kas Keluar: /erp/cash-out (coming soon)
+- Laba Rugi: /erp/profit-loss (coming soon)
+- Pengeluaran: /erp/expense (coming soon)
+
+CRM
+- Data Customer: /erp/customers
+- Loyalty Points: /erp/loyalty (coming soon)
+
+Pengiriman
+- Kelola Pengiriman: /admin
+- Dashboard Driver: /driver
+- Bukti Pengiriman: /erp/delivery-proof (coming soon)
+
+Laporan
+- Laporan Per Divisi: /erp/laporan-divisi
+- Laporan Penjualan: /erp/laporan-penjualan
+- Data Kledo: /erp/data-penjualan-kledo
+- Laporan Keuangan: /erp/report-finance (coming soon)
+- Laporan Driver: /erp/report-driver (coming soon)
+
+Sistem
+- Integrasi: /erp/integrasi
+- Manajemen User: /erp/users (coming soon)
+- Notifikasi WA: /erp/notifications (coming soon)
+- Pengaturan: /admin
+
+Fitur Lanjutan
+- AI Inventory: /erp/ai-inventory (coming soon)
+- AI Analytics: /erp/ai-analytics (coming soon)
+- Multi Cabang: /erp/multi-branch (coming soon)
+- Payment Gateway: /erp/payment-gateway (coming soon)
+- Mobile Sync: /erp/mobile-sync (coming soon)
+- Chatbot AI: /erp/chatbot (coming soon)
+- Pajak & Akuntansi: /erp/tax-accounting (coming soon)
+
+Shopee Admin
+- Data Penjualan: /shopee/orders
+- Manajemen Stok API: /shopee/dashboard
+
+Marketplace
+- Marketplace Center: /marketplace
+
+Shopee
+- Dashboard Shopee: /marketplace/shopee
+- Pesanan Shopee: /marketplace/shopee/orders
+- Produk Shopee: /marketplace/shopee/products
+- Stok Shopee: /marketplace/shopee/stocks
+- Chat Shopee: /marketplace/shopee/chat
+- Pengiriman Shopee: /marketplace/shopee/shipping
+- Voucher Shopee: /marketplace/shopee/vouchers
+- Customer Shopee: /marketplace/shopee/customers
+- Analytics Shopee: /marketplace/shopee/analytics
+- Pengaturan API Shopee: /marketplace/shopee/settings
+
+TikTok Shop
+- Dashboard TikTok Shop: /marketplace/tiktok-shop
+- Pesanan TikTok Shop: /marketplace/tiktok-shop/orders
+- Produk TikTok Shop: /marketplace/tiktok-shop/products
+- Stok TikTok Shop: /marketplace/tiktok-shop/stocks
+- Chat TikTok Shop: /marketplace/tiktok-shop/chat
+- Pengiriman TikTok Shop: /marketplace/tiktok-shop/shipping
+- Voucher TikTok Shop: /marketplace/tiktok-shop/vouchers
+- Customer TikTok Shop: /marketplace/tiktok-shop/customers
+- Analytics TikTok Shop: /marketplace/tiktok-shop/analytics
+- Pengaturan API TikTok Shop: /marketplace/tiktok-shop/settings
+
+Tokopedia
+- Dashboard Tokopedia: /marketplace/tokopedia
+- Pesanan Tokopedia: /marketplace/tokopedia/orders
+- Produk Tokopedia: /marketplace/tokopedia/products
+- Stok Tokopedia: /marketplace/tokopedia/stocks
+- Chat Tokopedia: /marketplace/tokopedia/chat
+- Pengiriman Tokopedia: /marketplace/tokopedia/shipping
+- Voucher Tokopedia: /marketplace/tokopedia/vouchers
+- Customer Tokopedia: /marketplace/tokopedia/customers
+- Analytics Tokopedia: /marketplace/tokopedia/analytics
+- Pengaturan API Tokopedia: /marketplace/tokopedia/settings
+
+Lazada
+- Dashboard Lazada: /marketplace/lazada
+- Pesanan Lazada: /marketplace/lazada/orders
+- Produk Lazada: /marketplace/lazada/products
+- Stok Lazada: /marketplace/lazada/stocks
+- Chat Lazada: /marketplace/lazada/chat
+- Pengiriman Lazada: /marketplace/lazada/shipping
+- Voucher Lazada: /marketplace/lazada/vouchers
+- Customer Lazada: /marketplace/lazada/customers
+- Analytics Lazada: /marketplace/lazada/analytics
+- Pengaturan API Lazada: /marketplace/lazada/settings
+
+Global Marketplace Features
+- Sinkronisasi Semua Marketplace: /marketplace/sync
+- Mapping Produk Marketplace: /marketplace/mapping
+- Multi Channel Order: /marketplace/all-orders
+- Multi Channel Chat: /marketplace/all-chat
+- Multi Channel Analytics: /marketplace/all-analytics
+- Multi Channel Shipping: /marketplace/all-shipping

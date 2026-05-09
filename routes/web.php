@@ -59,7 +59,77 @@ Route::middleware(\App\Http\Middleware\ShopeeAuth::class)->group(function () {
     Route::post('/shopee/import-csv',   [ShopeeController::class, 'importCsv'])->name('shopee.import');
     Route::post('/shopee/sync-to-erp',  [ShopeeController::class, 'syncToErp'])->name('shopee.sync');
     Route::delete('/shopee/orders/{id}', [ShopeeController::class, 'deleteOrder'])->name('shopee.order.delete');
+
+    Route::get('/marketplace/shopee',        [ShopeeController::class, 'dashboard'])->name('marketplace.shopee.dashboard');
+    Route::get('/marketplace/shopee/orders', [ShopeeController::class, 'orders'])->name('marketplace.shopee.orders');
 });
+
+Route::get('/marketplace', function () {
+    return view('erp.coming-soon', [
+        'title' => 'Marketplace Center',
+        'description' => 'Dashboard pusat untuk mengelola seluruh integrasi marketplace.',
+        'features' => [
+            'Akses cepat ke semua marketplace',
+            'Pelacakan pesanan multi-channel',
+            'Sinkronisasi produk dan stok',
+            'Analitik performa marketplace',
+        ],
+    ]);
+});
+
+$marketplaceComingSoon = [
+    'marketplace/shopee/products' => ['Produk Shopee', 'Kelola katalog produk Shopee dan sinkronisasikan atribut produk dengan sistem ERP.', ['Kelola katalog produk', 'Sinkronisasi stok produk', 'Update deskripsi produk']],
+    'marketplace/shopee/stocks' => ['Stok Shopee', 'Pantau dan sinkronkan stok produk Shopee dengan gudang internal.', ['Monitoring stok realtime', 'Sinkronisasi otomatis', 'Notifikasi stok rendah']],
+    'marketplace/shopee/chat' => ['Chat Shopee', 'Kelola pesan pelanggan Shopee dari satu tempat.', ['Balas pesan pelanggan', 'Filter chat menurut status', 'Riwayat percakapan']],
+    'marketplace/shopee/shipping' => ['Pengiriman Shopee', 'Atur metode pengiriman dan pelacakan pesanan Shopee.', ['Manajemen kurir', 'Status pengiriman', 'Cetak label pengiriman']],
+    'marketplace/shopee/vouchers' => ['Voucher Shopee', 'Buat dan kelola voucher serta promo Shopee.', ['Buat voucher diskon', 'Atur periode promo', 'Laporan penggunaan voucher']],
+    'marketplace/shopee/customers' => ['Customer Shopee', 'Kelola data pelanggan dan riwayat pembelian Shopee.', ['Data pelanggan', 'Riwayat pembelian', 'Segmentasi pelanggan']],
+    'marketplace/shopee/analytics' => ['Analytics Shopee', 'Lihat laporan performa penjualan dan metrik Shopee.', ['Laporan penjualan', 'Trend produk', 'Analitik customer']],
+    'marketplace/shopee/settings' => ['Pengaturan API Shopee', 'Konfigurasi koneksi API Shopee dan setelan integrasi.', ['Partner ID & Key', 'Token akses', 'Pengaturan webhook']],
+    'marketplace/tiktok-shop' => ['Dashboard TikTok Shop', 'Overview integrasi TikTok Shop dan performa channel.', ['Ringkasan pesanan', 'Status koneksi', 'Notifikasi integrasi']],
+    'marketplace/tiktok-shop/orders' => ['Pesanan TikTok Shop', 'Kelola pesanan TikTok Shop dari satu tempat.', ['Tracking pesanan', 'Filter status', 'Sinkronisasi ERP']],
+    'marketplace/tiktok-shop/products' => ['Produk TikTok Shop', 'Kelola produk TikTok Shop dan sinkronisasikan katalog.', ['Daftar produk', 'Sinkronisasi stok', 'Update harga']],
+    'marketplace/tiktok-shop/stocks' => ['Stok TikTok Shop', 'Pantau stok produk TikTok Shop.', ['Monitoring stok', 'Sinkron stok', 'Alert stok minimal']],
+    'marketplace/tiktok-shop/chat' => ['Chat TikTok Shop', 'Kelola pesan pelanggan TikTok Shop.', ['Balas chat', 'Filter percakapan', 'Riwayat interaksi']],
+    'marketplace/tiktok-shop/shipping' => ['Pengiriman TikTok Shop', 'Kelola proses pengiriman dan pelacakan TikTok Shop.', ['Metode pengiriman', 'Status kirim', 'Cetak surat jalan']],
+    'marketplace/tiktok-shop/vouchers' => ['Voucher TikTok Shop', 'Atur voucher dan promo untuk TikTok Shop.', ['Manajemen promo', 'Periode diskon', 'Laporan penggunaan']],
+    'marketplace/tiktok-shop/customers' => ['Customer TikTok Shop', 'Kelola pelanggan TikTok Shop.', ['Data pelanggan', 'Riwayat pembelian', 'Segmentasi']],
+    'marketplace/tiktok-shop/analytics' => ['Analytics TikTok Shop', 'Lihat performa dan analitik TikTok Shop.', ['Laporan channel', 'Produk terlaris', 'Analitik customer']],
+    'marketplace/tiktok-shop/settings' => ['Pengaturan API TikTok Shop', 'Konfigurasi koneksi API TikTok Shop.', ['API key', 'Webhook', 'Pengaturan integrasi']],
+    'marketplace/tokopedia' => ['Dashboard Tokopedia', 'Overview integrasi Tokopedia dan performa penjualan.', ['Ringkasan pesanan', 'Status koneksi', 'Notifikasi integrasi']],
+    'marketplace/tokopedia/orders' => ['Pesanan Tokopedia', 'Kelola pesanan Tokopedia.', ['Tracking pesanan', 'Sinkronisasi ERP', 'Filter status']],
+    'marketplace/tokopedia/products' => ['Produk Tokopedia', 'Kelola katalog produk Tokopedia.', ['Daftar produk', 'Sinkronkan stok', 'Update harga']],
+    'marketplace/tokopedia/stocks' => ['Stok Tokopedia', 'Pantau stok Tokopedia.', ['Monitoring stok', 'Sinkronisasi otomatis', 'Alert stok rendah']],
+    'marketplace/tokopedia/chat' => ['Chat Tokopedia', 'Kelola komunikasi pelanggan Tokopedia.', ['Balas pesan', 'Riwayat chat', 'Filter percakapan']],
+    'marketplace/tokopedia/shipping' => ['Pengiriman Tokopedia', 'Kelola pengiriman Tokopedia.', ['Metode kurir', 'Status pengiriman', 'Cetak label']],
+    'marketplace/tokopedia/vouchers' => ['Voucher Tokopedia', 'Kelola voucher Tokopedia.', ['Buat voucher', 'Periode promo', 'Laporan penggunaan']],
+    'marketplace/tokopedia/customers' => ['Customer Tokopedia', 'Kelola pelanggan Tokopedia.', ['Data customer', 'Riwayat transaksi', 'Segmentasi customer']],
+    'marketplace/tokopedia/analytics' => ['Analytics Tokopedia', 'Lihat performa Tokopedia.', ['Laporan penjualan', 'Trend produk', 'Analytics customer']],
+    'marketplace/tokopedia/settings' => ['Pengaturan API Tokopedia', 'Konfigurasi API Tokopedia.', ['API key', 'Webhook', 'Pengaturan integrasi']],
+    'marketplace/lazada' => ['Dashboard Lazada', 'Overview integrasi Lazada dan performa penjualan.', ['Ringkasan pesanan', 'Status koneksi', 'Notifikasi integrasi']],
+    'marketplace/lazada/orders' => ['Pesanan Lazada', 'Kelola pesanan Lazada.', ['Tracking pesanan', 'Sinkronisasi ERP', 'Filter status']],
+    'marketplace/lazada/products' => ['Produk Lazada', 'Kelola katalog produk Lazada.', ['Daftar produk', 'Sinkronkan stok', 'Update harga']],
+    'marketplace/lazada/stocks' => ['Stok Lazada', 'Pantau stok Lazada.', ['Monitoring stok', 'Sinkronisasi otomatis', 'Alert stok rendah']],
+    'marketplace/lazada/chat' => ['Chat Lazada', 'Kelola komunikasi pelanggan Lazada.', ['Balas pesan', 'Riwayat chat', 'Filter percakapan']],
+    'marketplace/lazada/shipping' => ['Pengiriman Lazada', 'Kelola pengiriman Lazada.', ['Metode kurir', 'Status pengiriman', 'Cetak label']],
+    'marketplace/lazada/vouchers' => ['Voucher Lazada', 'Kelola voucher Lazada.', ['Buat voucher', 'Periode promo', 'Laporan penggunaan']],
+    'marketplace/lazada/customers' => ['Customer Lazada', 'Kelola pelanggan Lazada.', ['Data customer', 'Riwayat transaksi', 'Segmentasi customer']],
+    'marketplace/lazada/analytics' => ['Analytics Lazada', 'Lihat performa Lazada.', ['Laporan penjualan', 'Trend produk', 'Analytics customer']],
+    'marketplace/lazada/settings' => ['Pengaturan API Lazada', 'Konfigurasi API Lazada.', ['API key', 'Webhook', 'Pengaturan integrasi']],
+    'marketplace/sync' => ['Sinkronisasi Semua Marketplace', 'Sinkronkan data pesanan, produk, dan stok antar marketplace.', ['Sinkron pesanan multi-channel', 'Sinkron produk', 'Sinkron stok']],
+    'marketplace/mapping' => ['Mapping Produk Marketplace', 'Pemetaan produk marketplace ke item internal ERP.', ['Mapping SKU', 'Mapping kategori', 'Mapping atribut produk']],
+    'marketplace/all-orders' => ['Multi Channel Order', 'Lihat dan kelola semua order dari marketplace dalam satu layar.', ['Order multi-channel', 'Filter status', 'Sync order ke ERP']],
+    'marketplace/all-chat' => ['Multi Channel Chat', 'Kelola semua percakapan pelanggan marketplace.', ['Obrolan multi-channel', 'Filter chat', 'Riwayat interaksi']],
+    'marketplace/all-analytics' => ['Multi Channel Analytics', 'Analitik gabungan untuk semua marketplace.', ['Laporan multi-channel', 'Trend penjualan', 'Performa channel']],
+    'marketplace/all-shipping' => ['Multi Channel Shipping', 'Manajemen pengiriman untuk semua marketplace.', ['Tracking pengiriman', 'Pengiriman multi-channel', 'Cetak label']],
+];
+
+foreach ($marketplaceComingSoon as $path => [$title, $description, $features]) {
+    Route::get('/' . $path, function () use ($title, $description, $features) {
+        return view('erp.coming-soon', compact('title', 'description', 'features'));
+    });
+}
+
 Route::get('/po-form', [PageController::class, 'poForm']);
 Route::get('/admin', [PageController::class, 'admin']);
 Route::get('/driver', [PageController::class, 'driver']);
