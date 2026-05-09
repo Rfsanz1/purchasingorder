@@ -186,3 +186,112 @@ foreach ($comingSoon as $path => [$title, $description, $features]) {
 
 // Active ERP routes
 Route::get('/erp/customers', [PageController::class, 'customers'])->name('erp.customers');
+
+// ===== NEW ERP MODULES - COMING SOON =====
+
+// MASTER DATA
+$masterDataComingSoon = [
+    'erp/product-categories' => ['Kategori Produk', 'Manajemen kategori produk untuk mengorganisir inventory.', ['Tambah kategori', 'Sub-kategori', 'Kategori aktif/non-aktif']],
+    'erp/brands' => ['Brand Produk', 'Database brand dan merek produk.', ['Daftar brand', 'Logo brand', 'Status brand']],
+    'erp/units' => ['Satuan Barang', 'Manajemen satuan ukuran produk (pcs, kg, liter, dll).', ['Satuan dasar', 'Konversi satuan', 'Satuan aktif']],
+    'erp/price-types' => ['Tipe Harga', 'Berbagai tipe harga jual (ecer, grosir, reseller).', ['Harga ecer', 'Harga grosir', 'Margin otomatis']],
+    'erp/taxes' => ['Pajak', 'Konfigurasi pajak PPN, PPH, dan pajak lainnya.', ['PPN 11%', 'Pajak daerah', 'Pengecualian pajak']],
+    'erp/branches' => ['Data Cabang', 'Manajemen multi-cabang dan lokasi toko.', ['Daftar cabang', 'Alamat cabang', 'Kontak cabang']],
+    'erp/salesman' => ['Data Salesman', 'Database sales dan komisi penjualan.', ['Profil salesman', 'Target penjualan', 'Komisi otomatis']],
+    'erp/payment-methods' => ['Metode Pembayaran', 'Konfigurasi cara pembayaran yang tersedia.', ['Transfer bank', 'Cash', 'E-wallet', 'Kredit']],
+];
+
+// AKUNTANSI
+$accountingComingSoon = [
+    'erp/chart-of-accounts' => ['Chart of Accounts (COA)', 'Struktur akun untuk pembukuan lengkap.', ['Akun aktiva', 'Akun pasiva', 'Akun pendapatan', 'Akun biaya']],
+    'erp/journal' => ['Jurnal Umum', 'Pencatatan jurnal transaksi harian.', ['Jurnal otomatis', 'Jurnal manual', 'Approval jurnal']],
+    'erp/general-ledger' => ['Buku Besar', 'Laporan buku besar per akun.', ['Buku besar umum', 'Buku besar pembantu', 'Saldo akun']],
+    'erp/balance-sheet' => ['Neraca', 'Laporan posisi keuangan perusahaan.', ['Aktiva lancar', 'Aktiva tetap', 'Pasiva', 'Ekuitas']],
+    'erp/cash-flow' => ['Arus Kas', 'Laporan arus kas masuk dan keluar.', ['Arus kas operasi', 'Arus kas investasi', 'Arus kas pendanaan']],
+    'erp/account-payable' => ['Hutang Supplier', 'Manajemen hutang kepada supplier.', ['Daftar hutang', 'Jatuh tempo', 'Pembayaran hutang']],
+    'erp/account-receivable' => ['Piutang Customer', 'Manajemen piutang dari customer.', ['Daftar piutang', 'Jatuh tempo', 'Pengingat pembayaran']],
+    'erp/bank-reconciliation' => ['Rekonsiliasi Bank', 'Pencocokan mutasi bank dengan pembukuan.', ['Mutasi bank', 'Pencocokan otomatis', 'Rekonsiliasi manual']],
+];
+
+// MANAJEMEN STOK
+$inventoryComingSoon = [
+    'erp/stock-mutation' => ['Mutasi Stok', 'Pencatatan perpindahan stok antar lokasi.', ['Mutasi masuk', 'Mutasi keluar', 'Riwayat mutasi']],
+    'erp/warehouse-transfer' => ['Transfer Antar Gudang', 'Transfer stok antar gudang/cabang.', ['Transfer request', 'Approval transfer', 'Penerimaan transfer']],
+    'erp/min-stock' => ['Minimum Stock Alert', 'Peringatan stok minimum dan reorder point.', ['Alert otomatis', 'Reorder point', 'Notifikasi stok rendah']],
+    'erp/serial-number' => ['Serial Number / IMEI', 'Tracking produk dengan nomor seri.', ['Input serial number', 'Tracking per produk', 'Riwayat serial']],
+    'erp/product-batch' => ['Batch Produk', 'Manajemen produk dengan batch/expired date.', ['Batch number', 'Expired date', 'FIFO tracking']],
+    'erp/stock-history' => ['History Pergerakan Barang', 'Riwayat lengkap pergerakan inventory.', ['Stok masuk', 'Stok keluar', 'Adjustment stok']],
+];
+
+// PURCHASE FLOW
+$purchaseFlowComingSoon = [
+    'erp/purchase-request' => ['Permintaan Pembelian', 'Request pembelian dari departemen.', ['Buat PR', 'Approval PR', 'Konversi ke PO']],
+    'erp/purchase-approval' => ['Approval Purchase', 'Workflow approval untuk pembelian.', ['Multi-level approval', 'Reject dengan alasan', 'History approval']],
+    'erp/supplier-invoice' => ['Invoice Supplier', 'Pencatatan invoice dari supplier.', ['Input invoice', 'Matching dengan PO', 'Pembayaran invoice']],
+    'erp/payable-due' => ['Hutang Jatuh Tempo', 'Monitoring hutang yang akan jatuh tempo.', ['Reminder otomatis', 'Overdue alert', 'Cash flow planning']],
+];
+
+// SALES FLOW
+$salesFlowComingSoon = [
+    'erp/quotation' => ['Quotation / Penawaran', 'Buat dan kirim penawaran harga ke customer.', ['Template quotation', 'Validitas quotation', 'Konversi ke sales order']],
+    'erp/sales-target' => ['Sales Target', 'Target penjualan per salesman/periode.', ['Target bulanan', 'Target tahunan', 'Tracking pencapaian']],
+    'erp/sales-commission' => ['Komisi Sales', 'Perhitungan komisi penjualan otomatis.', ['Komisi per produk', 'Komisi per target', 'Pembayaran komisi']],
+    'erp/sales-receivable' => ['Piutang Penjualan', 'Monitoring piutang dari penjualan.', ['Invoice outstanding', 'Collection tracking', 'Bad debt provision']],
+    'erp/order-tracking' => ['Tracking Status Order', 'Monitoring status pesanan dari awal sampai selesai.', ['Status real-time', 'ETA estimation', 'Customer notification']],
+];
+
+// HR / KARYAWAN
+$hrComingSoon = [
+    'erp/employees' => ['Data Karyawan', 'Database lengkap data karyawan.', ['Profil karyawan', 'Data pribadi', 'Data kepegawaian']],
+    'erp/attendance' => ['Absensi', 'Sistem absensi karyawan.', ['Check-in/out', 'Overtime tracking', 'Laporan absensi']],
+    'erp/payroll' => ['Gaji', 'Perhitungan gaji dan payroll processing.', ['Perhitungan gaji', 'Deductions', 'Payslip generation']],
+    'erp/roles' => ['Role & Hak Akses', 'Manajemen role dan permission sistem.', ['Role management', 'Permission matrix', 'User assignment']],
+    'erp/audit-log' => ['Aktivitas User / Audit Log', 'Log aktivitas semua user dalam sistem.', ['Login history', 'Action tracking', 'Security audit']],
+];
+
+// DASHBOARD ANALYTICS
+$analyticsComingSoon = [
+    'erp/analytics' => ['Analytics Dashboard', 'Dashboard analitik komprehensif.', ['Real-time metrics', 'Custom dashboard', 'Export analytics']],
+];
+
+// FITUR TOKO ELEKTRONIK
+$electronicStoreComingSoon = [
+    'erp/service' => ['Servis Barang', 'Manajemen servis produk elektronik.', ['Service request', 'Service tracking', 'Service history']],
+    'erp/warranty' => ['Klaim Garansi', 'Proses klaim garansi produk.', ['Warranty check', 'Claim processing', 'Warranty status']],
+    'erp/service-tracking' => ['Tracking Perbaikan', 'Monitoring progress perbaikan.', ['Repair status', 'Technician assignment', 'Completion tracking']],
+    'erp/installment' => ['Kredit Customer', 'Fitur cicilan untuk pembelian.', ['Installment setup', 'Payment schedule', 'Interest calculation']],
+    'erp/installment-due' => ['Jatuh Tempo Cicilan', 'Monitoring cicilan yang jatuh tempo.', ['Due date alert', 'Payment reminder', 'Overdue management']],
+];
+
+// FITUR ENTERPRISE
+$enterpriseComingSoon = [
+    'erp/approval-system' => ['Approval System', 'Sistem approval multi-level untuk berbagai proses.', ['Workflow designer', 'Multi-approver', 'Approval history']],
+    'erp/workflow-automation' => ['Workflow Automation', 'Otomasi proses bisnis.', ['Process automation', 'Trigger setup', 'Integration automation']],
+    'erp/export-pdf-excel' => ['Export PDF/Excel', 'Export laporan dalam berbagai format.', ['PDF export', 'Excel export', 'Custom template']],
+    'erp/template-invoice' => ['Template Invoice', 'Template invoice yang dapat dikustomisasi.', ['Invoice designer', 'Branding', 'Multi-language']],
+    'erp/multi-currency' => ['Multi Currency', 'Dukungan multi mata uang.', ['Currency conversion', 'Exchange rate', 'Currency reports']],
+    'erp/multi-tax' => ['Multi Pajak', 'Konfigurasi pajak kompleks.', ['Tax rules', 'Tax calculation', 'Tax reporting']],
+    'erp/backup-system' => ['Backup System', 'Sistem backup otomatis data.', ['Auto backup', 'Restore point', 'Cloud backup']],
+    'erp/api-public' => ['API Public', 'API untuk integrasi eksternal.', ['REST API', 'API documentation', 'Rate limiting']],
+    'erp/webhook' => ['Webhook', 'Notifikasi real-time ke sistem eksternal.', ['Event triggers', 'Payload customization', 'Security']],
+    'erp/activity-timeline' => ['Activity Timeline', 'Timeline aktivitas sistem.', ['Activity feed', 'User timeline', 'Audit timeline']],
+];
+
+// Combine all coming soon arrays
+$allComingSoon = array_merge(
+    $masterDataComingSoon,
+    $accountingComingSoon,
+    $inventoryComingSoon,
+    $purchaseFlowComingSoon,
+    $salesFlowComingSoon,
+    $hrComingSoon,
+    $analyticsComingSoon,
+    $electronicStoreComingSoon,
+    $enterpriseComingSoon
+);
+
+foreach ($allComingSoon as $path => [$title, $description, $features]) {
+    Route::get('/' . $path, function() use ($title, $description, $features) {
+        return view('erp.coming-soon', compact('title', 'description', 'features'));
+    });
+}
