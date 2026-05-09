@@ -1,59 +1,114 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🛒 Gentong Mas ERP - Sistem Purchase Order
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Sistem ERP berbasis Laravel untuk manajemen purchase order dengan integrasi Kledo dan WhatsApp.
 
-## About Laravel
+## 🚀 Quick Start
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+### Lokal Development
+```bash
+# Clone repo
+git clone https://github.com/Rfsanz1/purchasingorder.git
+cd purchasingorder
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+# Install dependencies
+composer install
+npm install
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+# Setup environment
+cp .env.example .env
+php artisan key:generate
 
-## Learning Laravel
+# Setup database (PostgreSQL)
+# Edit .env untuk DB connection
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+# Migrate & seed
+php artisan migrate
+php artisan db:seed
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+# Jalankan
+php artisan serve
+npm run dev
+```
 
-## Laravel Sponsors
+### 🚂 Deploy ke Railway
+1. Fork repo ini
+2. Connect ke Railway
+3. Set Environment Variables:
+   ```
+   KLEDO_TOKEN = <token dari Kledo API>
+   ADMIN_PASSWORD = admin123
+   ```
+4. Deploy otomatis
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+**Detail setup Railway:** [DEPLOY-RAILWAY.md](DEPLOY-RAILWAY.md)
 
-### Premium Partners
+## 🔧 Environment Variables
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `KLEDO_TOKEN` | ✅ | Token API dari Kledo ERP |
+| `DATABASE_URL` | ✅ | PostgreSQL connection string |
+| `ADMIN_PASSWORD` | ✅ | Password admin dashboard |
+| `FONNTE_TOKEN` | ❌ | Token WhatsApp API (opsional) |
 
-## Contributing
+## 📱 Fitur Utama
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+- ✅ **Purchase Order Management** - Buat & kelola PO
+- ✅ **Kledo Integration** - Sync produk, kontak, invoice
+- ✅ **WhatsApp Notifications** - Kirim notifikasi via WA
+- ✅ **Real-time Dashboard** - Monitoring penjualan
+- ✅ **Multi-user Support** - Role-based access
+- ✅ **Stock Management** - Tracking stok produk
 
-## Code of Conduct
+## 🛠️ Tech Stack
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+- **Backend:** Laravel 12, PHP 8.2
+- **Database:** PostgreSQL
+- **Frontend:** Vue.js 3, Tailwind CSS
+- **Deployment:** Docker, Railway
+- **Integrations:** Kledo ERP, Fonnte WhatsApp
 
-## Security Vulnerabilities
+## 📊 API Endpoints
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### Kledo Integration
+- `GET /api/kledo/token-status` - Cek status koneksi Kledo
+- `GET /api/kledo/products` - Ambil produk dari Kledo
+- `POST /api/kledo/sync` - Sinkronisasi data penjualan
 
-## License
+### Purchase Orders
+- `GET /api/orders` - List semua PO
+- `POST /api/orders` - Buat PO baru
+- `GET /api/orders/{id}` - Detail PO
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## 🔍 Troubleshooting
+
+### Kledo Tidak Konek
+```bash
+# Cek status token
+curl https://your-domain.railway.app/api/kledo/token-status
+```
+
+Response yang benar:
+```json
+{
+  "valid": true,
+  "status": "Token valid"
+}
+```
+
+### Error Umum
+- Pastikan `KLEDO_TOKEN` sudah di-set di Railway
+- Redeploy setelah set environment variables
+- Cek log Railway untuk error details
+
+## 📝 License
+
+MIT License - bebas digunakan untuk keperluan komersial & personal.
+
+## 🤝 Contributing
+
+PR welcome! Pastikan test pass dan kode readable.
+
+---
+
+**Dibuat dengan ❤️ untuk Gentong Mas**

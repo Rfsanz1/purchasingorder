@@ -45,6 +45,13 @@ update_env FONNTE_TOKEN_CUSTOMER "$FONNTE_TOKEN_CUSTOMER"
 update_env FONNTE_GROUP_INVOICE  "$FONNTE_GROUP_INVOICE"
 update_env FONNTE_GROUP_BUKTI_TF "$FONNTE_GROUP_BUKTI_TF"
 
+# ── Validasi KLEDO_TOKEN ──────────────────────────────────────────────────
+if [ -z "$KLEDO_TOKEN" ] || [ "$KLEDO_TOKEN" = "your_kledo_personal_access_token_here" ]; then
+  echo "⚠️  WARNING: KLEDO_TOKEN belum di-set atau masih default!"
+  echo "   Integrasi Kledo tidak akan aktif."
+  echo "   Set di Railway Variables: KLEDO_TOKEN = <token dari Kledo API>"
+fi
+
 # ── DATABASE_URL → DB_* ────────────────────────────────────────────────────
 if [ -n "$DATABASE_URL" ]; then
   echo "Parsing DATABASE_URL..."
