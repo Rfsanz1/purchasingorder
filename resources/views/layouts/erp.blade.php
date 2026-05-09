@@ -835,6 +835,17 @@
                         </a>
                     </div>
                 </div>
+
+                {{-- ===== MARKETPLACE (SALES CHANNEL) ===== --}}
+                @php $marketplaceActive = request()->is('marketplace','marketplace/*'); @endphp
+                <div x-data="{ open: {{ $marketplaceActive ? 'true' : 'false' }} }">
+                    <button @click="open=!open" class="group-header w-full {{ $marketplaceActive ? 'has-active' : '' }}">
+                        <div class="flex items-center gap-2">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M20 13V5a2 2 0 00-2-2H6a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2zM9 21h6M12 17v4"/></svg>
+                            <span>Marketplace</span>
+                        </div>
+                        <svg class="w-3.5 h-3.5 chevron" :class="open ? 'open' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+                    </button>
                     <div class="group-items pl-1 space-y-0.5 mt-0.5" :class="open ? 'open' : 'closed'">
                         <a href="/marketplace" class="sidebar-item {{ request()->is('marketplace') ? 'active' : 'normal' }}">
                             <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V5a2 2 0 00-2-2H6a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2zM9 21h6M12 17v4"/></svg>
