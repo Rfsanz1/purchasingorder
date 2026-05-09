@@ -421,8 +421,9 @@ function adminApp() {
         async fetchOrders() {
             this.loading = true;
             try {
-                const res = await fetch('/api/orders');
-                this.orders = await res.json();
+                const res = await fetch('/api/orders?per_page=200');
+                const data = await res.json();
+                this.orders = Array.isArray(data) ? data : (data.orders || []);
             } catch(e) {}
             finally { this.loading = false; }
         },
