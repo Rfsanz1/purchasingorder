@@ -27,29 +27,19 @@ RUN mkdir -p bootstrap/cache storage/framework/{sessions,views,cache} storage/lo
     && chmod -R 775 bootstrap/cache storage \
     && chown -R www-data:www-data bootstrap/cache storage
 
-<<<<<<< HEAD
-RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
-
-=======
 # Buat .env SEBELUM composer install agar php artisan package:discover tidak crash
->>>>>>> 8387372 (Fix build error by creating environment file earlier)
 RUN cp .env.example .env \
     && sed -i 's/APP_ENV=local/APP_ENV=production/' .env \
     && sed -i 's/APP_DEBUG=true/APP_DEBUG=false/' .env \
     && sed -i 's/LOG_CHANNEL=stack/LOG_CHANNEL=stderr/' .env \
-<<<<<<< HEAD
-    && php artisan key:generate --force \
+    && php artisan key:generate --force
+
+RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+
+RUN php artisan package:discover --ansi \
     && php artisan config:cache \
     && php artisan route:cache \
     && php artisan view:cache \
-    && php artisan package:discover --ansi \
-=======
-    && php artisan key:generate --force
-
-RUN composer install --no-dev --optimize-autoloader --no-interaction
-
-RUN php artisan package:discover --ansi \
->>>>>>> 8387372 (Fix build error by creating environment file earlier)
     && chmod +x start-production.sh
 
 EXPOSE 8080

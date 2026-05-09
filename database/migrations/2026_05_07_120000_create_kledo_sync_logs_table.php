@@ -21,7 +21,7 @@ return new class extends Migration
                 $table->string('memo')->nullable();
                 $table->json('raw_data')->nullable();
                 $table->timestamp('synced_at')->useCurrent();
-                $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
+                $table->timestamp('updated_at')->useCurrent();
             });
         }
     }
