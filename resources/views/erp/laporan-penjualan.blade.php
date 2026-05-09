@@ -40,7 +40,7 @@
                 <p class="text-xs mt-0.5 opacity-80" x-text="tokenMsg"></p>
                 <template x-if="!tokenValid">
                     <p class="text-xs mt-1 font-medium">
-                        Cara fix: Kledo → Pengaturan → API → Buat Token Baru → Copy → Replit Secrets → KLEDO_TOKEN → Save → Restart app
+                        Cara fix: Kledo → Pengaturan → API → Buat Token Baru → Copy → simpan di halaman Integrasi ERP atau environment server → restart aplikasi jika perlu
                     </p>
                 </template>
             </div>

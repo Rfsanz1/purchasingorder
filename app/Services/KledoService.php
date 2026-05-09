@@ -68,10 +68,15 @@ class KledoService
     // HTTP
     // ============================================================
 
+    private static function getToken(): string
+    {
+        return \App\Http\Controllers\IntegrasiController::getToken('kledo_token', 'KLEDO_TOKEN') ?: '';
+    }
+
     private function headers(): array
     {
         return [
-            'Authorization: Bearer ' . env('KLEDO_TOKEN'),
+            'Authorization: Bearer ' . self::getToken(),
             'Accept: application/json',
             'Content-Type: application/json',
         ];

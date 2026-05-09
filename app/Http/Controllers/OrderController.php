@@ -468,7 +468,8 @@ class OrderController extends Controller
             return response()->json(['success' => false, 'error' => 'Gagal menyimpan order ke database'], 500);
         }
 
-        $kledoEnabled = (bool) env('KLEDO_TOKEN');
+        $token = \App\Http\Controllers\IntegrasiController::getToken('kledo_token', 'KLEDO_TOKEN');
+        $kledoEnabled = (bool) $token;
         $response = response()->json([
             'success' => true,
             'message' => 'Order berhasil dikirim! Notifikasi WA & invoice Kledo sedang diproses.',
@@ -589,7 +590,7 @@ class OrderController extends Controller
 
             Order::where('order_id', $orderId)->update(['whatsapp_sent' => $whatsappSent ? 'true' : 'false']);
 
-            if (env('KLEDO_TOKEN') && count($rawItems) > 0) {
+            if (\App\Http\Controllers\IntegrasiController::getToken('kledo_token', 'KLEDO_TOKEN') && count($rawItems) > 0) {
                 try {
                     $kledoItems = [];
                     foreach ($rawItems as $item) {
@@ -812,7 +813,7 @@ class OrderController extends Controller
     // ── Kirim Ulang Invoice ke Kledo ───────────────────────────────────────────
     public function resendKledo(string $orderId): JsonResponse
     {
-        if (!env('KLEDO_TOKEN')) {
+        if (!\App\Http\Controllers\IntegrasiController::getToken('kledo_token', 'KLEDO_TOKEN')) {
             return response()->json(['ok' => false, 'error' => 'KLEDO_TOKEN belum dikonfigurasi'], 400);
         }
 

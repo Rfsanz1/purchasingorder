@@ -21,7 +21,7 @@ class KledoImportSales extends Command
 
     public function handle(): int
     {
-        $this->token = env('KLEDO_API_KEY') ?? env('KLEDO_TOKEN', '');
+        $this->token = \App\Http\Controllers\IntegrasiController::getToken('kledo_token', 'KLEDO_TOKEN') ?? env('KLEDO_API_KEY') ?? env('KLEDO_TOKEN', '');
         $this->base  = rtrim(env('KLEDO_BASE_URL', 'https://api.kledo.com/api/v1/finance'), '/');
 
         if (!$this->token) {

@@ -27,7 +27,7 @@ class KledoSyncController extends Controller
 
     public function __construct()
     {
-        $this->token = env('KLEDO_API_KEY') ?? env('KLEDO_TOKEN', '');
+        $this->token = \App\Http\Controllers\IntegrasiController::getToken('kledo_token', 'KLEDO_TOKEN') ?? env('KLEDO_API_KEY') ?? env('KLEDO_TOKEN', '');
         $this->base  = rtrim(env('KLEDO_BASE_URL', 'https://api.kledo.com/api/v1/finance'), '/');
     }
 
@@ -654,13 +654,13 @@ class KledoSyncController extends Controller
      */
     public function tokenStatus(): JsonResponse
     {
-        $token = env('KLEDO_TOKEN');
+        $token = \App\Http\Controllers\IntegrasiController::getToken('kledo_token', 'KLEDO_TOKEN');
 
         if (!$token) {
             return response()->json([
                 'valid'   => false,
                 'status'  => 'Tidak ada token',
-                'message' => 'KLEDO_TOKEN belum dikonfigurasi di Secrets.',
+                'message' => 'KLEDO_TOKEN belum dikonfigurasi di Secrets atau Database.',
             ]);
         }
 
@@ -728,7 +728,7 @@ class KledoSyncController extends Controller
             }
 
             $result = Process::env([
-                'KLEDO_TOKEN' => env('KLEDO_TOKEN'),
+                'KLEDO_TOKEN' => \App\Http\Controllers\IntegrasiController::getToken('kledo_token', 'KLEDO_TOKEN'),
                 'KLEDO_BASE_URL' => env('KLEDO_BASE_URL', 'https://api.kledo.com/api/v1/finance'),
                 'DATABASE_URL' => env('DATABASE_URL'),
                 'APP_ENV' => env('APP_ENV'),

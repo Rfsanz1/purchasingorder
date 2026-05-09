@@ -130,7 +130,7 @@
                             <button @click="integ._edit = false; integ._newToken = ''"
                                 class="text-sm text-gray-400 hover:text-gray-600 px-2">Batal</button>
                         </div>
-                        <p class="text-xs text-gray-400 mt-1.5">Token disimpan di database ERP — tidak perlu ke Replit Secrets.</p>
+                        <p class="text-xs text-gray-400 mt-1.5">Token disimpan di database ERP — tidak perlu lagi menyimpan token di environment server.</p>
                     </div>
                 </div>
             </div>
@@ -140,8 +140,8 @@
     {{-- Info Box --}}
     <div x-show="!loading" x-cloak class="mt-5 bg-blue-50 border border-blue-100 rounded-2xl px-4 py-3.5 text-xs text-blue-700 space-y-1">
         <p class="font-semibold">Cara kerja Integrasi:</p>
-        <p>• Token yang disimpan di sini (database) akan dipakai terlebih dahulu, menggantikan token dari Replit Secrets.</p>
-        <p>• Kalau tidak ada token di database, sistem otomatis pakai token dari Replit Secrets / environment.</p>
+        <p>• Token yang disimpan di sini (database) akan dipakai terlebih dahulu, menggantikan token dari environment server.</p>
+        <p>• Kalau tidak ada token di database, sistem otomatis pakai token dari environment server.</p>
         <p>• Klik <strong>Test</strong> untuk memverifikasi koneksi ke masing-masing layanan.</p>
     </div>
 </div>

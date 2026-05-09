@@ -20,7 +20,7 @@ class KledoAutoSync extends Command
 
     public function handle(): int
     {
-        $token = env('KLEDO_TOKEN');
+        $token = \App\Http\Controllers\IntegrasiController::getToken('kledo_token', 'KLEDO_TOKEN');
         if (!$token) {
             $this->error('KLEDO_TOKEN belum dikonfigurasi!');
             Log::error('KledoAutoSync: Token tidak dikonfigurasi');

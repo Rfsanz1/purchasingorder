@@ -10,10 +10,15 @@ class KledoController extends Controller
     private string $kledoBase = 'https://api.kledo.com/api/v1/finance';
     private array $cache = [];
 
+    protected static function getToken(): string
+    {
+        return \App\Http\Controllers\IntegrasiController::getToken('kledo_token', 'KLEDO_TOKEN') ?: '';
+    }
+
     private function kledoHeaders(): array
     {
         return [
-            'Authorization' => 'Bearer ' . env('KLEDO_TOKEN'),
+            'Authorization' => 'Bearer ' . self::getToken(),
             'Accept'        => 'application/json',
             'Content-Type'  => 'application/json',
         ];
@@ -218,7 +223,7 @@ class KledoController extends Controller
         try {
             $base    = 'https://api.kledo.com/api/v1/finance';
             $headers = [
-                'Authorization: Bearer ' . env('KLEDO_TOKEN'),
+                'Authorization: Bearer ' . self::getToken(),
                 'Accept: application/json',
                 'Content-Type: application/json',
             ];
@@ -285,7 +290,7 @@ class KledoController extends Controller
         try {
             $base    = 'https://api.kledo.com/api/v1/finance';
             $headers = [
-                'Authorization: Bearer ' . env('KLEDO_TOKEN'),
+                'Authorization: Bearer ' . self::getToken(),
                 'Accept: application/json',
                 'Content-Type: application/json',
             ];
@@ -375,7 +380,7 @@ class KledoController extends Controller
         try {
             $base    = 'https://api.kledo.com/api/v1/finance';
             $headers = [
-                'Authorization: Bearer ' . env('KLEDO_TOKEN'),
+                'Authorization: Bearer ' . self::getToken(),
                 'Accept: application/json',
                 'Content-Type: application/json',
             ];
@@ -425,7 +430,7 @@ class KledoController extends Controller
         try {
             $base    = 'https://api.kledo.com/api/v1/finance';
             $headers = [
-                'Authorization: Bearer ' . env('KLEDO_TOKEN'),
+                'Authorization: Bearer ' . self::getToken(),
                 'Accept: application/json',
                 'Content-Type: application/json',
             ];
@@ -458,7 +463,7 @@ class KledoController extends Controller
         $perPage   = min(100, max(10, (int) $request->query('per_page', '100')));
 
         try {
-            $token = env('KLEDO_TOKEN');
+            $token = self::getToken();
             if (!$token) {
                 return response()->json(['error' => 'Token Kledo belum diatur'], 401);
             }
@@ -577,7 +582,7 @@ class KledoController extends Controller
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_TIMEOUT        => 30,
                 CURLOPT_HTTPHEADER     => [
-                    'Authorization: Bearer ' . env('KLEDO_TOKEN'),
+                    'Authorization: Bearer ' . self::getToken(),
                     'Accept: application/json',
                 ],
                 CURLOPT_POST      => true,

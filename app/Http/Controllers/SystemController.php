@@ -24,7 +24,7 @@ class SystemController extends Controller
             $ok = false;
         }
 
-        $kledoToken = env('KLEDO_TOKEN');
+        $kledoToken = \App\Http\Controllers\IntegrasiController::getToken('kledo_token', 'KLEDO_TOKEN');
         if (!$kledoToken) {
             $issues[] = 'KLEDO_TOKEN tidak di-set (integrasi Kledo nonaktif)';
         }
