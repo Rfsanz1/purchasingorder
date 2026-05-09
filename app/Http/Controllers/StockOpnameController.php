@@ -54,7 +54,7 @@ class StockOpnameController extends Controller
         $results = array_map(fn($p) => [
             'productId' => $p['localId'] ?? null,
             'sku' => $p['sku'] ?? '',
-            'namaProduk' => $p['namaProduk'] ?? ($p['kledoProductName'] ?? $p['name'] ?? ''),
+            'namaProduk' => $p['nama'] ?? ($p['namaProduk'] ?? ($p['kledoProductName'] ?? ($p['name'] ?? ''))),
             'brand' => $p['brand'] ?? '',
             'expectedQty' => (int) ($p['stok'] ?? 0),
             'source' => $p['stokSrc'] ?? 'kledo',

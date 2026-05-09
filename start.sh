@@ -8,11 +8,11 @@ echo "=== Laravel Start ==="
 # Fungsi set/update env
 set_env() {
   local KEY="$1" VAL="$2"
-  if grep -q "^#\?${KEY}=" .env 2>/dev/null; then
-    sed -i "s|^#\?${KEY}=.*|${KEY}=${VAL}|" .env
-  else
-    echo "${KEY}=${VAL}" >> .env
-  fi
+  local TMPFILE
+  TMPFILE="$(mktemp)"
+  grep -v "^#\?${KEY}=" .env > "$TMPFILE" 2>/dev/null || true
+  echo "${KEY}=${VAL}" >> "$TMPFILE"
+  mv "$TMPFILE" .env
 }
 
 # Buat .env jika belum ada
