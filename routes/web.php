@@ -295,3 +295,4 @@ foreach ($allComingSoon as $path => [$title, $description, $features]) {
         return view('erp.coming-soon', compact('title', 'description', 'features'));
     });
 }
+?>
