@@ -107,7 +107,27 @@ php artisan view:clear 2>/dev/null || true
 
 # ── Migrasi ────────────────────────────────────────────────────────────────
 echo "Running migrations..."
-php artisan migrate --no-interaction --force 2>&1 || echo "WARN: Migrasi gagal"
+MAX_RETRIES=3
+RETRY=0
+while [ $RETRY -lt $MAX_RETRIES ]; do
+  php artisan migrate --no-interaction --force 2>&1
+  MIGRATE_STATUS=$?
+  
+  if [ $MIGRATE_STATUS -eq 0 ]; then
+    echo "✅ Migrasi berhasil"
+    break
+  else
+    RETRY=$((RETRY + 1))
+    if [ $RETRY -lt $MAX_RETRIES ]; then
+      echo "⚠️  Migrasi gagal, retry... ($RETRY/$MAX_RETRIES)"
+      sleep 2
+    else
+      echo "❌ Migrasi gagal setelah $MAX_RETRIES percobaan"
+      # Don't exit, let app start try to work anyway
+      break
+    fi
+  fi
+done
 
 # ── Cache setelah env vars tersedia ────────────────────────────────────────
 echo "Caching config, routes, views..."
