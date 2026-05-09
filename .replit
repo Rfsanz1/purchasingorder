@@ -1,4 +1,4 @@
-modules = ["nodejs-20", "php-8.2", "web", "postgresql-16"]
+modules = ["nodejs-20", "php-8.2", "web"]
 
 [deployment]
 router = "application"
@@ -86,6 +86,10 @@ externalPort = 5000
 [[ports]]
 localPort = 23289
 externalPort = 4200
+
+[[ports]]
+localPort = 23636
+externalPort = 8000
 
 [nix]
 channel = "stable-25_05"
