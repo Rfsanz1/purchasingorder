@@ -46,6 +46,7 @@ Route::get('/kledo/products/{id}', [KledoController::class, 'productDetail']);
 Route::get('/kledo/products', [KledoController::class, 'products']);
 Route::get('/kledo/spm-brands', [KledoController::class, 'spmBrands']);
 Route::get('/kledo/laporan-penjualan', [KledoController::class, 'laporanPenjualan']);
+Route::post('/kledo/auto-sync', [KledoSyncController::class, 'autoSync']);
 
 Route::get('/stock-opname/search-product', [StockOpnameController::class, 'searchProduct']);
 Route::post('/stock-opname', [StockOpnameController::class, 'store']);

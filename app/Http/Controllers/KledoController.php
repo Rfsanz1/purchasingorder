@@ -247,6 +247,39 @@ class KledoController extends Controller
         }
     }
 
+    private static function normalizePhoneForKledo(string $raw): ?string
+    {
+        $cleaned = trim($raw);
+        $cleaned = preg_replace('/[^\d\+]/', '', $cleaned);
+        if ($cleaned === '') {
+            return null;
+        }
+
+        if (str_starts_with($cleaned, '+')) {
+            $cleaned = substr($cleaned, 1);
+        }
+
+        if (str_starts_with($cleaned, '0')) {
+            $cleaned = '62' . substr($cleaned, 1);
+        }
+
+        if (str_starts_with($cleaned, '8')) {
+            $cleaned = '62' . $cleaned;
+        }
+
+        return preg_match('/^\d+$/', $cleaned) ? $cleaned : null;
+    }
+
+    private static function contactMatchesPhone(array $contact, string $phone): bool
+    {
+        $candidate = $contact['phone'] ?? $contact['mobile_phone'] ?? null;
+        if (!$candidate) {
+            return false;
+        }
+        $normalized = self::normalizePhoneForKledo($candidate);
+        return $normalized !== null && $normalized === $phone;
+    }
+
     public static function findOrCreateContact(string $nama, string $telepon, string $alamat): ?int
     {
         try {
@@ -257,25 +290,56 @@ class KledoController extends Controller
                 'Content-Type: application/json',
             ];
 
-            $ch = curl_init("{$base}/contacts?per_page=20&type_id=3&search=" . urlencode($nama));
-            curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 15, CURLOPT_HTTPHEADER => $headers]);
-            $data = json_decode(curl_exec($ch), true);
-            curl_close($ch);
+            $normalizedPhone = self::normalizePhoneForKledo($telepon);
+            $searchName = trim($nama);
+            if (empty($searchName)) {
+                $searchName = 'Customer ' . date('YmdHis');
+            }
+            $searchQueries  = array_filter([
+                $searchName,
+                $normalizedPhone,
+                preg_replace('/\D/', '', $telepon),
+            ]);
 
-            if ($data['success'] ?? false) {
+            foreach ($searchQueries as $query) {
+                $ch = curl_init("{$base}/contacts?per_page=50&type_id=3&search=" . urlencode($query));
+                curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 15, CURLOPT_HTTPHEADER => $headers]);
+                $data = json_decode(curl_exec($ch), true);
+                curl_close($ch);
+
+                if (!($data['success'] ?? false)) {
+                    continue;
+                }
+
                 foreach ($data['data']['data'] ?? [] as $c) {
-                    if (strtolower($c['name']) === strtolower($nama)) {
-                        \Log::info("Kledo contact found: id={$c['id']}");
+                    if (strtolower($c['name']) === strtolower($searchName)) {
+                        \Log::info("Kledo contact found by name: id={$c['id']}");
+                        return $c['id'];
+                    }
+                    if ($normalizedPhone && self::contactMatchesPhone($c, $normalizedPhone)) {
+                        \Log::info("Kledo contact found by phone: id={$c['id']}");
                         return $c['id'];
                     }
                 }
             }
 
-            $payload = json_encode(['name' => $nama, 'address' => $alamat, 'phone' => $telepon, 'type_id' => 3]);
-            $ch      = curl_init("{$base}/contacts");
+            $payload = ['name' => $nama, 'address' => $alamat, 'type_id' => 3];
+            if ($normalizedPhone) {
+                $payload['phone'] = $normalizedPhone;
+            }
+
+            // Pastikan name tidak kosong, gunakan fallback jika perlu
+            if (empty(trim($payload['name']))) {
+                $payload['name'] = 'Customer ' . date('YmdHis');
+            }
+
+            $ch = curl_init("{$base}/contacts");
             curl_setopt_array($ch, [
-                CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 15,
-                CURLOPT_HTTPHEADER => $headers, CURLOPT_POST => true, CURLOPT_POSTFIELDS => $payload,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_TIMEOUT        => 15,
+                CURLOPT_HTTPHEADER     => $headers,
+                CURLOPT_POST          => true,
+                CURLOPT_POSTFIELDS    => json_encode($payload),
             ]);
             $createData = json_decode(curl_exec($ch), true);
             curl_close($ch);
@@ -285,16 +349,20 @@ class KledoController extends Controller
             }
 
             if (isset($createData['message']) && str_contains($createData['message'], 'sudah ada')) {
-                $ch = curl_init("{$base}/contacts?per_page=50&type_id=3&search=" . urlencode($nama));
-                curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 15, CURLOPT_HTTPHEADER => $headers]);
-                $retry = json_decode(curl_exec($ch), true);
-                curl_close($ch);
-                foreach ($retry['data']['data'] ?? [] as $c) {
-                    if (strtolower($c['name']) === strtolower($nama)) return $c['id'];
+                foreach ($searchQueries as $query) {
+                    $ch = curl_init("{$base}/contacts?per_page=50&type_id=3&search=" . urlencode($query));
+                    curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 15, CURLOPT_HTTPHEADER => $headers]);
+                    $retry = json_decode(curl_exec($ch), true);
+                    curl_close($ch);
+                    foreach ($retry['data']['data'] ?? [] as $c) {
+                        if (strtolower($c['name']) === strtolower($searchName) || ($normalizedPhone && self::contactMatchesPhone($c, $normalizedPhone))) {
+                            return $c['id'];
+                        }
+                    }
                 }
             }
 
-            \Log::error('Gagal membuat contact Kledo', ['createData' => $createData]);
+            \Log::error('Gagal membuat contact Kledo', ['payload' => $payload, 'createData' => $createData]);
             return null;
         } catch (\Exception $e) {
             \Log::error('findOrCreateContact error: ' . $e->getMessage());

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Process;
 use App\Models\KledoSyncLog;
 use App\Services\KledoService;
 use App\Http\Controllers\SalesController;
@@ -691,5 +692,65 @@ class KledoSyncController extends Controller
             'message'      => 'Token tidak valid atau sudah expired. Buat token baru di Kledo → Pengaturan → API.',
             'token_prefix' => substr($token, 0, 20) . '...',
         ]);
+    }
+
+    /**
+     * POST /api/kledo/auto-sync
+     * Jalankan sinkronisasi otomatis dari Kledo ke ERP.
+     * Body (opsional): { hours: 1, force: false }
+     */
+    public function autoSync(Request $request): JsonResponse
+    {
+        $hours = (int) $request->input('hours', 1);
+        $force = (bool) $request->input('force', false);
+
+        try {
+            // Debug: check environment variables
+            Log::info('KLEDO_TOKEN from env: ' . env('KLEDO_TOKEN'));
+            Log::info('KLEDO_TOKEN from config: ' . config('services.kledo.token', 'NOT_SET'));
+
+            // Jalankan command dengan Process facade
+            $command = '/usr/local/bin/php ' . base_path('artisan') . ' kledo:auto-sync --hours=' . $hours;
+            if ($force) {
+                $command .= ' --force';
+            }
+
+            $result = Process::env([
+                'KLEDO_TOKEN' => env('KLEDO_TOKEN'),
+                'KLEDO_BASE_URL' => env('KLEDO_BASE_URL', 'https://api.kledo.com/api/v1/finance'),
+                'DATABASE_URL' => env('DATABASE_URL'),
+                'APP_ENV' => env('APP_ENV'),
+                'APP_DEBUG' => env('APP_DEBUG'),
+                'LOG_CHANNEL' => env('LOG_CHANNEL'),
+            ])->run($command, function ($type, $output) {
+                // Log output if needed
+                if ($type === 'err') {
+                    Log::error('Kledo auto-sync stderr: ' . $output);
+                }
+            });
+
+            if ($result->successful()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Auto sync berhasil',
+                    'output' => $result->output(),
+                    'synced_at' => now()->toDateTimeString(),
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Auto sync gagal',
+                    'output' => $result->errorOutput(),
+                    'exit_code' => $result->exitCode(),
+                ], 500);
+            }
+
+        } catch (\Exception $e) {
+            Log::error('Kledo auto-sync API error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Auto sync error: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 }
