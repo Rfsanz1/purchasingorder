@@ -12,7 +12,14 @@ class FonnteHelper
         array $options = []
     ): bool {
         $isGroup = str_ends_with($target, '@g.us');
-        $token   = SettingsController::getSetting($isGroup ? 'fonnteTokenGroup' : 'fonnteTokenCustomer');
+
+        if ($isGroup) {
+            $token = \App\Http\Controllers\IntegrasiController::getToken('fonnte_token_group', 'FONNTE_TOKEN_GROUP')
+                  ?: \App\Http\Controllers\IntegrasiController::getToken('fonnte_token', 'FONNTE_TOKEN');
+        } else {
+            $token = \App\Http\Controllers\IntegrasiController::getToken('fonnte_token_customer', 'FONNTE_TOKEN_CUSTOMER')
+                  ?: \App\Http\Controllers\IntegrasiController::getToken('fonnte_token', 'FONNTE_TOKEN');
+        }
 
         if (!$token) {
             \Log::warning("Fonnte token not set untuk target={$target}, skipping WA");

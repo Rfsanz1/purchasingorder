@@ -682,9 +682,8 @@ class OrderController extends Controller
                                     } elseif ($split['method'] === 'Debit' && $split['bankAccountId']) {
                                         KledoController::payInvoice($invoiceId, $split['bankAccountId'], $split['amount'], "{$memo} (Debit)");
                                     } elseif ($split['method'] === 'Transfer' && $split['bankAccountId']) {
-                                        $hasBukti = isset($buktiTfListFinal[$transferIdx]) && strlen($buktiTfListFinal[$transferIdx]) > 0;
                                         $transferIdx++;
-                                        if ($hasBukti) KledoController::payInvoice($invoiceId, $split['bankAccountId'], $split['amount'], "{$memo} (Transfer)");
+                                        KledoController::payInvoice($invoiceId, $split['bankAccountId'], $split['amount'], "{$memo} (Transfer)");
                                     }
                                 }
                             }
@@ -737,7 +736,7 @@ class OrderController extends Controller
         $buffer   = base64_decode($b64);
         $ext      = explode('/', $mime)[1] ?? 'jpg';
         $filename = "bukti-{$order->order_id}.{$ext}";
-        $groupId  = env('FONNTE_GROUP_ID', '120363356936985289@g.us');
+        $groupId  = SettingsController::getSetting('grupInvoiceId') ?? env('FONNTE_GROUP_ID', '120363356936985289@g.us');
 
         $message = "📸 *Bukti Pengiriman*\n\nOrder: #{$order->order_id}\nCustomer: {$order->nama_kontak} – {$order->nomor_telepon}\nAlamat: {$order->alamat}" .
             ($order->patokan_lokasi ? " – {$order->patokan_lokasi}" : '') . "\nProduk: {$order->nama_produk} × {$order->jumlah_produk}\nDriver: " .
