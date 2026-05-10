@@ -602,9 +602,15 @@ class OrderController extends Controller
                         if (!$productId && !empty($item['namaProduk'])) {
                             $found = KledoController::searchProductByName(trim($item['namaProduk']));
                             if ($found) { $productId = $found['id']; $unitId = $found['unitId']; }
-                            else { continue; }
+                            else {
+                                \Log::warning("Kledo: produk tidak ditemukan, item dilewati", ['namaProduk' => $item['namaProduk'], 'orderId' => $orderId]);
+                                continue;
+                            }
                         }
-                        if (!$productId) continue;
+                        if (!$productId) {
+                            \Log::warning("Kledo: kledoProductId tidak ada dan nama kosong, item dilewati", ['orderId' => $orderId]);
+                            continue;
+                        }
 
                         $kledoItems[] = [
                             'kledoProductId'        => $productId,
@@ -613,6 +619,10 @@ class OrderController extends Controller
                             'jumlahProduk'          => (int)($item['jumlahProduk'] ?? 1),
                             'hargaProduk'           => (int)($item['hargaProduk'] ?? 0),
                         ];
+                    }
+
+                    if (count($kledoItems) === 0) {
+                        \Log::warning("Kledo: tidak ada item yang valid untuk diinvoice, order {$orderId} dilewati. Pastikan produk dipilih dari daftar Kledo.");
                     }
 
                     if (count($kledoItems) > 0) {
