@@ -367,66 +367,6 @@
                     </div>
                 </div>
 
-                {{-- ══ MARKETPLACE CENTER ══ --}}
-                <div class="section-divider" style="color:#ea580c;">Marketplace Center</div>
-
-                <div x-data="{ open: {{ $mktActive ? 'true' : 'false' }} }">
-                    <button @click="open=!open" class="group-header w-full {{ $mktActive ? 'has-active' : '' }}" style="{{ $mktActive ? 'color:#ea580c' : '' }}">
-                        <div class="flex items-center gap-2">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-                            <span>Marketplace</span>
-                        </div>
-                        <svg class="w-3.5 h-3.5 chevron" :class="open ? 'open' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
-                    </button>
-                    <div class="group-items pl-1" :class="open ? 'open' : 'closed'">
-                        {{-- Overview --}}
-                        <div class="sub-label" style="color:#f97316;">Overview</div>
-                        <div class="space-y-0.5">
-                            <a href="/marketplace/overview" class="sidebar-item coming mkt-item"><svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg><span>Overview Marketplace</span><span class="ml-auto badge-mkt">Soon</span></a>
-                            <a href="/marketplace/sync" class="sidebar-item coming mkt-item"><svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg><span>Sinkronisasi Semua</span><span class="ml-auto badge-mkt">Soon</span></a>
-                            <a href="/marketplace/orders" class="sidebar-item coming mkt-item"><svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg><span>Multi Channel Order</span><span class="ml-auto badge-mkt">Soon</span></a>
-                            <a href="/marketplace/chat" class="sidebar-item coming mkt-item"><svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg><span>Multi Channel Chat</span><span class="ml-auto badge-mkt">Soon</span></a>
-                            <a href="/marketplace/analytics" class="sidebar-item coming mkt-item"><svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg><span>Multi Channel Analytics</span><span class="ml-auto badge-mkt">Soon</span></a>
-                            <a href="/marketplace/shipping" class="sidebar-item coming mkt-item"><svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg><span>Multi Channel Shipping</span><span class="ml-auto badge-mkt">Soon</span></a>
-                            <a href="/marketplace/mapping" class="sidebar-item coming mkt-item"><svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/></svg><span>Mapping Produk</span><span class="ml-auto badge-mkt">Soon</span></a>
-                        </div>
-
-                        @php
-                        $mktSubmenus = [
-                            ['key'=>'shopee','label'=>'Shopee','abbr'=>'S','path'=>'shopee'],
-                            ['key'=>'tiktokshop','label'=>'TikTok Shop','abbr'=>'T','path'=>'tiktokshop'],
-                            ['key'=>'tokopedia','label'=>'Tokopedia','abbr'=>'Tp','path'=>'tokopedia'],
-                            ['key'=>'lazada','label'=>'Lazada','abbr'=>'L','path'=>'lazada'],
-                        ];
-                        @endphp
-                        @foreach($mktSubmenus as $mktPlatform)
-                        <div x-data="{ open: {{ request()->is($mktPlatform['path'].'*') ? 'true' : 'false' }} }" class="mt-1">
-                            <button @click="open=!open" class="sub-group-btn w-full" style="color:#ea580c;">
-                                <div class="flex items-center gap-2">
-                                    <span class="w-4 h-4 shrink-0 flex items-center justify-center text-xs font-bold rounded" style="background:#fff1ec;color:#ea580c;">{{ $mktPlatform['abbr'] }}</span>
-                                    <span>{{ $mktPlatform['label'] }}</span>
-                                </div>
-                                <svg class="w-3 h-3 chevron" :class="open ? 'open' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
-                            </button>
-                            <div class="group-items pl-2" :class="open ? 'open' : 'closed'">
-                                <div class="space-y-0.5 mt-0.5">
-                                    <a href="/{{ $mktPlatform['path'] }}/orders" class="sidebar-item {{ request()->is($mktPlatform['path'].'/orders') ? 'active' : 'normal' }}"><svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg><span>Orders</span></a>
-                                    <a href="/{{ $mktPlatform['path'] }}/products" class="sidebar-item coming"><svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg><span>Products</span><span class="ml-auto badge-mkt">Soon</span></a>
-                                    <a href="/{{ $mktPlatform['path'] }}/stocks" class="sidebar-item coming"><svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg><span>Stocks</span><span class="ml-auto badge-mkt">Soon</span></a>
-                                    <a href="/{{ $mktPlatform['path'] }}/chat" class="sidebar-item coming"><svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg><span>Chat</span><span class="ml-auto badge-mkt">Soon</span></a>
-                                    <a href="/{{ $mktPlatform['path'] }}/shipping" class="sidebar-item coming"><svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg><span>Shipping</span><span class="ml-auto badge-mkt">Soon</span></a>
-                                    <a href="/{{ $mktPlatform['path'] }}/voucher" class="sidebar-item coming"><svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M17 17h.01M7 17L17 7M9.5 9.5a2.5 2.5 0 105 0 2.5 2.5 0 10-5 0m5 5a2.5 2.5 0 105 0 2.5 2.5 0 10-5 0"/></svg><span>Voucher</span><span class="ml-auto badge-mkt">Soon</span></a>
-                                    <a href="/{{ $mktPlatform['path'] }}/customers" class="sidebar-item coming"><svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg><span>Customer</span><span class="ml-auto badge-mkt">Soon</span></a>
-                                    <a href="/{{ $mktPlatform['path'] }}/analytics" class="sidebar-item coming"><svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg><span>Analytics</span><span class="ml-auto badge-mkt">Soon</span></a>
-                                    <a href="/{{ $mktPlatform['path'] }}/settings" class="sidebar-item coming"><svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg><span>API Settings</span><span class="ml-auto badge-mkt">Soon</span></a>
-                                </div>
-                            </div>
-                        </div>
-                        @endforeach
-                        <div class="h-1"></div>
-                    </div>
-                </div>
-
                 {{-- ══ REPORTS ══ --}}
                 <div class="section-divider">Reports</div>
 
@@ -500,6 +440,17 @@
                         <a href="/erp/mobile-sync" class="sidebar-item coming"><svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg><span>Mobile Sync</span><span class="ml-auto badge-soon">Soon</span></a>
                         <a href="/erp/payment-gateway" class="sidebar-item coming"><svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg><span>Payment Gateway</span><span class="ml-auto badge-soon">Soon</span></a>
                     </div>
+                </div>
+
+                {{-- ══ MARKETPLACE — tombol bawah ══ --}}
+                <div class="px-1 mt-2">
+                    <a href="/marketplace/login"
+                        class="flex items-center gap-2.5 w-full px-3 py-2.5 rounded-xl font-bold text-sm text-white transition-all hover:opacity-90 hover:shadow-lg"
+                        style="background:linear-gradient(135deg,#ea580c,#f97316);box-shadow:0 2px 10px rgba(234,88,12,0.35);">
+                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                        <span class="flex-1">Marketplace Center</span>
+                        <svg class="w-3.5 h-3.5 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                    </a>
                 </div>
 
                 <div class="h-4"></div>
