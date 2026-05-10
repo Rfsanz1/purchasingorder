@@ -90,7 +90,7 @@ Route::get('/erp/stock-opname', [PageController::class, 'stockOpname'])->name('e
 Route::get('/stock-opname', function () {
     return redirect('/erp/stock-opname');
 });
-Route::get('/pos', [PageController::class, 'pos']);
+// /pos sekarang dihandle oleh React POS App (lihat bagian bawah file)
 Route::get('/api/kledo/data-penjualan', [KledoController::class, 'dataPenjualan']);
 
 // Coming Soon routes
@@ -436,4 +436,54 @@ Route::get('/erp/{platform}/{page}', function ($platform, $page) use ($platformP
     $features     = ['Integrasi ' . $platformName . ' API', 'Sinkronisasi real-time', 'Dashboard terpadu', 'Notifikasi otomatis'];
     return view('erp.coming-soon', compact('title', 'description', 'features'));
 })->where('platform', 'shopee|tiktok|tokopedia|lazada');
+
+// ── POS System — proxy ke React dev server (port 5173) ─────────────────────
+Route::get('/pos/{path?}', function ($path = '') {
+    if (app()->environment('production')) {
+        // Di production, serve dari build output jika ada
+        $buildPath = public_path('pos/index.html');
+        if (file_exists($buildPath)) {
+            return response()->file($buildPath);
+        }
+        return response('<html><body style="font-family:sans-serif;padding:40px">
+            <h2>POS System</h2>
+            <p>Build belum tersedia. Jalankan: <code>cd frontend/artifacts/pos-app && pnpm build</code></p>
+        </body></html>', 200)->header('Content-Type', 'text/html');
+    }
+
+    // Development: proxy ke Vite dev server
+    $query = request()->getQueryString();
+    $url   = 'http://localhost:5173/pos/' . $path . ($query ? '?' . $query : '');
+
+    $ch = curl_init($url);
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_TIMEOUT        => 10,
+        CURLOPT_FAILONERROR    => false,
+        CURLOPT_HEADER         => true,
+    ]);
+    $response = curl_exec($ch);
+    $errno    = curl_errno($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $headerSize = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
+    curl_close($ch);
+
+    if ($errno || $httpCode === 0) {
+        return response()->view('pos-placeholder')->header('Content-Type', 'text/html');
+    }
+
+    $headers = substr($response, 0, $headerSize);
+    $body    = substr($response, $headerSize);
+
+    $contentType = 'text/html';
+    foreach (explode("\r\n", $headers) as $header) {
+        if (stripos($header, 'content-type:') === 0) {
+            $contentType = trim(substr($header, 13));
+            break;
+        }
+    }
+
+    return response($body, $httpCode)->header('Content-Type', $contentType);
+})->where('path', '.*');
 ?>

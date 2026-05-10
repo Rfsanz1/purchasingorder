@@ -2,6 +2,16 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Modules\POS\Controllers\PosAuthController;
+use App\Modules\POS\Controllers\PosDashboardController;
+use App\Modules\POS\Controllers\PosProductController;
+use App\Modules\POS\Controllers\PosCategoryController;
+use App\Modules\POS\Controllers\PosCustomerController;
+use App\Modules\POS\Controllers\PosSupplierController;
+use App\Modules\POS\Controllers\PosSaleController;
+use App\Modules\POS\Controllers\PosPurchaseController;
+use App\Modules\POS\Controllers\PosInventoryController;
+use App\Modules\POS\Controllers\PosReportController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\KledoController;
 use App\Http\Controllers\SettingsController;
@@ -89,3 +99,73 @@ Route::get('/customers/{id}', [App\Http\Controllers\CustomerController::class, '
 Route::post('/customers', [App\Http\Controllers\CustomerController::class, 'store']);
 Route::put('/customers/{id}', [App\Http\Controllers\CustomerController::class, 'update'])->where('id', '[0-9]+');
 Route::delete('/customers/{id}', [App\Http\Controllers\CustomerController::class, 'destroy'])->where('id', '[0-9]+');
+
+// ═══════════════════════════════════════════════════════════════
+// POS SYSTEM — /api/pos/*
+// ═══════════════════════════════════════════════════════════════
+Route::prefix('pos')->group(function () {
+    // Auth (public)
+    Route::post('/auth/login', [PosAuthController::class, 'login']);
+
+    // Protected routes (Sanctum token)
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/auth/me',     [PosAuthController::class, 'me']);
+        Route::post('/auth/logout',[PosAuthController::class, 'logout']);
+
+        // Dashboard
+        Route::get('/dashboard/summary',             [PosDashboardController::class, 'summary']);
+        Route::get('/dashboard/chart',               [PosDashboardController::class, 'chart']);
+        Route::get('/dashboard/top-products',        [PosDashboardController::class, 'topProducts']);
+        Route::get('/dashboard/recent-transactions', [PosDashboardController::class, 'recentTransactions']);
+        Route::get('/dashboard/monthly-revenue',     [PosDashboardController::class, 'monthlyRevenue']);
+
+        // Products
+        Route::get('/products/search',           [PosProductController::class, 'search']);
+        Route::get('/products/low-stock',        [PosProductController::class, 'lowStock']);
+        Route::post('/products/{id}/barcode',    [PosProductController::class, 'generateBarcode']);
+        Route::apiResource('/products', PosProductController::class);
+
+        // Categories & lookup tables
+        Route::get('/categories',     [PosCategoryController::class, 'index']);
+        Route::get('/categories/all', [PosCategoryController::class, 'all']);
+        Route::post('/categories',    [PosCategoryController::class, 'store']);
+        Route::put('/categories/{id}',[PosCategoryController::class, 'update']);
+        Route::delete('/categories/{id}',[PosCategoryController::class, 'destroy']);
+        Route::get('/categories/units',      [PosCategoryController::class, 'units']);
+        Route::get('/categories/price-tiers',[PosCategoryController::class, 'priceTiers']);
+        Route::get('/categories/warehouses', [PosCategoryController::class, 'warehouses']);
+
+        // Customers
+        Route::get('/customers/search',          [PosCustomerController::class, 'search']);
+        Route::get('/customers/{id}/history',    [PosCustomerController::class, 'purchaseHistory']);
+        Route::apiResource('/customers', PosCustomerController::class);
+
+        // Suppliers
+        Route::apiResource('/suppliers', PosSupplierController::class);
+
+        // Sales / Kasir
+        Route::get('/sales/held',       [PosSaleController::class, 'heldTransactions']);
+        Route::post('/sales/hold',      [PosSaleController::class, 'holdTransaction']);
+        Route::delete('/sales/held/{id}',[PosSaleController::class, 'releaseHold']);
+        Route::post('/sales/{id}/cancel',[PosSaleController::class, 'cancel']);
+        Route::apiResource('/sales', PosSaleController::class)->only(['index', 'show', 'store']);
+
+        // Purchases
+        Route::post('/purchases/{id}/receive', [PosPurchaseController::class, 'receive']);
+        Route::apiResource('/purchases', PosPurchaseController::class)->only(['index', 'show', 'store']);
+
+        // Inventory
+        Route::get('/inventory/warehouses', [PosInventoryController::class, 'warehouses']);
+        Route::get('/inventory/stock',      [PosInventoryController::class, 'stockByWarehouse']);
+        Route::get('/inventory/stock-value',[PosInventoryController::class, 'stockValue']);
+        Route::post('/inventory/adjust',    [PosInventoryController::class, 'adjust']);
+        Route::get('/inventory/{productId}/movements',[PosInventoryController::class, 'movements']);
+
+        // Reports
+        Route::get('/reports/sales',        [PosReportController::class, 'sales']);
+        Route::get('/reports/stock',        [PosReportController::class, 'stock']);
+        Route::get('/reports/receivables',  [PosReportController::class, 'receivables']);
+        Route::get('/reports/payables',     [PosReportController::class, 'payables']);
+        Route::get('/reports/cashier',      [PosReportController::class, 'cashier']);
+    });
+});
