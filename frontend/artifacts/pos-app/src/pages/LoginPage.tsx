@@ -28,80 +28,91 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-900 via-primary-800 to-primary-700 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-white/20 backdrop-blur rounded-2xl mb-4 shadow-xl">
-            <Building2 className="w-9 h-9 text-white" />
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 flex items-center justify-center p-4">
+      <div className="w-full max-w-4xl overflow-hidden rounded-[32px] border border-white/10 bg-slate-950/90 shadow-[0_50px_120px_rgba(15,23,42,0.35)] backdrop-blur-xl">
+        <div className="grid gap-0 lg:grid-cols-[1.2fr_1fr]">
+          <div className="p-10 sm:p-14">
+            <div className="mb-10">
+              <div className="inline-flex items-center justify-center rounded-3xl bg-gradient-to-br from-sky-500 to-blue-600 p-4 shadow-lg shadow-sky-500/20">
+                <Building2 className="w-7 h-7 text-white" />
+              </div>
+              <h1 className="mt-8 text-3xl font-semibold text-white">Selamat datang di POS Enterprise</h1>
+              <p className="mt-3 max-w-xl text-sm text-slate-300">Masuk untuk mengelola kasir, produk, stok, penjualan, pembelian, dan laporan dalam satu aplikasi profesional.</p>
+            </div>
+            <div className="rounded-[28px] bg-slate-900/80 p-8 shadow-inner shadow-slate-950/20 border border-white/10">
+              <form onSubmit={handleSubmit} className="space-y-5">
+                <div>
+                  <label className="label">Email / Username</label>
+                  <div className="relative">
+                    <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                    <input
+                      type="text"
+                      placeholder="admin@toko.com"
+                      value={form.email}
+                      onChange={(e) => setForm({ ...form, email: e.target.value })}
+                      className="input pl-12 bg-slate-950/80 text-white placeholder:text-slate-500"
+                      required
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="label">Password</label>
+                  <div className="relative">
+                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                    <input
+                      type={showPw ? 'text' : 'password'}
+                      placeholder="••••••••"
+                      value={form.password}
+                      onChange={(e) => setForm({ ...form, password: e.target.value })}
+                      className="input pl-12 pr-12 bg-slate-950/80 text-white placeholder:text-slate-500"
+                      required
+                    />
+                    <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white">
+                      {showPw ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
+                </div>
+                <button type="submit" disabled={loading} className="btn-primary w-full btn-lg">
+                  {loading ? 'Memproses...' : 'Masuk ke POS'}
+                </button>
+              </form>
+            </div>
+            <div className="mt-8 rounded-[28px] border border-slate-800 bg-slate-950/80 p-4 text-sm text-slate-300">
+              <p className="font-semibold text-slate-100">Akun Demo</p>
+              <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                {[
+                  { label: 'Owner', email: 'owner@toko.com' },
+                  { label: 'Admin', email: 'admin@toko.com' },
+                  { label: 'Kasir', email: 'kasir@toko.com' },
+                  { label: 'Gudang', email: 'gudang@toko.com' },
+                ].map((acc) => (
+                  <button key={acc.email} onClick={() => setForm({ email: acc.email, password: 'password' })} className="rounded-3xl border border-slate-800 bg-slate-900 px-4 py-3 text-left text-sm text-slate-300 hover:border-slate-700 hover:bg-slate-800 transition">
+                    <p className="font-semibold text-slate-100">{acc.label}</p>
+                    <p className="text-xs text-slate-500">{acc.email}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
-          <h1 className="text-2xl font-bold text-white">POS Toko Bahan Bangunan</h1>
-          <p className="text-primary-200 text-sm mt-1">Masuk untuk melanjutkan</p>
-        </div>
-
-        <div className="bg-white rounded-2xl shadow-2xl p-8">
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div>
-              <label className="label">Email / Username</label>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                <input
-                  type="text"
-                  placeholder="admin@toko.com"
-                  value={form.email}
-                  onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  className="input pl-9"
-                  required
-                />
+          <div className="hidden lg:block bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.22),_transparent_30%),linear-gradient(180deg,_rgba(15,23,42,0.92),_rgba(15,23,42,0.98))] p-10 text-white">
+            <div className="rounded-[28px] border border-white/10 bg-white/5 p-8">
+              <p className="text-sm uppercase tracking-[0.32em] text-sky-300">Enterprise POS</p>
+              <h2 className="mt-5 text-2xl font-semibold">Antarmuka POS premium untuk toko bangunan</h2>
+              <p className="mt-4 text-sm leading-7 text-slate-300">Dashboard intuitif, kasir layar penuh, manajemen stok, pelanggan, supplier, dan laporan akurat dalam satu aplikasi.</p>
+              <div className="mt-8 space-y-4 text-sm text-slate-300">
+                <div className="rounded-3xl bg-slate-900/70 p-4">
+                  <p className="font-semibold text-slate-100">Dashboard bersih</p>
+                  <p className="mt-1 text-slate-400">Ringkasan realtime dengan kartu analytics profesional.</p>
+                </div>
+                <div className="rounded-3xl bg-slate-900/70 p-4">
+                  <p className="font-semibold text-slate-100">Kasir modern</p>
+                  <p className="mt-1 text-slate-400">Panel transaksi dan pembayaran cepat di layar kasir.</p>
+                </div>
+                <div className="rounded-3xl bg-slate-900/70 p-4">
+                  <p className="font-semibold text-slate-100">Responsif & touchscreen</p>
+                  <p className="mt-1 text-slate-400">Cocok untuk tablet, monitor kasir, dan layar besar.</p>
+                </div>
               </div>
-            </div>
-
-            <div>
-              <label className="label">Password</label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                <input
-                  type={showPw ? 'text' : 'password'}
-                  placeholder="••••••••"
-                  value={form.password}
-                  onChange={(e) => setForm({ ...form, password: e.target.value })}
-                  className="input pl-9 pr-10"
-                  required
-                />
-                <button type="button" onClick={() => setShowPw(!showPw)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
-                  {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
-              </div>
-            </div>
-
-            <button type="submit" disabled={loading} className="btn-primary w-full btn-lg">
-              {loading ? (
-                <span className="flex items-center gap-2">
-                  <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-                  </svg>
-                  Masuk...
-                </span>
-              ) : 'Masuk'}
-            </button>
-          </form>
-
-          <div className="mt-6 pt-5 border-t border-gray-100">
-            <p className="text-xs text-gray-500 text-center font-medium mb-2">Demo Akun</p>
-            <div className="grid grid-cols-2 gap-2">
-              {[
-                { label: 'Owner', email: 'owner@toko.com' },
-                { label: 'Admin', email: 'admin@toko.com' },
-                { label: 'Kasir', email: 'kasir@toko.com' },
-                { label: 'Gudang', email: 'gudang@toko.com' },
-              ].map((acc) => (
-                <button key={acc.email} onClick={() => setForm({ email: acc.email, password: 'password' })}
-                  className="text-xs bg-gray-50 hover:bg-primary-50 hover:text-primary-700 text-gray-600 border border-gray-200 rounded-lg py-1.5 px-2 transition-all font-medium">
-                  {acc.label}
-                </button>
-              ))}
             </div>
           </div>
         </div>

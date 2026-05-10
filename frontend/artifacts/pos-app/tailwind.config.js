@@ -4,7 +4,7 @@ export default {
   darkMode: 'class',
   theme: {
     extend: {
-      fontFamily: { sans: ['Inter', 'sans-serif'] },
+      fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'] },
       colors: {
         primary: {
           50:  '#eff6ff',
@@ -20,12 +20,15 @@ export default {
           950: '#172554',
         },
       },
+      boxShadow: {
+        'soft-xl': '0 24px 70px rgba(15, 23, 42, 0.12)',
+      },
       animation: {
-        'slide-up': 'slideUp 0.2s ease-out',
-        'fade-in':  'fadeIn 0.15s ease-out',
+        'slide-up': 'slideUp 0.25s ease-out',
+        'fade-in':  'fadeIn 0.2s ease-out',
       },
       keyframes: {
-        slideUp:  { from: { transform: 'translateY(8px)', opacity: '0' }, to: { transform: 'translateY(0)', opacity: '1' } },
+        slideUp:  { from: { transform: 'translateY(10px)', opacity: '0' }, to: { transform: 'translateY(0)', opacity: '1' } },
         fadeIn:   { from: { opacity: '0' }, to: { opacity: '1' } },
       },
     },
