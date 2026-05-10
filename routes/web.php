@@ -239,4 +239,200 @@ foreach ($allComingSoon as $path => [$title, $description, $features]) {
         return view('erp.coming-soon', compact('title', 'description', 'features'));
     });
 }
+
+// ===== ADDITIONAL ROUTES — FINAL UNIFIED MENU STRUCTURE =====
+$extraComingSoon = [
+    // Dashboard
+    'erp/owner-dashboard'    => ['Dashboard Owner', 'Dashboard khusus pemilik bisnis dengan ringkasan finansial.', ['Omzet harian/bulanan', 'Profit overview', 'Hutang & piutang', 'Alert penting']],
+    'erp/multi-branch-analytics' => ['Multi Branch Analytics', 'Analitik komparatif antar cabang.', ['Performa per cabang', 'Ranking cabang', 'Transfer stok', 'Laporan konsolidasi']],
+    // Sales
+    'erp/sales-order'        => ['Sales Order', 'Buat dan kelola sales order.', ['Buat SO', 'Approval SO', 'Konversi ke invoice', 'Tracking SO']],
+    'erp/delivery-order'     => ['Delivery Order', 'Buat dan kelola delivery order.', ['Buat DO dari SO', 'Status pengiriman', 'Cetak surat jalan', 'Konfirmasi penerimaan']],
+    'erp/membership'         => ['Membership Customer', 'Program membership dan tier customer.', ['Tier membership', 'Benefit per tier', 'Upgrade otomatis', 'Statistik member']],
+    // Inventory
+    'erp/sku'                => ['SKU Produk', 'Manajemen kode SKU produk.', ['Generate SKU', 'SKU unique', 'Mapping ke barcode', 'SKU per varian']],
+    'erp/barcode'            => ['Barcode Produk', 'Manajemen barcode dan label produk.', ['Generate barcode', 'Print label', 'Scan barcode', 'Barcode per varian']],
+    'erp/multi-warehouse'    => ['Multi Gudang', 'Manajemen beberapa gudang sekaligus.', ['Daftar gudang', 'Stok per gudang', 'Transfer antar gudang', 'Laporan per gudang']],
+    'erp/rack'               => ['Rak Gudang', 'Manajemen lokasi rak dalam gudang.', ['Peta rak', 'Lokasi produk', 'Kapasitas rak', 'Pencarian lokasi']],
+    'erp/stock-adjustment'   => ['Penyesuaian Stok', 'Koreksi stok manual.', ['Tambah stok', 'Kurangi stok', 'Alasan penyesuaian', 'Riwayat koreksi']],
+    'erp/stock-card'         => ['Kartu Stok', 'Kartu stok per produk.', ['Kartu stok digital', 'Mutasi per produk', 'Saldo awal/akhir', 'Export kartu stok']],
+    'erp/inventory-value'    => ['Nilai Persediaan', 'Laporan nilai persediaan saat ini.', ['Nilai per produk', 'Total nilai inventory', 'Metode FIFO/Average', 'Export laporan']],
+    'erp/fast-moving'        => ['Fast Moving Item', 'Laporan produk dengan pergerakan cepat.', ['Top fast moving', 'Tren pergerakan', 'Reorder suggestion', 'Periode analisis']],
+    'erp/slow-moving'        => ['Slow Moving Item', 'Laporan produk dengan pergerakan lambat.', ['Identifikasi slow moving', 'Dead stock alert', 'Rekomendasi clearance', 'Aging inventory']],
+    'erp/production'         => ['Produksi', 'Manajemen proses produksi.', ['Work order', 'Bill of material', 'Progress produksi', 'Cost produksi']],
+    'erp/assembly'           => ['Perakitan Barang', 'Proses perakitan komponen menjadi produk.', ['Assembly order', 'Komponen needed', 'Status assembly', 'Cost assembly']],
+    'erp/production-formula' => ['Formula Produksi', 'Resep dan formula produksi.', ['Buat formula', 'Komposisi bahan', 'Varian formula', 'Cost per formula']],
+    // Purchase
+    'erp/purchase-return'    => ['Retur Pembelian', 'Retur barang ke supplier.', ['Buat retur', 'Alasan retur', 'Refund dari supplier', 'Laporan retur beli']],
+    'erp/pay-supplier'       => ['Pembayaran Supplier', 'Proses pembayaran ke supplier.', ['Bayar hutang', 'Cicilan pembayaran', 'Rekap pembayaran', 'Konfirmasi pembayaran']],
+    'erp/supplier-analytics' => ['Analisa Supplier', 'Analisis performa supplier.', ['Ketepatan pengiriman', 'Kualitas barang', 'Harga kompetitif', 'Ranking supplier']],
+    // Finance — new cash types
+    'erp/main-cash'          => ['Kas Besar', 'Pengelolaan kas besar perusahaan.', ['Saldo kas besar', 'Mutasi kas', 'Transfer ke kas kecil', 'Laporan kas besar']],
+    'erp/petty-cash'         => ['Kas Kecil', 'Pengelolaan kas kecil operasional.', ['Pengajuan kas kecil', 'Reimbursement', 'Saldo kas kecil', 'Laporan petty cash']],
+    'erp/electronic-cash'    => ['Kas Elektronik', 'Manajemen dompet digital dan e-money.', ['GoPay', 'OVO', 'Dana', 'ShopeePay']],
+    'erp/building-cash'      => ['Kas Bahan Bangunan', 'Kas khusus divisi bahan bangunan.', ['Saldo divisi BB', 'Transaksi BB', 'Laporan divisi', 'Rekonsiliasi BB']],
+    'erp/bank-account'       => ['Rekening Bank', 'Manajemen rekening bank perusahaan.', ['Daftar rekening', 'Saldo per rekening', 'Mutasi rekening', 'Rekonsiliasi']],
+    'erp/bank-transfer'      => ['Transfer Bank', 'Proses transfer antar rekening.', ['Transfer internal', 'Transfer ke supplier', 'Bukti transfer', 'Riwayat transfer']],
+    'erp/giro'               => ['Giro / Cek', 'Manajemen giro dan cek.', ['Input giro masuk', 'Giro keluar', 'Status giro', 'Jatuh tempo giro']],
+    // Accounting
+    'erp/trial-balance'      => ['Neraca Saldo', 'Laporan neraca saldo semua akun.', ['Neraca saldo percobaan', 'Cek balance', 'Per periode', 'Export laporan']],
+    'erp/opening-balance'    => ['Saldo Awal', 'Input saldo awal periode akuntansi.', ['Saldo awal akun', 'Import saldo', 'Validasi saldo', 'Saldo per cabang']],
+    'erp/accounting-period'  => ['Periode Akuntansi', 'Manajemen periode buku.', ['Buka/tutup periode', 'Periode aktif', 'Lock transaksi lama', 'Laporan per periode']],
+    'erp/departments'        => ['Departemen', 'Manajemen departemen untuk alokasi biaya.', ['Daftar departemen', 'Budget per dept', 'Laporan per dept', 'Alokasi biaya']],
+    'erp/projects'           => ['Proyek', 'Tracking biaya dan pendapatan per proyek.', ['Daftar proyek', 'Budget proyek', 'Actual vs budget', 'Laporan proyek']],
+    'erp/budgeting'          => ['Budgeting', 'Perencanaan dan monitoring budget.', ['Budget tahunan', 'Budget per dept', 'Realisasi budget', 'Variance analysis']],
+    'erp/audit-transaction'  => ['Audit Transaksi', 'Audit jejak semua transaksi keuangan.', ['Trail audit', 'Perubahan data', 'User yang mengubah', 'Export audit log']],
+    // Tax
+    'erp/vat'                => ['PPN', 'Manajemen pajak PPN 11%.', ['Hitung PPN', 'Faktur pajak masukan', 'Faktur pajak keluaran', 'Laporan PPN']],
+    'erp/pph'                => ['PPh', 'Manajemen pajak penghasilan.', ['PPh 21', 'PPh 23', 'PPh Final', 'Laporan PPh']],
+    'erp/tax-invoice'        => ['Faktur Pajak', 'Kelola faktur pajak masukan & keluaran.', ['Faktur masukan', 'Faktur keluaran', 'Matching faktur', 'Rekap faktur']],
+    'erp/e-faktur'           => ['e-Faktur', 'Integrasi e-Faktur DJP Online.', ['Upload e-Faktur', 'Status e-Faktur', 'Sinkronisasi DJP', 'CSV export']],
+    'erp/tax-report'         => ['Laporan Pajak', 'Laporan pajak komprehensif.', ['Laporan PPN', 'Laporan PPh', 'SPT Masa', 'Export untuk DJP']],
+    // CRM extended
+    'erp/customer-group'     => ['Customer Group', 'Segmentasi customer berdasarkan grup.', ['Buat grup', 'Assign customer', 'Harga khusus per grup', 'Statistik grup']],
+    'erp/customer-credit'    => ['Customer Credit', 'Limit kredit per customer.', ['Set credit limit', 'Sisa limit', 'Alert over limit', 'History kredit']],
+    'erp/customer-followup'  => ['Follow Up Customer', 'Jadwal follow up dan reminder.', ['Tambah jadwal FU', 'Reminder otomatis', 'Status follow up', 'Laporan FU']],
+    'erp/whatsapp-blast'     => ['WhatsApp Blast', 'Kirim pesan massal via WhatsApp.', ['Pilih penerima', 'Template pesan', 'Jadwal blast', 'Statistik pengiriman']],
+    'erp/payment-reminder'   => ['Reminder Pembayaran', 'Reminder otomatis untuk piutang jatuh tempo.', ['Setup reminder', 'Template reminder', 'Log pengiriman', 'Statistik reminder']],
+    'erp/customer-complaint' => ['Customer Complaint', 'Manajemen keluhan customer.', ['Catat keluhan', 'Assign to team', 'Status penanganan', 'SLA monitoring']],
+    'erp/chatbot-ai'         => ['Chatbot AI', 'Chatbot AI untuk customer service.', ['Auto-reply WA', 'FAQ otomatis', 'Escalate ke CS', 'Statistik chatbot']],
+    'erp/customer-history'   => ['Customer History', 'Riwayat lengkap interaksi customer.', ['Riwayat order', 'Riwayat pembayaran', 'Riwayat komunikasi', 'Customer timeline']],
+    // Delivery extended
+    'erp/delivery-note'      => ['Surat Jalan', 'Buat dan kelola surat jalan.', ['Buat surat jalan', 'Status pengiriman', 'Tanda terima', 'Arsip surat jalan']],
+    'erp/tracking'           => ['Tracking Pengiriman', 'Real-time tracking posisi pengiriman.', ['Map tracking', 'Status real-time', 'ETA estimation', 'Notifikasi customer']],
+    'erp/fleet'              => ['Armada', 'Manajemen kendaraan armada pengiriman.', ['Data kendaraan', 'Status kendaraan', 'Perawatan kendaraan', 'Biaya operasional']],
+    'erp/drivers'            => ['Data Driver', 'Database lengkap driver pengiriman.', ['Profil driver', 'Lisensi SIM', 'Performa driver', 'Penugasan area']],
+    'erp/delivery-schedule'  => ['Jadwal Pengiriman', 'Perencanaan jadwal pengiriman harian.', ['Jadwal per driver', 'Rute optimal', 'Load balancing', 'Konfirmasi jadwal']],
+    // Marketplace Dashboard
+    'erp/marketplace-overview'       => ['Overview Marketplace', 'Ringkasan performa semua marketplace.', ['Total order semua platform', 'Revenue per platform', 'Top produk', 'Trend omzet']],
+    'erp/marketplace-sync'           => ['Sinkronisasi Marketplace', 'Sinkronisasi data ke semua marketplace.', ['Sync produk', 'Sync stok', 'Sync harga', 'Log sinkronisasi']],
+    'erp/marketplace-mapping'        => ['Mapping Produk Marketplace', 'Pemetaan produk ERP ke marketplace.', ['Map per platform', 'Bulk mapping', 'Validasi mapping', 'Laporan mapping']],
+    'erp/marketplace-warehouse-mapping' => ['Mapping Gudang Marketplace', 'Pemetaan gudang ke marketplace.', ['Map gudang Shopee', 'Map gudang TikTok', 'Map gudang Tokopedia', 'Map gudang Lazada']],
+    'erp/marketplace-price-mapping'  => ['Mapping Harga Marketplace', 'Aturan harga per marketplace.', ['Harga dasar', 'Markup per platform', 'Harga promo', 'Sync harga otomatis']],
+    'erp/multi-channel-order'        => ['Multi Channel Order', 'Kelola order dari semua marketplace.', ['Order masuk semua platform', 'Filter per platform', 'Proses massal', 'Status tracking']],
+    'erp/multi-channel-chat'         => ['Multi Channel Chat', 'Chat terpadu dari semua marketplace.', ['Inbox terpadu', 'Template balasan', 'AI reply', 'SLA monitoring']],
+    'erp/multi-channel-analytics'    => ['Multi Channel Analytics', 'Analitik terpadu semua marketplace.', ['Performa per platform', 'Trend penjualan', 'Margin per platform', 'Produk terlaris']],
+    'erp/multi-channel-shipping'     => ['Multi Channel Shipping', 'Kelola pengiriman semua marketplace.', ['Print label massal', 'Pickup request', 'Tracking massal', 'Biaya kirim']],
+    'erp/multi-channel-return'       => ['Multi Channel Return', 'Manajemen retur semua marketplace.', ['Retur masuk', 'Proses retur', 'Refund tracking', 'Laporan retur']],
+    'erp/multi-channel-voucher'      => ['Multi Channel Voucher', 'Voucher untuk semua marketplace.', ['Buat voucher', 'Sync voucher', 'Performa voucher', 'Ekspirasi']],
+    'erp/multi-channel-customer'     => ['Multi Channel Customer', 'CRM marketplace terpadu.', ['Database pembeli', 'Repeat buyer', 'Customer value', 'Segmentasi']],
+    'erp/marketplace-realtime'       => ['Marketplace Realtime Dashboard', 'Monitor marketplace secara real-time.', ['Order masuk real-time', 'Notifikasi penting', 'Alert stok', 'Revenue real-time']],
+    'erp/marketplace-performance'    => ['Marketplace Performance', 'Laporan performa toko marketplace.', ['Shop score', 'Rating toko', 'Response rate', 'Penalty alert']],
+    'erp/marketplace-profit'         => ['Marketplace Profit Analytics', 'Analisis profit per marketplace.', ['Gross profit', 'Net profit setelah fee', 'Margin per produk', 'Perbandingan platform']],
+    'erp/marketplace-fee-report'     => ['Marketplace Fee Report', 'Laporan biaya marketplace.', ['Admin fee', 'Layanan fee', 'Ongkir subsidi', 'Total biaya']],
+    'erp/marketplace-settlement'     => ['Marketplace Settlement', 'Rekonsiliasi settlement marketplace.', ['Settlement per periode', 'Matching pembayaran', 'Selisih settlement', 'Laporan settlement']],
+    'erp/marketplace-cod'            => ['Marketplace COD Monitoring', 'Monitor pesanan COD.', ['COD pending', 'COD selesai', 'COD gagal', 'Remittance COD']],
+    'erp/marketplace-return'         => ['Marketplace Return Management', 'Kelola retur dari semua marketplace.', ['Return request', 'Approve/reject', 'Refund tracking', 'Laporan retur']],
+    'erp/marketplace-dispute'        => ['Marketplace Dispute Center', 'Kelola sengketa/dispute marketplace.', ['Dispute aktif', 'Upload bukti', 'Status dispute', 'Laporan dispute']],
+    'erp/marketplace-notification'   => ['Marketplace Notification Center', 'Pusat notifikasi marketplace.', ['Notifikasi order', 'Alert stok', 'Notifikasi rating', 'Push notification']],
+    'erp/marketplace-logs'           => ['Marketplace Activity Logs', 'Log aktivitas marketplace.', ['Log API call', 'Log sync', 'Log error', 'Filter per platform']],
+    'erp/marketplace-errors'         => ['Marketplace Error Logs', 'Log error marketplace.', ['Error API', 'Sync failed', 'Retry otomatis', 'Alert error kritis']],
+    'erp/marketplace-scheduler'      => ['Marketplace Scheduler', 'Jadwal otomatis sinkronisasi.', ['Jadwal sync stok', 'Jadwal sync harga', 'Jadwal export', 'Cron job manager']],
+    'erp/marketplace-auto-sync'      => ['Marketplace Auto Sync', 'Sinkronisasi otomatis berkelanjutan.', ['Auto sync stok', 'Trigger sync', 'Interval setting', 'Log auto sync']],
+    'erp/marketplace-api-monitor'    => ['Marketplace API Monitoring', 'Monitor status API marketplace.', ['API health check', 'Response time', 'Error rate', 'Quota API']],
+    'erp/marketplace-chat-ai'        => ['Marketplace Chat AI', 'AI untuk chat marketplace.', ['Auto reply cerdas', 'Template AI', 'Sentiment analysis', 'Eskalasi otomatis']],
+    'erp/marketplace-auto-reply'     => ['Marketplace Auto Reply', 'Balasan otomatis chat marketplace.', ['Template per platform', 'Jam aktif', 'Keyword trigger', 'Statistik reply']],
+    'erp/marketplace-broadcast'      => ['Marketplace Broadcast', 'Broadcast pesan ke pembeli.', ['Broadcast Shopee', 'Broadcast TikTok', 'Segmentasi penerima', 'Jadwal broadcast']],
+    'erp/marketplace-campaign'       => ['Marketplace Campaign', 'Manajemen kampanye promosi.', ['Ikut campaign platform', 'Budget campaign', 'Performa campaign', 'ROI campaign']],
+    'erp/marketplace-flashsale'      => ['Marketplace Flash Sale', 'Manajemen flash sale.', ['Daftar flash sale', 'Setup produk FS', 'Monitor FS real-time', 'Laporan flash sale']],
+    'erp/marketplace-voucher-center' => ['Marketplace Voucher Center', 'Pusat manajemen voucher.', ['Voucher Shopee', 'Voucher TikTok', 'Voucher Tokopedia', 'Voucher Lazada']],
+    'erp/marketplace-pickup'         => ['Marketplace Pickup Request', 'Request pickup semua marketplace.', ['Bulk pickup request', 'Jadwal pickup', 'Konfirmasi kurir', 'Tracking pickup']],
+    'erp/marketplace-label'          => ['Marketplace Shipping Label', 'Print label pengiriman massal.', ['Print label Shopee', 'Print label TikTok', 'Bulk print', 'Label custom']],
+    'erp/marketplace-sla'            => ['Marketplace SLA Monitoring', 'Monitor SLA pengiriman.', ['SLA per platform', 'Alert SLA breach', 'Laporan ketepatan', 'Penalty detection']],
+    'erp/marketplace-finance-sync'   => ['Marketplace Finance Sync', 'Sinkronisasi keuangan marketplace.', ['Sync ke akuntansi', 'Pembukuan otomatis', 'Laporan keuangan MP', 'Rekonsiliasi']],
+    'erp/marketplace-crm'            => ['Marketplace Omnichannel CRM', 'CRM terpadu untuk semua marketplace.', ['Database pembeli', 'Purchase history', 'Segmentasi', 'Loyalty program']],
+    'erp/marketplace-ai-analytics'   => ['Marketplace AI Analytics', 'AI analytics untuk marketplace.', ['Prediksi penjualan', 'Rekomendasi harga', 'Trend produk', 'Kompetitor analysis']],
+    'erp/marketplace-tv'             => ['Marketplace Dashboard TV', 'Dashboard TV untuk monitoring real-time.', ['Tampilan TV mode', 'Fullscreen dashboard', 'Auto refresh', 'Multi platform view']],
+    // Service Center
+    'erp/sparepart'          => ['Sparepart', 'Manajemen sparepart untuk servis.', ['Database sparepart', 'Stok sparepart', 'Harga sparepart', 'Ketersediaan']],
+    'erp/technician'         => ['Teknisi', 'Manajemen teknisi servis.', ['Data teknisi', 'Spesialisasi', 'Jadwal teknisi', 'Performa teknisi']],
+    'erp/service-schedule'   => ['Jadwal Service', 'Jadwal perbaikan dan servis.', ['Booking servis', 'Antrian servis', 'Estimasi selesai', 'Notifikasi customer']],
+    'erp/service-history'    => ['Riwayat Service', 'Riwayat lengkap servis barang.', ['History per barang', 'History per customer', 'Biaya servis', 'Laporan servis']],
+    // Reports extended
+    'erp/report-purchase'    => ['Laporan Pembelian', 'Analisis data pembelian ke supplier.', ['Total pembelian', 'Per supplier', 'Per produk', 'Trend pembelian']],
+    'erp/report-inventory'   => ['Laporan Inventori', 'Laporan lengkap kondisi inventori.', ['Nilai inventory', 'Fast/slow moving', 'Stok kritis', 'Perputaran stok']],
+    'erp/report-tax'         => ['Laporan Pajak', 'Laporan pajak komprehensif.', ['PPN masukan/keluaran', 'PPh per periode', 'Rekap pajak', 'Export SPT']],
+    'erp/profit-product'     => ['Profit Produk', 'Analisis profit per produk.', ['HPP per produk', 'Margin per produk', 'Kontribusi profit', 'Top profitable product']],
+    'erp/profit-branch'      => ['Profit Cabang', 'Analisis profit per cabang.', ['Revenue per cabang', 'Cost per cabang', 'Net profit', 'Ranking cabang']],
+    'erp/sales-trend'        => ['Trend Penjualan', 'Tren dan pola penjualan.', ['Daily/weekly/monthly trend', 'Seasonal pattern', 'Prediksi penjualan', 'Grafik interaktif']],
+    'erp/export-pdf'         => ['Export PDF', 'Export laporan ke format PDF.', ['Pilih laporan', 'Kustomisasi layout', 'Download PDF', 'Email laporan']],
+    'erp/export-excel'       => ['Export Excel', 'Export data ke format Excel.', ['Pilih data', 'Format Excel', 'Download xlsx', 'Auto schedule export']],
+    // AI extended
+    'erp/approval-workflow'  => ['Approval Workflow', 'Workflow approval yang dapat dikustomisasi.', ['Design workflow', 'Multi level approval', 'Notifikasi approver', 'Tracking status']],
+    'erp/auto-reminder'      => ['Auto Reminder', 'Reminder otomatis untuk berbagai event.', ['Reminder jatuh tempo', 'Reminder follow up', 'Template reminder', 'Log reminder']],
+    'erp/auto-sync'          => ['Auto Sync Marketplace', 'Sinkronisasi otomatis ke marketplace.', ['Sync real-time', 'Trigger based sync', 'Conflict resolution', 'Log sinkronisasi']],
+    'erp/forecasting'        => ['Smart Forecasting', 'Prediksi cerdas berbasis AI.', ['Prediksi demand', 'Forecast penjualan', 'Recommendation engine', 'Akurasi prediksi']],
+    // HRD extended
+    'erp/incentive'          => ['Bonus & Insentif', 'Manajemen bonus dan insentif karyawan.', ['Perhitungan bonus', 'Insentif penjualan', 'Komisi tim', 'Laporan insentif']],
+    'erp/division'           => ['Divisi', 'Manajemen divisi dan departemen.', ['Daftar divisi', 'Struktur organisasi', 'Budget divisi', 'KPI divisi']],
+    'erp/work-schedule'      => ['Jadwal Kerja', 'Manajemen jadwal kerja karyawan.', ['Jadwal shift', 'Jadwal piket', 'Cuti & izin', 'Lembur']],
+    'erp/login-activity'     => ['Login Activity', 'Monitoring aktivitas login user.', ['Log login', 'Perangkat login', 'Lokasi login', 'Suspicious activity']],
+    'erp/device-management'  => ['Device Management', 'Manajemen perangkat yang digunakan.', ['Daftar perangkat', 'Revoke akses', 'Device trust', 'Aktivitas per perangkat']],
+    // System extended
+    'erp/integration/kledo'        => ['Kledo API', 'Konfigurasi integrasi Kledo.', ['API key setup', 'Sinkronisasi data', 'Mapping akun', 'Log sinkronisasi']],
+    'erp/integration/accurate'     => ['Accurate API', 'Konfigurasi integrasi Accurate.', ['Setup koneksi', 'Sinkronisasi jurnal', 'Mapping COA', 'Status integrasi']],
+    'erp/integration/shopee'       => ['Shopee API', 'Konfigurasi integrasi Shopee.', ['App ID & Secret', 'OAuth token', 'Webhook setup', 'Test koneksi']],
+    'erp/integration/whatsapp'     => ['WhatsApp API', 'Konfigurasi integrasi WhatsApp.', ['Fonnte token', 'Template pesan', 'Webhook WA', 'Test kirim WA']],
+    'erp/integration/telegram'     => ['Telegram Bot', 'Konfigurasi bot Telegram.', ['Bot token', 'Chat ID', 'Notifikasi via Telegram', 'Command bot']],
+    'erp/integration/google-sheet' => ['Google Sheets', 'Integrasi dengan Google Sheets.', ['Authorize Google', 'Sheet ID', 'Auto export', 'Sync jadwal']],
+    'erp/company-profile'          => ['Profil Perusahaan', 'Data dan informasi perusahaan.', ['Nama perusahaan', 'Alamat', 'Logo', 'Info pajak NPWP']],
+    'erp/document-numbering'       => ['Penomoran Dokumen', 'Konfigurasi format nomor dokumen.', ['Format invoice', 'Format PO', 'Format DO', 'Reset counter']],
+    'erp/sync'                     => ['Sinkronisasi', 'Sinkronisasi data antar sistem.', ['Sync manual', 'Status sync', 'Conflict resolution', 'Log sync']],
+    'erp/theme'                    => ['Tema & Tampilan', 'Kustomisasi tampilan sistem.', ['Dark mode', 'Warna tema', 'Layout setting', 'Font size']],
+    'erp/backup'                   => ['Backup System', 'Sistem backup otomatis.', ['Auto backup', 'Restore point', 'Download backup', 'Jadwal backup']],
+];
+foreach ($extraComingSoon as $path => [$title, $description, $features]) {
+    Route::get('/' . $path, function() use ($title, $description, $features) {
+        return view('erp.coming-soon', compact('title', 'description', 'features'));
+    });
+}
+
+// Marketplace sub-platform wildcard routes (Shopee/TikTok/Tokopedia/Lazada under /erp/)
+$platformPageTitles = [
+    'dashboard'       => 'Dashboard',
+    'orders'          => 'Orders',
+    'pending-orders'  => 'Pending Orders',
+    'process-orders'  => 'Process Orders',
+    'completed-orders'=> 'Completed Orders',
+    'cancel-orders'   => 'Cancel Orders',
+    'return-refund'   => 'Return & Refund',
+    'products'        => 'Products',
+    'product-mapping' => 'Product Mapping',
+    'product-draft'   => 'Product Draft',
+    'bulk-upload'     => 'Bulk Upload Product',
+    'product-sync'    => 'Product Sync',
+    'stocks'          => 'Stocks',
+    'stock-sync'      => 'Stock Sync',
+    'stock-buffer'    => 'Stock Buffer',
+    'chat'            => 'Chat',
+    'chat-ai'         => 'Chat AI Reply',
+    'chat-broadcast'  => 'Chat Broadcast',
+    'shipping'        => 'Shipping',
+    'shipping-label'  => 'Shipping Label',
+    'pickup'          => 'Pickup Request',
+    'voucher'         => 'Voucher',
+    'campaign'        => 'Campaign',
+    'flash-sale'      => 'Flash Sale',
+    'customer'        => 'Customer',
+    'customer-loyalty'=> 'Customer Loyalty',
+    'analytics'       => 'Analytics',
+    'profit'          => 'Profit Analytics',
+    'fees'            => 'Fee Analytics',
+    'settlement'      => 'Finance Settlement',
+    'cod-monitor'     => 'COD Monitoring',
+    'api-settings'    => 'API Settings',
+    'webhook'         => 'Webhook',
+    'logs'            => 'Activity Logs',
+    'errors'          => 'Error Logs',
+];
+Route::get('/erp/{platform}/{page}', function ($platform, $page) use ($platformPageTitles) {
+    $platforms = ['shopee' => 'Shopee', 'tiktok' => 'TikTok Shop', 'tokopedia' => 'Tokopedia', 'lazada' => 'Lazada'];
+    if (!array_key_exists($platform, $platforms)) abort(404);
+    $platformName = $platforms[$platform];
+    $pageTitle    = $platformPageTitles[$page] ?? ucwords(str_replace('-', ' ', $page));
+    $title        = $platformName . ' — ' . $pageTitle;
+    $description  = 'Fitur ' . $pageTitle . ' untuk toko ' . $platformName . ' Anda.';
+    $features     = ['Integrasi ' . $platformName . ' API', 'Sinkronisasi real-time', 'Dashboard terpadu', 'Notifikasi otomatis'];
+    return view('erp.coming-soon', compact('title', 'description', 'features'));
+})->where('platform', 'shopee|tiktok|tokopedia|lazada');
 ?>

@@ -1,0 +1,505 @@
+🏢 GENTONG MAS ERP - FINAL UNIFIED MENU STRUCTURE
+(KOMBINASI ERP CUSTOM + KLEDO + ACCURATE)
+──────────────────────────────────────────────
+
+🏠 DASHBOARD
+├── Dashboard Utama `/`
+├── Dashboard Owner `/erp/owner-dashboard`
+├── Analytics Dashboard `/erp/analytics`
+├── Multi Branch Analytics `/erp/multi-branch-analytics`
+├── AI Analytics `/erp/ai-analytics`
+├── Ringkasan Penjualan
+├── Ringkasan Pembelian
+├── Grafik Omzet & Profit
+├── Cash Flow Summary
+├── Stok Menipis
+├── Produk Terlaris
+├── Hutang & Piutang
+└── Aktivitas Terbaru
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚙️ OPERASIONAL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📈 SALES
+├── Buat Order `/po-form`
+├── Riwayat Pesanan `/sales-dashboard`
+├── Riwayat Penjualan `/erp/riwayat-penjualan`
+├── Invoice `/erp/invoice`
+├── Quotation / Penawaran `/erp/quotation`
+├── Sales Order `/erp/sales-order`
+├── Delivery Order `/erp/delivery-order`
+├── Tracking Status Order `/erp/order-tracking`
+├── Sales Target `/erp/sales-target`
+├── Komisi Sales `/erp/sales-commission`
+├── Diskon & Promo `/erp/discount`
+├── Retur Penjualan `/erp/retur`
+├── Piutang Penjualan `/erp/sales-receivable`
+├── Kredit Customer `/erp/installment`
+├── Jatuh Tempo Cicilan `/erp/installment-due`
+├── Membership Customer `/erp/membership`
+├── Loyalty Points `/erp/loyalty`
+└── Multi Price Type `/erp/price-types`
+
+
+📦 INVENTORY & WAREHOUSE
+├── Produk `/products`
+├── Kategori Produk `/erp/product-categories`
+├── Brand Produk `/erp/brands`
+├── SKU Produk `/erp/sku`
+├── Barcode Produk `/erp/barcode`
+├── Satuan Barang `/erp/units`
+├── Serial Number / IMEI `/erp/serial-number`
+├── Batch Produk `/erp/product-batch`
+├── Gudang `/erp/warehouse`
+├── Multi Gudang `/erp/multi-warehouse`
+├── Rak Gudang `/erp/rack`
+├── Stock Opname `/erp/stock-opname`
+├── Stok Masuk `/erp/stock-in`
+├── Stok Keluar `/erp/stock-out`
+├── Mutasi Stok `/erp/stock-mutation`
+├── Transfer Antar Gudang `/erp/warehouse-transfer`
+├── Penyesuaian Stok `/erp/stock-adjustment`
+├── History Pergerakan Barang `/erp/stock-history`
+├── Minimum Stock Alert `/erp/min-stock`
+├── Kartu Stok `/erp/stock-card`
+├── Nilai Persediaan `/erp/inventory-value`
+├── Fast Moving Item `/erp/fast-moving`
+├── Slow Moving Item `/erp/slow-moving`
+├── AI Inventory `/erp/ai-inventory`
+├── Produksi `/erp/production`
+├── Perakitan Barang `/erp/assembly`
+└── Formula Produksi `/erp/production-formula`
+
+
+🛒 PURCHASE
+├── Supplier `/erp/supplier`
+├── Purchase Request `/erp/purchase-request`
+├── Purchase Order `/erp/purchase-order`
+├── Approval Purchase `/erp/purchase-approval`
+├── Penerimaan Barang `/erp/goods-receipt`
+├── Invoice Supplier `/erp/supplier-invoice`
+├── Retur Pembelian `/erp/purchase-return`
+├── Hutang Supplier `/erp/account-payable`
+├── Hutang Jatuh Tempo `/erp/payable-due`
+├── Pembayaran Supplier `/erp/pay-supplier`
+└── Analisa Supplier `/erp/supplier-analytics`
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+💰 FINANCE & ACCOUNTING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+💼 FINANCE
+├── Kas Masuk `/erp/cash-in`
+├── Kas Keluar `/erp/cash-out`
+├── Kas Besar `/erp/main-cash`
+├── Kas Kecil `/erp/petty-cash`
+├── Kas Elektronik `/erp/electronic-cash`
+├── Kas Bahan Bangunan `/erp/building-cash`
+├── Pengeluaran `/erp/expense`
+├── Rekening Bank `/erp/bank-account`
+├── Transfer Bank `/erp/bank-transfer`
+├── Giro / Cek `/erp/giro`
+├── Rekonsiliasi Bank `/erp/bank-reconciliation`
+├── Payment Gateway `/erp/payment-gateway`
+├── Multi Currency `/erp/multi-currency`
+└── Arus Kas `/erp/cash-flow`
+
+
+📒 ACCOUNTING
+├── Chart of Accounts (COA) `/erp/chart-of-accounts`
+├── Jurnal Umum `/erp/journal`
+├── Buku Besar `/erp/general-ledger`
+├── Neraca Saldo `/erp/trial-balance`
+├── Neraca `/erp/balance-sheet`
+├── Laba Rugi `/erp/profit-loss`
+├── Saldo Awal `/erp/opening-balance`
+├── Periode Akuntansi `/erp/accounting-period`
+├── Departemen `/erp/departments`
+├── Proyek `/erp/projects`
+├── Budgeting `/erp/budgeting`
+├── Audit Transaksi `/erp/audit-transaction`
+├── Activity Timeline `/erp/activity-timeline`
+└── Approval System `/erp/approval-system`
+
+
+🧾 TAX & COMPLIANCE
+├── Pajak `/erp/taxes`
+├── Multi Pajak `/erp/multi-tax`
+├── PPN `/erp/vat`
+├── PPh `/erp/pph`
+├── Faktur Pajak `/erp/tax-invoice`
+├── e-Faktur `/erp/e-faktur`
+└── Laporan Pajak `/erp/tax-report`
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+👥 CUSTOMER & DISTRIBUTION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🤝 CRM
+├── Data Customer `/erp/customers`
+├── Customer Group `/erp/customer-group`
+├── Customer Credit `/erp/customer-credit`
+├── Follow Up Customer `/erp/customer-followup`
+├── WhatsApp Blast `/erp/whatsapp-blast`
+├── Reminder Pembayaran `/erp/payment-reminder`
+├── Customer Complaint `/erp/customer-complaint`
+├── Chatbot AI `/erp/chatbot-ai`
+└── Customer History `/erp/customer-history`
+
+
+🚚 DELIVERY & LOGISTICS
+├── Kelola Pengiriman `/admin`
+├── Dashboard Driver `/driver`
+├── Surat Jalan `/erp/delivery-note`
+├── Tracking Pengiriman `/erp/tracking`
+├── Bukti Pengiriman `/erp/delivery-proof`
+├── Multi Channel Shipping `/marketplace/all-shipping`
+├── Armada `/erp/fleet`
+├── Driver `/erp/drivers`
+└── Jadwal Pengiriman `/erp/delivery-schedule`
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🛍️ MARKETPLACE CENTER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📊 MARKETPLACE DASHBOARD
+├── Marketplace Center `/marketplace`
+├── Overview Marketplace `/erp/marketplace-overview`
+├── Sinkronisasi Semua Marketplace `/erp/marketplace-sync`
+├── Mapping Produk Marketplace `/erp/marketplace-mapping`
+├── Mapping Gudang Marketplace `/erp/marketplace-warehouse-mapping`
+├── Mapping Harga Marketplace `/erp/marketplace-price-mapping`
+├── Multi Channel Order `/erp/multi-channel-order`
+├── Multi Channel Chat `/erp/multi-channel-chat`
+├── Multi Channel Analytics `/erp/multi-channel-analytics`
+├── Multi Channel Shipping `/erp/multi-channel-shipping`
+├── Multi Channel Return `/erp/multi-channel-return`
+├── Multi Channel Voucher `/erp/multi-channel-voucher`
+├── Multi Channel Customer `/erp/multi-channel-customer`
+├── Marketplace Realtime Dashboard `/erp/marketplace-realtime`
+├── Marketplace Performance `/erp/marketplace-performance`
+├── Marketplace Profit Analytics `/erp/marketplace-profit`
+├── Marketplace Fee Report `/erp/marketplace-fee-report`
+├── Marketplace Settlement `/erp/marketplace-settlement`
+├── Marketplace COD Monitoring `/erp/marketplace-cod`
+├── Marketplace Return Management `/erp/marketplace-return`
+├── Marketplace Dispute Center `/erp/marketplace-dispute`
+├── Marketplace Notification Center `/erp/marketplace-notification`
+├── Marketplace Activity Logs `/erp/marketplace-logs`
+├── Marketplace Error Logs `/erp/marketplace-errors`
+├── Marketplace Scheduler `/erp/marketplace-scheduler`
+├── Marketplace Auto Sync `/erp/marketplace-auto-sync`
+├── Marketplace API Monitoring `/erp/marketplace-api-monitor`
+├── Marketplace Chat AI `/erp/marketplace-chat-ai`
+├── Marketplace Auto Reply `/erp/marketplace-auto-reply`
+├── Marketplace Broadcast `/erp/marketplace-broadcast`
+├── Marketplace Campaign `/erp/marketplace-campaign`
+├── Marketplace Flash Sale `/erp/marketplace-flashsale`
+├── Marketplace Voucher Center `/erp/marketplace-voucher-center`
+├── Marketplace Pickup Request `/erp/marketplace-pickup`
+├── Marketplace Shipping Label `/erp/marketplace-label`
+├── Marketplace SLA Monitoring `/erp/marketplace-sla`
+├── Marketplace Finance Sync `/erp/marketplace-finance-sync`
+├── Marketplace Omnichannel CRM `/erp/marketplace-crm`
+├── Marketplace AI Analytics `/erp/marketplace-ai-analytics`
+└── Marketplace Dashboard TV `/erp/marketplace-tv`
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🛒 SHOPEE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+├── Dashboard `/erp/shopee/dashboard`
+├── Orders `/erp/shopee/orders`
+├── Pending Orders `/erp/shopee/pending-orders`
+├── Process Orders `/erp/shopee/process-orders`
+├── Completed Orders `/erp/shopee/completed-orders`
+├── Cancel Orders `/erp/shopee/cancel-orders`
+├── Return & Refund `/erp/shopee/return-refund`
+
+├── Products `/erp/shopee/products`
+├── Product Mapping `/erp/shopee/product-mapping`
+├── Product Draft `/erp/shopee/product-draft`
+├── Bulk Upload Product `/erp/shopee/bulk-upload`
+├── Product Sync `/erp/shopee/product-sync`
+
+├── Stocks `/erp/shopee/stocks`
+├── Stock Sync `/erp/shopee/stock-sync`
+├── Stock Buffer `/erp/shopee/stock-buffer`
+
+├── Chat `/erp/shopee/chat`
+├── Chat AI Reply `/erp/shopee/chat-ai`
+├── Chat Broadcast `/erp/shopee/chat-broadcast`
+
+├── Shipping `/erp/shopee/shipping`
+├── Shipping Label `/erp/shopee/shipping-label`
+├── Pickup Request `/erp/shopee/pickup`
+
+├── Voucher `/erp/shopee/voucher`
+├── Campaign `/erp/shopee/campaign`
+├── Flash Sale `/erp/shopee/flash-sale`
+
+├── Customer `/erp/shopee/customer`
+├── Customer Loyalty `/erp/shopee/customer-loyalty`
+
+├── Analytics `/erp/shopee/analytics`
+├── Profit Analytics `/erp/shopee/profit`
+├── Fee Analytics `/erp/shopee/fees`
+
+├── Finance Settlement `/erp/shopee/settlement`
+├── COD Monitoring `/erp/shopee/cod-monitor`
+
+├── API Settings `/erp/shopee/api-settings`
+├── Webhook `/erp/shopee/webhook`
+├── Activity Logs `/erp/shopee/logs`
+└── Error Logs `/erp/shopee/errors`
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🎵 TIKTOK SHOP
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+├── Dashboard `/erp/tiktok/dashboard`
+├── Orders `/erp/tiktok/orders`
+├── Pending Orders `/erp/tiktok/pending-orders`
+├── Process Orders `/erp/tiktok/process-orders`
+├── Completed Orders `/erp/tiktok/completed-orders`
+├── Cancel Orders `/erp/tiktok/cancel-orders`
+├── Return & Refund `/erp/tiktok/return-refund`
+
+├── Products `/erp/tiktok/products`
+├── Product Mapping `/erp/tiktok/product-mapping`
+├── Bulk Upload Product `/erp/tiktok/bulk-upload`
+├── Product Sync `/erp/tiktok/product-sync`
+
+├── Stocks `/erp/tiktok/stocks`
+├── Stock Sync `/erp/tiktok/stock-sync`
+├── Stock Buffer `/erp/tiktok/stock-buffer`
+
+├── Chat `/erp/tiktok/chat`
+├── Chat AI Reply `/erp/tiktok/chat-ai`
+
+├── Shipping `/erp/tiktok/shipping`
+├── Shipping Label `/erp/tiktok/shipping-label`
+├── Pickup Request `/erp/tiktok/pickup`
+
+├── Voucher `/erp/tiktok/voucher`
+├── Campaign `/erp/tiktok/campaign`
+├── Flash Sale `/erp/tiktok/flash-sale`
+
+├── Customer `/erp/tiktok/customer`
+├── Analytics `/erp/tiktok/analytics`
+├── Profit Analytics `/erp/tiktok/profit`
+
+├── Finance Settlement `/erp/tiktok/settlement`
+├── COD Monitoring `/erp/tiktok/cod-monitor`
+
+├── API Settings `/erp/tiktok/api-settings`
+├── Webhook `/erp/tiktok/webhook`
+├── Activity Logs `/erp/tiktok/logs`
+└── Error Logs `/erp/tiktok/errors`
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🛍️ TOKOPEDIA
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+├── Dashboard `/erp/tokopedia/dashboard`
+├── Orders `/erp/tokopedia/orders`
+├── Pending Orders `/erp/tokopedia/pending-orders`
+├── Process Orders `/erp/tokopedia/process-orders`
+├── Completed Orders `/erp/tokopedia/completed-orders`
+├── Cancel Orders `/erp/tokopedia/cancel-orders`
+├── Return & Refund `/erp/tokopedia/return-refund`
+
+├── Products `/erp/tokopedia/products`
+├── Product Mapping `/erp/tokopedia/product-mapping`
+├── Bulk Upload Product `/erp/tokopedia/bulk-upload`
+├── Product Sync `/erp/tokopedia/product-sync`
+
+├── Stocks `/erp/tokopedia/stocks`
+├── Stock Sync `/erp/tokopedia/stock-sync`
+├── Stock Buffer `/erp/tokopedia/stock-buffer`
+
+├── Chat `/erp/tokopedia/chat`
+├── Chat AI Reply `/erp/tokopedia/chat-ai`
+
+├── Shipping `/erp/tokopedia/shipping`
+├── Shipping Label `/erp/tokopedia/shipping-label`
+├── Pickup Request `/erp/tokopedia/pickup`
+
+├── Voucher `/erp/tokopedia/voucher`
+├── Campaign `/erp/tokopedia/campaign`
+├── Flash Sale `/erp/tokopedia/flash-sale`
+
+├── Customer `/erp/tokopedia/customer`
+├── Analytics `/erp/tokopedia/analytics`
+├── Profit Analytics `/erp/tokopedia/profit`
+
+├── Finance Settlement `/erp/tokopedia/settlement`
+├── COD Monitoring `/erp/tokopedia/cod-monitor`
+
+├── API Settings `/erp/tokopedia/api-settings`
+├── Webhook `/erp/tokopedia/webhook`
+├── Activity Logs `/erp/tokopedia/logs`
+└── Error Logs `/erp/tokopedia/errors`
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🛒 LAZADA
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+├── Dashboard `/erp/lazada/dashboard`
+├── Orders `/erp/lazada/orders`
+├── Pending Orders `/erp/lazada/pending-orders`
+├── Process Orders `/erp/lazada/process-orders`
+├── Completed Orders `/erp/lazada/completed-orders`
+├── Cancel Orders `/erp/lazada/cancel-orders`
+├── Return & Refund `/erp/lazada/return-refund`
+
+├── Products `/erp/lazada/products`
+├── Product Mapping `/erp/lazada/product-mapping`
+├── Bulk Upload Product `/erp/lazada/bulk-upload`
+├── Product Sync `/erp/lazada/product-sync`
+
+├── Stocks `/erp/lazada/stocks`
+├── Stock Sync `/erp/lazada/stock-sync`
+├── Stock Buffer `/erp/lazada/stock-buffer`
+
+├── Chat `/erp/lazada/chat`
+├── Chat AI Reply `/erp/lazada/chat-ai`
+
+├── Shipping `/erp/lazada/shipping`
+├── Shipping Label `/erp/lazada/shipping-label`
+├── Pickup Request `/erp/lazada/pickup`
+
+├── Voucher `/erp/lazada/voucher`
+├── Campaign `/erp/lazada/campaign`
+├── Flash Sale `/erp/lazada/flash-sale`
+
+├── Customer `/erp/lazada/customer`
+├── Analytics `/erp/lazada/analytics`
+├── Profit Analytics `/erp/lazada/profit`
+
+├── Finance Settlement `/erp/lazada/settlement`
+├── COD Monitoring `/erp/lazada/cod-monitor`
+
+├── API Settings `/erp/lazada/api-settings`
+├── Webhook `/erp/lazada/webhook`
+├── Activity Logs `/erp/lazada/logs`
+└── Error Logs `/erp/lazada/errors`
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔧 ELECTRONIC STORE FEATURES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔌 SERVICE CENTER
+├── Servis Barang `/erp/service`
+├── Klaim Garansi `/erp/warranty`
+├── Tracking Perbaikan `/erp/service-tracking`
+├── Sparepart `/erp/sparepart`
+├── Teknisi `/erp/technician`
+├── Jadwal Service `/erp/service-schedule`
+└── Riwayat Service `/erp/service-history`
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📊 REPORTS & BUSINESS INTELLIGENCE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📈 REPORTS
+├── Laporan Penjualan `/erp/laporan-penjualan`
+├── Laporan Pembelian `/erp/report-purchase`
+├── Laporan Inventori `/erp/report-inventory`
+├── Laporan Divisi `/erp/laporan-divisi`
+├── Laporan Keuangan `/erp/report-finance`
+├── Laporan Pajak `/erp/report-tax`
+├── Report Driver `/erp/report-driver`
+├── Profit Produk `/erp/profit-product`
+├── Profit Cabang `/erp/profit-branch`
+├── Trend Penjualan `/erp/sales-trend`
+├── Export PDF `/erp/export-pdf`
+├── Export Excel `/erp/export-excel`
+└── Data Kledo `/erp/data-penjualan-kledo`
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🤖 AI & AUTOMATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🧠 AI FEATURES
+├── AI Inventory `/erp/ai-inventory`
+├── AI Analytics `/erp/ai-analytics`
+├── Chatbot AI `/erp/chatbot-ai`
+├── Workflow Automation `/erp/workflow-automation`
+├── Approval Workflow `/erp/approval-workflow`
+├── Auto Reminder `/erp/auto-reminder`
+├── Auto Sync Marketplace `/erp/auto-sync`
+└── Smart Forecasting `/erp/forecasting`
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+👨‍💼 HRD & USER MANAGEMENT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+👥 HRD
+├── Data Karyawan `/erp/employees`
+├── Absensi `/erp/attendance`
+├── Payroll `/erp/payroll`
+├── Bonus & Insentif `/erp/incentive`
+├── Divisi `/erp/division`
+└── Jadwal Kerja `/erp/work-schedule`
+
+
+🔐 USER & SECURITY
+├── Manajemen User `/erp/users`
+├── Roles & Hak Akses `/erp/roles`
+├── Audit Log `/erp/audit-log`
+├── Login Activity `/erp/login-activity`
+├── Backup System `/erp/backup`
+├── Mobile Sync `/erp/mobile-sync`
+├── API Public `/erp/api-public`
+├── Webhook `/erp/webhook`
+└── Device Management `/erp/device-management`
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚙️ SYSTEM & SETTINGS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔧 SISTEM
+├── Integrasi `/erp/integrasi`
+├── Kledo API `/erp/integration/kledo`
+├── Accurate API `/erp/integration/accurate`
+├── Shopee API `/erp/integration/shopee`
+├── WhatsApp API `/erp/integration/whatsapp`
+├── Telegram Bot `/erp/integration/telegram`
+├── Google Sheets `/erp/integration/google-sheet`
+├── Pengaturan `/admin`
+├── Profil Perusahaan `/erp/company-profile`
+├── Template Invoice `/erp/template-invoice`
+├── Penomoran Dokumen `/erp/document-numbering`
+├── Multi Cabang `/erp/multi-branch`
+├── Sinkronisasi `/erp/sync`
+├── Dark Mode `/erp/theme`
+└── Notification Center `/erp/notifications`
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📊 SYSTEM STATISTICS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ Core ERP Modules
+✅ Marketplace Omnichannel
+✅ Finance & Accounting
+✅ Multi Warehouse
+✅ Multi Branch
+✅ AI Automation
+✅ Service Center
+✅ Delivery System
+✅ CRM & HRD
+✅ Kledo + Accurate Integration
+✅ Enterprise Ready
