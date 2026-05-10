@@ -43,11 +43,13 @@ services:
       php artisan migrate --force &&
       php artisan config:cache &&
       php artisan route:cache &&
-      php artisan view:cache &&
       php artisan serve --host=0.0.0.0 --port=8080
       "
     volumes:
       - .:/app
+      - /app/vendor
+      - /app/bootstrap/cache
+      - /app/storage
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/api/orders?limit=1"]

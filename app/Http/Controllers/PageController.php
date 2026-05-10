@@ -80,4 +80,9 @@ class PageController extends Controller
     {
         return view('erp.stock-opname');
     }
+
+    public function pos()
+    {
+        return view('pos');
+    }
 }

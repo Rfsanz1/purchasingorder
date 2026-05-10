@@ -90,6 +90,7 @@ Route::get('/erp/stock-opname', [PageController::class, 'stockOpname'])->name('e
 Route::get('/stock-opname', function () {
     return redirect('/erp/stock-opname');
 });
+Route::get('/pos', [PageController::class, 'pos']);
 Route::get('/api/kledo/data-penjualan', [KledoController::class, 'dataPenjualan']);
 
 // Coming Soon routes

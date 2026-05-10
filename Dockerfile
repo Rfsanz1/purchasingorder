@@ -29,17 +29,15 @@ RUN mkdir -p bootstrap/cache storage/framework/{sessions,views,cache} storage/lo
 
 # Buat .env dulu (tanpa artisan) agar package:discover saat composer install bisa boot Laravel
 RUN cp .env.example .env \
-    && sed -i 's/APP_ENV=local/APP_ENV=production/' .env \
     && sed -i 's/APP_DEBUG=true/APP_DEBUG=false/' .env \
     && sed -i 's/LOG_CHANNEL=stack/LOG_CHANNEL=stderr/' .env
 
 # Composer install — vendor/ dibuat di sini; post-install script (package:discover) butuh .env di atas
-RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+RUN composer install --verbose --optimize-autoloader --no-interaction --prefer-dist
 
 # Sekarang vendor/ sudah ada, baru jalankan artisan
 # config/route/view:cache TIDAK dijalankan di build — env vars belum ada saat build
 RUN php artisan key:generate --force \
-    && php artisan package:discover --ansi \
     && chmod +x start-production.sh
 
 EXPOSE 8080

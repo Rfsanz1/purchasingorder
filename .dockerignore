@@ -11,7 +11,7 @@ replit.nix
 frontend/
 laravel-vite-package.json
 vite.config.js
-vendor/
+# vendor/
 storage/framework/cache/data/
 storage/framework/sessions/
 storage/framework/views/

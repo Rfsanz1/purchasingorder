@@ -130,10 +130,11 @@ while [ $RETRY -lt $MAX_RETRIES ]; do
 done
 
 # ── Cache setelah env vars tersedia ────────────────────────────────────────
-echo "Caching config, routes, views..."
-php artisan config:cache 2>/dev/null || true
-php artisan route:cache 2>/dev/null || true
-php artisan view:cache 2>/dev/null || true
+echo "Caching config..."
+php artisan config:cache 2>&1 || echo "⚠️ Config cache failed - continuing with uncached config"
+# Skip route:cache dan view:cache untuk development/testing - mereka perlu full setup
+# php artisan route:cache 2>&1 || echo "Route cache failed - continuing"
+# php artisan view:cache 2>&1 || echo "View cache failed - continuing"
 
 # ── Start server ───────────────────────────────────────────────────────────
 PORT="${PORT:-8080}"
