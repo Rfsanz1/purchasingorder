@@ -60,8 +60,10 @@ class FonnteHelper
 
             if (isset($tmpFile)) @unlink($tmpFile);
 
-            \Log::info("Fonnte WA sent to {$target}", ['status' => $status, 'response' => $body]);
-            return $status >= 200 && $status < 300;
+            $decoded = json_decode($body, true);
+            $apiSuccess = ($decoded['status'] ?? false) !== false && ($decoded['status'] ?? null) !== 'false';
+            \Log::info("Fonnte WA sent to {$target}", ['status' => $status, 'apiStatus' => $decoded['status'] ?? null, 'response' => $body]);
+            return ($status >= 200 && $status < 300) && $apiSuccess;
         } catch (\Exception $e) {
             \Log::error("Failed to send WA via Fonnte to {$target}: " . $e->getMessage());
             return false;
