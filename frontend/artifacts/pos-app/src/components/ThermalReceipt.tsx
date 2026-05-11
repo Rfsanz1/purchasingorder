@@ -1,5 +1,4 @@
 import { Printer, X } from 'lucide-react'
-import { formatDateTime } from '../utils/format'
 
 export interface ReceiptData {
   invoice_number: string
@@ -29,10 +28,9 @@ export interface ReceiptData {
   notes?: string | null
 }
 
-const STORE_NAME = 'TOKO BANGUNAN'
-const STORE_TAGLINE = 'Solusi Material Terpercaya'
-const STORE_PHONE = '(021) 000-0000'
+const STORE_NAME = 'TOKO BANGUNAN GENTONG MAS'
 const STORE_ADDRESS = 'Jl. Raya Toko No. 1, Jakarta'
+const STORE_PHONE = '(021) 000-0000'
 
 const PAY_LABEL: Record<string, string> = {
   cash: 'Tunai',
@@ -43,133 +41,252 @@ const PAY_LABEL: Record<string, string> = {
 
 function rupiah(n: number | string) {
   const num = typeof n === 'string' ? parseFloat(n) : n
-  return 'Rp ' + (isNaN(num) ? '0' : num.toLocaleString('id-ID'))
+  if (isNaN(num)) return 'Rp 0'
+  return 'Rp ' + num.toLocaleString('id-ID')
 }
 
-function line(char = '-', len = 48) {
-  return char.repeat(len)
+function formatTgl(iso: string) {
+  try {
+    const d = new Date(iso)
+    const pad = (n: number) => String(n).padStart(2, '0')
+    return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`
+  } catch {
+    return iso
+  }
 }
 
-function padBoth(left: string, right: string, total = 48) {
-  const spaces = total - left.length - right.length
-  return left + ' '.repeat(Math.max(1, spaces)) + right
-}
+function buildReceiptHtml(data: ReceiptData): string {
+  const tgl = formatTgl(data.created_at)
+  const customerLine = data.customer_name
+    ? `<tr><td>Pelanggan</td><td>:</td><td><b>${data.customer_name}</b>${data.customer_phone ? ' / ' + data.customer_phone : ''}</td></tr>`
+    : ''
 
-function center(text: string, total = 48) {
-  const pad = Math.max(0, Math.floor((total - text.length) / 2))
-  return ' '.repeat(pad) + text
-}
-
-export function buildReceiptHtml(data: ReceiptData): string {
-  const now = formatDateTime(data.created_at)
-  const lines: string[] = []
-  const push = (s: string) => lines.push(s)
-
-  push(center(STORE_NAME))
-  push(center(STORE_TAGLINE))
-  push(center(STORE_PHONE))
-  push(center(STORE_ADDRESS))
-  push(line())
-  push(`No : ${data.invoice_number}`)
-  push(`Tgl: ${now}`)
-  push(`Kasir: ${data.cashier_name}`)
-  if (data.customer_name) push(`Customer: ${data.customer_name}`)
-  push(line())
-  push(center('DETAIL PEMBELIAN'))
-  push(line())
-
-  for (const item of data.items) {
-    const name = item.product_name.length > 32
-      ? item.product_name.substring(0, 31) + '…'
-      : item.product_name
-    push(name)
+  const itemRows = data.items.map((item) => {
+    const name = item.product_name
     const unit = item.unit_name ? ` ${item.unit_name}` : ''
-    const qty = `${item.qty}${unit} x ${rupiah(item.unit_price)}`
-    const sub = rupiah(item.subtotal)
-    push(padBoth('  ' + qty, sub))
-    if (item.discount_pct && item.discount_pct > 0 && item.discount_amount) {
-      push(`  Diskon ${item.discount_pct}%: -${rupiah(item.discount_amount)}`)
-    }
-  }
+    const qtyPrice = `${item.qty}${unit} × ${rupiah(item.unit_price)}`
+    const discRow = item.discount_pct && item.discount_pct > 0 && item.discount_amount
+      ? `<tr class="disc-row"><td colspan="2" style="padding-left:8px;font-size:10px;color:#555">Diskon ${item.discount_pct}%</td><td style="text-align:right;font-size:10px;color:#555">-${rupiah(item.discount_amount)}</td></tr>`
+      : ''
+    return `
+      <tr class="item-name-row"><td colspan="3"><b>${name}</b></td></tr>
+      <tr class="item-price-row">
+        <td colspan="2" style="padding-left:8px;color:#444">${qtyPrice}</td>
+        <td style="text-align:right;font-weight:600">${rupiah(item.subtotal)}</td>
+      </tr>
+      ${discRow}`
+  }).join('')
 
-  push(line())
-  push(padBoth('Subtotal', rupiah(data.subtotal)))
-  if (data.discount_amount > 0) {
-    const dLabel = data.discount_pct ? `Diskon (${data.discount_pct}%)` : 'Diskon'
-    push(padBoth(dLabel, `-${rupiah(data.discount_amount)}`))
-  }
-  if (data.tax_amount > 0) {
-    const tLabel = data.tax_pct ? `Pajak (${data.tax_pct}%)` : 'Pajak'
-    push(padBoth(tLabel, rupiah(data.tax_amount)))
-  }
-  push(line('='))
-  push(padBoth('TOTAL', rupiah(data.grand_total)))
-  push(line('='))
+  const discountRow = data.discount_amount > 0
+    ? `<tr><td colspan="2">${data.discount_pct ? `Diskon (${data.discount_pct}%)` : 'Diskon'}</td><td style="text-align:right;color:#c00">-${rupiah(data.discount_amount)}</td></tr>`
+    : ''
+  const taxRow = data.tax_amount > 0
+    ? `<tr><td colspan="2">${data.tax_pct ? `Pajak (${data.tax_pct}%)` : 'Pajak'}</td><td style="text-align:right">${rupiah(data.tax_amount)}</td></tr>`
+    : ''
 
-  for (const p of data.payments) {
-    push(padBoth(PAY_LABEL[p.method] ?? p.method, rupiah(p.amount)))
-  }
-  if (data.change_amount > 0) {
-    push(padBoth('Kembalian', rupiah(data.change_amount)))
-  }
+  const paymentRows = data.payments.map((p) =>
+    `<tr><td colspan="2">${PAY_LABEL[p.method] ?? p.method}</td><td style="text-align:right">${rupiah(p.amount)}</td></tr>`
+  ).join('')
 
-  if (data.notes) {
-    push(line())
-    push(`Catatan: ${data.notes}`)
-  }
+  const changeRow = data.change_amount > 0
+    ? `<tr><td colspan="2">Kembalian</td><td style="text-align:right;color:#080">${rupiah(data.change_amount)}</td></tr>`
+    : ''
 
-  push(line())
-  push(center('Terima kasih atas kunjungan Anda!'))
-  push(center('Barang yang sudah dibeli'))
-  push(center('tidak dapat dikembalikan.'))
-  push(line())
-  push(center('*** SIMPAN STRUK INI ***'))
+  const notesRow = data.notes
+    ? `<div class="notes">Catatan: ${data.notes}</div>`
+    : ''
 
-  return lines.join('\n')
-}
-
-export function printThermalReceipt(data: ReceiptData) {
-  const text = buildReceiptHtml(data)
-  const escaped = text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-
-  const html = `<!DOCTYPE html>
+  return `<!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8">
-<title>Struk ${data.invoice_number}</title>
+<title>Nota ${data.invoice_number}</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
+
   body {
     font-family: 'Courier New', Courier, monospace;
     font-size: 12px;
-    line-height: 1.5;
+    line-height: 1.45;
     color: #000;
     background: #fff;
     width: 302px;
-    padding: 8px 4px;
+    padding: 6px 4px 16px;
   }
-  pre {
-    white-space: pre-wrap;
-    word-break: break-all;
-    font-family: inherit;
-    font-size: inherit;
-    line-height: inherit;
+
+  .header {
+    text-align: center;
+    margin-bottom: 6px;
   }
+  .header .store-name {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .header .store-sub {
+    font-size: 10px;
+    color: #444;
+    margin-top: 1px;
+  }
+
+  .divider {
+    border: none;
+    border-top: 1px dashed #000;
+    margin: 5px 0;
+  }
+  .divider-solid {
+    border: none;
+    border-top: 1px solid #000;
+    margin: 5px 0;
+  }
+  .divider-double {
+    border: none;
+    border-top: 3px double #000;
+    margin: 5px 0;
+  }
+
+  .meta-table {
+    width: 100%;
+    font-size: 11px;
+    border-collapse: collapse;
+  }
+  .meta-table td { padding: 1px 2px; vertical-align: top; }
+  .meta-table td:nth-child(2) { padding: 1px 4px; white-space: nowrap; }
+
+  .section-title {
+    text-align: center;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin: 4px 0 2px;
+  }
+
+  .items-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11.5px;
+  }
+  .items-table td { padding: 1.5px 2px; vertical-align: top; }
+  .item-name-row td { padding-top: 4px; }
+  .item-price-row td { padding-bottom: 2px; }
+
+  .summary-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11.5px;
+  }
+  .summary-table td { padding: 1.5px 2px; vertical-align: middle; }
+  .summary-table td:last-child { text-align: right; white-space: nowrap; }
+
+  .total-row td {
+    font-size: 13px;
+    font-weight: 700;
+    padding: 3px 2px;
+  }
+
+  .payment-section {
+    margin-top: 2px;
+  }
+  .payment-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
+  }
+
+  .notes {
+    font-size: 10px;
+    color: #555;
+    margin-top: 4px;
+    font-style: italic;
+  }
+
+  .footer {
+    text-align: center;
+    font-size: 10px;
+    color: #333;
+    margin-top: 8px;
+    line-height: 1.6;
+  }
+
   @media print {
-    @page { margin: 0; size: 80mm auto; }
-    body { width: 100%; padding: 2mm; }
+    @page {
+      margin: 0;
+      size: 80mm auto;
+    }
+    body {
+      width: 100%;
+      padding: 3mm 2mm 10mm;
+    }
   }
 </style>
 </head>
 <body>
-<pre>${escaped}</pre>
+
+<div class="header">
+  <div class="store-name">${STORE_NAME}</div>
+  <div class="store-sub">${STORE_ADDRESS}</div>
+  <div class="store-sub">Telp: ${STORE_PHONE}</div>
+</div>
+
+<hr class="divider">
+
+<table class="meta-table">
+  <tr><td>No. Nota</td><td>:</td><td><b>${data.invoice_number}</b></td></tr>
+  <tr><td>Tanggal</td><td>:</td><td>${tgl}</td></tr>
+  <tr><td>Kasir</td><td>:</td><td>${data.cashier_name}</td></tr>
+  ${customerLine}
+</table>
+
+<hr class="divider">
+<div class="section-title">DAFTAR BELANJA</div>
+<hr class="divider">
+
+<table class="items-table">
+  ${itemRows}
+</table>
+
+<hr class="divider-solid">
+
+<table class="summary-table">
+  <tr><td colspan="2">Subtotal</td><td>${rupiah(data.subtotal)}</td></tr>
+  ${discountRow}
+  ${taxRow}
+</table>
+
+<hr class="divider-double">
+
+<table class="summary-table">
+  <tr class="total-row"><td colspan="2">TOTAL</td><td>${rupiah(data.grand_total)}</td></tr>
+</table>
+
+<hr class="divider-double">
+
+<div class="payment-section">
+  <div class="payment-label">PEMBAYARAN</div>
+  <table class="summary-table">
+    ${paymentRows}
+    ${changeRow}
+  </table>
+</div>
+
+${notesRow}
+
+<hr class="divider">
+
+<div class="footer">
+  Terima kasih telah berbelanja!<br>
+  Barang yang sudah dibeli<br>tidak dapat dikembalikan.<br>
+  <b>*** SIMPAN NOTA INI ***</b>
+</div>
+
 </body>
 </html>`
+}
 
-  const w = window.open('', '_blank', 'width=360,height=700,toolbar=0,scrollbars=1')
+export function printThermalReceipt(data: ReceiptData) {
+  const html = buildReceiptHtml(data)
+  const w = window.open('', '_blank', 'width=380,height=760,toolbar=0,scrollbars=1,resizable=1')
   if (!w) {
     alert('Popup diblokir browser. Izinkan popup untuk mencetak struk.')
     return
@@ -177,9 +294,7 @@ export function printThermalReceipt(data: ReceiptData) {
   w.document.write(html)
   w.document.close()
   w.focus()
-  setTimeout(() => {
-    w.print()
-  }, 400)
+  setTimeout(() => w.print(), 500)
 }
 
 interface Props {
@@ -188,49 +303,53 @@ interface Props {
 }
 
 export default function ThermalReceipt({ data, onClose }: Props) {
-  const text = buildReceiptHtml(data)
+  const html = buildReceiptHtml(data)
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <div className="relative flex max-h-[92vh] w-full max-w-sm flex-col rounded-2xl bg-white shadow-2xl">
-        <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4">
+      <div className="relative flex max-h-[92vh] w-full max-w-xs flex-col rounded-2xl bg-white shadow-2xl">
+        <div className="flex items-center justify-between border-b border-gray-200 px-5 py-3">
           <div className="flex items-center gap-2">
-            <Printer size={18} className="text-primary-600" />
-            <span className="text-sm font-bold text-gray-900">Struk Pembayaran</span>
+            <Printer size={17} className="text-primary-600" />
+            <span className="text-sm font-bold text-gray-900">Preview Nota Termal</span>
           </div>
           <button onClick={onClose} className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-700">
             <X size={16} />
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-4">
-          <div
-            className="mx-auto rounded-lg bg-white shadow-inner border border-dashed border-gray-300"
-            style={{ width: '302px', padding: '12px 8px' }}
-          >
-            <pre
-              className="whitespace-pre-wrap break-all text-black"
+        {/* Preview iframe — render HTML yang sama persis seperti print */}
+        <div className="flex-1 overflow-y-auto bg-gray-100 p-3">
+          <div className="mx-auto shadow-md" style={{ width: '302px', background: '#fff' }}>
+            <iframe
+              srcDoc={html}
               style={{
-                fontFamily: "'Courier New', Courier, monospace",
-                fontSize: '11px',
-                lineHeight: '1.55',
+                width: '302px',
+                border: 'none',
+                display: 'block',
+                minHeight: '400px',
               }}
-            >
-              {text}
-            </pre>
+              scrolling="no"
+              onLoad={(e) => {
+                const iframe = e.currentTarget
+                try {
+                  const body = iframe.contentDocument?.body
+                  if (body) {
+                    iframe.style.height = body.scrollHeight + 'px'
+                  }
+                } catch {}
+              }}
+            />
           </div>
         </div>
 
-        <div className="flex gap-3 border-t border-gray-200 px-5 py-4">
+        <div className="flex gap-3 border-t border-gray-200 px-5 py-3">
           <button onClick={onClose} className="btn-secondary flex-1 btn-sm">
             Tutup
           </button>
-          <button
-            onClick={() => printThermalReceipt(data)}
-            className="btn-primary flex-1 btn-sm"
-          >
-            <Printer size={15} />
-            Cetak Struk
+          <button onClick={() => printThermalReceipt(data)} className="btn-primary flex-1 btn-sm">
+            <Printer size={14} />
+            Cetak Nota
           </button>
         </div>
       </div>
