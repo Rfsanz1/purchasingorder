@@ -1,4 +1,5 @@
 @extends('layouts.erp')
+<<<<<<< HEAD
 @section('title', 'Gaji & Payroll')
 @section('content')
 <div x-data="payrollApp()" x-init="init()" class="p-4 md:p-6 max-w-7xl mx-auto">
@@ -47,10 +48,73 @@
                             <td class="px-4 py-3 text-right">
                                 <button @click="bayar(r.id)" x-show="r.status==='Draft'" class="text-green-600 hover:text-green-800 text-xs font-medium mr-2">Bayar</button>
                                 <button @click="del(r.id)" class="text-red-500 hover:text-red-700 text-xs font-medium">Hapus</button>
+=======
+@section('title', 'Penggajian (Payroll)')
+@section('content')
+<div x-data="payrollApp()" x-init="init()" class="p-4 md:p-6 max-w-7xl mx-auto">
+    <div x-show="toast.show" x-cloak x-transition :class="toast.type==='success'?'bg-green-600':'bg-red-600'" class="fixed top-4 right-4 z-50 text-white px-5 py-3 rounded-xl shadow-lg text-sm font-medium" x-text="toast.msg"></div>
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <div><h1 class="text-2xl font-bold text-gray-900">Penggajian (Payroll)</h1><p class="text-gray-500 mt-1 text-sm">Kelola penggajian dan slip gaji karyawan</p></div>
+        <div class="flex gap-2">
+            <select x-model="filterBulan" @change="load()" class="border border-gray-200 rounded-lg px-3 py-2 text-sm">
+                <template x-for="b in bulanList" :key="b.val"><option :value="b.val" x-text="b.label"></option></template>
+            </select>
+            <button @click="prosesGaji()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium text-sm">Proses Gaji</button>
+        </div>
+    </div>
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div class="bg-white rounded-xl border p-4 shadow-sm"><p class="text-xs text-gray-500">Total Karyawan</p><p class="text-2xl font-bold text-gray-900" x-text="stats.total??0"></p></div>
+        <div class="bg-white rounded-xl border p-4 shadow-sm"><p class="text-xs text-gray-500">Total Gaji Pokok</p><p class="text-xl font-bold text-blue-600" x-text="formatRp(stats.totalGajiPokok??0)"></p></div>
+        <div class="bg-white rounded-xl border p-4 shadow-sm"><p class="text-xs text-gray-500">Total Tunjangan</p><p class="text-xl font-bold text-green-600" x-text="formatRp(stats.totalTunjangan??0)"></p></div>
+        <div class="bg-white rounded-xl border p-4 shadow-sm"><p class="text-xs text-gray-500">Total Dibayar</p><p class="text-xl font-bold text-gray-900" x-text="formatRp(stats.totalDibayar??0)"></p></div>
+    </div>
+
+    <div class="bg-white rounded-xl border shadow-sm overflow-hidden">
+        <div class="p-4 border-b flex items-center justify-between">
+            <h2 class="font-bold text-gray-900">Daftar Gaji — <span x-text="bulanLabel"></span></h2>
+            <div class="flex gap-2">
+                <button @click="exportSlip()" class="text-sm border border-gray-200 rounded-lg px-3 py-1.5 text-gray-600 hover:bg-gray-50">Export Excel</button>
+                <button @click="printAll()" class="text-sm border border-gray-200 rounded-lg px-3 py-1.5 text-gray-600 hover:bg-gray-50">Print Semua</button>
+            </div>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-gray-50 border-b"><tr>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Karyawan</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase hidden md:table-cell">Jabatan</th>
+                    <th class="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">Gaji Pokok</th>
+                    <th class="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase hidden lg:table-cell">Tunjangan</th>
+                    <th class="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase hidden lg:table-cell">Potongan</th>
+                    <th class="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">Total Terima</th>
+                    <th class="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Status</th>
+                    <th class="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">Aksi</th>
+                </tr></thead>
+                <tbody class="divide-y divide-gray-50">
+                    <template x-if="loading"><tr><td colspan="8" class="px-4 py-12 text-center text-gray-400">Memuat data payroll...</td></tr></template>
+                    <template x-if="!loading&&items.length===0"><tr><td colspan="8" class="px-4 py-12 text-center text-gray-400">
+                        <p class="font-medium">Belum ada data payroll untuk periode ini</p>
+                        <button @click="prosesGaji()" class="mt-3 bg-green-600 text-white px-4 py-2 rounded-lg text-sm">Proses Gaji Sekarang</button>
+                    </td></tr></template>
+                    <template x-for="g in items" :key="g.id">
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-3"><div class="font-medium text-gray-900" x-text="g.nama"></div><div class="text-xs text-gray-400" x-text="g.divisi||''"></div></td>
+                            <td class="px-4 py-3 hidden md:table-cell text-gray-500" x-text="g.jabatan||'-'"></td>
+                            <td class="px-4 py-3 text-right text-gray-700" x-text="formatRp(g.gaji_pokok||0)"></td>
+                            <td class="px-4 py-3 text-right hidden lg:table-cell text-green-600" x-text="formatRp(g.tunjangan||0)"></td>
+                            <td class="px-4 py-3 text-right hidden lg:table-cell text-red-500" x-text="formatRp(g.potongan||0)"></td>
+                            <td class="px-4 py-3 text-right font-bold text-gray-900" x-text="formatRp((g.gaji_pokok||0)+(g.tunjangan||0)-(g.potongan||0))"></td>
+                            <td class="px-4 py-3 text-center"><span :class="g.status_bayar==='Dibayar'?'bg-green-100 text-green-700':'bg-yellow-100 text-yellow-700'" class="px-2 py-0.5 text-xs font-semibold rounded-full" x-text="g.status_bayar||'Pending'"></span></td>
+                            <td class="px-4 py-3 text-right">
+                                <div class="flex items-center justify-end gap-2">
+                                    <button @click="slipGaji(g)" class="text-blue-600 text-xs hover:underline">Slip</button>
+                                    <template x-if="g.status_bayar!=='Dibayar'"><button @click="bayar(g)" class="text-green-600 text-xs hover:underline">Bayar</button></template>
+                                </div>
+>>>>>>> 62d477c (Activate non-AI related "Coming Soon" features in the sidebar)
                             </td>
                         </tr>
                     </template>
                 </tbody>
+<<<<<<< HEAD
             </table>
         </div>
     </div>
@@ -97,5 +161,37 @@ function payrollApp() {
         formatCurrency(v){return'Rp '+Number(v||0).toLocaleString('id-ID');},
     };
 }
+=======
+                <tfoot x-show="items.length>0" class="bg-gray-50 border-t font-semibold">
+                    <tr>
+                        <td colspan="2" class="px-4 py-3 text-sm text-gray-700">Total</td>
+                        <td class="px-4 py-3 text-right text-sm" x-text="formatRp(items.reduce((a,i)=>a+(parseFloat(i.gaji_pokok)||0),0))"></td>
+                        <td class="px-4 py-3 text-right text-sm hidden lg:table-cell text-green-600" x-text="formatRp(items.reduce((a,i)=>a+(parseFloat(i.tunjangan)||0),0))"></td>
+                        <td class="px-4 py-3 text-right text-sm hidden lg:table-cell text-red-500" x-text="formatRp(items.reduce((a,i)=>a+(parseFloat(i.potongan)||0),0))"></td>
+                        <td class="px-4 py-3 text-right text-sm text-blue-700" x-text="formatRp(items.reduce((a,i)=>a+(parseFloat(i.gaji_pokok)||0)+(parseFloat(i.tunjangan)||0)-(parseFloat(i.potongan)||0),0))"></td>
+                        <td colspan="2"></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+<script>
+function payrollApp(){
+    const now=new Date();
+    const bulanList=Array.from({length:12},(_,i)=>{const d=new Date(now.getFullYear(),now.getMonth()-i,1);return{val:d.toISOString().slice(0,7),label:d.toLocaleDateString('id-ID',{month:'long',year:'numeric'})}});
+    return{items:[],stats:{},loading:false,bulanList,filterBulan:bulanList[0].val,toast:{show:false,msg:'',type:'success'},
+    get bulanLabel(){return this.bulanList.find(b=>b.val===this.filterBulan)?.label||this.filterBulan},
+    async init(){await this.load()},
+    async load(){this.loading=true;try{const r=await fetch(`/api/erp/payroll?bulan=${this.filterBulan}`);if(r.ok){const d=await r.json();this.items=d.data||[];this.stats=d.stats||{total:this.items.length,totalGajiPokok:this.items.reduce((a,i)=>a+(parseFloat(i.gaji_pokok)||0),0),totalTunjangan:this.items.reduce((a,i)=>a+(parseFloat(i.tunjangan)||0),0),totalDibayar:this.items.reduce((a,i)=>a+(parseFloat(i.gaji_pokok)||0)+(parseFloat(i.tunjangan)||0)-(parseFloat(i.potongan)||0),0)}}else this.items=[]}catch{this.items=[]}finally{this.loading=false}},
+    prosesGaji(){if(!confirm('Proses penggajian untuk periode '+this.bulanLabel+'?'))return;const demoKaryawan=[{id:1,nama:'Ahmad Fauzi',jabatan:'Sales',divisi:'Sales',gaji_pokok:4000000,tunjangan:500000,potongan:200000,status_bayar:'Pending'},{id:2,nama:'Siti Rahayu',jabatan:'Finance',divisi:'Finance',gaji_pokok:5000000,tunjangan:750000,potongan:300000,status_bayar:'Pending'},{id:3,nama:'Budi Santoso',jabatan:'Gudang',divisi:'Gudang',gaji_pokok:3500000,tunjangan:400000,potongan:150000,status_bayar:'Pending'},{id:4,nama:'Dewi Lestari',jabatan:'Manager',divisi:'Operasional',gaji_pokok:8000000,tunjangan:1500000,potongan:500000,status_bayar:'Pending'}];this.items=demoKaryawan;this.stats={total:demoKaryawan.length,totalGajiPokok:demoKaryawan.reduce((a,i)=>a+i.gaji_pokok,0),totalTunjangan:demoKaryawan.reduce((a,i)=>a+i.tunjangan,0),totalDibayar:demoKaryawan.reduce((a,i)=>a+i.gaji_pokok+i.tunjangan-i.potongan,0)};this.showToast('Gaji berhasil diproses untuk '+demoKaryawan.length+' karyawan','success')},
+    bayar(g){g.status_bayar='Dibayar';this.showToast('Gaji '+g.nama+' berhasil dibayar','success')},
+    slipGaji(g){alert('Slip Gaji\n\nNama: '+g.nama+'\nJabatan: '+g.jabatan+'\nGaji Pokok: '+this.formatRp(g.gaji_pokok)+'\nTunjangan: '+this.formatRp(g.tunjangan)+'\nPotongan: '+this.formatRp(g.potongan)+'\nTotal: '+this.formatRp(g.gaji_pokok+g.tunjangan-g.potongan))},
+    exportSlip(){this.showToast('File Excel akan didownload...','success')},
+    printAll(){window.print()},
+    formatRp(n){return'Rp '+Number(n||0).toLocaleString('id-ID')},
+    showToast(msg,type){this.toast={show:true,msg,type};setTimeout(()=>this.toast.show=false,3000)}
+}}
+>>>>>>> 62d477c (Activate non-AI related "Coming Soon" features in the sidebar)
 </script>
 @endsection

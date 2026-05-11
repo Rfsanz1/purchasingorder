@@ -173,9 +173,41 @@ $comingSoon = [
     'erp/tax-accounting'  => ['Pajak & Akuntansi', 'Modul pajak otomatis dan laporan akuntansi lengkap.', ['Perhitungan PPN otomatis', 'Laporan SPT', 'Jurnal akuntansi', 'Integrasi e-Faktur']],
 ];
 
+// ── AI-only paths (stay as Coming Soon) ──────────────────────────────────
+$aiOnlyPaths = [
+    'erp/chatbot', 'erp/chatbot-ai', 'erp/ai-inventory', 'erp/ai-analytics',
+    'erp/workflow-automation', 'erp/forecasting', 'erp/marketplace-chat-ai',
+    'erp/marketplace-ai-analytics', 'erp/approval-workflow',
+];
+
+// ── Dedicated functional module routes (registered before loops) ──────────
+Route::get('/erp/supplier',            fn() => view('erp.supplier'));
+Route::get('/erp/employees',           fn() => view('erp.employees'));
+Route::get('/erp/purchase-order',      fn() => view('erp.purchase-order'));
+Route::get('/erp/users',               fn() => view('erp.users'));
+Route::get('/erp/roles',               fn() => view('erp.roles'));
+Route::get('/erp/cash-in',             fn() => view('erp.cash-in'));
+Route::get('/erp/cash-out',            fn() => view('erp.cash-out'));
+Route::get('/erp/expense',             fn() => view('erp.expense'));
+Route::get('/erp/profit-loss',         fn() => view('erp.profit-loss'));
+Route::get('/erp/attendance',          fn() => view('erp.attendance'));
+Route::get('/erp/payroll',             fn() => view('erp.payroll'));
+Route::get('/erp/warehouse',           fn() => view('erp.warehouse'));
+Route::get('/erp/analytics',           fn() => view('erp.analytics'));
+Route::get('/erp/loyalty',             fn() => view('erp.loyalty'));
+Route::get('/erp/service',             fn() => view('erp.service'));
+Route::get('/erp/warranty',            fn() => view('erp.warranty'));
+Route::get('/erp/marketplace-overview',fn() => view('erp.marketplace-overview'));
+Route::get('/erp/marketplace-sync',    fn() => view('erp.marketplace-sync'));
+Route::get('/erp/audit-log',           fn() => view('erp.audit-log'));
+Route::get('/erp/chart-of-accounts',   fn() => view('erp.chart-of-accounts'));
+
 foreach ($comingSoon as $path => [$title, $description, $features]) {
-    Route::get('/' . $path, function() use ($title, $description, $features) {
-        return view('erp.coming-soon', compact('title', 'description', 'features'));
+    $module = str_replace('erp/', '', $path);
+    $isAi   = in_array($path, $aiOnlyPaths);
+    Route::get('/' . $path, function () use ($isAi, $module, $title, $description, $features) {
+        if ($isAi) return view('erp.coming-soon', compact('title', 'description', 'features'));
+        return view('erp.module', compact('title', 'description', 'features', 'module'));
     });
 }
 
