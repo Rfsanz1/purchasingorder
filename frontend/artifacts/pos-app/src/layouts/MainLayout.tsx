@@ -25,6 +25,7 @@ import {
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import MobileBottomNav from '../components/MobileBottomNav'
+import MobileSearchBar from '../components/MobileSearchBar'
 import { useScreenSize } from '../hooks/useScreenSize'
 import clsx from 'clsx'
 

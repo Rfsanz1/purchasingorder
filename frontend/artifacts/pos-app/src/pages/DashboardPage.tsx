@@ -108,38 +108,38 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6 animate-fade-in pb-24 md:pb-0">
       <div className="space-y-2">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h1 className="text-3xl font-semibold text-slate-900 dark:text-slate-100">Halo {user?.name},</h1>
-            <p className="mt-2 max-w-2xl text-sm text-slate-500 dark:text-slate-400">Dashboard modern untuk memantau omzet, stok, hutang, piutang, dan performa kasir secara real-time.</p>
+            <h1 className="text-2xl sm:text-3xl font-semibold text-slate-900 dark:text-slate-100">Halo {user?.name},</h1>
+            <p className="mt-2 max-w-2xl text-xs sm:text-sm text-slate-500 dark:text-slate-400">Dashboard untuk memantau omzet, stok, hutang, piutang, dan performa kasir.</p>
           </div>
-          <div className="rounded-3xl bg-slate-100 px-4 py-3 text-sm font-medium text-slate-700 dark:bg-slate-900 dark:text-slate-200">
-            {new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+          <div className="rounded-3xl bg-slate-100 px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium text-slate-700 dark:bg-slate-900 dark:text-slate-200 whitespace-nowrap">
+            {new Date().toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric', month: 'short' })}
           </div>
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+      <div className="grid gap-3 sm:gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
         {stats.map((s) => (
-          <div key={s.label} className="card p-4 transition hover:-translate-y-0.5">
-            <div className="flex items-center justify-between mb-4">
-              <div className={`grid h-11 w-11 place-items-center rounded-3xl ${s.color} text-white`}>
-                <s.icon size={18} />
+          <div key={s.label} className="card p-3 sm:p-4 transition hover:-translate-y-0.5">
+            <div className="flex items-center justify-between mb-3 sm:mb-4">
+              <div className={`grid h-9 sm:h-11 w-9 sm:w-11 place-items-center rounded-3xl ${s.color} text-white`}>
+                <s.icon size={16} className="sm:block" />
               </div>
               {s.trend ? (
-                <span className="rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-semibold text-emerald-700">{s.trend}</span>
+                <span className="rounded-full bg-emerald-50 px-2 sm:px-3 py-0.5 sm:py-1 text-[9px] sm:text-[11px] font-semibold text-emerald-700">{s.trend}</span>
               ) : null}
             </div>
-            <p className="text-2xl font-semibold text-slate-900 dark:text-slate-100">{s.value}</p>
-            <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">{s.label}</p>
-            <p className="mt-2 text-xs text-slate-400">{s.sub}</p>
+            <p className="text-lg sm:text-2xl font-semibold text-slate-900 dark:text-slate-100 line-clamp-1">{s.value}</p>
+            <p className="mt-2 sm:mt-3 text-xs sm:text-sm text-slate-500 dark:text-slate-400 line-clamp-1">{s.label}</p>
+            <p className="mt-1 sm:mt-2 text-[10px] sm:text-xs text-slate-400 line-clamp-1">{s.sub}</p>
           </div>
         ))}
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[2fr_1fr]">
+      <div className="grid gap-6 lg:gap-8 lg:grid-cols-[2fr_1fr]">
         <div className="card p-5">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-5">
             <div>

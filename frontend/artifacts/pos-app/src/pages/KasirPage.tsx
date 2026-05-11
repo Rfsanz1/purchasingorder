@@ -272,7 +272,7 @@ export default function KasirPage() {
     .slice(0, 4)
 
   return (
-    <div className="grid h-full min-h-[calc(100vh-3.5rem)] grid-cols-1 gap-4 xl:grid-cols-[1.5fr_0.95fr]">
+    <div className="grid h-full min-h-[calc(100vh-3.5rem)] grid-cols-1 gap-3 sm:gap-4 xl:grid-cols-[1.5fr_0.95fr] pb-24 md:pb-0">
       <div className="space-y-4">
         <div className="card p-4 sm:p-5">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
