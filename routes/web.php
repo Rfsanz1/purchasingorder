@@ -93,7 +93,57 @@ Route::get('/stock-opname', function () {
 // /pos sekarang dihandle oleh React POS App (lihat bagian bawah file)
 Route::get('/api/kledo/data-penjualan', [KledoController::class, 'dataPenjualan']);
 
-// Coming Soon routes
+// ═══════════════════════════════════════════════════════
+// REAL ERP MODULE ROUTES — replace coming-soon entries
+// ═══════════════════════════════════════════════════════
+Route::get('/erp/supplier',       fn() => view('erp.supplier'));
+Route::get('/erp/purchase-order', fn() => view('erp.purchase-order'));
+Route::get('/erp/cash-in',        fn() => view('erp.cash', ['title' => 'Kas Masuk', 'jenis' => 'masuk']));
+Route::get('/erp/cash-out',       fn() => view('erp.cash', ['title' => 'Kas Keluar', 'jenis' => 'keluar']));
+Route::get('/erp/profit-loss',    fn() => view('erp.profit-loss'));
+Route::get('/erp/expense',        fn() => view('erp.expense'));
+Route::get('/erp/employees',      fn() => view('erp.employees'));
+Route::get('/erp/attendance',     fn() => view('erp.attendance'));
+Route::get('/erp/retur',          fn() => view('erp.retur'));
+Route::get('/erp/discount',       fn() => view('erp.discount'));
+Route::get('/erp/stock-in',       fn() => view('erp.stock-in'));
+Route::get('/erp/stock-out',      fn() => view('erp.stock-out'));
+Route::get('/erp/analytics',      fn() => view('erp.analytics'));
+Route::get('/erp/report-sales',   fn() => view('erp.report-sales'));
+Route::get('/erp/report-finance', fn() => view('erp.report-finance'));
+Route::get('/erp/report-driver',  fn() => view('erp.report-driver'));
+Route::get('/erp/notifications',  fn() => view('erp.wa-logs'));
+Route::get('/erp/chart-of-accounts', fn() => view('erp.coa'));
+Route::get('/erp/coa',               fn() => view('erp.coa'));
+Route::get('/erp/payroll',        fn() => view('erp.payroll'));
+Route::get('/erp/quotation',      fn() => view('erp.quotation'));
+// Goods receipt → generic with features
+Route::get('/erp/goods-receipt',  fn() => view('erp.generic-module', [
+    'title' => 'Penerimaan Barang', 'description' => 'Konfirmasi penerimaan barang dari supplier',
+    'features' => ['Input penerimaan', 'Verifikasi terhadap PO', 'Notifikasi admin', 'Update stok otomatis']
+]));
+// Warehouse
+Route::get('/erp/warehouse', fn() => view('erp.generic-module', [
+    'title' => 'Manajemen Gudang', 'description' => 'Kelola zona dan lokasi penyimpanan gudang',
+    'features' => ['Daftar gudang', 'Transfer antar gudang', 'Kapasitas gudang', 'Peta gudang']
+]));
+// Delivery proof
+Route::get('/erp/delivery-proof', fn() => view('erp.generic-module', [
+    'title' => 'Bukti Pengiriman', 'description' => 'Dokumentasi foto bukti pengiriman ke customer',
+    'features' => ['Upload foto bukti', 'Status pengiriman', 'GPS tracking', 'Laporan driver']
+]));
+// Loyalty
+Route::get('/erp/loyalty', fn() => view('erp.generic-module', [
+    'title' => 'Loyalty Points', 'description' => 'Program poin reward untuk pelanggan setia',
+    'features' => ['Akumulasi poin', 'Redeem poin', 'Level membership', 'Riwayat poin']
+]));
+// Users
+Route::get('/erp/users', fn() => view('erp.generic-module', [
+    'title' => 'Manajemen User', 'description' => 'Kelola user, role, dan hak akses sistem',
+    'features' => ['Tambah user', 'Assign role', 'Hak akses per menu', 'Activity log']
+]));
+
+// ─── Coming Soon routes (remaining unbuilt modules) ──────────────────────
 $comingSoon = [
     'erp/retur'           => ['Retur', 'Manajemen pengembalian barang dari customer.', ['Retur barang', 'Alasan retur', 'Proses pengembalian dana', 'Laporan retur']],
     'erp/discount'        => ['Diskon & Promo', 'Manajemen program diskon dan promosi penjualan.', ['Buat kode promo', 'Diskon per produk / kategori', 'Periode promosi', 'Laporan efektivitas promo']],

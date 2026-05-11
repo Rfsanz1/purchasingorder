@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ErpModuleController;
 use App\Modules\POS\Controllers\PosAuthController;
 use App\Modules\POS\Controllers\PosDashboardController;
 use App\Modules\POS\Controllers\PosProductController;
@@ -168,4 +169,102 @@ Route::prefix('pos')->group(function () {
         Route::get('/reports/payables',     [PosReportController::class, 'payables']);
         Route::get('/reports/cashier',      [PosReportController::class, 'cashier']);
     });
+});
+
+// ═══════════════════════════════════════════════════════════════
+// ERP MODULE APIs — /api/erp/*
+// ═══════════════════════════════════════════════════════════════
+Route::prefix('erp')->group(function () {
+    $c = ErpModuleController::class;
+
+    // Suppliers
+    Route::get('/suppliers/summary', [$c, 'suppliersSummary']);
+    Route::get('/suppliers', [$c, 'suppliersIndex']);
+    Route::post('/suppliers', [$c, 'suppliersStore']);
+    Route::put('/suppliers/{id}', [$c, 'suppliersUpdate']);
+    Route::delete('/suppliers/{id}', [$c, 'suppliersDestroy']);
+
+    // Purchase Orders
+    Route::get('/purchase-orders/summary', [$c, 'purchaseOrdersSummary']);
+    Route::get('/purchase-orders', [$c, 'purchaseOrdersIndex']);
+    Route::post('/purchase-orders', [$c, 'purchaseOrdersStore']);
+    Route::put('/purchase-orders/{id}', [$c, 'purchaseOrdersUpdate']);
+    Route::delete('/purchase-orders/{id}', [$c, 'purchaseOrdersDestroy']);
+
+    // Cash Transactions (masuk & keluar)
+    Route::get('/cash', [$c, 'cashIndex']);
+    Route::post('/cash', [$c, 'cashStore']);
+    Route::delete('/cash/{id}', [$c, 'cashDestroy']);
+
+    // Expenses
+    Route::get('/expenses', [$c, 'expensesIndex']);
+    Route::post('/expenses', [$c, 'expensesStore']);
+    Route::delete('/expenses/{id}', [$c, 'expensesDestroy']);
+
+    // Employees
+    Route::get('/employees/summary', [$c, 'employeesSummary']);
+    Route::get('/employees', [$c, 'employeesIndex']);
+    Route::post('/employees', [$c, 'employeesStore']);
+    Route::put('/employees/{id}', [$c, 'employeesUpdate']);
+    Route::delete('/employees/{id}', [$c, 'employeesDestroy']);
+
+    // Attendance
+    Route::get('/attendance', [$c, 'attendanceIndex']);
+    Route::post('/attendance', [$c, 'attendanceStore']);
+    Route::delete('/attendance/{id}', [$c, 'attendanceDestroy']);
+
+    // Returns
+    Route::get('/returns', [$c, 'returnsIndex']);
+    Route::post('/returns', [$c, 'returnsStore']);
+    Route::put('/returns/{id}', [$c, 'returnsUpdate']);
+    Route::delete('/returns/{id}', [$c, 'returnsDestroy']);
+
+    // Promos
+    Route::get('/promos', [$c, 'promosIndex']);
+    Route::post('/promos', [$c, 'promosStore']);
+    Route::put('/promos/{id}', [$c, 'promosUpdate']);
+    Route::delete('/promos/{id}', [$c, 'promosDestroy']);
+
+    // Stock Mutations
+    Route::get('/stock-mutations', [$c, 'stockMutationsIndex']);
+    Route::post('/stock-mutations', [$c, 'stockMutationsStore']);
+    Route::delete('/stock-mutations/{id}', [$c, 'stockMutationsDestroy']);
+
+    // Analytics
+    Route::get('/analytics/summary', [$c, 'analyticsSummary']);
+    Route::get('/profit-loss', [$c, 'profitLoss']);
+
+    // Quotations
+    Route::get('/quotations', [$c, 'quotationsIndex']);
+    Route::post('/quotations', [$c, 'quotationsStore']);
+    Route::delete('/quotations/{id}', [$c, 'quotationsDestroy']);
+
+    // Payroll
+    Route::get('/payroll', [$c, 'payrollIndex']);
+    Route::post('/payroll', [$c, 'payrollStore']);
+    Route::put('/payroll/{id}', [$c, 'payrollUpdate']);
+    Route::delete('/payroll/{id}', [$c, 'payrollDestroy']);
+
+    // Delivery Proofs
+    Route::get('/delivery-proofs', [$c, 'deliveryProofsIndex']);
+    Route::put('/delivery-proofs/{id}', [$c, 'deliveryProofsUpdate']);
+
+    // WA Logs
+    Route::get('/wa-logs', [$c, 'waLogsIndex']);
+
+    // Chart of Accounts
+    Route::get('/coa', [$c, 'coaIndex']);
+    Route::post('/coa', [$c, 'coaStore']);
+    Route::put('/coa/{id}', [$c, 'coaUpdate']);
+    Route::delete('/coa/{id}', [$c, 'coaDestroy']);
+
+    // Reports
+    Route::get('/report/sales', [$c, 'reportSales']);
+    Route::get('/report/finance', [$c, 'reportFinance']);
+    Route::get('/report/driver', [$c, 'reportDriver']);
+
+    // Sales Targets
+    Route::get('/sales-targets', [$c, 'salesTargetsIndex']);
+    Route::post('/sales-targets', [$c, 'salesTargetsStore']);
+    Route::delete('/sales-targets/{id}', [$c, 'salesTargetsDestroy']);
 });

@@ -1,0 +1,86 @@
+Sekarang jalankan dan aktifkan SEMUA fitur yang masih berstatus "Coming Soon" di ERP Gentong Mas.
+
+Tugas:
+- Cari seluruh menu, tombol, route, page, module, widget, dan fitur yang masih bertuliskan:
+  - Coming Soon
+  - Under Development
+  - Belum Tersedia
+  - Dummy Feature
+  - Placeholder
+  - Maintenance
+  - TODO
+
+Lalu:
+1. Aktifkan semua fitur tersebut agar bisa digunakan.
+2. Jika backend belum ada:
+   - Buat backend sederhana tetapi berfungsi.
+   - Gunakan struktur database yang sudah ada.
+3. Jika API belum tersedia:
+   - Buat mock API sementara menggunakan data dummy realistis.
+4. Jika halaman masih kosong:
+   - Buat UI lengkap dan responsive.
+5. Jika tombol belum berfungsi:
+   - Sambungkan ke action sebenarnya.
+6. Pastikan semua menu bisa dibuka tanpa error.
+7. Pastikan search, filter, pagination, export, dan CRUD berjalan.
+8. Tambahkan validasi form dan toast notification.
+9. Pastikan semua route tidak menghasilkan:
+   - blank page
+   - 404
+   - module not found
+   - undefined
+   - hydration error
+   - API failed
+10. Rapikan struktur:
+   - components
+   - services
+   - hooks
+   - utils
+   - API layer
+
+Prioritas fitur:
+- Sales
+- Purchasing
+- Inventory
+- Customer
+- Supplier
+- Finance
+- Accounting
+- Kledo Integration
+- Shopee Integration
+- WhatsApp Gateway
+- Dashboard Analytics
+- Multi Cabang
+- Stock Opname
+- Approval System
+- Delivery & Armada
+- Absensi & HR
+- Laporan
+
+Tambahkan juga:
+- loading state
+- empty state
+- error handling
+- role permission dasar
+- dark mode support
+- mobile responsive
+- realtime refresh sederhana
+
+Jika ada fitur yang belum bisa full:
+- buat versi MVP yang tetap usable.
+- jangan tampilkan tulisan “Coming Soon” lagi.
+
+Setelah selesai:
+- Jalankan project otomatis.
+- Fix semua error build.
+- Fix semua TypeScript error.
+- Fix semua database migration error.
+- Pastikan project bisa di:
+  npm install
+  npm run dev
+  npm run build
+
+Terakhir:
+- tampilkan summary fitur yang berhasil diaktifkan.
+- tampilkan route baru yang dibuat.
+- tampilkan fitur yang masih memakai mock data.
