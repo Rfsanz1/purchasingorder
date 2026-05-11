@@ -70,7 +70,7 @@ export default function MainLayout() {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-slate-50 dark:bg-slate-950">
+    <div className="flex h-screen overflow-hidden bg-white dark:bg-slate-950">
       <div className={clsx('fixed inset-0 bg-slate-950/50 z-30 transition-opacity md:hidden', sidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none')} onClick={() => setSidebarOpen(false)} />
 
       <aside className={clsx(
@@ -132,32 +132,35 @@ export default function MainLayout() {
       </aside>
 
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden md:pl-72">
-        <header className="sticky top-0 z-20 flex h-16 items-center justify-between gap-3 border-b border-slate-200/80 bg-white/90 px-4 shadow-sm backdrop-blur-xl dark:border-slate-800/80 dark:bg-slate-950/95">
-          <div className="flex items-center gap-3">
-            <button onClick={() => setSidebarOpen(true)} className="md:hidden inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-100 text-slate-700 hover:bg-slate-200 transition dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800">
-              <Menu size={18} />
+        <header className="sticky top-0 z-20 flex h-16 items-center justify-between gap-2 sm:gap-3 border-b border-slate-200/80 bg-white/90 px-3 sm:px-4 shadow-sm backdrop-blur-xl dark:border-slate-800/80 dark:bg-slate-950/95">
+          <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+            <button onClick={() => setSidebarOpen(true)} className="md:hidden inline-flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-slate-100 text-slate-700 hover:bg-slate-200 transition dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800" title="Buka menu">
+              <Menu size={20} />
             </button>
-            <div className="hidden md:flex items-center gap-3 rounded-3xl border border-slate-200 bg-slate-100 px-3 py-2 text-slate-500 shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
+            <div className="hidden sm:flex items-center gap-2 rounded-3xl border border-slate-200 bg-slate-100 px-3 py-2 text-slate-500 shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 flex-1 max-w-xs md:max-w-none">
               <Search size={18} />
-              <input type="search" placeholder="Cari global..." className="bg-transparent text-sm outline-none placeholder:text-slate-400 w-64" />
+              <input type="search" placeholder="Cari..." className="bg-transparent text-sm outline-none placeholder:text-slate-400 flex-1 w-full md:w-64" />
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <button className="relative inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-100 text-slate-600 hover:bg-slate-200 transition dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800">
-              <Bell size={18} />
-              <span className="absolute -right-0.5 -top-0.5 inline-flex h-3.5 w-3.5 items-center justify-center rounded-full bg-rose-500 text-[10px] text-white">3</span>
+          <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+            <button className="relative inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-600 hover:bg-slate-200 transition dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800" title="Notifikasi">
+              <Bell size={20} />
+              <span className="absolute -right-1 -top-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-rose-500 text-[10px] text-white font-bold">3</span>
             </button>
-            <button className="inline-flex h-11 items-center gap-2 rounded-2xl bg-primary-600 px-4 text-sm font-semibold text-white shadow-lg shadow-primary-500/20 hover:bg-primary-700 transition">
-              <Plus size={16} /> Aksi Cepat
+            <button onClick={() => setDark(!dark)} className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-600 hover:bg-slate-200 transition dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800" title="Toggle dark mode">
+              {dark ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
+            <button className="hidden sm:inline-flex h-12 items-center gap-2 rounded-2xl bg-primary-600 px-3 sm:px-4 text-xs sm:text-sm font-semibold text-white shadow-lg shadow-primary-500/20 hover:bg-primary-700 transition">
+              <Plus size={18} /> <span className="hidden md:inline">Aksi Cepat</span>
             </button>
             <div className="relative">
-              <button onClick={() => setShowProfile((prev) => !prev)} className="inline-flex h-11 items-center gap-3 rounded-2xl border border-slate-200 bg-white px-3 text-sm text-slate-700 shadow-sm transition hover:border-slate-300 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
-                <User size={16} />
-                <span>{user?.name?.split(' ')[0]}</span>
+              <button onClick={() => setShowProfile((prev) => !prev)} className="inline-flex h-12 items-center gap-2 sm:gap-3 rounded-2xl border border-slate-200 bg-white px-2 sm:px-3 text-xs sm:text-sm text-slate-700 shadow-sm transition hover:border-slate-300 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
+                <User size={18} />
+                <span className="hidden sm:inline truncate max-w-[80px]">{user?.name?.split(' ')[0]}</span>
               </button>
               {showProfile && (
-                <div className="absolute right-0 mt-2 w-56 rounded-3xl border border-slate-200 bg-white p-3 shadow-xl dark:border-slate-800 dark:bg-slate-900">
+                <div className="absolute right-0 mt-2 w-56 rounded-3xl border border-slate-200 bg-white p-3 shadow-xl dark:border-slate-800 dark:bg-slate-900 z-50">
                   <div className="space-y-2">
                     <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{user?.name}</p>
                     <p className="text-xs text-slate-500 dark:text-slate-400">{user?.email}</p>
@@ -173,7 +176,7 @@ export default function MainLayout() {
           </div>
         </header>
 
-        <main className="flex-1 overflow-auto px-4 py-5 sm:px-6">
+        <main className="flex-1 overflow-auto px-3 py-4 sm:px-6 sm:py-5">
           <Outlet />
         </main>
       </div>

@@ -1,0 +1,83 @@
+{
+  "name": "Enterprise POS - Toko Bahan Bangunan",
+  "short_name": "POS",
+  "description": "Sistem POS modern untuk toko bahan bangunan dengan fitur kasir, inventori, penjualan, dan analitik real-time",
+  "start_url": "/pos/",
+  "scope": "/pos/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#2563EB",
+  "background_color": "#FFFFFF",
+  "status_bar": "black-translucent",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%232563EB' width='192' height='192'/><text x='50%' y='50%' font-size='120' font-weight='bold' fill='white' text-anchor='middle' dominant-baseline='central'>POS</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%232563EB' width='192' height='192' rx='45'/><text x='50%' y='50%' font-size='120' font-weight='bold' fill='white' text-anchor='middle' dominant-baseline='central'>POS</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 540 720'><rect fill='%23f8fafc' width='540' height='720'/><text x='270' y='360' font-size='48' font-weight='bold' fill='%232563EB' text-anchor='middle' dominant-baseline='central'>POS App</text></svg>",
+      "sizes": "540x720",
+      "type": "image/svg+xml",
+      "form_factor": "narrow"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1280 720'><rect fill='%23f8fafc' width='1280' height='720'/><text x='640' y='360' font-size='48' font-weight='bold' fill='%232563EB' text-anchor='middle' dominant-baseline='central'>POS Dashboard</text></svg>",
+      "sizes": "1280x720",
+      "type": "image/svg+xml",
+      "form_factor": "wide"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Kasir",
+      "short_name": "Kasir",
+      "description": "Buka halaman kasir untuk transaksi penjualan",
+      "url": "/pos/kasir",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'><rect fill='%232563EB' width='96' height='96'/><text x='48' y='48' font-size='60' text-anchor='middle' dominant-baseline='central'>🛒</text></svg>",
+          "sizes": "96x96",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "Buka halaman dashboard untuk melihat ringkasan penjualan",
+      "url": "/pos/",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'><rect fill='%232563EB' width='96' height='96'/><text x='48' y='48' font-size='60' text-anchor='middle' dominant-baseline='central'>📊</text></svg>",
+          "sizes": "96x96",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "Produk",
+      "short_name": "Produk",
+      "description": "Kelola daftar produk",
+      "url": "/pos/produk",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'><rect fill='%232563EB' width='96' height='96'/><text x='48' y='48' font-size='60' text-anchor='middle' dominant-baseline='central'>📦</text></svg>",
+          "sizes": "96x96",
+          "type": "image/svg+xml"
+        }
+      ]
+    }
+  ],
+  "categories": ["business", "productivity"],
+  "prefer_related_applications": false
+}

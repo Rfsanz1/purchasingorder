@@ -5,7 +5,7 @@
 @layer base {
   :root {
     color-scheme: light;
-    --bg: #f8fafc;
+    --bg: #ffffff;
     --surface: #ffffff;
     --surface-strong: #f1f5f9;
     --text: #0f172a;
@@ -35,6 +35,11 @@
     @apply min-h-screen antialiased bg-[var(--bg)] text-[var(--text)] font-sans;
   }
   button, input, textarea, select { font: inherit; }
+  
+  /* Prevent zoom on iOS when focusing input */
+  @supports (font-size: max(1rem)) {
+    body { font-size: max(1rem, 1vw); }
+  }
 }
 
 @layer components {
