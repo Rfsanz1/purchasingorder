@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Search, Eye, XCircle, Receipt, Filter } from 'lucide-react'
+import { Search, Eye, XCircle, Receipt, Printer } from 'lucide-react'
 import toast from 'react-hot-toast'
 import clsx from 'clsx'
 import api from '../api/client'
 import { formatRupiah, formatDateTime } from '../utils/format'
+import { printThermalReceipt, ReceiptData } from '../components/ThermalReceipt'
 
 const STATUS_COLORS: Record<string, string> = { completed: 'badge-green', cancelled: 'badge-red', draft: 'badge-yellow' }
 const PAY_COLORS: Record<string, string> = { paid: 'badge-green', partial: 'badge-yellow', unpaid: 'badge-red' }
@@ -29,6 +30,38 @@ export default function SalesHistoryPage() {
     queryFn: () => selected ? api.get(`/sales/${selected.id}`).then(r => r.data.data) : null,
     enabled: !!selected,
   })
+
+  function handlePrint(d: any) {
+    if (!d) return
+    const receiptData: ReceiptData = {
+      invoice_number: d.invoice_number,
+      created_at: d.created_at,
+      cashier_name: d.cashier?.name ?? d.cashier_name ?? '',
+      customer_name: d.customer?.name ?? d.customer_name ?? null,
+      customer_phone: d.customer?.phone ?? d.customer_phone ?? null,
+      items: (d.items ?? []).map((item: any) => ({
+        product_name: item.product_name,
+        product_sku: item.product_sku,
+        qty: Number(item.qty),
+        unit_name: item.unit?.abbreviation ?? item.unit_name ?? '',
+        unit_price: Number(item.unit_price),
+        discount_pct: Number(item.discount_pct ?? 0),
+        discount_amount: Number(item.discount_amount ?? 0),
+        subtotal: Number(item.subtotal),
+      })),
+      subtotal: Number(d.subtotal),
+      discount_amount: Number(d.discount_amount ?? 0),
+      discount_pct: Number(d.discount_pct ?? 0),
+      tax_amount: Number(d.tax_amount ?? 0),
+      tax_pct: Number(d.tax_pct ?? 0),
+      grand_total: Number(d.grand_total),
+      payments: (d.payments ?? []).map((p: any) => ({ method: p.method, amount: Number(p.amount) })),
+      paid_amount: Number(d.paid_amount),
+      change_amount: Number(d.change_amount ?? 0),
+      notes: d.notes ?? null,
+    }
+    printThermalReceipt(receiptData)
+  }
 
   const cancelMutation = useMutation({
     mutationFn: (id: number) => api.post(`/sales/${id}/cancel`),
@@ -168,6 +201,12 @@ export default function SalesHistoryPage() {
                   <span key={i} className="badge badge-blue capitalize">{p.method}: {formatRupiah(p.amount)}</span>
                 ))}
               </div>
+              <button
+                onClick={() => handlePrint(detail)}
+                className="btn-secondary w-full btn-sm"
+              >
+                <Printer size={14} /> Cetak Struk
+              </button>
               {detail.status === 'completed' && (
                 <button onClick={() => { if (confirm('Batalkan transaksi ini?')) cancelMutation.mutate(detail.id) }}
                   className="btn-danger w-full btn-sm">

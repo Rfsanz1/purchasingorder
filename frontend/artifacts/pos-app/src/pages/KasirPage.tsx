@@ -24,6 +24,7 @@ import clsx from 'clsx'
 import api from '../api/client'
 import { formatRupiah } from '../utils/format'
 import { useAuthStore } from '../store/authStore'
+import ThermalReceipt, { ReceiptData } from '../components/ThermalReceipt'
 
 interface CartItem {
   product_id: number
@@ -72,6 +73,7 @@ export default function KasirPage() {
   const [payMethod, setPayMethod] = useState('cash')
   const [cashInput, setCashInput] = useState('')
   const [notes, setNotes] = useState('')
+  const [lastReceipt, setLastReceipt] = useState<ReceiptData | null>(null)
 
   const warehouseId = 1
 
@@ -174,7 +176,39 @@ export default function KasirPage() {
   const { mutate: submitSale, isPending: submitting } = useMutation({
     mutationFn: (payload: any) => api.post('/sales', payload),
     onSuccess: (res) => {
-      toast.success(`Transaksi ${res.data.data.invoice_number} berhasil!`)
+      const saleData = res.data.data
+      toast.success(`Transaksi ${saleData.invoice_number} berhasil!`)
+
+      // Simpan data struk sebelum reset cart
+      const receipt: ReceiptData = {
+        invoice_number: saleData.invoice_number,
+        created_at: saleData.created_at ?? new Date().toISOString(),
+        cashier_name: user?.name ?? '',
+        customer_name: customer?.name ?? null,
+        customer_phone: customer?.phone ?? null,
+        items: cart.map((item) => ({
+          product_name: item.product_name,
+          product_sku: item.product_sku,
+          qty: item.qty,
+          unit_name: item.unit_name,
+          unit_price: item.unit_price,
+          discount_pct: item.discount_pct,
+          discount_amount: item.discount_amount,
+          subtotal: item.subtotal,
+        })),
+        subtotal,
+        discount_amount: discountAmt,
+        discount_pct: discountPct,
+        tax_amount: taxAmt,
+        tax_pct: taxPct,
+        grand_total: grandTotal,
+        payments: [{ method: payMethod, amount: payMethod === 'cash' ? cashAmt : grandTotal }],
+        paid_amount: payMethod === 'cash' ? cashAmt : grandTotal,
+        change_amount: change,
+        notes: notes || null,
+      }
+      setLastReceipt(receipt)
+
       setCart([])
       setCustomer(null)
       setShowPayment(false)
@@ -598,6 +632,14 @@ export default function KasirPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Modal Struk Termal */}
+      {lastReceipt && (
+        <ThermalReceipt
+          data={lastReceipt}
+          onClose={() => setLastReceipt(null)}
+        />
       )}
     </div>
   )
