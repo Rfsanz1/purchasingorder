@@ -76,10 +76,18 @@ export default function MainLayout() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-white dark:bg-slate-950">
-      <div className={clsx('fixed inset-0 bg-slate-950/50 z-30 transition-opacity md:hidden', sidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none')} onClick={() => setSidebarOpen(false)} />
+      {/* Mobile overlay */}
+      <div 
+        className={clsx(
+          'fixed inset-0 z-30 bg-black/40 backdrop-blur-sm transition-opacity md:hidden',
+          sidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        )}
+        onClick={() => setSidebarOpen(false)}
+      />
 
+      {/* Sidebar */}
       <aside className={clsx(
-        'fixed inset-y-0 left-0 z-40 w-72 bg-slate-950 text-slate-100 shadow-xl transition-transform duration-300 md:static md:translate-x-0',
+        'fixed inset-y-0 left-0 z-40 w-72 bg-slate-950 text-slate-100 shadow-xl transition-transform duration-300 md:relative md:translate-x-0',
         sidebarOpen ? 'translate-x-0' : '-translate-x-full',
       )}>
         <div className="flex items-center justify-between gap-3 px-5 py-5 border-b border-slate-800">
@@ -136,7 +144,8 @@ export default function MainLayout() {
         </div>
       </aside>
 
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden md:pl-72">
+      {/* Main content */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <header className="sticky top-0 z-20 flex h-16 items-center justify-between gap-2 sm:gap-3 border-b border-slate-200/80 bg-white/90 px-3 sm:px-4 shadow-sm backdrop-blur-xl dark:border-slate-800/80 dark:bg-slate-950/95">
           <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
             <button onClick={() => setSidebarOpen(true)} className="md:hidden inline-flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-slate-100 text-slate-700 hover:bg-slate-200 transition dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800" title="Buka menu">
