@@ -24,6 +24,8 @@ import {
   Plus,
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import MobileBottomNav from '../components/MobileBottomNav'
+import { useScreenSize } from '../hooks/useScreenSize'
 import clsx from 'clsx'
 
 const nav = [
@@ -68,6 +70,8 @@ export default function MainLayout() {
     logout()
     navigate('/login')
   }
+
+  const { isMobile } = useScreenSize()
 
   return (
     <div className="flex h-screen overflow-hidden bg-white dark:bg-slate-950">
@@ -179,6 +183,7 @@ export default function MainLayout() {
         <main className="flex-1 overflow-auto px-3 py-4 sm:px-6 sm:py-5">
           <Outlet />
         </main>
+        {isMobile && <MobileBottomNav />}
       </div>
     </div>
   )
