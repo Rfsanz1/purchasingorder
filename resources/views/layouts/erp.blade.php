@@ -493,101 +493,6 @@
                     </div>
                 </div>
 
-                {{-- ══ MARKETPLACE DASHBOARD ══ --}}
-                <div class="section-divider">Marketplace</div>
-
-                <div x-data="{ open: {{ ($mktDashboardActive||$mktShopeeActive||$mktTiktokActive||$mktTokopediaActive||$mktLazadaActive) ? 'true' : 'false' }}, shopee: {{ $mktShopeeActive ? 'true' : 'false' }}, tiktok: {{ $mktTiktokActive ? 'true' : 'false' }}, tokopedia: {{ $mktTokopediaActive ? 'true' : 'false' }}, lazada: {{ $mktLazadaActive ? 'true' : 'false' }} }">
-                    <button @click="open=!open" class="group-header w-full {{ ($mktDashboardActive||$mktShopeeActive||$mktTiktokActive||$mktTokopediaActive||$mktLazadaActive) ? 'has-active' : '' }}">
-                        <div class="flex items-center gap-2">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-                            <span>Marketplace Center</span>
-                            <span class="ml-1 badge-mkt text-xs px-1.5 py-0.5 rounded-full font-semibold bg-orange-100 text-orange-600">4 Platform</span>
-                        </div>
-                        <svg class="w-3.5 h-3.5 chevron" :class="open ? 'open' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
-                    </button>
-                    <div class="group-items pl-1" :class="open ? 'open' : 'closed'">
-                        <div class="sub-label">Dashboard & Multi-Channel</div>
-                        <div class="space-y-0.5">
-                            <a href="/marketplace" class="sidebar-item {{ request()->is('marketplace') ? 'active' : 'normal' }}"><svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg><span>Marketplace Center</span></a>
-                            <a href="/erp/marketplace-overview" class="sidebar-item normal"><svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg><span>Overview Marketplace</span></a>
-                            <a href="/erp/marketplace-sync" class="sidebar-item normal"><svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg><span>Sinkronisasi</span></a>
-                            <a href="/erp/multi-channel-order" class="sidebar-item normal"><svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg><span>Multi Channel Order</span></a>
-                            <a href="/erp/multi-channel-chat" class="sidebar-item normal"><svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg><span>Multi Channel Chat</span></a>
-                            <a href="/erp/multi-channel-analytics" class="sidebar-item normal"><svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg><span>Multi Channel Analytics</span></a>
-                            <a href="/erp/marketplace-realtime" class="sidebar-item normal"><svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg><span>Realtime Dashboard</span></a>
-                        </div>
-
-                        {{-- Shopee Sub-section --}}
-                        <div class="sub-label mt-1">
-                            <button @click="shopee=!shopee" class="flex items-center gap-1.5 w-full text-left text-orange-500 font-semibold">
-                                <svg class="w-3 h-3 shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
-                                <span>Shopee</span>
-                                <svg class="w-3 h-3 ml-auto transition-transform" :class="shopee?'rotate-90':''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
-                            </button>
-                        </div>
-                        <div x-show="shopee" class="space-y-0.5 ml-2">
-                            <a href="/erp/shopee/dashboard" class="sidebar-item coming text-xs"><span>Dashboard</span></a>
-                            <a href="/erp/shopee/orders" class="sidebar-item coming text-xs"><span>Orders</span></a>
-                            <a href="/erp/shopee/products" class="sidebar-item coming text-xs"><span>Products</span></a>
-                            <a href="/erp/shopee/stocks" class="sidebar-item coming text-xs"><span>Stocks</span></a>
-                            <a href="/erp/shopee/chat" class="sidebar-item coming text-xs"><span>Chat</span></a>
-                            <a href="/erp/shopee/analytics" class="sidebar-item coming text-xs"><span>Analytics</span></a>
-                        </div>
-
-                        {{-- TikTok Sub-section --}}
-                        <div class="sub-label mt-1">
-                            <button @click="tiktok=!tiktok" class="flex items-center gap-1.5 w-full text-left text-pink-500 font-semibold">
-                                <svg class="w-3 h-3 shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
-                                <span>TikTok Shop</span>
-                                <svg class="w-3 h-3 ml-auto transition-transform" :class="tiktok?'rotate-90':''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
-                            </button>
-                        </div>
-                        <div x-show="tiktok" class="space-y-0.5 ml-2">
-                            <a href="/erp/tiktok/dashboard" class="sidebar-item coming text-xs"><span>Dashboard</span></a>
-                            <a href="/erp/tiktok/orders" class="sidebar-item coming text-xs"><span>Orders</span></a>
-                            <a href="/erp/tiktok/products" class="sidebar-item coming text-xs"><span>Products</span></a>
-                            <a href="/erp/tiktok/stocks" class="sidebar-item coming text-xs"><span>Stocks</span></a>
-                            <a href="/erp/tiktok/chat" class="sidebar-item coming text-xs"><span>Chat</span></a>
-                            <a href="/erp/tiktok/analytics" class="sidebar-item coming text-xs"><span>Analytics</span></a>
-                        </div>
-
-                        {{-- Tokopedia Sub-section --}}
-                        <div class="sub-label mt-1">
-                            <button @click="tokopedia=!tokopedia" class="flex items-center gap-1.5 w-full text-left text-green-600 font-semibold">
-                                <svg class="w-3 h-3 shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
-                                <span>Tokopedia</span>
-                                <svg class="w-3 h-3 ml-auto transition-transform" :class="tokopedia?'rotate-90':''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
-                            </button>
-                        </div>
-                        <div x-show="tokopedia" class="space-y-0.5 ml-2">
-                            <a href="/erp/tokopedia/dashboard" class="sidebar-item coming text-xs"><span>Dashboard</span></a>
-                            <a href="/erp/tokopedia/orders" class="sidebar-item coming text-xs"><span>Orders</span></a>
-                            <a href="/erp/tokopedia/products" class="sidebar-item coming text-xs"><span>Products</span></a>
-                            <a href="/erp/tokopedia/stocks" class="sidebar-item coming text-xs"><span>Stocks</span></a>
-                            <a href="/erp/tokopedia/chat" class="sidebar-item coming text-xs"><span>Chat</span></a>
-                            <a href="/erp/tokopedia/analytics" class="sidebar-item coming text-xs"><span>Analytics</span></a>
-                        </div>
-
-                        {{-- Lazada Sub-section --}}
-                        <div class="sub-label mt-1">
-                            <button @click="lazada=!lazada" class="flex items-center gap-1.5 w-full text-left text-blue-600 font-semibold">
-                                <svg class="w-3 h-3 shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
-                                <span>Lazada</span>
-                                <svg class="w-3 h-3 ml-auto transition-transform" :class="lazada?'rotate-90':''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
-                            </button>
-                        </div>
-                        <div x-show="lazada" class="space-y-0.5 ml-2">
-                            <a href="/erp/lazada/dashboard" class="sidebar-item coming text-xs"><span>Dashboard</span></a>
-                            <a href="/erp/lazada/orders" class="sidebar-item coming text-xs"><span>Orders</span></a>
-                            <a href="/erp/lazada/products" class="sidebar-item coming text-xs"><span>Products</span></a>
-                            <a href="/erp/lazada/stocks" class="sidebar-item coming text-xs"><span>Stocks</span></a>
-                            <a href="/erp/lazada/chat" class="sidebar-item coming text-xs"><span>Chat</span></a>
-                            <a href="/erp/lazada/analytics" class="sidebar-item coming text-xs"><span>Analytics</span></a>
-                        </div>
-                        <div class="h-1"></div>
-                    </div>
-                </div>
-
                 {{-- ══ SERVICE CENTER ══ --}}
                 <div x-data="{ open: {{ $serviceActive ? 'true' : 'false' }} }">
                     <button @click="open=!open" class="group-header w-full {{ $serviceActive ? 'has-active' : '' }}">
@@ -737,6 +642,17 @@
                         </div>
                         <div class="h-1"></div>
                     </div>
+                </div>
+
+                {{-- ══ MARKETPLACE — tombol bawah ══ --}}
+                <div class="px-1 mt-2">
+                    <a href="/marketplace/login"
+                        class="flex items-center gap-2.5 w-full px-3 py-2.5 rounded-xl font-bold text-sm text-white transition-all hover:opacity-90 hover:shadow-lg"
+                        style="background:linear-gradient(135deg,#ea580c,#f97316);box-shadow:0 2px 10px rgba(234,88,12,0.35);">
+                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                        <span class="flex-1">Marketplace Center</span>
+                        <svg class="w-3.5 h-3.5 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                    </a>
                 </div>
 
                 <div class="h-4"></div>
