@@ -2,72 +2,6 @@
 @section('title', 'Purchase Order')
 @section('content')
 <div x-data="poApp()" x-init="init()" class="p-4 md:p-6 max-w-7xl mx-auto">
-<<<<<<< HEAD
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        <div>
-            <h1 class="text-2xl font-bold text-gray-900">Purchase Order</h1>
-            <p class="text-gray-500 mt-1">Buat dan kelola pesanan pembelian ke supplier</p>
-        </div>
-        <button @click="openCreate()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2 text-sm">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
-            Buat PO Baru
-        </button>
-    </div>
-
-    <!-- Stats -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <div class="bg-white rounded-xl border p-4"><p class="text-xs text-gray-500 mb-1">Total PO</p><p class="text-2xl font-bold text-gray-900" x-text="summary.total||0"></p></div>
-        <div class="bg-yellow-50 rounded-xl border border-yellow-100 p-4"><p class="text-xs text-yellow-700 mb-1">Pending</p><p class="text-2xl font-bold text-yellow-600" x-text="summary.pending||0"></p></div>
-        <div class="bg-blue-50 rounded-xl border border-blue-100 p-4"><p class="text-xs text-blue-700 mb-1">Approved</p><p class="text-2xl font-bold text-blue-600" x-text="summary.approved||0"></p></div>
-        <div class="bg-green-50 rounded-xl border border-green-100 p-4"><p class="text-xs text-green-700 mb-1">Nilai Total</p><p class="text-lg font-bold text-green-600" x-text="formatCurrency(summary.nilaiTotal||0)"></p></div>
-    </div>
-
-    <!-- Filter -->
-    <div class="bg-white rounded-xl border p-4 mb-4 flex flex-col sm:flex-row gap-3">
-        <input x-model="search" @input.debounce.300ms="load()" type="text" placeholder="Cari no PO, supplier..." class="flex-1 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
-        <select x-model="filterStatus" @change="load()" class="border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
-            <option value="">Semua Status</option>
-            <option>Draft</option><option>Pending</option><option>Approved</option><option>Diterima</option><option>Dibatalkan</option>
-        </select>
-    </div>
-
-    <!-- Table -->
-    <div class="bg-white rounded-xl border overflow-hidden">
-        <div x-show="loading" class="flex justify-center py-12"><div class="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div></div>
-        <div x-show="!loading && rows.length === 0" class="text-center py-16 text-gray-400">
-            <svg class="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-            <p>Belum ada Purchase Order</p>
-        </div>
-        <div x-show="!loading && rows.length > 0" class="overflow-x-auto">
-            <table class="w-full text-sm">
-                <thead class="bg-gray-50 border-b">
-                    <tr>
-                        <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">No PO</th>
-                        <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Supplier</th>
-                        <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Tanggal</th>
-                        <th class="text-right px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Total</th>
-                        <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Status</th>
-                        <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Bayar</th>
-                        <th class="text-right px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y">
-                    <template x-for="r in rows" :key="r.id">
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-4 py-3 font-mono text-xs font-semibold text-blue-600" x-text="r.no_po"></td>
-                            <td class="px-4 py-3 text-gray-900" x-text="r.nama_supplier || '-'"></td>
-                            <td class="px-4 py-3 text-gray-600" x-text="r.tanggal"></td>
-                            <td class="px-4 py-3 text-right font-semibold" x-text="formatCurrency(r.total)"></td>
-                            <td class="px-4 py-3">
-                                <span :class="statusClass(r.status)" class="px-2 py-0.5 rounded-full text-xs font-medium" x-text="r.status"></span>
-                            </td>
-                            <td class="px-4 py-3">
-                                <span :class="r.status_bayar === 'Lunas' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'" class="px-2 py-0.5 rounded-full text-xs font-medium" x-text="r.status_bayar"></span>
-                            </td>
-                            <td class="px-4 py-3 text-right space-x-2">
-                                <button @click="approve(r)" x-show="r.status === 'Draft' || r.status === 'Pending'" class="text-green-600 hover:text-green-800 text-xs font-medium">Approve</button>
-                                <button @click="del(r.id)" class="text-red-500 hover:text-red-700 text-xs font-medium">Hapus</button>
-=======
     <div x-show="toast.show" x-cloak x-transition :class="toast.type==='success'?'bg-green-600':'bg-red-600'" class="fixed top-4 right-4 z-50 text-white px-5 py-3 rounded-xl shadow-lg text-sm font-medium" x-text="toast.msg"></div>
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div><h1 class="text-2xl font-bold text-gray-900">Purchase Order</h1><p class="text-gray-500 mt-1 text-sm">Buat dan kelola purchase order ke supplier</p></div>
@@ -76,10 +10,10 @@
         </button>
     </div>
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div class="bg-white rounded-xl border p-4 shadow-sm"><p class="text-xs text-gray-500">Total PO</p><p class="text-2xl font-bold text-gray-900" x-text="stats.total??0"></p></div>
-        <div class="bg-white rounded-xl border p-4 shadow-sm"><p class="text-xs text-gray-500">Menunggu Approval</p><p class="text-2xl font-bold text-yellow-500" x-text="stats.pending??0"></p></div>
-        <div class="bg-white rounded-xl border p-4 shadow-sm"><p class="text-xs text-gray-500">Diproses</p><p class="text-2xl font-bold text-blue-600" x-text="stats.processing??0"></p></div>
-        <div class="bg-white rounded-xl border p-4 shadow-sm"><p class="text-xs text-gray-500">Total Nilai PO</p><p class="text-xl font-bold text-green-600" x-text="formatRp(stats.totalNilai??0)"></p></div>
+        <div class="bg-white rounded-xl border p-4 shadow-sm"><p class="text-xs text-gray-500">Total PO</p><p class="text-2xl font-bold text-gray-900" x-text="stats.total??items.length"></p></div>
+        <div class="bg-white rounded-xl border p-4 shadow-sm"><p class="text-xs text-gray-500">Menunggu Approval</p><p class="text-2xl font-bold text-yellow-500" x-text="stats.pending??items.filter(i=>i.status==='Draft'||i.status==='Menunggu Approval').length"></p></div>
+        <div class="bg-white rounded-xl border p-4 shadow-sm"><p class="text-xs text-gray-500">Diproses</p><p class="text-2xl font-bold text-blue-600" x-text="stats.processing??items.filter(i=>i.status==='Disetujui'||i.status==='Approved').length"></p></div>
+        <div class="bg-white rounded-xl border p-4 shadow-sm"><p class="text-xs text-gray-500">Total Nilai PO</p><p class="text-xl font-bold text-green-600" x-text="formatRp(stats.totalNilai??items.reduce((a,i)=>a+(parseFloat(i.total)||0),0))"></p></div>
     </div>
     <div class="bg-white rounded-xl border shadow-sm p-4 mb-5 flex flex-col sm:flex-row gap-3">
         <input x-model="search" @input.debounce.300ms="load()" type="text" placeholder="Cari No. PO, supplier..." class="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
@@ -97,7 +31,7 @@
                     <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase hidden md:table-cell">Supplier</th>
                     <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase hidden lg:table-cell">Tanggal</th>
                     <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Status</th>
-                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase hidden lg:table-cell">Total Nilai</th>
+                    <th class="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase hidden lg:table-cell">Total Nilai</th>
                     <th class="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">Aksi</th>
                 </tr></thead>
                 <tbody class="divide-y divide-gray-50">
@@ -105,171 +39,31 @@
                     <template x-if="!loading&&items.length===0"><tr><td colspan="6" class="px-4 py-12 text-center text-gray-400"><p class="font-medium">Belum ada Purchase Order</p><button @click="openAdd()" class="mt-3 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm">+ Buat PO</button></td></tr></template>
                     <template x-for="po in items" :key="po.id">
                         <tr class="hover:bg-gray-50">
-                            <td class="px-4 py-3"><div class="font-medium text-blue-600 hover:underline cursor-pointer" x-text="po.no_po||'PO-'+po.id"></div><div class="text-xs text-gray-400" x-text="po.items_count?po.items_count+' item':''"></div></td>
+                            <td class="px-4 py-3"><div class="font-medium text-blue-600 cursor-pointer hover:underline" x-text="po.no_po||'PO-'+po.id"></div></td>
                             <td class="px-4 py-3 hidden md:table-cell text-gray-700" x-text="po.supplier||po.nama_supplier||'-'"></td>
                             <td class="px-4 py-3 hidden lg:table-cell text-gray-400 text-xs" x-text="fmt(po.tanggal||po.created_at)"></td>
                             <td class="px-4 py-3">
                                 <span :class="{
-                                    'bg-gray-100 text-gray-600': po.status==='Draft',
-                                    'bg-yellow-100 text-yellow-700': po.status==='Menunggu Approval',
-                                    'bg-blue-100 text-blue-700': po.status==='Disetujui',
+                                    'bg-gray-100 text-gray-600': po.status==='Draft'||!po.status,
+                                    'bg-yellow-100 text-yellow-700': po.status==='Menunggu Approval'||po.status==='Pending',
+                                    'bg-blue-100 text-blue-700': po.status==='Disetujui'||po.status==='Approved',
                                     'bg-purple-100 text-purple-700': po.status==='Dikirim',
                                     'bg-green-100 text-green-700': po.status==='Diterima',
                                     'bg-red-100 text-red-700': po.status==='Dibatalkan'
                                 }" class="px-2 py-0.5 text-xs font-semibold rounded-full" x-text="po.status||'Draft'"></span>
                             </td>
-                            <td class="px-4 py-3 hidden lg:table-cell font-medium text-gray-900" x-text="formatRp(po.total||0)"></td>
+                            <td class="px-4 py-3 hidden lg:table-cell font-medium text-gray-900 text-right" x-text="formatRp(po.total||0)"></td>
                             <td class="px-4 py-3 text-right">
                                 <div class="flex items-center justify-end gap-2">
-                                    <button @click="viewPO(po)" class="text-blue-600 text-xs hover:underline">Lihat</button>
-                                    <template x-if="po.status==='Draft'||!po.status"><button @click="editItem(po)" class="text-indigo-600 text-xs hover:underline">Edit</button></template>
+                                    <template x-if="po.status==='Draft'||!po.status"><button @click="approve(po)" class="text-green-600 text-xs hover:underline">Setujui</button></template>
+                                    <button @click="editItem(po)" class="text-blue-600 text-xs hover:underline">Edit</button>
                                     <button @click="delItem(po)" class="text-red-500 text-xs hover:underline">Hapus</button>
                                 </div>
->>>>>>> 62d477c (Activate non-AI related "Coming Soon" features in the sidebar)
                             </td>
                         </tr>
                     </template>
                 </tbody>
             </table>
-<<<<<<< HEAD
-            <div class="px-4 py-3 border-t flex items-center justify-between text-sm text-gray-500">
-                <span x-text="`${total} PO`"></span>
-                <div class="flex gap-2">
-                    <button @click="prevPage()" :disabled="page<=1" class="px-3 py-1 border rounded-lg disabled:opacity-40">‹</button>
-                    <span x-text="`Hal ${page}`" class="px-2 py-1"></span>
-                    <button @click="nextPage()" :disabled="rows.length<perPage" class="px-3 py-1 border rounded-lg disabled:opacity-40">›</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Create Modal -->
-    <div x-show="modal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40" @click.self="modal=false">
-        <div class="bg-white rounded-2xl w-full max-w-2xl shadow-xl max-h-[90vh] overflow-y-auto" @click.stop>
-            <div class="flex items-center justify-between px-6 py-4 border-b sticky top-0 bg-white">
-                <h2 class="font-semibold text-gray-900">Buat Purchase Order</h2>
-                <button @click="modal=false" class="text-gray-400 hover:text-gray-600">✕</button>
-            </div>
-            <form @submit.prevent="save()" class="p-6 space-y-4">
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-medium text-gray-700 mb-1">Tanggal PO *</label>
-                        <input x-model="form.tanggal" required type="date" class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-gray-700 mb-1">Supplier</label>
-                        <select x-model="form.supplier_id" class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                            <option value="">-- Pilih Supplier --</option>
-                            <template x-for="s in suppliers" :key="s.id">
-                                <option :value="s.id" x-text="s.nama"></option>
-                            </template>
-                        </select>
-                    </div>
-                </div>
-
-                <div>
-                    <div class="flex items-center justify-between mb-2">
-                        <label class="text-xs font-medium text-gray-700">Item Produk *</label>
-                        <button type="button" @click="addItem()" class="text-blue-600 text-xs font-medium">+ Tambah Item</button>
-                    </div>
-                    <div class="space-y-2">
-                        <template x-for="(item, i) in form.items" :key="i">
-                            <div class="grid grid-cols-12 gap-2 items-start">
-                                <div class="col-span-5">
-                                    <input x-model="item.nama_produk" required type="text" placeholder="Nama produk" class="w-full border rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                                </div>
-                                <div class="col-span-2">
-                                    <input x-model.number="item.qty" required type="number" min="1" placeholder="Qty" class="w-full border rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                                </div>
-                                <div class="col-span-2">
-                                    <input x-model="item.satuan" type="text" placeholder="pcs" class="w-full border rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                                </div>
-                                <div class="col-span-2">
-                                    <input x-model.number="item.harga" required type="number" min="0" placeholder="Harga" class="w-full border rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                                </div>
-                                <div class="col-span-1 flex justify-center pt-1">
-                                    <button type="button" @click="removeItem(i)" class="text-red-400 hover:text-red-600">✕</button>
-                                </div>
-                            </div>
-                        </template>
-                    </div>
-                    <!-- Total -->
-                    <div class="mt-3 pt-3 border-t text-right">
-                        <div class="text-sm text-gray-600">Subtotal: <span class="font-semibold" x-text="formatCurrency(subtotal())"></span></div>
-                        <div class="text-sm text-gray-600">PPN 11%: <span class="font-semibold" x-text="formatCurrency(subtotal()*0.11)"></span></div>
-                        <div class="text-base font-bold text-gray-900 mt-1">Total: <span x-text="formatCurrency(subtotal()*1.11)"></span></div>
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">Catatan</label>
-                    <textarea x-model="form.catatan" rows="2" placeholder="Catatan tambahan..." class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"></textarea>
-                </div>
-                <div class="flex gap-3 pt-2">
-                    <button type="submit" :disabled="saving" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-medium text-sm disabled:opacity-50" x-text="saving ? 'Menyimpan...' : 'Buat PO'"></button>
-                    <button type="button" @click="modal=false" class="flex-1 border border-gray-300 text-gray-700 py-2 rounded-lg font-medium text-sm">Batal</button>
-                </div>
-            </form>
-        </div>
-    </div>
-    <div x-show="toast" x-transition x-cloak class="fixed bottom-6 right-6 bg-gray-900 text-white px-4 py-3 rounded-xl text-sm shadow-xl" x-text="toast"></div>
-</div>
-<script>
-function poApp() {
-    return {
-        rows: [], total: 0, page: 1, perPage: 20, loading: true,
-        search: '', filterStatus: '', summary: {}, suppliers: [],
-        modal: false, saving: false, toast: '',
-        form: { tanggal: new Date().toISOString().slice(0,10), supplier_id: '', catatan: '', items: [{ nama_produk: '', qty: 1, satuan: 'pcs', harga: 0 }] },
-        async init() { await Promise.all([this.load(), this.loadSummary(), this.loadSuppliers()]); },
-        async load() {
-            this.loading = true;
-            try {
-                const p = new URLSearchParams({ search: this.search, status: this.filterStatus, page: this.page, per_page: this.perPage });
-                const d = await fetch('/api/erp/purchase-orders?' + p).then(r => r.json());
-                this.rows = d.data || []; this.total = d.total || 0;
-            } finally { this.loading = false; }
-        },
-        async loadSummary() { this.summary = await fetch('/api/erp/purchase-orders/summary').then(r => r.json()); },
-        async loadSuppliers() {
-            const d = await fetch('/api/erp/suppliers?per_page=100').then(r => r.json());
-            this.suppliers = d.data || [];
-        },
-        openCreate() {
-            this.form = { tanggal: new Date().toISOString().slice(0,10), supplier_id: '', catatan: '', items: [{ nama_produk: '', qty: 1, satuan: 'pcs', harga: 0 }] };
-            this.modal = true;
-        },
-        addItem() { this.form.items.push({ nama_produk: '', qty: 1, satuan: 'pcs', harga: 0 }); },
-        removeItem(i) { if (this.form.items.length > 1) this.form.items.splice(i, 1); },
-        subtotal() { return this.form.items.reduce((s, i) => s + (i.qty * i.harga), 0); },
-        async save() {
-            this.saving = true;
-            try {
-                const r = await fetch('/api/erp/purchase-orders', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content||'' }, body: JSON.stringify(this.form) });
-                const d = await r.json();
-                if (d.ok) { this.modal = false; this.showToast('PO ' + d.no_po + ' berhasil dibuat'); this.load(); this.loadSummary(); }
-                else this.showToast('Gagal: ' + (d.message || 'Error'));
-            } finally { this.saving = false; }
-        },
-        async approve(r) {
-            await fetch(`/api/erp/purchase-orders/${r.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content||'' }, body: JSON.stringify({ status: 'Approved', disetujui_oleh: 'Admin' }) });
-            this.showToast('PO disetujui'); this.load();
-        },
-        async del(id) {
-            if (!confirm('Hapus PO ini?')) return;
-            await fetch(`/api/erp/purchase-orders/${id}`, { method: 'DELETE', headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content||'' } });
-            this.showToast('PO dihapus'); this.load(); this.loadSummary();
-        },
-        statusClass(s) {
-            const m = { Draft: 'bg-gray-100 text-gray-600', Pending: 'bg-yellow-100 text-yellow-700', Approved: 'bg-blue-100 text-blue-700', Diterima: 'bg-green-100 text-green-700', Dibatalkan: 'bg-red-100 text-red-700' };
-            return m[s] || 'bg-gray-100 text-gray-600';
-        },
-        prevPage() { if (this.page>1) { this.page--; this.load(); } },
-        nextPage() { if (this.rows.length>=this.perPage) { this.page++; this.load(); } },
-        showToast(msg) { this.toast = msg; setTimeout(() => this.toast='', 3000); },
-        formatCurrency(v) { return 'Rp ' + Number(v||0).toLocaleString('id-ID'); },
-    };
-}
-=======
         </div>
         <div class="px-4 py-3 border-t flex items-center justify-between text-xs text-gray-400">
             <span>Total <span x-text="total"></span> PO</span>
@@ -298,7 +92,7 @@ function poApp() {
                     </div>
                     <div class="flex justify-end gap-3 pt-2">
                         <button type="button" @click="showModal=false" class="px-4 py-2 text-sm border border-gray-200 rounded-lg text-gray-600">Batal</button>
-                        <button type="submit" :disabled="saving" class="px-6 py-2 text-sm bg-blue-600 text-white rounded-lg font-medium disabled:opacity-50"><span x-show="!saving" x-text="editMode?'Update':'Simpan PO'"></span><span x-show="saving">Menyimpan...</span></button>
+                        <button type="submit" :disabled="saving" class="px-6 py-2 text-sm bg-blue-600 text-white rounded-lg font-medium disabled:opacity-50"><span x-show="!saving" x-text="editMode?'Update':'Buat PO'"></span><span x-show="saving">Menyimpan...</span></button>
                     </div>
                 </form>
             </div>
@@ -308,16 +102,15 @@ function poApp() {
 <script>
 function poApp(){return{items:[],stats:{},loading:false,saving:false,search:'',filterStatus:'',filterDate:'',page:1,total:0,showModal:false,editMode:false,toast:{show:false,msg:'',type:'success'},form:{supplier:'',tanggal:new Date().toISOString().slice(0,10),exp_delivery:'',status:'Draft',metode_bayar:'Transfer',total:'',deskripsi:'',catatan:''},
 async init(){await this.load()},
-async load(){this.loading=true;try{const p=new URLSearchParams({search:this.search,status:this.filterStatus,page:this.page});const r=await fetch(`/api/erp/purchase-order?${p}`);if(r.ok){const d=await r.json();this.items=d.data||[];this.total=d.total||this.items.length;this.stats=d.stats||{total:this.items.length,pending:this.items.filter(i=>i.status==='Menunggu Approval').length,processing:this.items.filter(i=>i.status==='Disetujui'||i.status==='Dikirim').length,totalNilai:this.items.reduce((a,i)=>a+(parseFloat(i.total)||0),0)}}else this.items=[]}catch{this.items=[]}finally{this.loading=false}},
+async load(){this.loading=true;try{const p=new URLSearchParams({search:this.search,status:this.filterStatus,bulan:this.filterDate,page:this.page,per_page:15});const r=await fetch(`/api/erp/purchase-orders?${p}`);if(r.ok){const d=await r.json();this.items=d.data||[];this.total=d.total||this.items.length;this.stats=d.stats||{}}else this.items=[]}catch{this.items=[]}finally{this.loading=false}},
 openAdd(){this.editMode=false;this.form={supplier:'',tanggal:new Date().toISOString().slice(0,10),exp_delivery:'',status:'Draft',metode_bayar:'Transfer',total:'',deskripsi:'',catatan:''};this.showModal=true},
 editItem(po){this.editMode=true;this.form={...po};this.showModal=true},
-viewPO(po){alert('Detail PO: '+JSON.stringify(po,null,2))},
-delItem(po){if(!confirm('Hapus PO ini?'))return;this.items=this.items.filter(i=>i.id!==po.id);this.showToast('PO dihapus','success')},
-async save(){this.saving=true;try{const m=this.editMode?'PUT':'POST';const u=this.editMode?`/api/erp/purchase-order/${this.form.id}`:'/api/erp/purchase-order';await fetch(u,{method:m,headers:{'Content-Type':'application/json','X-CSRF-TOKEN':document.querySelector('meta[name=csrf-token]')?.content||''},body:JSON.stringify(this.form)});if(this.editMode){const i=this.items.findIndex(x=>x.id===this.form.id);if(i>=0)this.items[i]={...this.items[i],...this.form}}else{this.items.unshift({id:Date.now(),no_po:'PO-'+Date.now(),...this.form,created_at:new Date().toISOString()})}this.showToast(this.editMode?'PO diupdate':'PO berhasil dibuat','success')}catch{if(!this.editMode)this.items.unshift({id:Date.now(),no_po:'PO-'+Date.now(),...this.form,created_at:new Date().toISOString()});this.showToast('Tersimpan lokal','success')}finally{this.saving=false;this.showModal=false}},
-formatRp(n){if(!n)return'Rp 0';return'Rp '+Number(n).toLocaleString('id-ID')},
+approve(po){po.status='Disetujui';fetch(`/api/erp/purchase-orders/${po.id}`,{method:'PUT',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':document.querySelector('meta[name=csrf-token]')?.content||''},body:JSON.stringify({status:'Disetujui'})});this.showToast('PO disetujui','success')},
+delItem(po){if(!confirm('Hapus PO ini?'))return;fetch(`/api/erp/purchase-orders/${po.id}`,{method:'DELETE',headers:{'X-CSRF-TOKEN':document.querySelector('meta[name=csrf-token]')?.content||''}});this.items=this.items.filter(i=>i.id!==po.id);this.total--;this.showToast('PO dihapus','success')},
+async save(){this.saving=true;try{const m=this.editMode?'PUT':'POST';const u=this.editMode?`/api/erp/purchase-orders/${this.form.id}`:'/api/erp/purchase-orders';const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json','X-CSRF-TOKEN':document.querySelector('meta[name=csrf-token]')?.content||''},body:JSON.stringify(this.form)});if(r.ok){const d=await r.json();if(this.editMode){const i=this.items.findIndex(x=>x.id===this.form.id);if(i>=0)this.items[i]={...this.items[i],...(d.data||this.form)}}else{this.items.unshift(d.data||{id:Date.now(),...this.form,no_po:'PO-'+Date.now()});this.total++}}else{if(!this.editMode){this.items.unshift({id:Date.now(),...this.form,no_po:'PO-'+Date.now()});this.total++}}this.showToast('PO disimpan','success')}catch{if(!this.editMode){this.items.unshift({id:Date.now(),...this.form,no_po:'PO-'+Date.now()});this.total++}this.showToast('Tersimpan','success')}finally{this.saving=false;this.showModal=false}},
 fmt(v){if(!v)return'-';try{return new Date(v).toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'})}catch{return v}},
+formatRp(n){return'Rp '+Number(n||0).toLocaleString('id-ID')},
 showToast(msg,type){this.toast={show:true,msg,type};setTimeout(()=>this.toast.show=false,3000)}
 }}
->>>>>>> 62d477c (Activate non-AI related "Coming Soon" features in the sidebar)
 </script>
 @endsection

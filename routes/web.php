@@ -145,25 +145,7 @@ Route::get('/erp/users', fn() => view('erp.generic-module', [
 
 // ─── Coming Soon routes (remaining unbuilt modules) ──────────────────────
 $comingSoon = [
-    'erp/retur'           => ['Retur', 'Manajemen pengembalian barang dari customer.', ['Retur barang', 'Alasan retur', 'Proses pengembalian dana', 'Laporan retur']],
-    'erp/discount'        => ['Diskon & Promo', 'Manajemen program diskon dan promosi penjualan.', ['Buat kode promo', 'Diskon per produk / kategori', 'Periode promosi', 'Laporan efektivitas promo']],
-    'erp/stock-in'        => ['Stok Masuk', 'Pencatatan barang masuk ke gudang.', ['Input penerimaan barang', 'Sinkronisasi dari PO', 'Riwayat stok masuk', 'Cetak label']],
-    'erp/stock-out'       => ['Stok Keluar', 'Pencatatan barang keluar dari gudang.', ['Input pengeluaran barang', 'Stok keluar per order', 'Riwayat stok keluar']],
-    'erp/warehouse'       => ['Gudang', 'Manajemen lokasi dan zona penyimpanan gudang.', ['Peta gudang', 'Zona penyimpanan', 'Transfer antar lokasi', 'Kapasitas gudang']],
-    'erp/supplier'        => ['Supplier', 'Database dan manajemen supplier/vendor.', ['Daftar supplier', 'Kontak & alamat', 'Riwayat transaksi', 'Rating supplier']],
-    'erp/purchase-order'  => ['Purchase Order', 'Buat dan kelola PO ke supplier.', ['Buat PO ke supplier', 'Approval PO', 'Status pengiriman supplier', 'Riwayat PO']],
-    'erp/goods-receipt'   => ['Penerimaan Barang', 'Konfirmasi penerimaan barang dari supplier.', ['Input penerimaan', 'Verifikasi terhadap PO', 'Notifikasi admin', 'Cetak surat jalan']],
-    'erp/cash-in'         => ['Kas Masuk', 'Pencatatan semua pemasukan kas.', ['Input kas masuk', 'Kategorisasi', 'Rekonsiliasi bank', 'Laporan kas masuk']],
-    'erp/cash-out'        => ['Kas Keluar', 'Pencatatan semua pengeluaran kas.', ['Input pengeluaran', 'Approval pengeluaran', 'Bukti pengeluaran', 'Laporan kas keluar']],
-    'erp/profit-loss'     => ['Laba Rugi', 'Laporan laba rugi periode tertentu.', ['Laba rugi harian/bulanan/tahunan', 'Grafik tren', 'Export PDF/Excel', 'Perbandingan periode']],
-    'erp/expense'         => ['Pengeluaran', 'Manajemen biaya operasional.', ['Kategori biaya', 'Approval biaya', 'Budget monitoring', 'Laporan pengeluaran']],
-    'erp/loyalty'         => ['Loyalty Points', 'Program poin reward untuk pelanggan setia.', ['Akumulasi poin', 'Redeem poin', 'Level membership', 'Riwayat poin']],
-    'erp/delivery-proof'  => ['Bukti Pengiriman', 'Dokumentasi foto bukti pengiriman.', ['Upload foto bukti', 'Tanda tangan digital', 'Koordinat GPS', 'Laporan pengiriman']],
-    'erp/report-sales'    => ['Laporan Penjualan', 'Analisis performa penjualan tim sales.', ['Top produk terlaris', 'Performa per sales', 'Tren penjualan', 'Export laporan']],
-    'erp/report-finance'  => ['Laporan Keuangan', 'Ringkasan keuangan perusahaan.', ['Neraca keuangan', 'Arus kas', 'Laba rugi', 'Piutang & hutang']],
-    'erp/report-driver'   => ['Laporan Driver', 'Performa dan produktivitas driver.', ['Jumlah pengiriman', 'Tepat waktu vs terlambat', 'Rute terpopuler', 'Rating driver']],
-    'erp/users'           => ['Manajemen User', 'Kelola user, role, dan hak akses.', ['Tambah user', 'Assign role', 'Hak akses per menu', 'Activity log']],
-    'erp/notifications'   => ['Log Notifikasi WA', 'Riwayat pengiriman pesan WhatsApp.', ['Log pesan terkirim', 'Pesan gagal & retry', 'Template pesan', 'Statistik WA']],
+    // NOTE: paths already handled by dedicated routes above are intentionally excluded
     'erp/ai-inventory'    => ['AI Inventory', 'Prediksi stok dan reorder otomatis berbasis AI.', ['Prediksi kebutuhan stok', 'Auto reorder saat stok menipis', 'Analisis tren demand', 'Rekomendasi supplier']],
     'erp/ai-analytics'    => ['AI Analytics', 'Dashboard analitik prediktif berbasis AI.', ['Prediksi penjualan 30 hari', 'Rekomendasi produk top', 'Customer lifetime value', 'Anomaly detection']],
     'erp/multi-branch'    => ['Multi Cabang', 'Kelola beberapa toko/cabang dalam satu sistem.', ['Dashboard per cabang', 'Transfer stok antar cabang', 'Laporan konsolidasi', 'Hak akses per cabang']],
@@ -228,9 +210,8 @@ $masterDataComingSoon = [
     'erp/payment-methods' => ['Metode Pembayaran', 'Konfigurasi cara pembayaran yang tersedia.', ['Transfer bank', 'Cash', 'E-wallet', 'Kredit']],
 ];
 
-// AKUNTANSI
+// AKUNTANSI — erp/chart-of-accounts handled by dedicated route above
 $accountingComingSoon = [
-    'erp/chart-of-accounts' => ['Chart of Accounts (COA)', 'Struktur akun untuk pembukuan lengkap.', ['Akun aktiva', 'Akun pasiva', 'Akun pendapatan', 'Akun biaya']],
     'erp/journal' => ['Jurnal Umum', 'Pencatatan jurnal transaksi harian.', ['Jurnal otomatis', 'Jurnal manual', 'Approval jurnal']],
     'erp/general-ledger' => ['Buku Besar', 'Laporan buku besar per akun.', ['Buku besar umum', 'Buku besar pembantu', 'Saldo akun']],
     'erp/balance-sheet' => ['Neraca', 'Laporan posisi keuangan perusahaan.', ['Aktiva lancar', 'Aktiva tetap', 'Pasiva', 'Ekuitas']],
@@ -258,33 +239,22 @@ $purchaseFlowComingSoon = [
     'erp/payable-due' => ['Hutang Jatuh Tempo', 'Monitoring hutang yang akan jatuh tempo.', ['Reminder otomatis', 'Overdue alert', 'Cash flow planning']],
 ];
 
-// SALES FLOW
+// SALES FLOW — erp/quotation handled by dedicated route above
 $salesFlowComingSoon = [
-    'erp/quotation' => ['Quotation / Penawaran', 'Buat dan kirim penawaran harga ke customer.', ['Template quotation', 'Validitas quotation', 'Konversi ke sales order']],
     'erp/sales-target' => ['Sales Target', 'Target penjualan per salesman/periode.', ['Target bulanan', 'Target tahunan', 'Tracking pencapaian']],
     'erp/sales-commission' => ['Komisi Sales', 'Perhitungan komisi penjualan otomatis.', ['Komisi per produk', 'Komisi per target', 'Pembayaran komisi']],
     'erp/sales-receivable' => ['Piutang Penjualan', 'Monitoring piutang dari penjualan.', ['Invoice outstanding', 'Collection tracking', 'Bad debt provision']],
     'erp/order-tracking' => ['Tracking Status Order', 'Monitoring status pesanan dari awal sampai selesai.', ['Status real-time', 'ETA estimation', 'Customer notification']],
 ];
 
-// HR / KARYAWAN
-$hrComingSoon = [
-    'erp/employees' => ['Data Karyawan', 'Database lengkap data karyawan.', ['Profil karyawan', 'Data pribadi', 'Data kepegawaian']],
-    'erp/attendance' => ['Absensi', 'Sistem absensi karyawan.', ['Check-in/out', 'Overtime tracking', 'Laporan absensi']],
-    'erp/payroll' => ['Gaji', 'Perhitungan gaji dan payroll processing.', ['Perhitungan gaji', 'Deductions', 'Payslip generation']],
-    'erp/roles' => ['Role & Hak Akses', 'Manajemen role dan permission sistem.', ['Role management', 'Permission matrix', 'User assignment']],
-    'erp/audit-log' => ['Aktivitas User / Audit Log', 'Log aktivitas semua user dalam sistem.', ['Login history', 'Action tracking', 'Security audit']],
-];
+// HR / KARYAWAN — all paths handled by dedicated routes, keeping array empty
+$hrComingSoon = [];
 
-// DASHBOARD ANALYTICS
-$analyticsComingSoon = [
-    'erp/analytics' => ['Analytics Dashboard', 'Dashboard analitik komprehensif.', ['Real-time metrics', 'Custom dashboard', 'Export analytics']],
-];
+// DASHBOARD ANALYTICS — handled by dedicated route above
+$analyticsComingSoon = [];
 
-// FITUR TOKO ELEKTRONIK
+// FITUR TOKO ELEKTRONIK — erp/service and erp/warranty handled by dedicated routes above
 $electronicStoreComingSoon = [
-    'erp/service' => ['Servis Barang', 'Manajemen servis produk elektronik.', ['Service request', 'Service tracking', 'Service history']],
-    'erp/warranty' => ['Klaim Garansi', 'Proses klaim garansi produk.', ['Warranty check', 'Claim processing', 'Warranty status']],
     'erp/service-tracking' => ['Tracking Perbaikan', 'Monitoring progress perbaikan.', ['Repair status', 'Technician assignment', 'Completion tracking']],
     'erp/installment' => ['Kredit Customer', 'Fitur cicilan untuk pembelian.', ['Installment setup', 'Payment schedule', 'Interest calculation']],
     'erp/installment-due' => ['Jatuh Tempo Cicilan', 'Monitoring cicilan yang jatuh tempo.', ['Due date alert', 'Payment reminder', 'Overdue management']],
@@ -386,9 +356,7 @@ $extraComingSoon = [
     'erp/fleet'              => ['Armada', 'Manajemen kendaraan armada pengiriman.', ['Data kendaraan', 'Status kendaraan', 'Perawatan kendaraan', 'Biaya operasional']],
     'erp/drivers'            => ['Data Driver', 'Database lengkap driver pengiriman.', ['Profil driver', 'Lisensi SIM', 'Performa driver', 'Penugasan area']],
     'erp/delivery-schedule'  => ['Jadwal Pengiriman', 'Perencanaan jadwal pengiriman harian.', ['Jadwal per driver', 'Rute optimal', 'Load balancing', 'Konfirmasi jadwal']],
-    // Marketplace Dashboard
-    'erp/marketplace-overview'       => ['Overview Marketplace', 'Ringkasan performa semua marketplace.', ['Total order semua platform', 'Revenue per platform', 'Top produk', 'Trend omzet']],
-    'erp/marketplace-sync'           => ['Sinkronisasi Marketplace', 'Sinkronisasi data ke semua marketplace.', ['Sync produk', 'Sync stok', 'Sync harga', 'Log sinkronisasi']],
+    // Marketplace Dashboard — erp/marketplace-overview and erp/marketplace-sync handled by dedicated routes
     'erp/marketplace-mapping'        => ['Mapping Produk Marketplace', 'Pemetaan produk ERP ke marketplace.', ['Map per platform', 'Bulk mapping', 'Validasi mapping', 'Laporan mapping']],
     'erp/marketplace-warehouse-mapping' => ['Mapping Gudang Marketplace', 'Pemetaan gudang ke marketplace.', ['Map gudang Shopee', 'Map gudang TikTok', 'Map gudang Tokopedia', 'Map gudang Lazada']],
     'erp/marketplace-price-mapping'  => ['Mapping Harga Marketplace', 'Aturan harga per marketplace.', ['Harga dasar', 'Markup per platform', 'Harga promo', 'Sync harga otomatis']],
