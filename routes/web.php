@@ -438,6 +438,486 @@ foreach ($extraComingSoon as $path => [$title, $description, $features]) {
     });
 }
 
+// ══════════════════════════════════════════════════════════════════════════════
+// ACTIVATED ERP MODULES — override coming-soon routes (last-registered wins)
+// ══════════════════════════════════════════════════════════════════════════════
+
+// ── Dashboard ──────────────────────────────────────────────────────────────
+Route::get('/erp/owner-dashboard', fn() => view('erp.owner-dashboard'));
+Route::get('/erp/multi-branch-analytics', fn() => view('erp.crud', [
+    'title'=>'Multi Branch Analytics','description'=>'Analisa performa seluruh cabang','module'=>'multi-branch-analytics',
+    'formFields'=>[['name'=>'cabang','label'=>'Cabang','type'=>'text','required'=>true],['name'=>'periode','label'=>'Periode','type'=>'text'],['name'=>'omzet','label'=>'Omzet','type'=>'number','format'=>'currency'],['name'=>'profit','label'=>'Profit','type'=>'number','format'=>'currency'],['name'=>'total_order','label'=>'Total Order','type'=>'number'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Aktif','Non-Aktif']]],
+]));
+
+// ── Sales Flow ─────────────────────────────────────────────────────────────
+Route::get('/erp/sales-order', fn() => view('erp.crud', [
+    'title'=>'Sales Order','description'=>'Manajemen sales order pelanggan','module'=>'sales-order',
+    'formFields'=>[['name'=>'nomor','label'=>'No SO','type'=>'text','required'=>true],['name'=>'customer','label'=>'Customer','type'=>'text','required'=>true],['name'=>'tanggal','label'=>'Tanggal','type'=>'date'],['name'=>'total','label'=>'Total','type'=>'number','format'=>'currency'],['name'=>'catatan','label'=>'Catatan','type'=>'textarea'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Draft','Diproses','Dikirim','Selesai','Dibatalkan']]],
+    'filterOptions'=>['Draft','Diproses','Dikirim','Selesai','Dibatalkan'],
+]));
+Route::get('/erp/delivery-order', fn() => view('erp.crud', [
+    'title'=>'Delivery Order','description'=>'Manajemen surat pengiriman','module'=>'delivery-order',
+    'formFields'=>[['name'=>'nomor','label'=>'No DO','type'=>'text','required'=>true],['name'=>'sales_order','label'=>'No SO','type'=>'text'],['name'=>'customer','label'=>'Customer','type'=>'text','required'=>true],['name'=>'driver','label'=>'Driver','type'=>'text'],['name'=>'tanggal','label'=>'Tanggal','type'=>'date'],['name'=>'alamat','label'=>'Alamat','type'=>'textarea'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Menunggu','Dalam Perjalanan','Terkirim','Gagal']]],
+    'filterOptions'=>['Menunggu','Dalam Perjalanan','Terkirim','Gagal'],
+]));
+Route::get('/erp/order-tracking', fn() => view('erp.crud', [
+    'title'=>'Tracking Status Order','description'=>'Pantau status pengiriman order','module'=>'order-tracking',
+    'formFields'=>[['name'=>'nomor_order','label'=>'No Order','type'=>'text','required'=>true],['name'=>'customer','label'=>'Customer','type'=>'text'],['name'=>'driver','label'=>'Driver','type'=>'text'],['name'=>'lokasi','label'=>'Lokasi Terakhir','type'=>'text'],['name'=>'keterangan','label'=>'Keterangan','type'=>'textarea'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Menunggu','Diproses','Dikirim','Terkirim','Gagal']]],
+    'filterOptions'=>['Menunggu','Diproses','Dikirim','Terkirim','Gagal'],
+]));
+Route::get('/erp/sales-target', fn() => view('erp.crud', [
+    'title'=>'Sales Target','description'=>'Target penjualan per sales per periode','module'=>'sales-target',
+    'formFields'=>[['name'=>'sales','label'=>'Nama Sales','type'=>'text','required'=>true],['name'=>'bulan','label'=>'Bulan','type'=>'text','required'=>true],['name'=>'tahun','label'=>'Tahun','type'=>'number','default'=>date('Y')],['name'=>'target_rp','label'=>'Target (Rp)','type'=>'number','format'=>'currency'],['name'=>'target_order','label'=>'Target Order','type'=>'number'],['name'=>'realisasi','label'=>'Realisasi (Rp)','type'=>'number','format'=>'currency'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Berjalan','Selesai','Melebihi Target']]],
+]));
+Route::get('/erp/sales-commission', fn() => view('erp.crud', [
+    'title'=>'Komisi Sales','description'=>'Perhitungan dan tracking komisi sales','module'=>'sales-commission',
+    'formFields'=>[['name'=>'sales','label'=>'Nama Sales','type'=>'text','required'=>true],['name'=>'bulan','label'=>'Bulan','type'=>'text'],['name'=>'tahun','label'=>'Tahun','type'=>'number'],['name'=>'total_penjualan','label'=>'Total Penjualan','type'=>'number','format'=>'currency'],['name'=>'persen_komisi','label'=>'% Komisi','type'=>'number'],['name'=>'komisi','label'=>'Komisi (Rp)','type'=>'number','format'=>'currency'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Pending','Disetujui','Dibayar']]],
+    'filterOptions'=>['Pending','Disetujui','Dibayar'],
+]));
+Route::get('/erp/sales-receivable', fn() => view('erp.crud', [
+    'title'=>'Piutang Penjualan','description'=>'Monitor piutang dari pelanggan','module'=>'sales-receivable',
+    'formFields'=>[['name'=>'customer','label'=>'Customer','type'=>'text','required'=>true],['name'=>'nomor_invoice','label'=>'No Invoice','type'=>'text'],['name'=>'jumlah','label'=>'Jumlah','type'=>'number','format'=>'currency'],['name'=>'jatuh_tempo','label'=>'Jatuh Tempo','type'=>'date'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Belum Lunas','Lunas','Jatuh Tempo','Cicilan']]],
+    'filterOptions'=>['Belum Lunas','Lunas','Jatuh Tempo'],
+]));
+Route::get('/erp/membership', fn() => view('erp.crud', [
+    'title'=>'Membership Customer','description'=>'Program membership dan loyalitas pelanggan','module'=>'membership',
+    'formFields'=>[['name'=>'nama','label'=>'Nama Member','type'=>'text','required'=>true],['name'=>'customer','label'=>'Customer','type'=>'text'],['name'=>'level','label'=>'Level','type'=>'select','options'=>['Silver','Gold','Platinum']],['name'=>'poin','label'=>'Poin','type'=>'number','default'=>0],['name'=>'total_belanja','label'=>'Total Belanja','type'=>'number','format'=>'currency'],['name'=>'bergabung','label'=>'Tgl Bergabung','type'=>'date'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Aktif','Non-Aktif']]],
+]));
+Route::get('/erp/installment', fn() => view('erp.crud', [
+    'title'=>'Cicilan','description'=>'Manajemen penjualan cicilan','module'=>'installment',
+    'formFields'=>[['name'=>'customer','label'=>'Customer','type'=>'text','required'=>true],['name'=>'produk','label'=>'Produk','type'=>'text'],['name'=>'total','label'=>'Total Nilai','type'=>'number','format'=>'currency'],['name'=>'dp','label'=>'DP','type'=>'number','format'=>'currency'],['name'=>'angsuran','label'=>'Angsuran/Bulan','type'=>'number','format'=>'currency'],['name'=>'tenor','label'=>'Tenor (bulan)','type'=>'number'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Berjalan','Lunas','Macet']]],
+    'filterOptions'=>['Berjalan','Lunas','Macet'],
+]));
+Route::get('/erp/installment-due', fn() => view('erp.crud', [
+    'title'=>'Cicilan Jatuh Tempo','description'=>'Cicilan yang akan/sudah jatuh tempo','module'=>'installment-due',
+    'formFields'=>[['name'=>'customer','label'=>'Customer','type'=>'text','required'=>true],['name'=>'nomor_angsuran','label'=>'Angsuran Ke','type'=>'number'],['name'=>'jumlah','label'=>'Jumlah','type'=>'number','format'=>'currency'],['name'=>'jatuh_tempo','label'=>'Jatuh Tempo','type'=>'date'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Belum Lunas','Lunas','Terlambat']]],
+    'filterOptions'=>['Belum Lunas','Lunas','Terlambat'],
+]));
+
+// ── Inventory ──────────────────────────────────────────────────────────────
+Route::get('/erp/stock-mutation', fn() => view('erp.crud', [
+    'title'=>'Mutasi Stok','description'=>'Riwayat pergerakan stok produk','module'=>'stock-mutation',
+    'formFields'=>[['name'=>'tanggal','label'=>'Tanggal','type'=>'date'],['name'=>'produk','label'=>'Produk','type'=>'text','required'=>true],['name'=>'gudang','label'=>'Gudang','type'=>'text'],['name'=>'jenis','label'=>'Jenis','type'=>'select','options'=>['Masuk','Keluar','Transfer','Penyesuaian']],['name'=>'jumlah','label'=>'Jumlah','type'=>'number'],['name'=>'keterangan','label'=>'Keterangan','type'=>'textarea']],
+    'filterOptions'=>['Masuk','Keluar','Transfer','Penyesuaian'],
+]));
+Route::get('/erp/warehouse-transfer', fn() => view('erp.crud', [
+    'title'=>'Transfer Antar Gudang','description'=>'Pindah stok antar gudang','module'=>'warehouse-transfer',
+    'formFields'=>[['name'=>'tanggal','label'=>'Tanggal','type'=>'date'],['name'=>'dari','label'=>'Dari Gudang','type'=>'text','required'=>true],['name'=>'ke','label'=>'Ke Gudang','type'=>'text','required'=>true],['name'=>'produk','label'=>'Produk','type'=>'text'],['name'=>'jumlah','label'=>'Jumlah','type'=>'number'],['name'=>'keterangan','label'=>'Keterangan','type'=>'textarea'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Draft','Diproses','Selesai']]],
+]));
+Route::get('/erp/min-stock', fn() => view('erp.crud', [
+    'title'=>'Min Stock Alert','description'=>'Produk dengan stok di bawah minimum','module'=>'min-stock',
+    'formFields'=>[['name'=>'produk','label'=>'Nama Produk','type'=>'text','required'=>true],['name'=>'kode','label'=>'Kode','type'=>'text'],['name'=>'gudang','label'=>'Gudang','type'=>'text'],['name'=>'stok_minimum','label'=>'Stok Minimum','type'=>'number'],['name'=>'stok_sekarang','label'=>'Stok Sekarang','type'=>'number'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Normal','Rendah','Kritis']]],
+    'filterOptions'=>['Normal','Rendah','Kritis'],
+]));
+Route::get('/erp/serial-number', fn() => view('erp.crud', [
+    'title'=>'Serial Number / IMEI','description'=>'Tracking serial number produk','module'=>'serial-number',
+    'formFields'=>[['name'=>'serial','label'=>'Serial Number','type'=>'text','required'=>true],['name'=>'produk','label'=>'Produk','type'=>'text'],['name'=>'tanggal_masuk','label'=>'Tgl Masuk','type'=>'date'],['name'=>'customer','label'=>'Customer (jika terjual)','type'=>'text'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Tersedia','Terjual','Retur','Rusak']]],
+    'filterOptions'=>['Tersedia','Terjual','Retur','Rusak'],
+]));
+Route::get('/erp/product-batch', fn() => view('erp.crud', [
+    'title'=>'Batch Produk','description'=>'Tracking batch dan expired date produk','module'=>'product-batch',
+    'formFields'=>[['name'=>'nomor_batch','label'=>'No Batch','type'=>'text','required'=>true],['name'=>'produk','label'=>'Produk','type'=>'text'],['name'=>'tanggal_produksi','label'=>'Tgl Produksi','type'=>'date'],['name'=>'expired_date','label'=>'Expired Date','type'=>'date'],['name'=>'jumlah','label'=>'Jumlah','type'=>'number'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Aktif','Kadaluarsa','Habis']]],
+    'filterOptions'=>['Aktif','Kadaluarsa','Habis'],
+]));
+Route::get('/erp/stock-history', fn() => view('erp.crud', [
+    'title'=>'History Pergerakan Stok','description'=>'Log lengkap pergerakan stok','module'=>'stock-history',
+    'formFields'=>[['name'=>'tanggal','label'=>'Tanggal','type'=>'date'],['name'=>'produk','label'=>'Produk','type'=>'text','required'=>true],['name'=>'jenis','label'=>'Jenis','type'=>'select','options'=>['Masuk','Keluar','Transfer','Penyesuaian','Retur']],['name'=>'jumlah','label'=>'Jumlah','type'=>'number'],['name'=>'stok_sebelum','label'=>'Stok Sebelum','type'=>'number'],['name'=>'stok_sesudah','label'=>'Stok Sesudah','type'=>'number'],['name'=>'keterangan','label'=>'Keterangan','type'=>'textarea']],
+]));
+Route::get('/erp/stock-adjustment', fn() => view('erp.crud', [
+    'title'=>'Penyesuaian Stok','description'=>'Koreksi stok fisik vs sistem','module'=>'stock-adjustment',
+    'formFields'=>[['name'=>'tanggal','label'=>'Tanggal','type'=>'date'],['name'=>'produk','label'=>'Produk','type'=>'text','required'=>true],['name'=>'gudang','label'=>'Gudang','type'=>'text'],['name'=>'stok_sistem','label'=>'Stok Sistem','type'=>'number'],['name'=>'stok_fisik','label'=>'Stok Fisik','type'=>'number'],['name'=>'selisih','label'=>'Selisih','type'=>'number'],['name'=>'alasan','label'=>'Alasan','type'=>'textarea'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Draft','Disetujui','Dibatalkan']]],
+]));
+Route::get('/erp/stock-card', fn() => view('erp.crud', [
+    'title'=>'Kartu Stok','description'=>'Kartu stok per produk','module'=>'stock-card',
+    'formFields'=>[['name'=>'produk','label'=>'Produk','type'=>'text','required'=>true],['name'=>'gudang','label'=>'Gudang','type'=>'text'],['name'=>'satuan','label'=>'Satuan','type'=>'text'],['name'=>'stok_awal','label'=>'Stok Awal','type'=>'number','default'=>0],['name'=>'masuk','label'=>'Total Masuk','type'=>'number','default'=>0],['name'=>'keluar','label'=>'Total Keluar','type'=>'number','default'=>0],['name'=>'stok_akhir','label'=>'Stok Akhir','type'=>'number','default'=>0]],
+]));
+Route::get('/erp/inventory-value', fn() => view('erp.crud', [
+    'title'=>'Nilai Persediaan','description'=>'Nilai total persediaan barang','module'=>'inventory-value',
+    'formFields'=>[['name'=>'produk','label'=>'Produk','type'=>'text','required'=>true],['name'=>'jumlah','label'=>'Jumlah Stok','type'=>'number'],['name'=>'satuan','label'=>'Satuan','type'=>'text'],['name'=>'harga_rata','label'=>'Harga Rata-Rata','type'=>'number','format'=>'currency'],['name'=>'nilai_total','label'=>'Nilai Total','type'=>'number','format'=>'currency'],['name'=>'metode','label'=>'Metode','type'=>'select','options'=>['FIFO','LIFO','Average']]],
+]));
+Route::get('/erp/fast-moving', fn() => view('erp.crud', [
+    'title'=>'Fast Moving Item','description'=>'Produk dengan perputaran stok cepat','module'=>'fast-moving',
+    'formFields'=>[['name'=>'produk','label'=>'Produk','type'=>'text','required'=>true],['name'=>'total_keluar','label'=>'Total Keluar','type'=>'number'],['name'=>'frekuensi','label'=>'Frekuensi Terjual','type'=>'number'],['name'=>'hari_rata','label'=>'Hari Rata Habis','type'=>'number'],['name'=>'perputaran','label'=>'Perputaran/Tahun','type'=>'number'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Fast Moving','Normal','Slow Moving']]],
+]));
+Route::get('/erp/slow-moving', fn() => view('erp.crud', [
+    'title'=>'Slow Moving Item','description'=>'Produk dengan perputaran stok lambat','module'=>'slow-moving',
+    'formFields'=>[['name'=>'produk','label'=>'Produk','type'=>'text','required'=>true],['name'=>'stok_sekarang','label'=>'Stok Sekarang','type'=>'number'],['name'=>'total_keluar','label'=>'Total Keluar 3 Bulan','type'=>'number'],['name'=>'hari_tidak_terjual','label'=>'Hari Tidak Terjual','type'=>'number'],['name'=>'nilai_tertahan','label'=>'Nilai Tertahan','type'=>'number','format'=>'currency'],['name'=>'rekomendasi','label'=>'Rekomendasi','type'=>'select','options'=>['Diskon','Bundling','Retur ke Supplier','Hapus']]],
+]));
+Route::get('/erp/sku', fn() => view('erp.crud', [
+    'title'=>'SKU Produk','description'=>'Manajemen kode SKU produk','module'=>'sku',
+    'formFields'=>[['name'=>'kode_sku','label'=>'Kode SKU','type'=>'text','required'=>true],['name'=>'produk','label'=>'Nama Produk','type'=>'text'],['name'=>'barcode','label'=>'Barcode','type'=>'text'],['name'=>'satuan','label'=>'Satuan','type'=>'text'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Aktif','Non-Aktif']]],
+]));
+Route::get('/erp/barcode', fn() => view('erp.crud', [
+    'title'=>'Barcode Produk','description'=>'Generate dan kelola barcode produk','module'=>'barcode',
+    'formFields'=>[['name'=>'kode','label'=>'Kode Barcode','type'=>'text','required'=>true],['name'=>'produk','label'=>'Produk','type'=>'text'],['name'=>'tipe','label'=>'Tipe','type'=>'select','options'=>['EAN-13','QR Code','Code 128','Code 39']],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Aktif','Non-Aktif']]],
+]));
+Route::get('/erp/multi-warehouse', fn() => view('erp.crud', [
+    'title'=>'Multi Gudang','description'=>'Manajemen beberapa lokasi gudang','module'=>'multi-warehouse',
+    'formFields'=>[['name'=>'nama','label'=>'Nama Gudang','type'=>'text','required'=>true],['name'=>'kode','label'=>'Kode','type'=>'text'],['name'=>'lokasi','label'=>'Lokasi','type'=>'textarea'],['name'=>'kapasitas','label'=>'Kapasitas (unit)','type'=>'number'],['name'=>'manager','label'=>'Penanggung Jawab','type'=>'text'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Aktif','Non-Aktif']]],
+]));
+Route::get('/erp/rack', fn() => view('erp.crud', [
+    'title'=>'Rak Gudang','description'=>'Manajemen rak dan lokasi penyimpanan','module'=>'rack',
+    'formFields'=>[['name'=>'nama','label'=>'Nama Rak','type'=>'text','required'=>true],['name'=>'gudang','label'=>'Gudang','type'=>'text'],['name'=>'baris','label'=>'Baris','type'=>'text'],['name'=>'kolom','label'=>'Kolom','type'=>'text'],['name'=>'kapasitas','label'=>'Kapasitas','type'=>'number'],['name'=>'terisi','label'=>'Terisi','type'=>'number','default'=>0],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Tersedia','Penuh','Non-Aktif']]],
+]));
+Route::get('/erp/production', fn() => view('erp.crud', [
+    'title'=>'Produksi','description'=>'Work order dan manajemen produksi','module'=>'production',
+    'formFields'=>[['name'=>'nomor_wo','label'=>'No Work Order','type'=>'text','required'=>true],['name'=>'produk','label'=>'Produk Jadi','type'=>'text'],['name'=>'jumlah','label'=>'Jumlah Target','type'=>'number'],['name'=>'mulai','label'=>'Tgl Mulai','type'=>'date'],['name'=>'selesai','label'=>'Tgl Selesai','type'=>'date'],['name'=>'biaya_produksi','label'=>'Biaya Produksi','type'=>'number','format'=>'currency'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Draft','Berjalan','Selesai','Dibatalkan']]],
+    'filterOptions'=>['Draft','Berjalan','Selesai','Dibatalkan'],
+]));
+Route::get('/erp/assembly', fn() => view('erp.crud', [
+    'title'=>'Perakitan Barang','description'=>'Proses assembly/perakitan produk','module'=>'assembly',
+    'formFields'=>[['name'=>'nomor','label'=>'No Assembly','type'=>'text','required'=>true],['name'=>'produk_jadi','label'=>'Produk Jadi','type'=>'text'],['name'=>'jumlah','label'=>'Jumlah','type'=>'number'],['name'=>'tanggal','label'=>'Tanggal','type'=>'date'],['name'=>'biaya','label'=>'Biaya','type'=>'number','format'=>'currency'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Draft','Proses','Selesai']]],
+]));
+Route::get('/erp/production-formula', fn() => view('erp.crud', [
+    'title'=>'Formula Produksi','description'=>'Bill of materials dan formula produk','module'=>'production-formula',
+    'formFields'=>[['name'=>'nama','label'=>'Nama Formula','type'=>'text','required'=>true],['name'=>'produk_jadi','label'=>'Produk Jadi','type'=>'text'],['name'=>'komponen','label'=>'Komponen Bahan','type'=>'textarea'],['name'=>'jumlah_bahan','label'=>'Jumlah Bahan','type'=>'text'],['name'=>'hasil','label'=>'Hasil Produksi','type'=>'number'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Aktif','Non-Aktif']]],
+]));
+
+// ── Master Data ────────────────────────────────────────────────────────────
+Route::get('/erp/product-categories', fn() => view('erp.crud', [
+    'title'=>'Kategori Produk','description'=>'Master data kategori produk','module'=>'product-categories',
+    'formFields'=>[['name'=>'nama','label'=>'Nama Kategori','type'=>'text','required'=>true],['name'=>'kode','label'=>'Kode','type'=>'text'],['name'=>'parent','label'=>'Kategori Induk','type'=>'text'],['name'=>'deskripsi','label'=>'Deskripsi','type'=>'textarea'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Aktif','Non-Aktif']]],
+    'filterOptions'=>['Aktif','Non-Aktif'],
+]));
+Route::get('/erp/brands', fn() => view('erp.crud', [
+    'title'=>'Brand Produk','description'=>'Master data brand/merek produk','module'=>'brands',
+    'formFields'=>[['name'=>'nama','label'=>'Nama Brand','type'=>'text','required'=>true],['name'=>'kode','label'=>'Kode','type'=>'text'],['name'=>'pic','label'=>'PIC/Contact','type'=>'text'],['name'=>'negara_asal','label'=>'Negara Asal','type'=>'text'],['name'=>'deskripsi','label'=>'Deskripsi','type'=>'textarea'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Aktif','Non-Aktif']]],
+    'filterOptions'=>['Aktif','Non-Aktif'],
+]));
+Route::get('/erp/units', fn() => view('erp.crud', [
+    'title'=>'Satuan Barang','description'=>'Master data satuan ukuran produk','module'=>'units',
+    'formFields'=>[['name'=>'nama','label'=>'Nama Satuan','type'=>'text','required'=>true],['name'=>'singkatan','label'=>'Singkatan','type'=>'text'],['name'=>'keterangan','label'=>'Keterangan','type'=>'textarea'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Aktif','Non-Aktif']]],
+    'filterOptions'=>['Aktif','Non-Aktif'],
+]));
+Route::get('/erp/salesman', fn() => view('erp.crud', [
+    'title'=>'Data Salesman','description'=>'Master data salesman dan area','module'=>'salesman',
+    'formFields'=>[['name'=>'nama','label'=>'Nama Salesman','type'=>'text','required'=>true],['name'=>'kode','label'=>'Kode','type'=>'text'],['name'=>'telepon','label'=>'Telepon','type'=>'text'],['name'=>'email','label'=>'Email','type'=>'email'],['name'=>'area','label'=>'Area Tugas','type'=>'text'],['name'=>'target_bulanan','label'=>'Target Bulanan','type'=>'number','format'=>'currency'],['name'=>'komisi_persen','label'=>'% Komisi','type'=>'number'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Aktif','Non-Aktif']]],
+    'filterOptions'=>['Aktif','Non-Aktif'],
+]));
+Route::get('/erp/branches', fn() => view('erp.crud', [
+    'title'=>'Data Cabang','description'=>'Master data cabang dan lokasi','module'=>'branches',
+    'formFields'=>[['name'=>'nama','label'=>'Nama Cabang','type'=>'text','required'=>true],['name'=>'kode','label'=>'Kode','type'=>'text'],['name'=>'alamat','label'=>'Alamat','type'=>'textarea'],['name'=>'kota','label'=>'Kota','type'=>'text'],['name'=>'telepon','label'=>'Telepon','type'=>'text'],['name'=>'manager','label'=>'Manager','type'=>'text'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Aktif','Non-Aktif']]],
+    'filterOptions'=>['Aktif','Non-Aktif'],
+]));
+Route::get('/erp/payment-methods', fn() => view('erp.crud', [
+    'title'=>'Metode Pembayaran','description'=>'Master data metode pembayaran','module'=>'payment-methods',
+    'formFields'=>[['name'=>'nama','label'=>'Nama Metode','type'=>'text','required'=>true],['name'=>'kode','label'=>'Kode','type'=>'text'],['name'=>'tipe','label'=>'Tipe','type'=>'select','options'=>['Tunai','Transfer','Kartu Debit','Kartu Kredit','E-Wallet','Giro','Cicilan']],['name'=>'biaya_admin','label'=>'Biaya Admin (%)','type'=>'number','default'=>0],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Aktif','Non-Aktif']]],
+    'filterOptions'=>['Aktif','Non-Aktif'],
+]));
+Route::get('/erp/price-types', fn() => view('erp.crud', [
+    'title'=>'Tipe Harga','description'=>'Multi price type untuk customer berbeda','module'=>'price-types',
+    'formFields'=>[['name'=>'nama','label'=>'Nama Harga','type'=>'text','required'=>true],['name'=>'kode','label'=>'Kode','type'=>'text'],['name'=>'margin_persen','label'=>'Margin (%)','type'=>'number'],['name'=>'diskon_persen','label'=>'Diskon (%)','type'=>'number','default'=>0],['name'=>'deskripsi','label'=>'Deskripsi','type'=>'textarea'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Aktif','Non-Aktif']]],
+    'filterOptions'=>['Aktif','Non-Aktif'],
+]));
+Route::get('/erp/taxes', fn() => view('erp.crud', [
+    'title'=>'Data Pajak','description'=>'Master data jenis pajak','module'=>'taxes',
+    'formFields'=>[['name'=>'nama','label'=>'Nama Pajak','type'=>'text','required'=>true],['name'=>'kode','label'=>'Kode','type'=>'text'],['name'=>'persentase','label'=>'Persentase (%)','type'=>'number'],['name'=>'tipe','label'=>'Tipe','type'=>'select','options'=>['PPN','PPh 21','PPh 22','PPh 23','PPh 25','PPh Final']],['name'=>'akun_debet','label'=>'Akun Debet','type'=>'text'],['name'=>'akun_kredit','label'=>'Akun Kredit','type'=>'text'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Aktif','Non-Aktif']]],
+]));
+
+// ── Purchase ───────────────────────────────────────────────────────────────
+Route::get('/erp/purchase-request', fn() => view('erp.crud', [
+    'title'=>'Permintaan Pembelian','description'=>'Purchase request dari departemen','module'=>'purchase-request',
+    'formFields'=>[['name'=>'nomor_pr','label'=>'No PR','type'=>'text','required'=>true],['name'=>'departemen','label'=>'Departemen','type'=>'text'],['name'=>'tanggal','label'=>'Tanggal','type'=>'date'],['name'=>'deskripsi','label'=>'Deskripsi Kebutuhan','type'=>'textarea'],['name'=>'total_estimasi','label'=>'Total Estimasi','type'=>'number','format'=>'currency'],['name'=>'prioritas','label'=>'Prioritas','type'=>'select','options'=>['Rendah','Normal','Tinggi','Urgent']],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Draft','Menunggu Approval','Disetujui','Ditolak']]],
+    'filterOptions'=>['Draft','Menunggu Approval','Disetujui','Ditolak'],
+]));
+Route::get('/erp/purchase-approval', fn() => view('erp.crud', [
+    'title'=>'Approval Purchase','description'=>'Persetujuan permintaan pembelian','module'=>'purchase-approval',
+    'formFields'=>[['name'=>'nomor_pr','label'=>'No PR','type'=>'text','required'=>true],['name'=>'pemohon','label'=>'Pemohon','type'=>'text'],['name'=>'approver','label'=>'Approver','type'=>'text'],['name'=>'tanggal','label'=>'Tanggal','type'=>'date'],['name'=>'total','label'=>'Total Nilai','type'=>'number','format'=>'currency'],['name'=>'catatan','label'=>'Catatan Approver','type'=>'textarea'],['name'=>'status','label'=>'Keputusan','type'=>'select','options'=>['Menunggu','Disetujui','Ditolak','Revisi']]],
+    'filterOptions'=>['Menunggu','Disetujui','Ditolak'],
+]));
+Route::get('/erp/supplier-invoice', fn() => view('erp.crud', [
+    'title'=>'Invoice Supplier','description'=>'Invoice yang diterima dari supplier','module'=>'supplier-invoice',
+    'formFields'=>[['name'=>'nomor','label'=>'No Invoice','type'=>'text','required'=>true],['name'=>'supplier','label'=>'Supplier','type'=>'text','required'=>true],['name'=>'tanggal','label'=>'Tgl Invoice','type'=>'date'],['name'=>'total','label'=>'Total','type'=>'number','format'=>'currency'],['name'=>'jatuh_tempo','label'=>'Jatuh Tempo','type'=>'date'],['name'=>'keterangan','label'=>'Keterangan','type'=>'textarea'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Belum Lunas','Lunas','Sebagian']]],
+    'filterOptions'=>['Belum Lunas','Lunas','Sebagian'],
+]));
+Route::get('/erp/payable-due', fn() => view('erp.crud', [
+    'title'=>'Hutang Jatuh Tempo','description'=>'Hutang yang sudah atau akan jatuh tempo','module'=>'payable-due',
+    'formFields'=>[['name'=>'supplier','label'=>'Supplier','type'=>'text','required'=>true],['name'=>'nomor_invoice','label'=>'No Invoice','type'=>'text'],['name'=>'jumlah','label'=>'Jumlah Hutang','type'=>'number','format'=>'currency'],['name'=>'jatuh_tempo','label'=>'Jatuh Tempo','type'=>'date'],['name'=>'sisa_hari','label'=>'Sisa Hari','type'=>'number'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Belum Lunas','Jatuh Tempo','Overdue','Lunas']]],
+    'filterOptions'=>['Belum Lunas','Jatuh Tempo','Overdue'],
+]));
+Route::get('/erp/purchase-return', fn() => view('erp.crud', [
+    'title'=>'Retur Pembelian','description'=>'Pengembalian barang ke supplier','module'=>'purchase-return',
+    'formFields'=>[['name'=>'nomor','label'=>'No Retur','type'=>'text','required'=>true],['name'=>'supplier','label'=>'Supplier','type'=>'text','required'=>true],['name'=>'tanggal','label'=>'Tanggal','type'=>'date'],['name'=>'produk','label'=>'Produk','type'=>'text'],['name'=>'jumlah','label'=>'Jumlah','type'=>'number'],['name'=>'alasan','label'=>'Alasan Retur','type'=>'textarea'],['name'=>'total','label'=>'Total Nilai','type'=>'number','format'=>'currency'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Proses','Diterima Supplier','Selesai']]],
+]));
+Route::get('/erp/pay-supplier', fn() => view('erp.crud', [
+    'title'=>'Pembayaran Supplier','description'=>'Catat pembayaran hutang ke supplier','module'=>'pay-supplier',
+    'formFields'=>[['name'=>'supplier','label'=>'Supplier','type'=>'text','required'=>true],['name'=>'nomor_invoice','label'=>'No Invoice','type'=>'text'],['name'=>'jumlah','label'=>'Jumlah Bayar','type'=>'number','format'=>'currency'],['name'=>'tanggal','label'=>'Tgl Bayar','type'=>'date'],['name'=>'metode','label'=>'Metode','type'=>'select','options'=>['Transfer Bank','Tunai','Giro','E-Wallet']],['name'=>'rekening','label'=>'Rekening Tujuan','type'=>'text'],['name'=>'bukti','label'=>'No Bukti Bayar','type'=>'text'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Pending','Terkirim','Dikonfirmasi']]],
+]));
+Route::get('/erp/supplier-analytics', fn() => view('erp.crud', [
+    'title'=>'Analisa Supplier','description'=>'Performa dan analisa supplier','module'=>'supplier-analytics',
+    'formFields'=>[['name'=>'supplier','label'=>'Supplier','type'=>'text','required'=>true],['name'=>'total_po','label'=>'Total PO','type'=>'number'],['name'=>'total_nilai','label'=>'Total Nilai PO','type'=>'number','format'=>'currency'],['name'=>'on_time_persen','label'=>'On Time Delivery (%)','type'=>'number'],['name'=>'reject_persen','label'=>'Reject Rate (%)','type'=>'number'],['name'=>'rating','label'=>'Rating','type'=>'select','options'=>['A - Excellent','B - Good','C - Average','D - Poor']],['name'=>'keterangan','label'=>'Keterangan','type'=>'textarea']],
+]));
+
+// ── Finance ────────────────────────────────────────────────────────────────
+Route::get('/erp/cash-flow', fn() => view('erp.cash-flow'));
+Route::get('/erp/main-cash', fn() => view('erp.crud', [
+    'title'=>'Kas Besar','description'=>'Manajemen kas besar perusahaan','module'=>'main-cash',
+    'formFields'=>[['name'=>'tanggal','label'=>'Tanggal','type'=>'date'],['name'=>'deskripsi','label'=>'Deskripsi','type'=>'text','required'=>true],['name'=>'jenis','label'=>'Jenis','type'=>'select','options'=>['Masuk','Keluar']],['name'=>'kategori','label'=>'Kategori','type'=>'text'],['name'=>'jumlah','label'=>'Jumlah','type'=>'number','format'=>'currency'],['name'=>'saldo','label'=>'Saldo','type'=>'number','format'=>'currency'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Draft','Dikonfirmasi']]],
+    'filterOptions'=>['Masuk','Keluar'],
+]));
+Route::get('/erp/petty-cash', fn() => view('erp.crud', [
+    'title'=>'Kas Kecil','description'=>'Manajemen petty cash operasional','module'=>'petty-cash',
+    'formFields'=>[['name'=>'tanggal','label'=>'Tanggal','type'=>'date'],['name'=>'deskripsi','label'=>'Deskripsi','type'=>'text','required'=>true],['name'=>'jenis','label'=>'Jenis','type'=>'select','options'=>['Masuk','Keluar']],['name'=>'kategori','label'=>'Kategori','type'=>'text'],['name'=>'jumlah','label'=>'Jumlah','type'=>'number','format'=>'currency'],['name'=>'bukti','label'=>'No Bukti','type'=>'text'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Draft','Dikonfirmasi']]],
+    'filterOptions'=>['Masuk','Keluar'],
+]));
+Route::get('/erp/electronic-cash', fn() => view('erp.crud', [
+    'title'=>'Kas Elektronik','description'=>'Manajemen dompet digital dan e-wallet','module'=>'electronic-cash',
+    'formFields'=>[['name'=>'platform','label'=>'Platform','type'=>'select','options'=>['GoPay','OVO','Dana','ShopeePay','LinkAja','Lainnya']],['name'=>'tanggal','label'=>'Tanggal','type'=>'date'],['name'=>'deskripsi','label'=>'Deskripsi','type'=>'text','required'=>true],['name'=>'jenis','label'=>'Jenis','type'=>'select','options'=>['Masuk','Keluar']],['name'=>'jumlah','label'=>'Jumlah','type'=>'number','format'=>'currency'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Draft','Dikonfirmasi']]],
+]));
+Route::get('/erp/building-cash', fn() => view('erp.crud', [
+    'title'=>'Kas Bangunan','description'=>'Kas untuk proyek dan bahan bangunan','module'=>'building-cash',
+    'formFields'=>[['name'=>'tanggal','label'=>'Tanggal','type'=>'date'],['name'=>'proyek','label'=>'Proyek','type'=>'text'],['name'=>'deskripsi','label'=>'Deskripsi','type'=>'text','required'=>true],['name'=>'jenis','label'=>'Jenis','type'=>'select','options'=>['Masuk','Keluar']],['name'=>'jumlah','label'=>'Jumlah','type'=>'number','format'=>'currency'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Draft','Dikonfirmasi']]],
+]));
+Route::get('/erp/bank-account', fn() => view('erp.crud', [
+    'title'=>'Rekening Bank','description'=>'Master data rekening bank perusahaan','module'=>'bank-account',
+    'formFields'=>[['name'=>'nama_bank','label'=>'Nama Bank','type'=>'text','required'=>true],['name'=>'nomor_rekening','label'=>'No Rekening','type'=>'text','required'=>true],['name'=>'nama_pemilik','label'=>'Nama Pemilik','type'=>'text'],['name'=>'cabang','label'=>'Cabang Bank','type'=>'text'],['name'=>'saldo','label'=>'Saldo Awal','type'=>'number','format'=>'currency'],['name'=>'mata_uang','label'=>'Mata Uang','type'=>'select','options'=>['IDR','USD','SGD','EUR']],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Aktif','Non-Aktif']]],
+    'filterOptions'=>['Aktif','Non-Aktif'],
+]));
+Route::get('/erp/bank-transfer', fn() => view('erp.crud', [
+    'title'=>'Transfer Bank','description'=>'Catat transfer antar rekening bank','module'=>'bank-transfer',
+    'formFields'=>[['name'=>'tanggal','label'=>'Tanggal','type'=>'date'],['name'=>'dari_rekening','label'=>'Dari Rekening','type'=>'text','required'=>true],['name'=>'ke_rekening','label'=>'Ke Rekening','type'=>'text','required'=>true],['name'=>'jumlah','label'=>'Jumlah','type'=>'number','format'=>'currency'],['name'=>'biaya_transfer','label'=>'Biaya Transfer','type'=>'number','default'=>0],['name'=>'keterangan','label'=>'Keterangan','type'=>'textarea'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Draft','Dikonfirmasi']]],
+]));
+Route::get('/erp/giro', fn() => view('erp.crud', [
+    'title'=>'Giro / Cek','description'=>'Manajemen giro dan cek perusahaan','module'=>'giro',
+    'formFields'=>[['name'=>'nomor','label'=>'No Giro/Cek','type'=>'text','required'=>true],['name'=>'bank','label'=>'Bank Penerbit','type'=>'text'],['name'=>'nominal','label'=>'Nominal','type'=>'number','format'=>'currency'],['name'=>'tanggal_terbit','label'=>'Tgl Terbit','type'=>'date'],['name'=>'tanggal_jatuh','label'=>'Jatuh Tempo','type'=>'date'],['name'=>'penerima','label'=>'Penerima','type'=>'text'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Belum Cair','Sudah Cair','Dibatalkan','Bounced']]],
+    'filterOptions'=>['Belum Cair','Sudah Cair','Dibatalkan','Bounced'],
+]));
+Route::get('/erp/account-payable', fn() => view('erp.crud', [
+    'title'=>'Hutang Supplier','description'=>'Monitor hutang kepada supplier','module'=>'account-payable',
+    'formFields'=>[['name'=>'supplier','label'=>'Supplier','type'=>'text','required'=>true],['name'=>'nomor_invoice','label'=>'No Invoice','type'=>'text'],['name'=>'jumlah','label'=>'Jumlah Hutang','type'=>'number','format'=>'currency'],['name'=>'tanggal','label'=>'Tgl Invoice','type'=>'date'],['name'=>'jatuh_tempo','label'=>'Jatuh Tempo','type'=>'date'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Belum Lunas','Lunas','Sebagian','Overdue']]],
+    'filterOptions'=>['Belum Lunas','Lunas','Sebagian','Overdue'],
+]));
+Route::get('/erp/account-receivable', fn() => view('erp.crud', [
+    'title'=>'Piutang Customer','description'=>'Monitor piutang dari pelanggan','module'=>'account-receivable',
+    'formFields'=>[['name'=>'customer','label'=>'Customer','type'=>'text','required'=>true],['name'=>'nomor_invoice','label'=>'No Invoice','type'=>'text'],['name'=>'jumlah','label'=>'Jumlah Piutang','type'=>'number','format'=>'currency'],['name'=>'tanggal','label'=>'Tgl Invoice','type'=>'date'],['name'=>'jatuh_tempo','label'=>'Jatuh Tempo','type'=>'date'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Belum Lunas','Lunas','Sebagian','Overdue']]],
+    'filterOptions'=>['Belum Lunas','Lunas','Sebagian','Overdue'],
+]));
+Route::get('/erp/bank-reconciliation', fn() => view('erp.crud', [
+    'title'=>'Rekonsiliasi Bank','description'=>'Rekonsiliasi buku besar vs rekening koran','module'=>'bank-reconciliation',
+    'formFields'=>[['name'=>'periode','label'=>'Periode','type'=>'text','required'=>true],['name'=>'rekening','label'=>'Rekening Bank','type'=>'text'],['name'=>'saldo_buku','label'=>'Saldo Buku','type'=>'number','format'=>'currency'],['name'=>'saldo_bank','label'=>'Saldo Rekening Koran','type'=>'number','format'=>'currency'],['name'=>'selisih','label'=>'Selisih','type'=>'number','format'=>'currency'],['name'=>'keterangan','label'=>'Keterangan Selisih','type'=>'textarea'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Proses','Balance','Tidak Balance']]],
+]));
+Route::get('/erp/payment-gateway', fn() => view('erp.crud', [
+    'title'=>'Payment Gateway','description'=>'Konfigurasi dan transaksi payment gateway','module'=>'payment-gateway',
+    'formFields'=>[['name'=>'platform','label'=>'Platform','type'=>'select','options'=>['Midtrans','Xendit','Doku','Stripe','PayPal']],['name'=>'tanggal','label'=>'Tanggal','type'=>'date'],['name'=>'referensi','label'=>'No Referensi','type'=>'text'],['name'=>'jumlah','label'=>'Jumlah','type'=>'number','format'=>'currency'],['name'=>'biaya','label'=>'Biaya MDR','type'=>'number'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Sukses','Pending','Gagal','Refund']]],
+]));
+
+// ── Accounting ─────────────────────────────────────────────────────────────
+Route::get('/erp/balance-sheet', fn() => view('erp.balance-sheet'));
+Route::get('/erp/trial-balance', fn() => view('erp.trial-balance'));
+Route::get('/erp/general-ledger', fn() => view('erp.crud', [
+    'title'=>'Buku Besar','description'=>'Laporan buku besar per akun','module'=>'general-ledger',
+    'formFields'=>[['name'=>'tanggal','label'=>'Tanggal','type'=>'date'],['name'=>'keterangan','label'=>'Keterangan','type'=>'text','required'=>true],['name'=>'akun','label'=>'Akun','type'=>'text'],['name'=>'referensi','label'=>'Referensi','type'=>'text'],['name'=>'debet','label'=>'Debet','type'=>'number','format'=>'currency'],['name'=>'kredit','label'=>'Kredit','type'=>'number','format'=>'currency'],['name'=>'saldo','label'=>'Saldo','type'=>'number','format'=>'currency']],
+]));
+Route::get('/erp/opening-balance', fn() => view('erp.crud', [
+    'title'=>'Saldo Awal','description'=>'Input saldo awal per akun saat mulai sistem','module'=>'opening-balance',
+    'formFields'=>[['name'=>'akun','label'=>'Nama Akun','type'=>'text','required'=>true],['name'=>'kode_akun','label'=>'Kode Akun','type'=>'text'],['name'=>'saldo_debet','label'=>'Saldo Debet','type'=>'number','format'=>'currency'],['name'=>'saldo_kredit','label'=>'Saldo Kredit','type'=>'number','format'=>'currency'],['name'=>'tanggal','label'=>'Tgl Mulai','type'=>'date'],['name'=>'keterangan','label'=>'Keterangan','type'=>'textarea']],
+]));
+Route::get('/erp/accounting-period', fn() => view('erp.crud', [
+    'title'=>'Periode Akuntansi','description'=>'Manajemen periode tutup buku','module'=>'accounting-period',
+    'formFields'=>[['name'=>'nama','label'=>'Nama Periode','type'=>'text','required'=>true],['name'=>'mulai','label'=>'Tgl Mulai','type'=>'date'],['name'=>'selesai','label'=>'Tgl Selesai','type'=>'date'],['name'=>'tahun_fiskal','label'=>'Tahun Fiskal','type'=>'number'],['name'=>'keterangan','label'=>'Keterangan','type'=>'textarea'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Buka','Tutup','Dalam Proses']]],
+    'filterOptions'=>['Buka','Tutup'],
+]));
+Route::get('/erp/departments', fn() => view('erp.crud', [
+    'title'=>'Departemen','description'=>'Master data departemen perusahaan','module'=>'departments',
+    'formFields'=>[['name'=>'nama','label'=>'Nama Departemen','type'=>'text','required'=>true],['name'=>'kode','label'=>'Kode','type'=>'text'],['name'=>'kepala','label'=>'Kepala Departemen','type'=>'text'],['name'=>'anggota','label'=>'Jumlah Anggota','type'=>'number','default'=>0],['name'=>'budget','label'=>'Budget Tahunan','type'=>'number','format'=>'currency'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Aktif','Non-Aktif']]],
+    'filterOptions'=>['Aktif','Non-Aktif'],
+]));
+Route::get('/erp/projects', fn() => view('erp.crud', [
+    'title'=>'Proyek','description'=>'Manajemen proyek dan cost center','module'=>'projects',
+    'formFields'=>[['name'=>'nama','label'=>'Nama Proyek','type'=>'text','required'=>true],['name'=>'kode','label'=>'Kode Proyek','type'=>'text'],['name'=>'manager','label'=>'Project Manager','type'=>'text'],['name'=>'mulai','label'=>'Tgl Mulai','type'=>'date'],['name'=>'selesai','label'=>'Tgl Selesai','type'=>'date'],['name'=>'budget','label'=>'Budget','type'=>'number','format'=>'currency'],['name'=>'realisasi','label'=>'Realisasi','type'=>'number','format'=>'currency'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Perencanaan','Berjalan','Selesai','Ditunda']]],
+    'filterOptions'=>['Perencanaan','Berjalan','Selesai','Ditunda'],
+]));
+Route::get('/erp/budgeting', fn() => view('erp.crud', [
+    'title'=>'Budgeting','description'=>'Perencanaan dan monitoring anggaran','module'=>'budgeting',
+    'formFields'=>[['name'=>'departemen','label'=>'Departemen','type'=>'text','required'=>true],['name'=>'akun','label'=>'Akun Biaya','type'=>'text'],['name'=>'tahun','label'=>'Tahun','type'=>'number','default'=>date('Y')],['name'=>'budget_tahunan','label'=>'Budget Tahunan','type'=>'number','format'=>'currency'],['name'=>'realisasi','label'=>'Realisasi','type'=>'number','format'=>'currency'],['name'=>'sisa','label'=>'Sisa Budget','type'=>'number','format'=>'currency'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Draft','Disetujui','Aktif']]],
+]));
+Route::get('/erp/audit-transaction', fn() => view('erp.crud', [
+    'title'=>'Audit Transaksi','description'=>'Audit trail semua transaksi keuangan','module'=>'audit-transaction',
+    'formFields'=>[['name'=>'tanggal','label'=>'Tanggal','type'=>'date'],['name'=>'user','label'=>'User','type'=>'text'],['name'=>'aksi','label'=>'Aksi','type'=>'select','options'=>['Create','Update','Delete','Approve','Reject']],['name'=>'modul','label'=>'Modul','type'=>'text'],['name'=>'referensi','label'=>'No Referensi','type'=>'text'],['name'=>'nilai_lama','label'=>'Nilai Lama','type'=>'textarea'],['name'=>'nilai_baru','label'=>'Nilai Baru','type'=>'textarea']],
+]));
+Route::get('/erp/activity-timeline', fn() => view('erp.crud', [
+    'title'=>'Activity Timeline','description'=>'Log aktivitas pengguna sistem','module'=>'activity-timeline',
+    'formFields'=>[['name'=>'tanggal','label'=>'Tanggal','type'=>'date'],['name'=>'user','label'=>'User','type'=>'text','required'=>true],['name'=>'aktivitas','label'=>'Aktivitas','type'=>'text'],['name'=>'modul','label'=>'Modul','type'=>'text'],['name'=>'ip_address','label'=>'IP Address','type'=>'text'],['name'=>'device','label'=>'Device','type'=>'text'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Sukses','Gagal']]],
+]));
+Route::get('/erp/approval-system', fn() => view('erp.crud', [
+    'title'=>'Approval System','description'=>'Konfigurasi alur approval transaksi','module'=>'approval-system',
+    'formFields'=>[['name'=>'nama','label'=>'Nama Workflow','type'=>'text','required'=>true],['name'=>'modul','label'=>'Modul','type'=>'text'],['name'=>'level','label'=>'Level Approval','type'=>'number','default'=>1],['name'=>'approver','label'=>'Approver','type'=>'text'],['name'=>'min_nilai','label'=>'Min Nilai','type'=>'number','format'=>'currency'],['name'=>'maks_nilai','label'=>'Maks Nilai','type'=>'number','format'=>'currency'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Aktif','Non-Aktif']]],
+]));
+
+// ── Tax ────────────────────────────────────────────────────────────────────
+Route::get('/erp/vat', fn() => view('erp.crud', [
+    'title'=>'PPN (Value Added Tax)','description'=>'Manajemen pajak pertambahan nilai','module'=>'vat',
+    'formFields'=>[['name'=>'periode','label'=>'Periode','type'=>'text','required'=>true],['name'=>'ppn_masukan','label'=>'PPN Masukan','type'=>'number','format'=>'currency'],['name'=>'ppn_keluaran','label'=>'PPN Keluaran','type'=>'number','format'=>'currency'],['name'=>'ppn_terutang','label'=>'PPN Terutang','type'=>'number','format'=>'currency'],['name'=>'tanggal_lapor','label'=>'Tgl Lapor','type'=>'date'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Belum Lapor','Sudah Lapor','Lebih Bayar']]],
+    'filterOptions'=>['Belum Lapor','Sudah Lapor'],
+]));
+Route::get('/erp/pph', fn() => view('erp.crud', [
+    'title'=>'PPh (Pajak Penghasilan)','description'=>'Manajemen pajak penghasilan','module'=>'pph',
+    'formFields'=>[['name'=>'periode','label'=>'Periode','type'=>'text','required'=>true],['name'=>'jenis_pph','label'=>'Jenis PPh','type'=>'select','options'=>['PPh 21','PPh 22','PPh 23','PPh 25','PPh Final']],['name'=>'nama_wp','label'=>'Nama WP','type'=>'text'],['name'=>'npwp','label'=>'NPWP','type'=>'text'],['name'=>'jumlah','label'=>'Jumlah PPh','type'=>'number','format'=>'currency'],['name'=>'tanggal_lapor','label'=>'Tgl Lapor','type'=>'date'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Belum Lapor','Sudah Lapor']]],
+]));
+Route::get('/erp/tax-invoice', fn() => view('erp.crud', [
+    'title'=>'Faktur Pajak','description'=>'Manajemen faktur pajak PPN','module'=>'tax-invoice',
+    'formFields'=>[['name'=>'nomor','label'=>'No Faktur','type'=>'text','required'=>true],['name'=>'tanggal','label'=>'Tanggal','type'=>'date'],['name'=>'lawan_transaksi','label'=>'Lawan Transaksi','type'=>'text'],['name'=>'npwp_lawan','label'=>'NPWP Lawan','type'=>'text'],['name'=>'dpp','label'=>'DPP','type'=>'number','format'=>'currency'],['name'=>'ppn','label'=>'PPN','type'=>'number','format'=>'currency'],['name'=>'tipe','label'=>'Tipe','type'=>'select','options'=>['Faktur Keluaran','Faktur Masukan']],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Normal','Pengganti','Batal']]],
+]));
+Route::get('/erp/e-faktur', fn() => view('erp.crud', [
+    'title'=>'e-Faktur','description'=>'Upload dan rekap e-Faktur ke DJP','module'=>'e-faktur',
+    'formFields'=>[['name'=>'nomor','label'=>'No Faktur','type'=>'text','required'=>true],['name'=>'tanggal','label'=>'Tanggal','type'=>'date'],['name'=>'file_csv','label'=>'File CSV','type'=>'text'],['name'=>'referensi','label'=>'Referensi','type'=>'text'],['name'=>'total_ppn','label'=>'Total PPN','type'=>'number','format'=>'currency'],['name'=>'status_upload','label'=>'Status Upload','type'=>'select','options'=>['Belum Upload','Sukses','Gagal','Revisi']]],
+    'filterOptions'=>['Belum Upload','Sukses','Gagal'],
+]));
+Route::get('/erp/tax-report', fn() => view('erp.crud', [
+    'title'=>'Laporan Pajak','description'=>'Rekap laporan pajak perusahaan','module'=>'tax-report',
+    'formFields'=>[['name'=>'periode','label'=>'Periode','type'=>'text','required'=>true],['name'=>'jenis','label'=>'Jenis Pajak','type'=>'select','options'=>['PPN','PPh 21','PPh 23','PPh 25','PPh Final']],['name'=>'ppn_in','label'=>'PPN Masukan','type'=>'number','format'=>'currency'],['name'=>'ppn_out','label'=>'PPN Keluaran','type'=>'number','format'=>'currency'],['name'=>'pph','label'=>'Total PPh','type'=>'number','format'=>'currency'],['name'=>'total','label'=>'Total Pajak','type'=>'number','format'=>'currency'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Draft','Dilaporkan']]],
+]));
+
+// ── CRM Extended ───────────────────────────────────────────────────────────
+Route::get('/erp/customer-group', fn() => view('erp.crud', [
+    'title'=>'Customer Group','description'=>'Kelompokkan customer berdasarkan segmen','module'=>'customer-group',
+    'formFields'=>[['name'=>'nama','label'=>'Nama Grup','type'=>'text','required'=>true],['name'=>'kode','label'=>'Kode','type'=>'text'],['name'=>'deskripsi','label'=>'Deskripsi','type'=>'textarea'],['name'=>'diskon','label'=>'Diskon (%)','type'=>'number','default'=>0],['name'=>'limit_kredit','label'=>'Limit Kredit','type'=>'number','format'=>'currency'],['name'=>'syarat_bayar','label'=>'Syarat Bayar (hari)','type'=>'number'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Aktif','Non-Aktif']]],
+    'filterOptions'=>['Aktif','Non-Aktif'],
+]));
+Route::get('/erp/customer-credit', fn() => view('erp.crud', [
+    'title'=>'Customer Credit','description'=>'Manajemen limit kredit pelanggan','module'=>'customer-credit',
+    'formFields'=>[['name'=>'customer','label'=>'Customer','type'=>'text','required'=>true],['name'=>'limit_kredit','label'=>'Limit Kredit','type'=>'number','format'=>'currency'],['name'=>'terpakai','label'=>'Terpakai','type'=>'number','format'=>'currency'],['name'=>'sisa','label'=>'Sisa Kredit','type'=>'number','format'=>'currency'],['name'=>'jatuh_tempo','label'=>'Jatuh Tempo','type'=>'date'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Normal','Mendekati Limit','Melebihi Limit','Blacklist']]],
+    'filterOptions'=>['Normal','Mendekati Limit','Melebihi Limit','Blacklist'],
+]));
+Route::get('/erp/customer-followup', fn() => view('erp.crud', [
+    'title'=>'Follow Up Customer','description'=>'Jadwal dan log follow up customer','module'=>'customer-followup',
+    'formFields'=>[['name'=>'customer','label'=>'Customer','type'=>'text','required'=>true],['name'=>'tanggal','label'=>'Tgl Follow Up','type'=>'date'],['name'=>'jenis','label'=>'Jenis','type'=>'select','options'=>['Telepon','WhatsApp','Email','Kunjungan']],['name'=>'pic','label'=>'PIC Sales','type'=>'text'],['name'=>'catatan','label'=>'Catatan','type'=>'textarea'],['name'=>'follow_up_berikut','label'=>'Follow Up Berikutnya','type'=>'date'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Dijadwalkan','Selesai','Batal']]],
+    'filterOptions'=>['Dijadwalkan','Selesai','Batal'],
+]));
+Route::get('/erp/customer-history', fn() => view('erp.crud', [
+    'title'=>'Customer History','description'=>'Riwayat interaksi dan transaksi customer','module'=>'customer-history',
+    'formFields'=>[['name'=>'customer','label'=>'Customer','type'=>'text','required'=>true],['name'=>'tanggal','label'=>'Tanggal','type'=>'date'],['name'=>'jenis','label'=>'Jenis','type'=>'select','options'=>['Pembelian','Pembayaran','Keluhan','Follow Up','Retur']],['name'=>'deskripsi','label'=>'Deskripsi','type'=>'textarea'],['name'=>'nilai','label'=>'Nilai Transaksi','type'=>'number','format'=>'currency'],['name'=>'pic','label'=>'PIC','type'=>'text']],
+]));
+Route::get('/erp/customer-complaint', fn() => view('erp.crud', [
+    'title'=>'Customer Complaint','description'=>'Catat dan tangani keluhan pelanggan','module'=>'customer-complaint',
+    'formFields'=>[['name'=>'customer','label'=>'Customer','type'=>'text','required'=>true],['name'=>'tanggal','label'=>'Tgl Keluhan','type'=>'date'],['name'=>'keluhan','label'=>'Keluhan','type'=>'textarea'],['name'=>'kategori','label'=>'Kategori','type'=>'select','options'=>['Produk','Pengiriman','Pelayanan','Tagihan','Lainnya']],['name'=>'prioritas','label'=>'Prioritas','type'=>'select','options'=>['Rendah','Normal','Tinggi','Kritis']],['name'=>'pic','label'=>'PIC Handler','type'=>'text'],['name'=>'resolusi','label'=>'Resolusi','type'=>'textarea'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Open','Proses','Resolved','Closed']]],
+    'filterOptions'=>['Open','Proses','Resolved','Closed'],
+]));
+Route::get('/erp/whatsapp-blast', fn() => view('erp.crud', [
+    'title'=>'WhatsApp Blast','description'=>'Kirim pesan massal ke customer via WhatsApp','module'=>'whatsapp-blast',
+    'formFields'=>[['name'=>'nama_kampanye','label'=>'Nama Kampanye','type'=>'text','required'=>true],['name'=>'template','label'=>'Template Pesan','type'=>'textarea'],['name'=>'target_segment','label'=>'Target Segmen','type'=>'text'],['name'=>'jumlah_target','label'=>'Jumlah Target','type'=>'number'],['name'=>'tanggal_kirim','label'=>'Jadwal Kirim','type'=>'date'],['name'=>'terkirim','label'=>'Terkirim','type'=>'number','default'=>0],['name'=>'gagal','label'=>'Gagal','type'=>'number','default'=>0],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Draft','Dijadwalkan','Berjalan','Selesai','Dibatalkan']]],
+    'filterOptions'=>['Draft','Dijadwalkan','Berjalan','Selesai'],
+]));
+Route::get('/erp/payment-reminder', fn() => view('erp.crud', [
+    'title'=>'Reminder Pembayaran','description'=>'Otomasi reminder tagihan ke customer','module'=>'payment-reminder',
+    'formFields'=>[['name'=>'customer','label'=>'Customer','type'=>'text','required'=>true],['name'=>'nomor_invoice','label'=>'No Invoice','type'=>'text'],['name'=>'jumlah','label'=>'Jumlah Tagihan','type'=>'number','format'=>'currency'],['name'=>'jatuh_tempo','label'=>'Jatuh Tempo','type'=>'date'],['name'=>'metode','label'=>'Metode Reminder','type'=>'select','options'=>['WhatsApp','SMS','Email']],['name'=>'tanggal_kirim','label'=>'Tgl Kirim','type'=>'date'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Terjadwal','Terkirim','Gagal']]],
+    'filterOptions'=>['Terjadwal','Terkirim','Gagal'],
+]));
+
+// ── Delivery Extended ──────────────────────────────────────────────────────
+Route::get('/erp/delivery-note', fn() => view('erp.crud', [
+    'title'=>'Surat Jalan','description'=>'Manajemen surat jalan pengiriman','module'=>'delivery-note',
+    'formFields'=>[['name'=>'nomor','label'=>'No Surat Jalan','type'=>'text','required'=>true],['name'=>'tanggal','label'=>'Tanggal','type'=>'date'],['name'=>'customer','label'=>'Customer','type'=>'text'],['name'=>'alamat','label'=>'Alamat Tujuan','type'=>'textarea'],['name'=>'driver','label'=>'Driver','type'=>'text'],['name'=>'kendaraan','label'=>'Kendaraan','type'=>'text'],['name'=>'total_item','label'=>'Total Item','type'=>'number'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Draft','Dalam Perjalanan','Terkirim','Gagal']]],
+    'filterOptions'=>['Draft','Dalam Perjalanan','Terkirim','Gagal'],
+]));
+Route::get('/erp/tracking', fn() => view('erp.crud', [
+    'title'=>'Tracking Pengiriman','description'=>'Pantau lokasi dan status pengiriman','module'=>'tracking',
+    'formFields'=>[['name'=>'nomor_order','label'=>'No Order/SJ','type'=>'text','required'=>true],['name'=>'customer','label'=>'Customer','type'=>'text'],['name'=>'driver','label'=>'Driver','type'=>'text'],['name'=>'lokasi_terakhir','label'=>'Lokasi Terakhir','type'=>'text'],['name'=>'estimasi_tiba','label'=>'Estimasi Tiba','type'=>'date'],['name'=>'keterangan','label'=>'Keterangan','type'=>'textarea'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Menunggu Pickup','Dalam Perjalanan','Terkirim','Gagal']]],
+    'filterOptions'=>['Menunggu Pickup','Dalam Perjalanan','Terkirim','Gagal'],
+]));
+Route::get('/erp/fleet', fn() => view('erp.crud', [
+    'title'=>'Armada Kendaraan','description'=>'Manajemen kendaraan pengiriman','module'=>'fleet',
+    'formFields'=>[['name'=>'nomor_plat','label'=>'No Plat','type'=>'text','required'=>true],['name'=>'jenis','label'=>'Jenis','type'=>'select','options'=>['Motor','Mobil Box','Truk','Pickup']],['name'=>'merek','label'=>'Merek/Model','type'=>'text'],['name'=>'driver','label'=>'Driver Tetap','type'=>'text'],['name'=>'kapasitas','label'=>'Kapasitas (kg)','type'=>'number'],['name'=>'servis_terakhir','label'=>'Servis Terakhir','type'=>'date'],['name'=>'servis_berikut','label'=>'Servis Berikutnya','type'=>'date'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Aktif','Servis','Rusak','Non-Aktif']]],
+    'filterOptions'=>['Aktif','Servis','Rusak','Non-Aktif'],
+]));
+Route::get('/erp/drivers', fn() => view('erp.crud', [
+    'title'=>'Data Driver','description'=>'Master data driver pengiriman','module'=>'drivers',
+    'formFields'=>[['name'=>'nama','label'=>'Nama Driver','type'=>'text','required'=>true],['name'=>'nomor_sim','label'=>'No SIM','type'=>'text'],['name'=>'jenis_sim','label'=>'Tipe SIM','type'=>'select','options'=>['SIM A','SIM B1','SIM B2','SIM C']],['name'=>'telepon','label'=>'Telepon','type'=>'text'],['name'=>'area','label'=>'Area Pengiriman','type'=>'text'],['name'=>'kendaraan','label'=>'Kendaraan','type'=>'text'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Aktif','Off','Non-Aktif']]],
+    'filterOptions'=>['Aktif','Off','Non-Aktif'],
+]));
+Route::get('/erp/delivery-schedule', fn() => view('erp.crud', [
+    'title'=>'Jadwal Pengiriman','description'=>'Jadwal dan rute pengiriman driver','module'=>'delivery-schedule',
+    'formFields'=>[['name'=>'tanggal','label'=>'Tanggal','type'=>'date'],['name'=>'driver','label'=>'Driver','type'=>'text','required'=>true],['name'=>'kendaraan','label'=>'Kendaraan','type'=>'text'],['name'=>'area','label'=>'Area Tujuan','type'=>'text'],['name'=>'jumlah_order','label'=>'Jumlah Order','type'=>'number'],['name'=>'estimasi_jam','label'=>'Estimasi Berangkat','type'=>'text'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Terjadwal','Berangkat','Selesai','Dibatalkan']]],
+    'filterOptions'=>['Terjadwal','Berangkat','Selesai'],
+]));
+
+// ── HRD Extended ───────────────────────────────────────────────────────────
+Route::get('/erp/incentive', fn() => view('erp.crud', [
+    'title'=>'Insentif Karyawan','description'=>'Manajemen insentif dan bonus karyawan','module'=>'incentive',
+    'formFields'=>[['name'=>'karyawan','label'=>'Nama Karyawan','type'=>'text','required'=>true],['name'=>'bulan','label'=>'Bulan','type'=>'text'],['name'=>'tahun','label'=>'Tahun','type'=>'number','default'=>date('Y')],['name'=>'tipe','label'=>'Tipe','type'=>'select','options'=>['Komisi','Bonus Kinerja','Bonus Proyek','THR','Lainnya']],['name'=>'jumlah','label'=>'Jumlah','type'=>'number','format'=>'currency'],['name'=>'keterangan','label'=>'Keterangan','type'=>'textarea'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Pending','Disetujui','Dibayar']]],
+    'filterOptions'=>['Pending','Disetujui','Dibayar'],
+]));
+Route::get('/erp/division', fn() => view('erp.crud', [
+    'title'=>'Divisi','description'=>'Master data divisi perusahaan','module'=>'division',
+    'formFields'=>[['name'=>'nama','label'=>'Nama Divisi','type'=>'text','required'=>true],['name'=>'kode','label'=>'Kode','type'=>'text'],['name'=>'kepala_divisi','label'=>'Kepala Divisi','type'=>'text'],['name'=>'jumlah_anggota','label'=>'Jumlah Anggota','type'=>'number','default'=>0],['name'=>'budget','label'=>'Budget Tahunan','type'=>'number','format'=>'currency'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Aktif','Non-Aktif']]],
+    'filterOptions'=>['Aktif','Non-Aktif'],
+]));
+Route::get('/erp/login-activity', fn() => view('erp.crud', [
+    'title'=>'Login Activity','description'=>'Log aktivitas login pengguna','module'=>'login-activity',
+    'formFields'=>[['name'=>'user','label'=>'User','type'=>'text','required'=>true],['name'=>'tanggal','label'=>'Tanggal Login','type'=>'date'],['name'=>'waktu','label'=>'Waktu','type'=>'text'],['name'=>'ip_address','label'=>'IP Address','type'=>'text'],['name'=>'device','label'=>'Device/Browser','type'=>'text'],['name'=>'lokasi','label'=>'Lokasi','type'=>'text'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Sukses','Gagal']]],
+    'filterOptions'=>['Sukses','Gagal'],
+]));
+Route::get('/erp/device-management', fn() => view('erp.crud', [
+    'title'=>'Device Management','description'=>'Kelola perangkat yang terdaftar','module'=>'device-management',
+    'formFields'=>[['name'=>'nama','label'=>'Nama Device','type'=>'text','required'=>true],['name'=>'tipe','label'=>'Tipe','type'=>'select','options'=>['PC','Laptop','Smartphone','Tablet']],['name'=>'user','label'=>'User','type'=>'text'],['name'=>'sistem_operasi','label'=>'OS','type'=>'text'],['name'=>'terakhir_aktif','label'=>'Terakhir Aktif','type'=>'date'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Aktif','Tidak Aktif','Diblokir']]],
+    'filterOptions'=>['Aktif','Tidak Aktif','Diblokir'],
+]));
+
+// ── Service Center ─────────────────────────────────────────────────────────
+Route::get('/erp/sparepart', fn() => view('erp.crud', [
+    'title'=>'Sparepart','description'=>'Stok dan manajemen sparepart service center','module'=>'sparepart',
+    'formFields'=>[['name'=>'nama','label'=>'Nama Sparepart','type'=>'text','required'=>true],['name'=>'kode','label'=>'Kode','type'=>'text'],['name'=>'merek','label'=>'Merek/Kompatibel','type'=>'text'],['name'=>'stok','label'=>'Stok','type'=>'number','default'=>0],['name'=>'satuan','label'=>'Satuan','type'=>'text'],['name'=>'harga_beli','label'=>'Harga Beli','type'=>'number','format'=>'currency'],['name'=>'harga_jual','label'=>'Harga Jual','type'=>'number','format'=>'currency'],['name'=>'min_stok','label'=>'Min Stok','type'=>'number'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Tersedia','Habis','Discontinue']]],
+    'filterOptions'=>['Tersedia','Habis','Discontinue'],
+]));
+Route::get('/erp/technician', fn() => view('erp.crud', [
+    'title'=>'Teknisi','description'=>'Data teknisi dan spesialisasi servis','module'=>'technician',
+    'formFields'=>[['name'=>'nama','label'=>'Nama Teknisi','type'=>'text','required'=>true],['name'=>'kode','label'=>'Kode Teknisi','type'=>'text'],['name'=>'spesialisasi','label'=>'Spesialisasi','type'=>'text'],['name'=>'telepon','label'=>'Telepon','type'=>'text'],['name'=>'sertifikasi','label'=>'Sertifikasi','type'=>'text'],['name'=>'beban_kerja','label'=>'Beban Kerja Sekarang','type'=>'number','default'=>0],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Aktif','Sibuk','Libur','Non-Aktif']]],
+    'filterOptions'=>['Aktif','Sibuk','Libur'],
+]));
+Route::get('/erp/service-schedule', fn() => view('erp.crud', [
+    'title'=>'Jadwal Service','description'=>'Jadwal penerimaan dan pengerjaan servis','module'=>'service-schedule',
+    'formFields'=>[['name'=>'nomor','label'=>'No Service','type'=>'text','required'=>true],['name'=>'customer','label'=>'Customer','type'=>'text'],['name'=>'barang','label'=>'Barang','type'=>'text'],['name'=>'keluhan','label'=>'Keluhan','type'=>'textarea'],['name'=>'tanggal_masuk','label'=>'Tgl Masuk','type'=>'date'],['name'=>'teknisi','label'=>'Teknisi','type'=>'text'],['name'=>'estimasi_selesai','label'=>'Estimasi Selesai','type'=>'date'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Antri','Dikerjakan','Selesai','Diambil','Batal']]],
+    'filterOptions'=>['Antri','Dikerjakan','Selesai'],
+]));
+Route::get('/erp/service-history', fn() => view('erp.crud', [
+    'title'=>'Riwayat Service','description'=>'Histori lengkap pengerjaan servis','module'=>'service-history',
+    'formFields'=>[['name'=>'nomor','label'=>'No Service','type'=>'text','required'=>true],['name'=>'customer','label'=>'Customer','type'=>'text'],['name'=>'barang','label'=>'Barang','type'=>'text'],['name'=>'keluhan','label'=>'Keluhan','type'=>'textarea'],['name'=>'solusi','label'=>'Solusi','type'=>'textarea'],['name'=>'teknisi','label'=>'Teknisi','type'=>'text'],['name'=>'tanggal_masuk','label'=>'Tgl Masuk','type'=>'date'],['name'=>'tanggal_selesai','label'=>'Tgl Selesai','type'=>'date'],['name'=>'biaya_jasa','label'=>'Biaya Jasa','type'=>'number','format'=>'currency'],['name'=>'biaya_sparepart','label'=>'Biaya Sparepart','type'=>'number','format'=>'currency'],['name'=>'total','label'=>'Total','type'=>'number','format'=>'currency'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Selesai','Garansi','Dikembalikan']]],
+]));
+
+// ── Reports ────────────────────────────────────────────────────────────────
+Route::get('/erp/report-purchase', fn() => view('erp.crud', [
+    'title'=>'Laporan Pembelian','description'=>'Rekap laporan pembelian dari supplier','module'=>'report-purchase',
+    'formFields'=>[['name'=>'periode','label'=>'Periode','type'=>'text','required'=>true],['name'=>'supplier','label'=>'Supplier','type'=>'text'],['name'=>'jumlah_po','label'=>'Jumlah PO','type'=>'number'],['name'=>'total_nilai','label'=>'Total Nilai','type'=>'number','format'=>'currency'],['name'=>'on_time','label'=>'On Time (%)','type'=>'number'],['name'=>'keterangan','label'=>'Keterangan','type'=>'textarea']],
+]));
+Route::get('/erp/report-inventory', fn() => view('erp.crud', [
+    'title'=>'Laporan Inventori','description'=>'Rekap laporan stok dan nilai persediaan','module'=>'report-inventory',
+    'formFields'=>[['name'=>'produk','label'=>'Produk','type'=>'text','required'=>true],['name'=>'kategori','label'=>'Kategori','type'=>'text'],['name'=>'stok','label'=>'Stok Saat Ini','type'=>'number'],['name'=>'nilai_inventory','label'=>'Nilai Inventory','type'=>'number','format'=>'currency'],['name'=>'perputaran','label'=>'Perputaran/Tahun','type'=>'number'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Normal','Rendah','Lebih']]],
+]));
+Route::get('/erp/report-tax', fn() => view('erp.crud', [
+    'title'=>'Laporan Pajak','description'=>'Rekap semua kewajiban pajak','module'=>'report-tax',
+    'formFields'=>[['name'=>'periode','label'=>'Periode','type'=>'text','required'=>true],['name'=>'jenis','label'=>'Jenis Pajak','type'=>'text'],['name'=>'ppn_in','label'=>'PPN Masukan','type'=>'number','format'=>'currency'],['name'=>'ppn_out','label'=>'PPN Keluaran','type'=>'number','format'=>'currency'],['name'=>'pph','label'=>'PPh Terutang','type'=>'number','format'=>'currency'],['name'=>'total','label'=>'Total Pajak','type'=>'number','format'=>'currency'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Draft','Dilaporkan']]],
+]));
+Route::get('/erp/profit-product', fn() => view('erp.crud', [
+    'title'=>'Profit per Produk','description'=>'Analisa profit margin per produk','module'=>'profit-product',
+    'formFields'=>[['name'=>'produk','label'=>'Produk','type'=>'text','required'=>true],['name'=>'kategori','label'=>'Kategori','type'=>'text'],['name'=>'total_terjual','label'=>'Qty Terjual','type'=>'number'],['name'=>'hpp','label'=>'HPP','type'=>'number','format'=>'currency'],['name'=>'harga_jual','label'=>'Harga Jual Rata','type'=>'number','format'=>'currency'],['name'=>'margin_persen','label'=>'Margin (%)','type'=>'number'],['name'=>'total_profit','label'=>'Total Profit','type'=>'number','format'=>'currency']],
+]));
+Route::get('/erp/profit-branch', fn() => view('erp.crud', [
+    'title'=>'Profit per Cabang','description'=>'Analisa profitabilitas per cabang','module'=>'profit-branch',
+    'formFields'=>[['name'=>'cabang','label'=>'Cabang','type'=>'text','required'=>true],['name'=>'periode','label'=>'Periode','type'=>'text'],['name'=>'omzet','label'=>'Omzet','type'=>'number','format'=>'currency'],['name'=>'hpp','label'=>'HPP','type'=>'number','format'=>'currency'],['name'=>'biaya_operasional','label'=>'Biaya Operasional','type'=>'number','format'=>'currency'],['name'=>'profit','label'=>'Profit Bersih','type'=>'number','format'=>'currency'],['name'=>'margin','label'=>'Margin (%)','type'=>'number']],
+]));
+Route::get('/erp/sales-trend', fn() => view('erp.crud', [
+    'title'=>'Trend Penjualan','description'=>'Analisa tren dan pola penjualan','module'=>'sales-trend',
+    'formFields'=>[['name'=>'periode','label'=>'Periode','type'=>'text','required'=>true],['name'=>'omzet','label'=>'Omzet','type'=>'number','format'=>'currency'],['name'=>'jumlah_order','label'=>'Jumlah Order','type'=>'number'],['name'=>'rata_per_order','label'=>'Rata per Order','type'=>'number','format'=>'currency'],['name'=>'growth_persen','label'=>'Growth (%)','type'=>'number'],['name'=>'top_produk','label'=>'Top Produk','type'=>'text']],
+]));
+Route::get('/erp/export-pdf', fn() => view('erp.crud', [
+    'title'=>'Export PDF','description'=>'Generate dan download laporan PDF','module'=>'export-pdf',
+    'formFields'=>[['name'=>'nama_laporan','label'=>'Nama Laporan','type'=>'text','required'=>true],['name'=>'modul','label'=>'Modul','type'=>'text'],['name'=>'periode','label'=>'Periode','type'=>'text'],['name'=>'tanggal_export','label'=>'Tgl Export','type'=>'date'],['name'=>'format','label'=>'Format','type'=>'select','options'=>['PDF','PDF + Kop Surat','PDF Landscape']],['name'=>'ukuran','label'=>'Ukuran Kertas','type'=>'select','options'=>['A4','Letter','F4']],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Antri','Diproses','Selesai','Gagal']]],
+]));
+Route::get('/erp/export-excel', fn() => view('erp.crud', [
+    'title'=>'Export Excel','description'=>'Generate dan download laporan Excel','module'=>'export-excel',
+    'formFields'=>[['name'=>'nama_laporan','label'=>'Nama Laporan','type'=>'text','required'=>true],['name'=>'modul','label'=>'Modul','type'=>'text'],['name'=>'periode','label'=>'Periode','type'=>'text'],['name'=>'tanggal_export','label'=>'Tgl Export','type'=>'date'],['name'=>'format','label'=>'Format','type'=>'select','options'=>['XLSX','XLS','CSV']],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Antri','Diproses','Selesai','Gagal']]],
+]));
+
+// ── System ─────────────────────────────────────────────────────────────────
+Route::get('/erp/company-profile', fn() => view('erp.crud', [
+    'title'=>'Profil Perusahaan','description'=>'Informasi dan identitas perusahaan','module'=>'company-profile',
+    'formFields'=>[['name'=>'nama_perusahaan','label'=>'Nama Perusahaan','type'=>'text','required'=>true],['name'=>'npwp','label'=>'NPWP','type'=>'text'],['name'=>'alamat','label'=>'Alamat','type'=>'textarea'],['name'=>'kota','label'=>'Kota','type'=>'text'],['name'=>'telepon','label'=>'Telepon','type'=>'text'],['name'=>'email','label'=>'Email','type'=>'email'],['name'=>'website','label'=>'Website','type'=>'text'],['name'=>'direktur','label'=>'Direktur','type'=>'text']],
+]));
+Route::get('/erp/document-numbering', fn() => view('erp.crud', [
+    'title'=>'Penomoran Dokumen','description'=>'Format dan counter nomor dokumen','module'=>'document-numbering',
+    'formFields'=>[['name'=>'modul','label'=>'Modul/Dokumen','type'=>'text','required'=>true],['name'=>'prefix','label'=>'Prefix','type'=>'text'],['name'=>'format','label'=>'Format','type'=>'text','placeholder'=>'PO/{YYYY}/{MM}/{NNN}'],['name'=>'urutan_terakhir','label'=>'Urutan Terakhir','type'=>'number','default'=>0],['name'=>'panjang_angka','label'=>'Panjang Angka','type'=>'number','default'=>3],['name'=>'reset_tahunan','label'=>'Reset Tahunan?','type'=>'select','options'=>['Ya','Tidak']],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Aktif','Non-Aktif']]],
+]));
+
 // Marketplace sub-platform wildcard routes (Shopee/TikTok/Tokopedia/Lazada under /erp/)
 $platformPageTitles = [
     'dashboard'       => 'Dashboard',

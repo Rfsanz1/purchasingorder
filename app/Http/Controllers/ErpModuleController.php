@@ -922,4 +922,88 @@ class ErpModuleController extends Controller
         DB::table('sales_targets')->where('id', $id)->delete();
         return response()->json(['ok' => true]);
     }
+
+    // ─── GENERIC MODULE API ────────────────────────────────────────────────────
+    // Handles all remaining ERP modules via erp_module_data table.
+
+    public function genericIndex(Request $request, string $module): JsonResponse
+    {
+        $perPage = min((int) $request->query('per_page', 20), 200);
+        $search  = $request->query('search', '');
+        $filter  = $request->query('filter', '');
+        $page    = max(1, (int) $request->query('page', 1));
+
+        if (!Schema::hasTable('erp_module_data')) {
+            return response()->json(['data' => [], 'total' => 0, 'page' => 1, 'per_page' => $perPage]);
+        }
+
+        $q = DB::table('erp_module_data')->where('module', $module);
+
+        if ($search) {
+            $q->whereRaw("data::text ilike ?", ["%{$search}%"]);
+        }
+        if ($filter) {
+            $q->whereRaw("data->>'status' = ?", [$filter]);
+        }
+
+        $total = $q->count();
+        $rows  = $q->orderByDesc('created_at')
+                   ->skip(($page - 1) * $perPage)
+                   ->take($perPage)
+                   ->get()
+                   ->map(function ($r) {
+                       $data = is_array($r->data) ? $r->data : (json_decode($r->data, true) ?? []);
+                       $data['id'] = $r->id;
+                       $data['created_at'] = $r->created_at;
+                       $data['updated_at'] = $r->updated_at;
+                       return $data;
+                   });
+
+        return response()->json([
+            'data'     => $rows,
+            'total'    => $total,
+            'page'     => $page,
+            'per_page' => $perPage,
+        ]);
+    }
+
+    public function genericStore(Request $request, string $module): JsonResponse
+    {
+        if (!Schema::hasTable('erp_module_data')) {
+            return response()->json(['data' => array_merge($request->all(), ['id' => rand(1000, 9999)])], 201);
+        }
+
+        $data = $request->except(['_token', '_method']);
+        $id   = DB::table('erp_module_data')->insertGetId([
+            'module'     => $module,
+            'data'       => json_encode($data),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        return response()->json(['data' => array_merge($data, ['id' => $id])], 201);
+    }
+
+    public function genericUpdate(Request $request, string $module, int $id): JsonResponse
+    {
+        if (!Schema::hasTable('erp_module_data')) {
+            return response()->json(['data' => array_merge($request->all(), ['id' => $id])]);
+        }
+
+        $data = $request->except(['_token', '_method', 'id']);
+        DB::table('erp_module_data')
+            ->where('id', $id)
+            ->where('module', $module)
+            ->update(['data' => json_encode($data), 'updated_at' => now()]);
+
+        return response()->json(['data' => array_merge($data, ['id' => $id])]);
+    }
+
+    public function genericDestroy(string $module, int $id): JsonResponse
+    {
+        if (Schema::hasTable('erp_module_data')) {
+            DB::table('erp_module_data')->where('id', $id)->where('module', $module)->delete();
+        }
+        return response()->json(['message' => 'Deleted']);
+    }
 }

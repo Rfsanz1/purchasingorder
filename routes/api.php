@@ -267,4 +267,10 @@ Route::prefix('erp')->group(function () {
     Route::get('/sales-targets', [$c, 'salesTargetsIndex']);
     Route::post('/sales-targets', [$c, 'salesTargetsStore']);
     Route::delete('/sales-targets/{id}', [$c, 'salesTargetsDestroy']);
+
+    // Generic Module CRUD — handles all remaining ERP modules
+    Route::get('/module/{module}', [$c, 'genericIndex']);
+    Route::post('/module/{module}', [$c, 'genericStore']);
+    Route::put('/module/{module}/{id}', [$c, 'genericUpdate']);
+    Route::delete('/module/{module}/{id}', [$c, 'genericDestroy']);
 });
