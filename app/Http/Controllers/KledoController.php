@@ -590,4 +590,269 @@ class KledoController extends Controller
             return null;
         }
     }
+
+    // ─── DASHBOARD KLEDO ──────────────────────────────────────────────────────
+    /**
+     * GET /api/kledo/dashboard?period=month
+     * Sumber data: kledo_sync_logs (cache cepat) + fallback ke Kledo API langsung.
+     * Period: today | week | month | year
+     */
+    public function dashboardKledo(Request $request): JsonResponse
+    {
+        $period = $request->query('period', 'month');
+        [$startDate, $endDate, $prevStart, $prevEnd] = $this->periodToDates($period);
+
+        // ─ 1. Coba dari kledo_sync_logs (cache DB) ─────────────────────────
+        $useCache = \DB::table('kledo_sync_logs')->count() > 0;
+
+        if ($useCache) {
+            $rows = \DB::table('kledo_sync_logs')
+                ->whereBetween('trans_date', [$startDate, $endDate])
+                ->orderByDesc('trans_date')
+                ->get();
+
+            $prevRows = \DB::table('kledo_sync_logs')
+                ->whereBetween('trans_date', [$prevStart, $prevEnd])
+                ->get();
+
+            $omzet     = $rows->sum('total');
+            $prevOmzet = $prevRows->sum('total');
+            $growth    = $prevOmzet > 0 ? round((($omzet - $prevOmzet) / $prevOmzet) * 100, 1) : 0;
+
+            // Top sales dari cache
+            $topSalesMap = [];
+            foreach ($rows as $r) {
+                $s = $r->sales ?: 'Lainnya';
+                if (!isset($topSalesMap[$s])) $topSalesMap[$s] = ['sales'=>$s,'total'=>0,'order_count'=>0];
+                $topSalesMap[$s]['total']       += (int)$r->total;
+                $topSalesMap[$s]['order_count'] += 1;
+            }
+            usort($topSalesMap, fn($a,$b)=>$b['total']<=>$a['total']);
+
+            // Recent invoices
+            $recent = $rows->take(10)->map(fn($r) => [
+                'id'           => $r->kledo_invoice_id,
+                'ref'          => $r->ref_number,
+                'tanggal'      => $r->trans_date,
+                'customer'     => $r->contact_name,
+                'total'        => (int)$r->total,
+                'status'       => $r->status,
+                'sales'        => $r->sales,
+            ])->values();
+
+            // Piutang (status unpaid/partial)
+            $piutang = \DB::table('kledo_sync_logs')
+                ->whereIn('status', ['unpaid','partial','1','2'])
+                ->sum('total');
+
+            $lastSync = \DB::table('kledo_sync_logs')->max('updated_at')
+                     ?: \DB::table('kledo_sync_logs')->max('created_at');
+
+            return response()->json([
+                'sumber'        => 'cache_db',
+                'last_sync'     => $lastSync,
+                'periode'       => ['dari'=>$startDate,'sampai'=>$endDate],
+                'omzet'         => (int)$omzet,
+                'omzet_growth'  => $growth,
+                'total_invoice' => $rows->count(),
+                'aov'           => $rows->count() > 0 ? round($omzet / $rows->count()) : 0,
+                'piutang'       => (int)$piutang,
+                'top_sales'     => array_values(array_slice($topSalesMap, 0, 5)),
+                'recent'        => $recent,
+            ]);
+        }
+
+        // ─ 2. Fallback: langsung ke Kledo API ───────────────────────────────
+        // Cek token dulu
+        $token = self::getToken();
+        if (!$token) {
+            return response()->json([
+                'sumber'        => 'no_token',
+                'token_missing' => true,
+                'message'       => 'KLEDO_TOKEN belum dikonfigurasi. Silakan set di menu Integrasi.',
+                'setup_url'     => '/erp/integrasi',
+                'last_sync'     => null,
+                'periode'       => ['dari'=>$startDate,'sampai'=>$endDate],
+                'omzet'         => 0, 'omzet_growth'=>0, 'total_invoice'=>0,
+                'aov'           => 0, 'piutang'=>0,
+                'top_sales'     => [], 'recent'=>[],
+            ]);
+        }
+
+        try {
+            $svc      = new \App\Services\KledoService();
+            $invoices = $svc->getInvoicesByDateRange($startDate, $endDate, 50);
+
+            $omzet = array_sum(array_column($invoices, 'total'));
+
+            // Top sales
+            $topSalesMap = [];
+            foreach ($invoices as $inv) {
+                $s = $inv['sales'] ?: 'Lainnya';
+                if (!isset($topSalesMap[$s])) $topSalesMap[$s] = ['sales'=>$s,'total'=>0,'order_count'=>0];
+                $topSalesMap[$s]['total']       += (int)$inv['total'];
+                $topSalesMap[$s]['order_count'] += 1;
+            }
+            usort($topSalesMap, fn($a,$b)=>$b['total']<=>$a['total']);
+
+            // Piutang: status unpaid/partial
+            $piutang = array_sum(array_map(
+                fn($inv)=>(int)$inv['total'],
+                array_filter($invoices, fn($inv)=>in_array($inv['status'],['unpaid','partial','1','2']))
+            ));
+
+            $recent = array_slice(array_map(fn($inv)=>[
+                'id'      => $inv['id'],
+                'ref'     => $inv['ref_number'],
+                'tanggal' => $inv['trans_date'],
+                'customer'=> $inv['contact_name'],
+                'total'   => (int)$inv['total'],
+                'status'  => $inv['status'],
+                'sales'   => $inv['sales'],
+            ], $invoices), 0, 10);
+
+            return response()->json([
+                'sumber'        => 'kledo_api',
+                'last_sync'     => now()->toISOString(),
+                'periode'       => ['dari'=>$startDate,'sampai'=>$endDate],
+                'omzet'         => (int)$omzet,
+                'omzet_growth'  => 0,
+                'total_invoice' => count($invoices),
+                'aov'           => count($invoices) > 0 ? round($omzet / count($invoices)) : 0,
+                'piutang'       => (int)$piutang,
+                'top_sales'     => array_values(array_slice($topSalesMap, 0, 5)),
+                'recent'        => $recent,
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('kledoDashboard error: '.$e->getMessage());
+            return response()->json([
+                'sumber'=>'error','error'=>$e->getMessage(),
+                'omzet'=>0,'total_invoice'=>0,'top_sales'=>[],'recent'=>[],
+            ], 200);
+        }
+    }
+
+    /**
+     * GET /api/kledo/invoices?period=month&sales=&status=
+     * Daftar invoice langsung dari Kledo (atau cache).
+     */
+    public function invoices(Request $request): JsonResponse
+    {
+        $period  = $request->query('period', 'month');
+        $sales   = strtolower(trim($request->query('sales', '')));
+        $status  = $request->query('status', '');
+        $perPage = min((int)$request->query('per_page', 20), 100);
+        $page    = max(1, (int)$request->query('page', 1));
+
+        [$startDate, $endDate] = $this->periodToDates($period);
+
+        // Prioritaskan cache DB
+        $q = \DB::table('kledo_sync_logs')
+            ->whereBetween('trans_date', [$startDate, $endDate])
+            ->orderByDesc('trans_date');
+
+        if ($sales)  $q->where('sales', 'ilike', "%{$sales}%");
+        if ($status) $q->where('status', $status);
+
+        $total = $q->count();
+        $rows  = $q->skip(($page-1)*$perPage)->take($perPage)->get()->map(fn($r)=>[
+            'id'       => $r->kledo_invoice_id,
+            'ref'      => $r->ref_number,
+            'tanggal'  => $r->trans_date,
+            'customer' => $r->contact_name,
+            'total'    => (int)$r->total,
+            'status'   => $r->status,
+            'sales'    => $r->sales,
+            'memo'     => $r->memo,
+        ]);
+
+        // Jika cache kosong, tarik langsung dari Kledo
+        if ($total === 0) {
+            try {
+                $svc      = new \App\Services\KledoService();
+                $all      = $svc->getInvoicesByDateRange($startDate, $endDate, 100);
+                if ($sales)  $all = array_filter($all, fn($i)=>stripos($i['sales'],$sales)!==false);
+                if ($status) $all = array_filter($all, fn($i)=>$i['status']===$status);
+                $all      = array_values($all);
+                $total    = count($all);
+                $rows     = collect(array_slice($all, ($page-1)*$perPage, $perPage))->map(fn($inv)=>[
+                    'id'      => $inv['id'],
+                    'ref'     => $inv['ref_number'],
+                    'tanggal' => $inv['trans_date'],
+                    'customer'=> $inv['contact_name'],
+                    'total'   => (int)$inv['total'],
+                    'status'  => $inv['status'],
+                    'sales'   => $inv['sales'],
+                    'memo'    => $inv['memo'],
+                ]);
+            } catch (\Exception $e) {
+                $rows = collect();
+            }
+        }
+
+        return response()->json([
+            'data'     => $rows->values(),
+            'total'    => $total,
+            'page'     => $page,
+            'per_page' => $perPage,
+        ]);
+    }
+
+    /**
+     * POST /api/kledo/sync-now
+     * Trigger sinkronisasi Kledo ke cache DB, lalu kembalikan data dashboard.
+     */
+    public function syncNow(Request $request): JsonResponse
+    {
+        try {
+            $period = $request->input('period', 'month');
+            [$startDate, $endDate] = $this->periodToDates($period);
+
+            $syncCtrl = new \App\Http\Controllers\KledoSyncController();
+            $fakeReq  = new \Illuminate\Http\Request();
+            $fakeReq->merge([
+                'start_date' => $startDate,
+                'end_date'   => $endDate,
+                'admin_key'  => env('ADMIN_PASSWORD', 'admin123'),
+            ]);
+            $syncCtrl->sync($fakeReq);
+
+            return $this->dashboardKledo($request);
+        } catch (\Exception $e) {
+            return response()->json(['error'=>$e->getMessage()], 500);
+        }
+    }
+
+    // ─── HELPER: period → date range ─────────────────────────────────────────
+    private function periodToDates(string $period): array
+    {
+        $now = now();
+        switch ($period) {
+            case 'today':
+                $start = $now->copy()->startOfDay()->toDateString();
+                $end   = $now->toDateString();
+                $ps    = $now->copy()->subDay()->toDateString();
+                $pe    = $ps;
+                break;
+            case 'week':
+                $start = $now->copy()->subDays(6)->toDateString();
+                $end   = $now->toDateString();
+                $ps    = $now->copy()->subDays(13)->toDateString();
+                $pe    = $now->copy()->subDays(7)->toDateString();
+                break;
+            case 'year':
+                $start = $now->copy()->startOfYear()->toDateString();
+                $end   = $now->toDateString();
+                $ps    = $now->copy()->subYear()->startOfYear()->toDateString();
+                $pe    = $now->copy()->subYear()->toDateString();
+                break;
+            default: // month
+                $start = $now->copy()->startOfMonth()->toDateString();
+                $end   = $now->toDateString();
+                $ps    = $now->copy()->subMonth()->startOfMonth()->toDateString();
+                $pe    = $now->copy()->subMonth()->toDateString();
+                break;
+        }
+        return [$start, $end, $ps, $pe];
+    }
 }
