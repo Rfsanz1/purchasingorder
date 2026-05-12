@@ -117,6 +117,685 @@ Route::get('/erp/chart-of-accounts', fn() => view('erp.coa'));
 Route::get('/erp/coa',               fn() => view('erp.coa'));
 Route::get('/erp/payroll',        fn() => view('erp.payroll'));
 Route::get('/erp/quotation',      fn() => view('erp.quotation'));
+// Asset and enterprise modules
+Route::get('/erp/asset-dashboard', fn() => view('erp.asset-dashboard'));
+Route::get('/erp/asset-registry', fn() => view('erp.crud', [
+    'module' => 'assets',
+    'title' => 'Asset Registry',
+    'description' => 'Kelola daftar asset tetap, nilai depresiasi, lokasi, dan PIC.',
+    'addLabel' => 'Tambah Asset',
+    'statusField' => 'asset_status',
+    'filterField' => 'asset_status',
+    'filterOptions' => ['Aktif', 'In Maintenance', 'Rusak', 'Disposal', 'Dijual'],
+    'formFields' => [
+        ['name'=>'asset_code','label'=>'Asset Code','type'=>'text','required'=>true],
+        ['name'=>'asset_name','label'=>'Asset Name','type'=>'text','required'=>true],
+        ['name'=>'serial_number','label'=>'Serial Number','type'=>'text'],
+        ['name'=>'category_id','label'=>'Category','type'=>'text'],
+        ['name'=>'brand','label'=>'Brand','type'=>'text'],
+        ['name'=>'purchase_date','label'=>'Purchase Date','type'=>'date'],
+        ['name'=>'purchase_value','label'=>'Purchase Value','type'=>'number','step'=>'0.01'],
+        ['name'=>'current_value','label'=>'Current Value','type'=>'number','step'=>'0.01'],
+        ['name'=>'depreciation_method','label'=>'Depreciation Method','type'=>'select','options'=>['straight-line','declining-balance','sum-of-years','none']],
+        ['name'=>'useful_life','label'=>'Useful Life (years)','type'=>'number'],
+        ['name'=>'location','label'=>'Location','type'=>'text'],
+        ['name'=>'department','label'=>'Department','type'=>'text'],
+        ['name'=>'pic','label'=>'PIC','type'=>'text'],
+        ['name'=>'asset_status','label'=>'Asset Status','type'=>'select','options'=>['Aktif','In Maintenance','Rusak','Disposal','Dijual']],
+        ['name'=>'qr_code','label'=>'QR Code','type'=>'text'],
+        ['name'=>'notes','label'=>'Notes','type'=>'textarea'],
+        ['name'=>'attachment','label'=>'Attachment','type'=>'text'],
+    ],
+    'tableFields' => [
+        ['name'=>'asset_code','label'=>'Asset Code'],
+        ['name'=>'asset_name','label'=>'Name'],
+        ['name'=>'category_id','label'=>'Category'],
+        ['name'=>'location','label'=>'Location'],
+        ['name'=>'asset_status','label'=>'Status','badge'=>true],
+    ],
+]));
+Route::get('/erp/asset-categories', fn() => view('erp.crud', [
+    'module' => 'asset-categories',
+    'title' => 'Asset Categories',
+    'description' => 'Daftar kategori asset untuk klasifikasi yang lebih baik.',
+    'addLabel' => 'Tambah Kategori',
+    'formFields' => [
+        ['name'=>'kode','label'=>'Kode','type'=>'text','required'=>true],
+        ['name'=>'nama','label'=>'Nama','type'=>'text','required'=>true],
+        ['name'=>'deskripsi','label'=>'Deskripsi','type'=>'textarea'],
+    ],
+    'tableFields' => [
+        ['name'=>'kode','label'=>'Kode'],
+        ['name'=>'nama','label'=>'Nama'],
+        ['name'=>'deskripsi','label'=>'Deskripsi'],
+    ],
+]));
+Route::get('/erp/asset-depreciation', fn() => view('erp.generic-module', [
+    'title' => 'Asset Depreciation',
+    'description' => 'Kelola metode depresiasi dan nilai buku asset secara otomatis.',
+    'features' => ['Depresiasi garis lurus', 'Perhitungan useful life', 'Update nilai buku', 'Integrasi ke Accounting']
+]));
+Route::get('/erp/asset-maintenance', fn() => view('erp.crud', [
+    'module' => 'asset-maintenance',
+    'title' => 'Asset Maintenance',
+    'description' => 'Jadwal pemeliharaan asset dan catatan teknisi.',
+    'addLabel' => 'Tambah Maintenance',
+    'formFields' => [
+        ['name'=>'maintenance_number','label'=>'Maintenance Number','type'=>'text','required'=>true],
+        ['name'=>'asset_id','label'=>'Asset','type'=>'text','required'=>true],
+        ['name'=>'maintenance_type','label'=>'Maintenance Type','type'=>'text'],
+        ['name'=>'schedule_date','label'=>'Schedule Date','type'=>'date'],
+        ['name'=>'vendor_id','label'=>'Vendor','type'=>'text'],
+        ['name'=>'cost','label'=>'Cost','type'=>'number','step'=>'0.01'],
+        ['name'=>'technician','label'=>'Technician','type'=>'text'],
+        ['name'=>'result','label'=>'Result','type'=>'textarea'],
+        ['name'=>'next_maintenance_date','label'=>'Next Maintenance Date','type'=>'date'],
+        ['name'=>'status','label'=>'Status','type'=>'select','options'=>['scheduled','in-progress','completed','cancelled']],
+    ],
+    'tableFields' => [
+        ['name'=>'maintenance_number','label'=>'No. Maintenance'],
+        ['name'=>'asset_id','label'=>'Asset'],
+        ['name'=>'schedule_date','label'=>'Schedule'],
+        ['name'=>'technician','label'=>'Technician'],
+        ['name'=>'status','label'=>'Status','badge'=>true],
+    ],
+]));
+Route::get('/erp/asset-transfer', fn() => view('erp.crud', [
+    'module' => 'asset-transfers',
+    'title' => 'Asset Transfer',
+    'description' => 'Kelola permintaan mutasi asset antar lokasi dan departemen.',
+    'addLabel' => 'Tambah Transfer',
+    'formFields' => [
+        ['name'=>'transfer_number','label'=>'Transfer Number','type'=>'text','required'=>true],
+        ['name'=>'asset_id','label'=>'Asset','type'=>'text','required'=>true],
+        ['name'=>'from_location','label'=>'From Location','type'=>'text'],
+        ['name'=>'to_location','label'=>'To Location','type'=>'text'],
+        ['name'=>'from_department','label'=>'From Department','type'=>'text'],
+        ['name'=>'to_department','label'=>'To Department','type'=>'text'],
+        ['name'=>'transfer_date','label'=>'Transfer Date','type'=>'date'],
+        ['name'=>'approved_by','label'=>'Approved By','type'=>'text'],
+        ['name'=>'status','label'=>'Status','type'=>'select','options'=>['draft','requested','approved','completed','rejected']],
+        ['name'=>'notes','label'=>'Notes','type'=>'textarea'],
+    ],
+    'tableFields' => [
+        ['name'=>'transfer_number','label'=>'Transfer Number'],
+        ['name'=>'asset_id','label'=>'Asset'],
+        ['name'=>'from_location','label'=>'From'],
+        ['name'=>'to_location','label'=>'To'],
+        ['name'=>'status','label'=>'Status','badge'=>true],
+    ],
+]));
+Route::get('/erp/asset-disposal', fn() => view('erp.crud', [
+    'module' => 'asset-disposals',
+    'title' => 'Asset Disposal',
+    'description' => 'Catat proses disposal asset sekaligus nilai pelepasan.',
+    'addLabel' => 'Tambah Disposal',
+    'formFields' => [
+        ['name'=>'disposal_number','label'=>'Disposal Number','type'=>'text','required'=>true],
+        ['name'=>'asset_id','label'=>'Asset','type'=>'text','required'=>true],
+        ['name'=>'disposal_date','label'=>'Disposal Date','type'=>'date'],
+        ['name'=>'reason','label'=>'Reason','type'=>'textarea'],
+        ['name'=>'disposal_value','label'=>'Disposal Value','type'=>'number','step'=>'0.01'],
+        ['name'=>'approved_by','label'=>'Approved By','type'=>'text'],
+        ['name'=>'status','label'=>'Status','type'=>'select','options'=>['draft','approved','disposed','cancelled']],
+        ['name'=>'notes','label'=>'Notes','type'=>'textarea'],
+    ],
+    'tableFields' => [
+        ['name'=>'disposal_number','label'=>'Disposal Number'],
+        ['name'=>'asset_id','label'=>'Asset'],
+        ['name'=>'disposal_date','label'=>'Date'],
+        ['name'=>'disposal_value','label'=>'Disposal Value','format'=>'currency'],
+        ['name'=>'status','label'=>'Status','badge'=>true],
+    ],
+]));
+Route::get('/erp/asset-audit-log', fn() => view('erp.crud', [
+    'module' => 'asset-audit-logs',
+    'title' => 'Asset Audit Log',
+    'description' => 'Audit log aktivitas asset untuk compliance dan pelacakan perubahan.',
+    'addLabel' => 'Tambah Audit Log',
+    'formFields' => [
+        ['name'=>'asset_id','label'=>'Asset','type'=>'text','required'=>true],
+        ['name'=>'action','label'=>'Action','type'=>'text','required'=>true],
+        ['name'=>'performed_by','label'=>'Performed By','type'=>'text'],
+        ['name'=>'performed_at','label'=>'Performed At','type'=>'date'],
+        ['name'=>'details','label'=>'Details','type'=>'textarea'],
+    ],
+    'tableFields' => [
+        ['name'=>'asset_id','label'=>'Asset'],
+        ['name'=>'action','label'=>'Action'],
+        ['name'=>'performed_by','label'=>'Performed By'],
+        ['name'=>'performed_at','label'=>'Performed At'],
+    ],
+]));
+Route::get('/erp/project-dashboard', fn() => view('erp.project-dashboard'));
+Route::get('/erp/projects', fn() => view('erp.crud', [
+    'module' => 'projects',
+    'title' => 'Projects',
+    'description' => 'Kelola proyek, anggaran, prioritas, dan progres lintas divisi.',
+    'addLabel' => 'Tambah Project',
+    'statusField' => 'status',
+    'filterField' => 'status',
+    'filterOptions' => ['Draft','Active','On Hold','Completed','Cancelled'],
+    'formFields' => [
+        ['name'=>'project_code','label'=>'Project Code','type'=>'text','required'=>true],
+        ['name'=>'project_name','label'=>'Project Name','type'=>'text','required'=>true],
+        ['name'=>'customer_name','label'=>'Customer','type'=>'text'],
+        ['name'=>'start_date','label'=>'Start Date','type'=>'date'],
+        ['name'=>'end_date','label'=>'End Date','type'=>'date'],
+        ['name'=>'budget','label'=>'Budget','type'=>'number','step'=>'0.01'],
+        ['name'=>'pic','label'=>'PIC','type'=>'text'],
+        ['name'=>'priority','label'=>'Priority','type'=>'select','options'=>['Low','Medium','High','Critical']],
+        ['name'=>'status','label'=>'Status','type'=>'select','options'=>['Draft','Active','On Hold','Completed','Cancelled']],
+        ['name'=>'progress','label'=>'Progress (%)','type'=>'number'],
+        ['name'=>'notes','label'=>'Notes','type'=>'textarea'],
+    ],
+    'tableFields' => [
+        ['name'=>'project_code','label'=>'Code'],
+        ['name'=>'project_name','label'=>'Name'],
+        ['name'=>'customer_name','label'=>'Customer'],
+        ['name'=>'status','label'=>'Status','badge'=>true],
+        ['name'=>'progress','label'=>'Progress'],
+    ],
+]));
+Route::get('/erp/project-tasks', fn() => view('erp.crud', [
+    'module' => 'project-tasks',
+    'title' => 'Project Tasks',
+    'description' => 'Kelola pekerjaan proyek dengan deadline, dependensi, dan progres.',
+    'addLabel' => 'Tambah Task',
+    'statusField' => 'status',
+    'filterField' => 'status',
+    'filterOptions' => ['Todo','In Progress','Review','Done','Blocked'],
+    'formFields' => [
+        ['name'=>'task_name','label'=>'Task Name','type'=>'text','required'=>true],
+        ['name'=>'project_id','label'=>'Project','type'=>'text','required'=>true],
+        ['name'=>'assignee','label'=>'Assignee','type'=>'text'],
+        ['name'=>'deadline','label'=>'Deadline','type'=>'date'],
+        ['name'=>'progress','label'=>'Progress (%)','type'=>'number'],
+        ['name'=>'dependency_id','label'=>'Dependency','type'=>'text'],
+        ['name'=>'attachment','label'=>'Attachment','type'=>'text'],
+        ['name'=>'status','label'=>'Status','type'=>'select','options'=>['Todo','In Progress','Review','Done','Blocked']],
+        ['name'=>'notes','label'=>'Notes','type'=>'textarea'],
+    ],
+    'tableFields' => [
+        ['name'=>'task_name','label'=>'Task'],
+        ['name'=>'project_id','label'=>'Project'],
+        ['name'=>'assignee','label'=>'Assignee'],
+        ['name'=>'deadline','label'=>'Deadline'],
+        ['name'=>'status','label'=>'Status','badge'=>true],
+    ],
+]));
+Route::get('/erp/project-milestones', fn() => view('erp.crud', [
+    'module' => 'project-milestones',
+    'title' => 'Milestones',
+    'description' => 'Kelola milestone proyek dan jadwal penyelesaian.',
+    'addLabel' => 'Tambah Milestone',
+    'statusField' => 'status',
+    'filterField' => 'status',
+    'filterOptions' => ['pending','completed','delayed'],
+    'formFields' => [
+        ['name'=>'project_id','label'=>'Project','type'=>'text','required'=>true],
+        ['name'=>'title','label'=>'Milestone','type'=>'text','required'=>true],
+        ['name'=>'due_date','label'=>'Due Date','type'=>'date'],
+        ['name'=>'completed_at','label'=>'Completed At','type'=>'date'],
+        ['name'=>'status','label'=>'Status','type'=>'select','options'=>['pending','completed','delayed']],
+        ['name'=>'notes','label'=>'Notes','type'=>'textarea'],
+    ],
+    'tableFields' => [
+        ['name'=>'title','label'=>'Milestone'],
+        ['name'=>'project_id','label'=>'Project'],
+        ['name'=>'due_date','label'=>'Due Date'],
+        ['name'=>'status','label'=>'Status','badge'=>true],
+    ],
+]));
+Route::get('/erp/project-costing', fn() => view('erp.crud', [
+    'module' => 'project-costs',
+    'title' => 'Project Costing',
+    'description' => 'Catat biaya proyek untuk kontrol anggaran dan pelaporan.',
+    'addLabel' => 'Tambah Cost',
+    'formFields' => [
+        ['name'=>'project_id','label'=>'Project','type'=>'text','required'=>true],
+        ['name'=>'description','label'=>'Description','type'=>'text','required'=>true],
+        ['name'=>'cost_type','label'=>'Cost Type','type'=>'text'],
+        ['name'=>'amount','label'=>'Amount','type'=>'number','step'=>'0.01'],
+        ['name'=>'incurred_date','label'=>'Incurred Date','type'=>'date'],
+        ['name'=>'notes','label'=>'Notes','type'=>'textarea'],
+    ],
+    'tableFields' => [
+        ['name'=>'project_id','label'=>'Project'],
+        ['name'=>'description','label'=>'Description'],
+        ['name'=>'cost_type','label'=>'Type'],
+        ['name'=>'amount','label'=>'Amount','format'=>'currency'],
+    ],
+]));
+Route::get('/erp/timesheet', fn() => view('erp.crud', [
+    'module' => 'project-timesheets',
+    'title' => 'Timesheet',
+    'description' => 'Catat waktu kerja untuk proyek dan analisa kapasitas resource.',
+    'addLabel' => 'Tambah Timesheet',
+    'formFields' => [
+        ['name'=>'project_id','label'=>'Project','type'=>'text','required'=>true],
+        ['name'=>'task_id','label'=>'Task','type'=>'text'],
+        ['name'=>'employee_name','label'=>'Employee','type'=>'text'],
+        ['name'=>'date','label'=>'Date','type'=>'date'],
+        ['name'=>'hours','label'=>'Hours','type'=>'number','step'=>'0.01'],
+        ['name'=>'notes','label'=>'Notes','type'=>'textarea'],
+    ],
+    'tableFields' => [
+        ['name'=>'project_id','label'=>'Project'],
+        ['name'=>'employee_name','label'=>'Employee'],
+        ['name'=>'date','label'=>'Date'],
+        ['name'=>'hours','label'=>'Hours'],
+    ],
+]));
+Route::get('/erp/resource-allocation', fn() => view('erp.generic-module', [
+    'title' => 'Resource Allocation',
+    'description' => 'Monitor alokasi resource karyawan ke proyek dan tugas.',
+    'features' => ['Capacity planning', 'Utilization tracking', 'Workload balancing', 'Resource heatmap']
+]));
+Route::get('/erp/project-billing', fn() => view('erp.generic-module', [
+    'title' => 'Project Billing',
+    'description' => 'Kelola invoice proyek dan integrasi ke Finance & Sales.',
+    'features' => ['Billing schedule', 'Invoice linking', 'Cost to revenue', 'Payment tracking']
+]));
+Route::get('/erp/documents', fn() => view('erp.crud', [
+    'module' => 'documents',
+    'title' => 'Document Repository',
+    'description' => 'Simpan dan kelola dokumen penting dengan versioning dan retention.',
+    'addLabel' => 'Tambah Document',
+    'statusField' => 'approval_status',
+    'filterField' => 'approval_status',
+    'filterOptions' => ['Draft','Pending','Approved','Rejected'],
+    'formFields' => [
+        ['name'=>'document_number','label'=>'Document Number','type'=>'text','required'=>true],
+        ['name'=>'document_type','label'=>'Document Type','type'=>'text'],
+        ['name'=>'related_module','label'=>'Related Module','type'=>'text'],
+        ['name'=>'upload_file','label'=>'Upload File','type'=>'text'],
+        ['name'=>'version','label'=>'Version','type'=>'text'],
+        ['name'=>'approval_status','label'=>'Approval Status','type'=>'select','options'=>['Draft','Pending','Approved','Rejected']],
+        ['name'=>'expired_date','label'=>'Expired Date','type'=>'date'],
+        ['name'=>'retention_period','label'=>'Retention Period','type'=>'text'],
+        ['name'=>'notes','label'=>'Notes','type'=>'textarea'],
+    ],
+    'tableFields' => [
+        ['name'=>'document_number','label'=>'Number'],
+        ['name'=>'document_type','label'=>'Type'],
+        ['name'=>'related_module','label'=>'Module'],
+        ['name'=>'approval_status','label'=>'Status','badge'=>true],
+    ],
+]));
+Route::get('/erp/document-templates', fn() => view('erp.crud', [
+    'module' => 'document-templates',
+    'title' => 'Document Templates',
+    'description' => 'Kelola template dokumen yang dapat digunakan untuk approval workflow.',
+    'addLabel' => 'Tambah Template',
+    'formFields' => [
+        ['name'=>'name','label'=>'Name','type'=>'text','required'=>true],
+        ['name'=>'module','label'=>'Module','type'=>'text'],
+        ['name'=>'description','label'=>'Description','type'=>'textarea'],
+        ['name'=>'content','label'=>'Content','type'=>'textarea'],
+        ['name'=>'is_active','label'=>'Active','type'=>'select','options'=>['1','0']],
+    ],
+    'tableFields' => [
+        ['name'=>'name','label'=>'Name'],
+        ['name'=>'module','label'=>'Module'],
+        ['name'=>'is_active','label'=>'Active'],
+    ],
+]));
+Route::get('/erp/document-approval', fn() => view('erp.generic-module', [
+    'title' => 'Approval Workflow',
+    'description' => 'Monitor persetujuan dokumen dan alur approval antar tim.',
+    'features' => ['Multi-level approval', 'Rule-based routing', 'Approval history', 'Notification']
+]));
+Route::get('/erp/archive', fn() => view('erp.generic-module', [
+    'title' => 'Archive',
+    'description' => 'Arsip dokumen terpusat untuk retention dan compliance.',
+    'features' => ['Retention periods', 'Document retrieval', 'Audit trail', 'Expiration reminders']
+]));
+Route::get('/erp/digital-signature', fn() => view('erp.generic-module', [
+    'title' => 'Digital Signature',
+    'description' => 'Kelola tanda tangan digital aman untuk dokumen penting.',
+    'features' => ['Signature approval', 'Signed document tracking', 'Secure storage', 'Audit log']
+]));
+Route::get('/erp/inspection', fn() => view('erp.crud', [
+    'module' => 'inspections',
+    'title' => 'Inspection',
+    'description' => 'Catat hasil inspeksi kualitas produk dan supplier.',
+    'addLabel' => 'Tambah Inspection',
+    'statusField' => 'status',
+    'filterField' => 'status',
+    'filterOptions' => ['Draft','Passed','Failed'],
+    'formFields' => [
+        ['name'=>'inspection_number','label'=>'Inspection Number','type'=>'text','required'=>true],
+        ['name'=>'product','label'=>'Product','type'=>'text'],
+        ['name'=>'supplier_id','label'=>'Supplier','type'=>'text'],
+        ['name'=>'batch_number','label'=>'Batch Number','type'=>'text'],
+        ['name'=>'inspection_result','label'=>'Inspection Result','type'=>'text'],
+        ['name'=>'defect_qty','label'=>'Defect Qty','type'=>'number'],
+        ['name'=>'notes','label'=>'Notes','type'=>'textarea'],
+        ['name'=>'inspector','label'=>'Inspector','type'=>'text'],
+        ['name'=>'status','label'=>'Status','type'=>'select','options'=>['Draft','Passed','Failed']],
+    ],
+    'tableFields' => [
+        ['name'=>'inspection_number','label'=>'Number'],
+        ['name'=>'product','label'=>'Product'],
+        ['name'=>'supplier_id','label'=>'Supplier'],
+        ['name'=>'inspection_result','label'=>'Result'],
+        ['name'=>'status','label'=>'Status','badge'=>true],
+    ],
+]));
+Route::get('/erp/ncr', fn() => view('erp.crud', [
+    'module' => 'ncrs',
+    'title' => 'NCR',
+    'description' => 'Tindak lanjut Non-Conformance Report untuk tindakan perbaikan.',
+    'addLabel' => 'Tambah NCR',
+    'statusField' => 'status',
+    'filterField' => 'status',
+    'filterOptions' => ['Open','In Progress','Closed'],
+    'formFields' => [
+        ['name'=>'ncr_number','label'=>'NCR Number','type'=>'text','required'=>true],
+        ['name'=>'inspection_id','label'=>'Related Inspection','type'=>'text'],
+        ['name'=>'problem_description','label'=>'Problem Description','type'=>'textarea'],
+        ['name'=>'root_cause','label'=>'Root Cause','type'=>'textarea'],
+        ['name'=>'corrective_action','label'=>'Corrective Action','type'=>'textarea'],
+        ['name'=>'preventive_action','label'=>'Preventive Action','type'=>'textarea'],
+        ['name'=>'status','label'=>'Status','type'=>'select','options'=>['Open','In Progress','Closed']],
+    ],
+    'tableFields' => [
+        ['name'=>'ncr_number','label'=>'NCR Number'],
+        ['name'=>'inspection_id','label'=>'Inspection'],
+        ['name'=>'status','label'=>'Status','badge'=>true],
+    ],
+]));
+Route::get('/erp/capa', fn() => view('erp.generic-module', [
+    'title' => 'CAPA',
+    'description' => 'Corrective and Preventive Action untuk meningkatkan mutu dan operasional.',
+    'features' => ['Identifikasi akar masalah', 'Tindakan korektif', 'Tindakan preventif', 'Review efektifitas']
+]));
+Route::get('/erp/supplier-quality', fn() => view('erp.crud', [
+    'module' => 'supplier-quality',
+    'title' => 'Supplier Quality',
+    'description' => 'Penilaian kualitas supplier untuk pengadaan dan risiko.',
+    'addLabel' => 'Tambah Vendor Score',
+    'formFields' => [
+        ['name'=>'supplier_id','label'=>'Supplier','type'=>'text','required'=>true],
+        ['name'=>'rating','label'=>'Rating','type'=>'number'],
+        ['name'=>'notes','label'=>'Notes','type'=>'textarea'],
+    ],
+    'tableFields' => [
+        ['name'=>'supplier_id','label'=>'Supplier'],
+        ['name'=>'rating','label'=>'Rating'],
+        ['name'=>'notes','label'=>'Notes'],
+    ],
+]));
+Route::get('/erp/qc-reports', fn() => view('erp.generic-module', [
+    'title' => 'QC Reports',
+    'description' => 'Laporan kualitas lengkap untuk inspeksi dan NCR.',
+    'features' => ['Trend defect', 'Supplier quality score', 'Inspection summary', 'CAPA performance']
+]));
+Route::get('/erp/mrp-planning', fn() => view('erp.crud', [
+    'module' => 'mrp-planning',
+    'title' => 'MRP Planning',
+    'description' => 'Rencanakan bahan berdasarkan permintaan, stok, dan lead time.',
+    'addLabel' => 'Tambah MRP Plan',
+    'formFields' => [
+        ['name'=>'product','label'=>'Product','type'=>'text','required'=>true],
+        ['name'=>'forecast_demand','label'=>'Forecast Demand','type'=>'number','step'=>'0.01'],
+        ['name'=>'current_stock','label'=>'Current Stock','type'=>'number','step'=>'0.01'],
+        ['name'=>'safety_stock','label'=>'Safety Stock','type'=>'number','step'=>'0.01'],
+        ['name'=>'lead_time','label'=>'Lead Time (days)','type'=>'number'],
+        ['name'=>'suggested_purchase_qty','label'=>'Suggested Purchase Qty','type'=>'number','step'=>'0.01'],
+        ['name'=>'warehouse_id','label'=>'Warehouse','type'=>'text'],
+    ],
+    'tableFields' => [
+        ['name'=>'product','label'=>'Product'],
+        ['name'=>'forecast_demand','label'=>'Forecast'],
+        ['name'=>'current_stock','label'=>'Stock'],
+        ['name'=>'suggested_purchase_qty','label'=>'Suggested Qty'],
+    ],
+]));
+Route::get('/erp/demand-forecast', fn() => view('erp.generic-module', [
+    'title' => 'Demand Forecast',
+    'description' => 'Forecast permintaan untuk mengurangi stockout dan overstock.',
+    'features' => ['Forecast model', 'Trend analysis', 'Seasonality detection', 'Forecast accuracy']
+]));
+Route::get('/erp/vendor-scorecard', fn() => view('erp.generic-module', [
+    'title' => 'Vendor Scorecard',
+    'description' => 'Review scorecard vendor untuk pengadaan berbasis performa.',
+    'features' => ['Supplier rating', 'Delivery performance', 'Quality score', 'Risk classification']
+]));
+Route::get('/erp/lead-time-monitoring', fn() => view('erp.generic-module', [
+    'title' => 'Lead Time Monitoring',
+    'description' => 'Monitor lead time supplier untuk perencanaan purchasing yang akurat.',
+    'features' => ['Lead time dashboard', 'Trend per supplier', 'Alert keterlambatan', 'Supplier comparison']
+]));
+Route::get('/erp/procurement-analytics', fn() => view('erp.generic-module', [
+    'title' => 'Procurement Analytics',
+    'description' => 'Analisa pengadaan untuk penghematan biaya dan optimisasi inventory.',
+    'features' => ['Spend analysis','Supplier performance','Order cycle', 'Cost saving opportunities']
+]));
+Route::get('/erp/auto-reorder', fn() => view('erp.generic-module', [
+    'title' => 'Auto Reorder',
+    'description' => 'Automasi reorder ketika stok mendekati safety stock.',
+    'features' => ['Reorder recommendations','Safety stock alerts','Supplier suggestions','Approval workflow']
+]));
+Route::get('/erp/executive-dashboard', fn() => view('erp.generic-module', [
+    'title' => 'Executive Dashboard',
+    'description' => 'Ringkasan KPI bisnis untuk pengambilan keputusan eksekutif.',
+    'features' => ['Revenue summary','Profitability overview','Forecast analytics','Top risks']
+]));
+Route::get('/erp/data-analytics', fn() => view('erp.generic-module', [
+    'title' => 'Data Analytics',
+    'description' => 'Analisis data lintas modul untuk pemetaan performa bisnis.',
+    'features' => ['Dashboard chart','Segmentation','Trend analysis','Anomaly detection']
+]));
+Route::get('/erp/kpi-monitoring', fn() => view('erp.generic-module', [
+    'title' => 'KPI Monitoring',
+    'description' => 'Monitor KPI utama dan jalur target setiap departemen.',
+    'features' => ['KPI scorecards','Goal tracking','Alerts','Performance dashboards']
+]));
+Route::get('/erp/forecast-analytics', fn() => view('erp.generic-module', [
+    'title' => 'Forecast Analytics',
+    'description' => 'Prediksi bisnis dan perencanaan berdasarkan tren historis.',
+    'features' => ['Revenue forecast','Demand forecast','Cash flow prediction','Scenario planning']
+]));
+Route::get('/erp/profitability-analysis', fn() => view('erp.generic-module', [
+    'title' => 'Profitability Analysis',
+    'description' => 'Analisa profitabilitas produk, cabang, dan pelanggan.',
+    'features' => ['Gross margin','Cost drivers','Profit by segment','Contribution analysis']
+]));
+Route::get('/erp/custom-reports', fn() => view('erp.crud', [
+    'module' => 'custom-reports',
+    'title' => 'Custom Reports',
+    'description' => 'Buat laporan kustom sesuai kebutuhan modul dan filter data.',
+    'addLabel' => 'Tambah Report',
+    'formFields' => [
+        ['name'=>'report_name','label'=>'Report Name','type'=>'text','required'=>true],
+        ['name'=>'module_source','label'=>'Module Source','type'=>'text'],
+        ['name'=>'filters','label'=>'Filter','type'=>'textarea'],
+        ['name'=>'grouping','label'=>'Grouping','type'=>'text'],
+        ['name'=>'visualization_type','label'=>'Visualization Type','type'=>'select','options'=>['Table','Bar Chart','Line Chart','Pie Chart']],
+        ['name'=>'schedule_report','label'=>'Schedule Report','type'=>'text'],
+    ],
+    'tableFields' => [
+        ['name'=>'report_name','label'=>'Name'],
+        ['name'=>'module_source','label'=>'Source'],
+        ['name'=>'visualization_type','label'=>'Visual'],
+    ],
+]));
+Route::get('/erp/vendor-dashboard', fn() => view('erp.generic-module', [
+    'title' => 'Vendor Dashboard',
+    'description' => 'Dashboard pusat vendor untuk monitoring kinerja, dokumen, dan invoice.',
+    'features' => ['Vendor score','Registration status','Invoice tracking','Communication log']
+]));
+Route::get('/erp/vendor-registration', fn() => view('erp.crud', [
+    'module' => 'vendors',
+    'title' => 'Vendor Registration',
+    'description' => 'Kelola vendor portal dengan data vendor, rating, dan kategori.',
+    'addLabel' => 'Tambah Vendor',
+    'formFields' => [
+        ['name'=>'vendor_name','label'=>'Vendor Name','type'=>'text','required'=>true],
+        ['name'=>'npwp','label'=>'NPWP','type'=>'text'],
+        ['name'=>'address','label'=>'Address','type'=>'textarea'],
+        ['name'=>'contact_person','label'=>'Contact Person','type'=>'text'],
+        ['name'=>'email','label'=>'Email','type'=>'text'],
+        ['name'=>'bank_account','label'=>'Bank Account','type'=>'text'],
+        ['name'=>'vendor_category','label'=>'Vendor Category','type'=>'text'],
+        ['name'=>'rating','label'=>'Rating','type'=>'number'],
+    ],
+    'tableFields' => [
+        ['name'=>'vendor_name','label'=>'Vendor'],
+        ['name'=>'contact_person','label'=>'PIC'],
+        ['name'=>'vendor_category','label'=>'Category'],
+        ['name'=>'status','label'=>'Status','badge'=>true],
+    ],
+]));
+Route::get('/erp/vendor-documents', fn() => view('erp.generic-module', [
+    'title' => 'Vendor Documents',
+    'description' => 'Kelola dokumen vendor dan persyaratan compliance.',
+    'features' => ['Document repository','Expiry alerts','Approval status','Vendor attachments']
+]));
+Route::get('/erp/vendor-invoice', fn() => view('erp.generic-module', [
+    'title' => 'Vendor Invoice',
+    'description' => 'Monitor invoice vendor dan sinkronisasi ke Purchase.',
+    'features' => ['Invoice tracking','Approval workflow','Payment status','Vendor history']
+]));
+Route::get('/erp/vendor-communication', fn() => view('erp.generic-module', [
+    'title' => 'Vendor Communication',
+    'description' => 'Catat komunikasi vendor untuk audit dan tindak lanjut.',
+    'features' => ['Message history','Follow up reminder','Communication logs','Attachment support']
+]));
+Route::get('/erp/multi-entity', fn() => view('erp.generic-module', [
+    'title' => 'Multi Entity',
+    'description' => 'Kelola struktur entitas dan mata uang anak perusahaan.',
+    'features' => ['Entity master','Intercompany mapping','Multi-currency','Consolidation ready']
+]));
+Route::get('/erp/intercompany-transaction', fn() => view('erp.generic-module', [
+    'title' => 'Intercompany Transaction',
+    'description' => 'Catat transaksi antar entitas dan konsolidasi balance sheet.',
+    'features' => ['Intercompany journal','Clearing status','Intercompany approvals','Balance reconciliation']
+]));
+Route::get('/erp/consolidation', fn() => view('erp.generic-module', [
+    'title' => 'Consolidation',
+    'description' => 'Konversi laporan keuangan multi-entitas menjadi satu consolidated report.',
+    'features' => ['Consolidated balance','Elimination entries','Segment reporting','Group KPI']
+]));
+Route::get('/erp/segment-reporting', fn() => view('erp.generic-module', [
+    'title' => 'Segment Reporting',
+    'description' => 'Laporan segmen bisnis untuk analisa performa unit usaha.',
+    'features' => ['Revenue by segment','Expense by segment','Profit contribution','Segment dashboards']
+]));
+Route::get('/erp/mfa-settings', fn() => view('erp.crud', [
+    'module' => 'mfa-settings',
+    'title' => 'MFA Settings',
+    'description' => 'Kelola pengaturan MFA untuk keamanan akses ERP.',
+    'addLabel' => 'Tambah MFA Setting',
+    'formFields' => [
+        ['name'=>'username','label'=>'Username','type'=>'text','required'=>true],
+        ['name'=>'enabled','label'=>'Enabled','type'=>'select','options'=>['0','1']],
+        ['name'=>'method','label'=>'Method','type'=>'select','options'=>['sms','app','email']],
+        ['name'=>'phone','label'=>'Phone','type'=>'text'],
+    ],
+    'tableFields' => [
+        ['name'=>'username','label'=>'Username'],
+        ['name'=>'enabled','label'=>'Enabled'],
+        ['name'=>'method','label'=>'Method'],
+    ],
+]));
+Route::get('/erp/login-activity', fn() => view('erp.generic-module', [
+    'title' => 'Login Activity',
+    'description' => 'Lacak aktivitas login untuk keamanan dan audit.',
+    'features' => ['Login history','Failed attempts','Session location','Device log']
+]));
+Route::get('/erp/audit-trail', fn() => view('erp.crud', [
+    'module' => 'audit-trails',
+    'title' => 'Audit Trail',
+    'description' => 'Dokumentasi aktivitas sistem dari semua modul ERP.',
+    'addLabel' => 'Tambah Audit Record',
+    'formFields' => [
+        ['name'=>'module','label'=>'Module','type'=>'text','required'=>true],
+        ['name'=>'action','label'=>'Action','type'=>'text','required'=>true],
+        ['name'=>'reference','label'=>'Reference','type'=>'text'],
+        ['name'=>'performed_by','label'=>'Performed By','type'=>'text'],
+        ['name'=>'details','label'=>'Details','type'=>'textarea'],
+        ['name'=>'ip_address','label'=>'IP Address','type'=>'text'],
+        ['name'=>'performed_at','label'=>'Performed At','type'=>'date'],
+    ],
+    'tableFields' => [
+        ['name'=>'module','label'=>'Module'],
+        ['name'=>'action','label'=>'Action'],
+        ['name'=>'performed_by','label'=>'User'],
+        ['name'=>'performed_at','label'=>'Performed At'],
+    ],
+]));
+Route::get('/erp/security-monitoring', fn() => view('erp.generic-module', [
+    'title' => 'Security Monitoring',
+    'description' => 'Monitoring keamanan sistem dan aktivitas mencurigakan.',
+    'features' => ['Threat detection','Login anomalies','Audit alerts','Session monitoring']
+]));
+Route::get('/erp/role-matrix', fn() => view('erp.crud', [
+    'module' => 'role-matrix',
+    'title' => 'Role Matrix',
+    'description' => 'Kelola akses modul dan hak approval per role.',
+    'addLabel' => 'Tambah Role Matrix',
+    'formFields' => [
+        ['name'=>'role_name','label'=>'Role Name','type'=>'text','required'=>true],
+        ['name'=>'allowed_module','label'=>'Allowed Module','type'=>'textarea'],
+        ['name'=>'allowed_action','label'=>'Allowed Action','type'=>'textarea'],
+        ['name'=>'approval_access','label'=>'Approval Access','type'=>'textarea'],
+        ['name'=>'branch_access','label'=>'Branch Access','type'=>'textarea'],
+        ['name'=>'notes','label'=>'Notes','type'=>'textarea'],
+    ],
+    'tableFields' => [
+        ['name'=>'role_name','label'=>'Role Name'],
+        ['name'=>'allowed_module','label'=>'Modules'],
+    ],
+]));
+Route::get('/erp/session-management', fn() => view('erp.generic-module', [
+    'title' => 'Session Management',
+    'description' => 'Kelola sesi user dan hentikan sesi yang tidak sah.',
+    'features' => ['Active sessions','Force logout','Device tracking','Session expiry']
+]));
+Route::get('/erp/driver-tracking', fn() => view('erp.generic-module', [
+    'title' => 'Driver Tracking',
+    'description' => 'Pantau real-time lokasi driver dan status pengiriman.',
+    'features' => ['GPS tracking','Delivery status','ETA updates','Driver performance']
+]));
+Route::get('/erp/delivery-tracking', fn() => view('erp.crud', [
+    'module' => 'delivery-tracking',
+    'title' => 'Delivery Tracking',
+    'description' => 'Catat informasi delivery tracking untuk pengiriman barang.',
+    'addLabel' => 'Tambah Delivery Tracking',
+    'formFields' => [
+        ['name'=>'delivery_number','label'=>'Delivery Number','type'=>'text','required'=>true],
+        ['name'=>'driver','label'=>'Driver','type'=>'text'],
+        ['name'=>'vehicle','label'=>'Vehicle','type'=>'text'],
+        ['name'=>'gps_location','label'=>'GPS Location','type'=>'text'],
+        ['name'=>'delivery_status','label'=>'Delivery Status','type'=>'select','options'=>['Pending','On Route','Delivered','Failed','Returned']],
+        ['name'=>'proof_of_delivery','label'=>'Proof of Delivery','type'=>'text'],
+        ['name'=>'order_reference','label'=>'Order Reference','type'=>'text'],
+    ],
+    'tableFields' => [
+        ['name'=>'delivery_number','label'=>'Number'],
+        ['name'=>'driver','label'=>'Driver'],
+        ['name'=>'vehicle','label'=>'Vehicle'],
+        ['name'=>'delivery_status','label'=>'Status','badge'=>true],
+    ],
+]));
+Route::get('/erp/mobile-sync', fn() => view('erp.generic-module', [
+    'title' => 'Mobile Sync',
+    'description' => 'Synchronize ERP data with mobile apps and drivers.',
+    'features' => ['Real-time sync','Offline support','Push notification','Mobile approval']
+]));
+Route::get('/erp/barcode-scanner', fn() => view('erp.generic-module', [
+    'title' => 'Barcode Scanner',
+    'description' => 'Support scanning asset and product barcodes via mobile device.',
+    'features' => ['Scan asset','Scan inventory','Mobile barcode support','QR integration']
+]));
+Route::get('/erp/mobile-approval', fn() => view('erp.generic-module', [
+    'title' => 'Mobile Approval',
+    'description' => 'Workflow approval via mobile device for managers on the move.',
+    'features' => ['Approve requests','Reject tasks','Comments','Mobile notifications']
+]));
 // Goods receipt → generic with features
 Route::get('/erp/goods-receipt',  fn() => view('erp.generic-module', [
     'title' => 'Penerimaan Barang', 'description' => 'Konfirmasi penerimaan barang dari supplier',

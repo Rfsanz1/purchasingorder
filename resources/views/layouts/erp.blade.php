@@ -169,6 +169,7 @@
                 @php
                 $salesActive        = request()->is('po-form','sales-dashboard','erp/invoice','erp/riwayat-penjualan','erp/quotation','erp/sales-order','erp/delivery-order','erp/order-tracking','erp/sales-target','erp/sales-commission','erp/sales-receivable','erp/retur','erp/discount','erp/membership','erp/loyalty','erp/installment','erp/installment-due','erp/price-types');
                 $inventoryActive    = request()->is('products','erp/stock-opname','erp/warehouse','erp/multi-warehouse','erp/rack','erp/stock-in','erp/stock-out','erp/stock-mutation','erp/warehouse-transfer','erp/stock-adjustment','erp/stock-card','erp/min-stock','erp/stock-history','erp/serial-number','erp/product-batch','erp/category','erp/brand','erp/unit','erp/sku','erp/barcode','erp/inventory-value','erp/fast-moving','erp/slow-moving','erp/production','erp/assembly','erp/production-formula','erp/product-categories','erp/brands','erp/units');
+                $enterpriseActive   = request()->is('erp/asset-dashboard','erp/asset-registry','erp/asset-categories','erp/asset-maintenance','erp/asset-transfer','erp/asset-disposal','erp/asset-audit-log','erp/project-dashboard','erp/projects','erp/project-tasks','erp/project-milestones','erp/project-costing','erp/timesheet','erp/project-billing','erp/documents','erp/document-templates','erp/document-approval','erp/digital-signature','erp/inspection','erp/ncr','erp/capa','erp/supplier-quality','erp/qc-reports','erp/mrp-planning','erp/demand-forecast','erp/vendor-scorecard','erp/lead-time-monitoring','erp/procurement-analytics','erp/auto-reorder','erp/executive-dashboard','erp/data-analytics','erp/kpi-monitoring','erp/forecast-analytics','erp/profitability-analysis','erp/custom-reports','erp/vendor-dashboard','erp/vendor-registration','erp/vendor-documents','erp/vendor-invoice','erp/vendor-communication','erp/multi-entity','erp/intercompany-transaction','erp/consolidation','erp/segment-reporting','erp/mfa-settings','erp/audit-trail','erp/security-monitoring','erp/role-matrix','erp/session-management','erp/driver-tracking','erp/delivery-tracking','erp/mobile-sync','erp/barcode-scanner','erp/mobile-approval');
                 $purchaseActive     = request()->is('erp/supplier','erp/purchase-order','erp/goods-receipt','erp/purchase-request','erp/purchase-approval','erp/supplier-invoice','erp/account-payable','erp/payable-due','erp/purchase-return','erp/pay-supplier','erp/supplier-analytics');
                 $financeActive      = request()->is('erp/cash-in','erp/cash-out','erp/main-cash','erp/petty-cash','erp/electronic-cash','erp/building-cash','erp/bank-account','erp/bank-transfer','erp/giro','erp/expense','erp/profit-loss','erp/bank-reconciliation','erp/account-receivable','erp/payment-gateway','erp/multi-currency','erp/cash-flow');
                 $accountingActive   = request()->is('erp/chart-of-accounts','erp/journal','erp/general-ledger','erp/trial-balance','erp/balance-sheet','erp/opening-balance','erp/accounting-period','erp/departments','erp/projects','erp/budgeting','erp/audit-transaction','erp/activity-timeline','erp/approval-system');
@@ -298,6 +299,93 @@
                             <a href="/erp/production" class="sidebar-item normal"><svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg><span>Produksi</span></a>
                             <a href="/erp/assembly" class="sidebar-item normal"><svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/></svg><span>Perakitan Barang</span></a>
                             <a href="/erp/production-formula" class="sidebar-item normal"><svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg><span>Formula Produksi</span></a>
+                        </div>
+                        <div class="h-1"></div>
+                    </div>
+                </div>
+
+                {{-- ENTERPRISE ERP --}}
+                <div x-data="{ open: {{ $enterpriseActive ? 'true' : 'false' }} }">
+                    <button @click="open=!open" class="group-header w-full {{ $enterpriseActive ? 'has-active' : '' }}">
+                        <div class="flex items-center gap-2">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+                            <span>Enterprise ERP</span>
+                        </div>
+                        <svg class="w-3.5 h-3.5 chevron" :class="open ? 'open' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+                    </button>
+                    <div class="group-items pl-1" :class="open ? 'open' : 'closed'">
+                        <div class="sub-label">Asset Management</div>
+                        <div class="space-y-0.5">
+                            <a href="/erp/asset-dashboard" class="sidebar-item normal"><span>Dashboard Asset</span></a>
+                            <a href="/erp/asset-registry" class="sidebar-item normal"><span>Asset Registry</span></a>
+                            <a href="/erp/asset-categories" class="sidebar-item normal"><span>Asset Categories</span></a>
+                            <a href="/erp/asset-maintenance" class="sidebar-item normal"><span>Maintenance Asset</span></a>
+                            <a href="/erp/asset-transfer" class="sidebar-item normal"><span>Asset Transfer</span></a>
+                            <a href="/erp/asset-disposal" class="sidebar-item normal"><span>Asset Disposal</span></a>
+                            <a href="/erp/asset-audit-log" class="sidebar-item normal"><span>Asset Audit Log</span></a>
+                        </div>
+                        <div class="sub-label">Project Management</div>
+                        <div class="space-y-0.5">
+                            <a href="/erp/project-dashboard" class="sidebar-item normal"><span>Project Dashboard</span></a>
+                            <a href="/erp/projects" class="sidebar-item normal"><span>Projects</span></a>
+                            <a href="/erp/project-tasks" class="sidebar-item normal"><span>Project Tasks</span></a>
+                            <a href="/erp/project-milestones" class="sidebar-item normal"><span>Milestones</span></a>
+                            <a href="/erp/project-costing" class="sidebar-item normal"><span>Project Costing</span></a>
+                            <a href="/erp/timesheet" class="sidebar-item normal"><span>Timesheets</span></a>
+                        </div>
+                        <div class="sub-label">Document & Quality</div>
+                        <div class="space-y-0.5">
+                            <a href="/erp/documents" class="sidebar-item normal"><span>Document Repository</span></a>
+                            <a href="/erp/document-templates" class="sidebar-item normal"><span>Document Templates</span></a>
+                            <a href="/erp/document-approval" class="sidebar-item normal"><span>Approval Workflow</span></a>
+                            <a href="/erp/digital-signature" class="sidebar-item normal"><span>Digital Signature</span></a>
+                            <a href="/erp/inspection" class="sidebar-item normal"><span>Inspection</span></a>
+                            <a href="/erp/ncr" class="sidebar-item normal"><span>NCR</span></a>
+                            <a href="/erp/capa" class="sidebar-item normal"><span>CAPA</span></a>
+                            <a href="/erp/supplier-quality" class="sidebar-item normal"><span>Supplier Quality</span></a>
+                        </div>
+                        <div class="sub-label">Supply Chain</div>
+                        <div class="space-y-0.5">
+                            <a href="/erp/mrp-planning" class="sidebar-item normal"><span>MRP Planning</span></a>
+                            <a href="/erp/demand-forecast" class="sidebar-item normal"><span>Demand Forecast</span></a>
+                            <a href="/erp/vendor-scorecard" class="sidebar-item normal"><span>Vendor Scorecard</span></a>
+                            <a href="/erp/lead-time-monitoring" class="sidebar-item normal"><span>Lead Time Monitoring</span></a>
+                            <a href="/erp/procurement-analytics" class="sidebar-item normal"><span>Procurement Analytics</span></a>
+                            <a href="/erp/auto-reorder" class="sidebar-item normal"><span>Auto Reorder</span></a>
+                        </div>
+                        <div class="sub-label">BI & Reporting</div>
+                        <div class="space-y-0.5">
+                            <a href="/erp/executive-dashboard" class="sidebar-item normal"><span>Executive Dashboard</span></a>
+                            <a href="/erp/data-analytics" class="sidebar-item normal"><span>Data Analytics</span></a>
+                            <a href="/erp/kpi-monitoring" class="sidebar-item normal"><span>KPI Monitoring</span></a>
+                            <a href="/erp/forecast-analytics" class="sidebar-item normal"><span>Forecast Analytics</span></a>
+                            <a href="/erp/profitability-analysis" class="sidebar-item normal"><span>Profitability Analysis</span></a>
+                            <a href="/erp/custom-reports" class="sidebar-item normal"><span>Custom Reports</span></a>
+                        </div>
+                        <div class="sub-label">Vendor Portal</div>
+                        <div class="space-y-0.5">
+                            <a href="/erp/vendor-dashboard" class="sidebar-item normal"><span>Vendor Dashboard</span></a>
+                            <a href="/erp/vendor-registration" class="sidebar-item normal"><span>Vendor Registration</span></a>
+                            <a href="/erp/vendor-documents" class="sidebar-item normal"><span>Vendor Documents</span></a>
+                            <a href="/erp/vendor-invoice" class="sidebar-item normal"><span>Vendor Invoice</span></a>
+                            <a href="/erp/vendor-communication" class="sidebar-item normal"><span>Vendor Communication</span></a>
+                        </div>
+                        <div class="sub-label">System & Mobile</div>
+                        <div class="space-y-0.5">
+                            <a href="/erp/multi-entity" class="sidebar-item normal"><span>Multi Entity</span></a>
+                            <a href="/erp/intercompany-transaction" class="sidebar-item normal"><span>Intercompany Transaction</span></a>
+                            <a href="/erp/consolidation" class="sidebar-item normal"><span>Consolidation</span></a>
+                            <a href="/erp/segment-reporting" class="sidebar-item normal"><span>Segment Reporting</span></a>
+                            <a href="/erp/mfa-settings" class="sidebar-item normal"><span>MFA Settings</span></a>
+                            <a href="/erp/audit-trail" class="sidebar-item normal"><span>Audit Trail</span></a>
+                            <a href="/erp/security-monitoring" class="sidebar-item normal"><span>Security Monitoring</span></a>
+                            <a href="/erp/role-matrix" class="sidebar-item normal"><span>Role Matrix</span></a>
+                            <a href="/erp/session-management" class="sidebar-item normal"><span>Session Management</span></a>
+                            <a href="/erp/driver-tracking" class="sidebar-item normal"><span>Driver Tracking</span></a>
+                            <a href="/erp/delivery-tracking" class="sidebar-item normal"><span>Delivery Tracking</span></a>
+                            <a href="/erp/mobile-sync" class="sidebar-item normal"><span>Mobile Sync</span></a>
+                            <a href="/erp/barcode-scanner" class="sidebar-item normal"><span>Barcode Scanner</span></a>
+                            <a href="/erp/mobile-approval" class="sidebar-item normal"><span>Mobile Approval</span></a>
                         </div>
                         <div class="h-1"></div>
                     </div>
