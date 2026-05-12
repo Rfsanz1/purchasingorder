@@ -138,9 +138,6 @@
             {{-- Nav --}}
             <nav class="flex-1 overflow-y-auto px-2 py-3 space-y-0.5 scrollbar-hide">
 
-<<<<<<< HEAD
-                {{-- Dashboard (always visible, no dropdown) --}}
-=======
                 @php
                 $sidebarConfig = config('sidebar.groups', []);
                 $sidebarMatches = function (array $patterns) {
@@ -175,7 +172,6 @@
 
                 {{-- ══ DASHBOARD ══ --}}
                 <div class="section-divider">Dashboard</div>
->>>>>>> faafdff (fix: central sidebar config and production cache clearing)
                 <a href="/" class="sidebar-item {{ request()->is('/') ? 'active' : 'normal' }}">
                     <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
                     <span>Dashboard</span>
