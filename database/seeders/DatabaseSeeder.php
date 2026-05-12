@@ -21,5 +21,14 @@ class DatabaseSeeder extends Seeder
             'name' => 'Test User',
             'email' => 'test@example.com',
         ]);
+
+        // Seed ERP Master Data
+        $this->call([
+            SupplierSeeder::class,
+            ProductUnitSeeder::class,
+            WarehouseSeeder::class,
+            ProductCategorySeeder::class,
+            PosSeeder::class, // Existing POS seeder
+        ]);
     }
 }

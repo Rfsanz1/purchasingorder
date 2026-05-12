@@ -106,6 +106,39 @@ Route::put('/customers/{id}', [App\Http\Controllers\CustomerController::class, '
 Route::delete('/customers/{id}', [App\Http\Controllers\CustomerController::class, 'destroy'])->where('id', '[0-9]+');
 
 // ═══════════════════════════════════════════════════════════════
+// ERP MODULES — Master Data & Purchasing 
+// ═══════════════════════════════════════════════════════════════
+Route::prefix('erp')->group(function () {
+    // Master Data - Supplier
+    Route::get('/suppliers/stats', [\App\Http\Controllers\API\SupplierController::class, 'stats']);
+    Route::apiResource('/suppliers', \App\Http\Controllers\API\SupplierController::class);
+
+    // Master Data - Warehouse
+    Route::get('/warehouses/all', [\App\Http\Controllers\API\WarehouseController::class, 'all']);
+    Route::apiResource('/warehouses', \App\Http\Controllers\API\WarehouseController::class);
+
+    // Master Data - Product Categories
+    Route::get('/categories/all', [\App\Http\Controllers\API\ProductCategoryController::class, 'all']);
+    Route::apiResource('/categories', \App\Http\Controllers\API\ProductCategoryController::class);
+
+    // Master Data - Product Units
+    Route::get('/units/all', [\App\Http\Controllers\API\ProductUnitController::class, 'all']);
+    Route::apiResource('/units', \App\Http\Controllers\API\ProductUnitController::class);
+
+    // Purchasing - Purchase Orders
+    Route::get('/purchase-orders/stats', [\App\Http\Controllers\API\PurchaseOrderController::class, 'stats']);
+    Route::post('/purchase-orders/{id}/approve', [\App\Http\Controllers\API\PurchaseOrderController::class, 'approve']);
+    Route::post('/purchase-orders/{id}/change-status', [\App\Http\Controllers\API\PurchaseOrderController::class, 'changeStatus']);
+    Route::post('/purchase-orders/{id}/cancel', [\App\Http\Controllers\API\PurchaseOrderController::class, 'cancel']);
+    Route::apiResource('/purchase-orders', \App\Http\Controllers\API\PurchaseOrderController::class);
+
+    // Purchasing - Goods Receipt
+    Route::post('/goods-receipts/{id}/complete', [\App\Http\Controllers\API\GoodsReceiptController::class, 'complete']);
+    Route::post('/goods-receipts/{id}/cancel', [\App\Http\Controllers\API\GoodsReceiptController::class, 'cancel']);
+    Route::apiResource('/goods-receipts', \App\Http\Controllers\API\GoodsReceiptController::class);
+});
+
+// ═══════════════════════════════════════════════════════════════
 // POS SYSTEM — /api/pos/*
 // ═══════════════════════════════════════════════════════════════
 Route::prefix('pos')->group(function () {
