@@ -10,6 +10,10 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // Register Observers
+        \App\Models\Order::observe(\App\Observers\OrderObserver::class);
+        \App\Models\ErpPurchaseOrder::observe(\App\Observers\ErpPurchaseOrderObserver::class);
+
         // Parse DATABASE_URL for PostgreSQL
         // Format: postgresql://user:pass@host/db?options
         $databaseUrl = env('DATABASE_URL');

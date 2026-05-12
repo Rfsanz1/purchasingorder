@@ -31,8 +31,269 @@ class KledoService
     public const MARGIN = 1.15;
 
     // ============================================================
-    // HELPERS: brand / PIC
+    // SYNC MASTER DATA
     // ============================================================
+
+    public static function syncCustomers(): array
+    {
+        $service = new self();
+        $url = $service->base . '/contacts?per_page=100';
+        $data = $service->httpGet($url);
+
+        if (!$data || !isset($data['data']['data'])) {
+            return ['success' => false, 'message' => 'Failed to fetch customers'];
+        }
+
+        $synced = 0;
+        $updated = 0;
+
+        foreach ($data['data']['data'] as $contact) {
+            $customer = \App\Models\Customer::updateOrCreate(
+                ['kledo_id' => $contact['id']],
+                [
+                    'name' => $contact['name'] ?? '',
+                    'email' => $contact['email'] ?? null,
+                    'phone' => $contact['phone'] ?? null,
+                    'address' => $contact['address'] ?? null,
+                    'kledo_data' => json_encode($contact),
+                ]
+            );
+
+            if ($customer->wasRecentlyCreated) {
+                $synced++;
+            } else {
+                $updated++;
+            }
+        }
+
+        return [
+            'success' => true,
+            'synced' => $synced,
+            'updated' => $updated,
+            'message' => "Synced {$synced} new customers, updated {$updated} existing"
+        ];
+    }
+
+    public static function syncProducts(): array
+    {
+        $service = new self();
+        $url = $service->base . '/items?per_page=100';
+        $data = $service->httpGet($url);
+
+        if (!$data || !isset($data['data']['data'])) {
+            return ['success' => false, 'message' => 'Failed to fetch products'];
+        }
+
+        $synced = 0;
+        $updated = 0;
+
+        foreach ($data['data']['data'] as $item) {
+            $product = \App\Models\Product::updateOrCreate(
+                ['kledo_product_id' => $item['id']],
+                [
+                    'nama_produk' => $item['name'] ?? '',
+                    'sku' => $item['sku'] ?? '',
+                    'harga_kledo' => (int) ($item['sell_price'] ?? 0),
+                    'harga' => (int) ($item['sell_price'] ?? 0),
+                    'hpp' => (int) ($item['buy_price'] ?? 0),
+                    'stok' => (int) ($item['stock'] ?? 0),
+                    'kledo_data' => json_encode($item),
+                ]
+            );
+
+            if ($product->wasRecentlyCreated) {
+                $synced++;
+            } else {
+                $updated++;
+            }
+        }
+
+        return [
+            'success' => true,
+            'synced' => $synced,
+            'updated' => $updated,
+            'message' => "Synced {$synced} new products, updated {$updated} existing"
+        ];
+    }
+
+    public static function syncSuppliers(): array
+    {
+        $service = new self();
+        $url = $service->base . '/contacts?type=supplier&per_page=100';
+        $data = $service->httpGet($url);
+
+        if (!$data || !isset($data['data']['data'])) {
+            return ['success' => false, 'message' => 'Failed to fetch suppliers'];
+        }
+
+        $synced = 0;
+        $updated = 0;
+
+        foreach ($data['data']['data'] as $contact) {
+            $supplier = \App\Models\ErpSupplier::updateOrCreate(
+                ['kledo_id' => $contact['id']],
+                [
+                    'kode' => 'SUP-' . $contact['id'],
+                    'nama' => $contact['name'] ?? '',
+                    'telepon' => $contact['phone'] ?? null,
+                    'email' => $contact['email'] ?? null,
+                    'alamat' => $contact['address'] ?? null,
+                    'kledo_data' => json_encode($contact),
+                ]
+            );
+
+            if ($supplier->wasRecentlyCreated) {
+                $synced++;
+            } else {
+                $updated++;
+            }
+        }
+
+        return [
+            'success' => true,
+            'synced' => $synced,
+            'updated' => $updated,
+            'message' => "Synced {$synced} new suppliers, updated {$updated} existing"
+        ];
+    }
+
+    // ============================================================
+    // SYNC TRANSAKSI
+    // ============================================================
+
+    public static function syncInvoices(): array
+    {
+        $service = new self();
+        $url = $service->base . '/invoices?per_page=100&status=all';
+        $data = $service->httpGet($url);
+
+        if (!$data || !isset($data['data']['data'])) {
+            return ['success' => false, 'message' => 'Failed to fetch invoices'];
+        }
+
+        $synced = 0;
+        $updated = 0;
+
+        foreach ($data['data']['data'] as $invoice) {
+            // Sync ke Order atau ErpSalesInvoice tergantung struktur
+            $order = \App\Models\Order::updateOrCreate(
+                ['kledo_invoice_id' => (string) $invoice['id']],
+                [
+                    'nama_kontak' => $invoice['contact']['name'] ?? '',
+                    'total_harga' => (int) ($invoice['amount'] ?? 0),
+                    'status_pengiriman' => $invoice['status'] ?? 'pending',
+                    'kledo_data' => json_encode($invoice),
+                    'created_at' => $invoice['trans_date'] ?? now(),
+                ]
+            );
+
+            if ($order->wasRecentlyCreated) {
+                $synced++;
+            } else {
+                $updated++;
+            }
+        }
+
+        return [
+            'success' => true,
+            'synced' => $synced,
+            'updated' => $updated,
+            'message' => "Synced {$synced} new invoices, updated {$updated} existing"
+        ];
+    }
+
+    public static function syncStockMovements(): array
+    {
+        $service = new self();
+        $url = $service->base . '/stock-movements?per_page=100';
+        $data = $service->httpGet($url);
+
+        if (!$data || !isset($data['data']['data'])) {
+            return ['success' => false, 'message' => 'Failed to fetch stock movements'];
+        }
+
+        $synced = 0;
+
+        foreach ($data['data']['data'] as $movement) {
+            \App\Models\ErpStockMovement::updateOrCreate(
+                ['kledo_id' => $movement['id']],
+                [
+                    'product_id' => $movement['item_id'] ?? null,
+                    'movement_type' => $movement['type'] ?? 'out',
+                    'quantity' => (int) ($movement['quantity'] ?? 0),
+                    'reference_type' => 'kledo_sync',
+                    'reference_id' => $movement['id'],
+                    'notes' => $movement['notes'] ?? '',
+                    'kledo_data' => json_encode($movement),
+                    'created_at' => $movement['date'] ?? now(),
+                ]
+            );
+            $synced++;
+        }
+
+        return [
+            'success' => true,
+            'synced' => $synced,
+            'message' => "Synced {$synced} stock movements"
+        ];
+    }
+
+    // ============================================================
+    // SYNC JURNAL
+    // ============================================================
+
+    public static function syncJournals(): array
+    {
+        $service = new self();
+        $url = $service->base . '/journals?per_page=100';
+        $data = $service->httpGet($url);
+
+        if (!$data || !isset($data['data']['data'])) {
+            return ['success' => false, 'message' => 'Failed to fetch journals'];
+        }
+
+        $synced = 0;
+
+        foreach ($data['data']['data'] as $journal) {
+            $erpJournal = \App\Models\ErpJournalEntry::updateOrCreate(
+                ['kledo_id' => $journal['id']],
+                [
+                    'journal_number' => $journal['journal_number'] ?? 'KJ-' . $journal['id'],
+                    'date' => $journal['date'] ?? now(),
+                    'description' => $journal['memo'] ?? '',
+                    'reference_type' => 'kledo_sync',
+                    'reference_id' => $journal['id'],
+                    'kledo_data' => json_encode($journal),
+                ]
+            );
+
+            // Sync journal lines
+            if (isset($journal['lines'])) {
+                foreach ($journal['lines'] as $line) {
+                    \App\Models\ErpJournalEntryLine::updateOrCreate(
+                        [
+                            'journal_entry_id' => $erpJournal->id,
+                            'kledo_line_id' => $line['id'] ?? null,
+                        ],
+                        [
+                            'account_id' => $line['account_id'] ?? null,
+                            'debit' => (float) ($line['debit'] ?? 0),
+                            'credit' => (float) ($line['credit'] ?? 0),
+                            'description' => $line['memo'] ?? '',
+                        ]
+                    );
+                }
+            }
+
+            $synced++;
+        }
+
+        return [
+            'success' => true,
+            'synced' => $synced,
+            'message' => "Synced {$synced} journals"
+        ];
+    }
 
     public static function isSpmBrand(?string $brand): bool
     {

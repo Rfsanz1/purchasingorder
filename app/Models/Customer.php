@@ -23,6 +23,8 @@ class Customer extends Model
         'total_order',
         'total_nilai_order',
         'last_order_at',
+        'kledo_id',
+        'kledo_data',
     ];
 
     protected $casts = [

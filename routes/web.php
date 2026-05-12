@@ -2048,4 +2048,17 @@ Route::get('/pos/{path?}', function ($path = '') {
 
     return response($body, $httpCode)->header('Content-Type', $contentType);
 })->where('path', '.*');
+
+// ===== POS SYSTEM =====
+use App\Http\Controllers\PosController;
+Route::get('/pos', [PosController::class, 'index'])->name('pos.index');
+Route::post('/pos/store', [PosController::class, 'store'])->name('pos.store');
+Route::get('/pos/receipt/{id}', [PosController::class, 'receipt'])->name('pos.receipt');
+
+// ===== INTEGRATION DASHBOARD =====
+use App\Http\Controllers\IntegrationDashboardController;
+Route::get('/integration/dashboard', [IntegrationDashboardController::class, 'index'])->name('integration.dashboard');
+Route::post('/integration/manual-sync', [IntegrationDashboardController::class, 'manualSync'])->name('integration.manual-sync');
+Route::get('/integration/api-status', [IntegrationDashboardController::class, 'apiStatus'])->name('integration.api-status');
+
 ?>

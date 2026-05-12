@@ -12,9 +12,10 @@ class KledoAutoSync extends Command
 {
     protected $signature = 'kledo:auto-sync
                             {--hours=1 : Sync data dalam X jam terakhir}
-                            {--force : Force sync semua data hari ini}';
+                            {--force : Force sync semua data hari ini}
+                            {--full : Sync semua master data dan transaksi}';
 
-    protected $description = 'Sinkronisasi otomatis data penjualan dari Kledo ke ERP setiap jam';
+    protected $description = 'Sinkronisasi otomatis data dari Kledo ke ERP setiap jam';
 
     private string $base = 'https://api.kledo.com/api/v1/finance';
 
@@ -29,6 +30,12 @@ class KledoAutoSync extends Command
 
         $hours = (int) $this->option('hours');
         $force = $this->option('force');
+        $full = $this->option('full');
+
+        if ($full) {
+            $this->info('Full sync mode: Sync semua master data dan transaksi');
+            return $this->performFullSync($token);
+        }
 
         if ($force) {
             $startDate = date('Y-m-d');
@@ -81,6 +88,45 @@ class KledoAutoSync extends Command
         } catch (\Exception $e) {
             $this->error('Sync gagal: ' . $e->getMessage());
             Log::error('KledoAutoSync failed: ' . $e->getMessage());
+            return 1;
+        }
+    }
+
+    private function performFullSync(string $token): int
+    {
+        try {
+            $this->info('Syncing customers...');
+            $result = \App\Services\KledoService::syncCustomers();
+            $this->info($result['message']);
+
+            $this->info('Syncing products...');
+            $result = \App\Services\KledoService::syncProducts();
+            $this->info($result['message']);
+
+            $this->info('Syncing suppliers...');
+            $result = \App\Services\KledoService::syncSuppliers();
+            $this->info($result['message']);
+
+            $this->info('Syncing invoices...');
+            $result = \App\Services\KledoService::syncInvoices();
+            $this->info($result['message']);
+
+            $this->info('Syncing stock movements...');
+            $result = \App\Services\KledoService::syncStockMovements();
+            $this->info($result['message']);
+
+            $this->info('Syncing journals...');
+            $result = \App\Services\KledoService::syncJournals();
+            $this->info($result['message']);
+
+            $this->info('✅ Full sync completed successfully');
+            Log::info('KledoAutoSync full sync completed');
+
+            return 0;
+
+        } catch (\Exception $e) {
+            $this->error('Full sync failed: ' . $e->getMessage());
+            Log::error('KledoAutoSync full sync failed: ' . $e->getMessage());
             return 1;
         }
     }
