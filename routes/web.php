@@ -841,7 +841,7 @@ $aiOnlyPaths = [
     'erp/marketplace-ai-analytics', 'erp/approval-workflow',
 ];
 
-// ── Dedicated functional module routes (registered before loops) ──────────
+// ── Dedicated functional module routes ────────────────────────────────────
 Route::get('/erp/supplier',            fn() => view('erp.supplier'));
 Route::get('/erp/employees',           fn() => view('erp.employees'));
 Route::get('/erp/purchase-order',      fn() => view('erp.purchase-order'));
@@ -862,6 +862,24 @@ Route::get('/erp/marketplace-overview',fn() => view('erp.marketplace-overview'))
 Route::get('/erp/marketplace-sync',    fn() => view('erp.marketplace-sync'));
 Route::get('/erp/audit-log',           fn() => view('erp.audit-log'));
 Route::get('/erp/chart-of-accounts',   fn() => view('erp.chart-of-accounts'));
+Route::get('/erp/coa',                 fn() => view('erp.coa'));
+Route::get('/erp/notifications',       fn() => view('erp.wa-logs'));
+Route::get('/erp/retur',               fn() => view('erp.retur'));
+Route::get('/erp/discount',            fn() => view('erp.discount'));
+Route::get('/erp/stock-in',            fn() => view('erp.stock-in'));
+Route::get('/erp/stock-out',           fn() => view('erp.stock-out'));
+Route::get('/erp/report-sales',        fn() => view('erp.report-sales'));
+Route::get('/erp/report-finance',      fn() => view('erp.report-finance'));
+Route::get('/erp/report-driver',       fn() => view('erp.report-driver'));
+Route::get('/erp/quotation',           fn() => view('erp.quotation'));
+Route::get('/erp/goods-receipt',       fn() => view('erp.generic-module', [
+    'title' => 'Penerimaan Barang', 'description' => 'Konfirmasi penerimaan barang dari supplier',
+    'features' => ['Input penerimaan', 'Verifikasi terhadap PO', 'Notifikasi admin', 'Update stok otomatis']
+]));
+Route::get('/erp/delivery-proof',      fn() => view('erp.generic-module', [
+    'title' => 'Bukti Pengiriman', 'description' => 'Dokumentasi foto bukti pengiriman ke customer',
+    'features' => ['Upload foto bukti', 'Status pengiriman', 'GPS tracking', 'Laporan driver']
+]));
 
 foreach ($comingSoon as $path => [$title, $description, $features]) {
     $module = str_replace('erp/', '', $path);
