@@ -50,8 +50,16 @@ export function NotificationList() {
           <Card key={notification.id}>
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <p className="text-sm uppercase tracking-[0.24em] text-cyan-300">{notification.status}</p>
-                <h3 className="mt-2 text-xl font-semibold text-white">{notification.title}</h3>
+                <span
+                  className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold uppercase ${
+                    notification.status === 'read'
+                      ? 'bg-emerald-500/10 text-emerald-300'
+                      : 'bg-[var(--primary)]/10 text-[var(--primary)]'
+                  }`}
+                >
+                  {notification.status === 'read' ? 'Read' : 'New'}
+                </span>
+                <h3 className="mt-3 text-xl font-semibold text-white">{notification.title}</h3>
                 <p className="mt-2 text-sm text-slate-400">{notification.message}</p>
                 <p className="mt-3 text-xs text-slate-500">Dikirim pada {new Date(notification.createdAt).toLocaleString('id-ID')}</p>
               </div>

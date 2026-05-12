@@ -7,7 +7,7 @@ import { Button } from '../../components/ui/Button';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, token, error, loading } = useAuthStore();
+  const { login, loadProfile, token, error, loading } = useAuthStore();
   const [email, setEmail] = useState('admin@example.com');
   const [password, setPassword] = useState('password');
 
@@ -54,6 +54,7 @@ export default function LoginPage() {
             onClick={async () => {
               const success = await login(email, password);
               if (success) {
+                await loadProfile();
                 router.push('/');
               }
             }}

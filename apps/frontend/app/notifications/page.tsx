@@ -9,7 +9,7 @@ import { useNotificationStore } from '../../lib/store/useNotificationStore';
 
 export default function NotificationsPage() {
   const router = useRouter();
-  const { token } = useAuthStore();
+  const { token, loadProfile } = useAuthStore();
   const { loadNotifications } = useNotificationStore();
 
   useEffect(() => {
@@ -18,8 +18,9 @@ export default function NotificationsPage() {
       return;
     }
 
+    void loadProfile();
     void loadNotifications();
-  }, [loadNotifications, router, token]);
+  }, [loadNotifications, loadProfile, router, token]);
 
   return (
     <ModernLayout>

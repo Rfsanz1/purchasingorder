@@ -8,13 +8,16 @@ import { useAuthStore } from '../../lib/store/useAuthStore';
 
 export default function AccessPage() {
   const router = useRouter();
-  const { token } = useAuthStore();
+  const { token, loadProfile } = useAuthStore();
 
   useEffect(() => {
     if (!token) {
       router.push('/login');
+      return;
     }
-  }, [router, token]);
+
+    void loadProfile();
+  }, [loadProfile, router, token]);
 
   return (
     <ModernLayout>
