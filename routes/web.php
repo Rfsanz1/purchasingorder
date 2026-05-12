@@ -80,6 +80,7 @@ Route::get('/driver', [PageController::class, 'driver']);
 Route::get('/loc/{token}', [PageController::class, 'location']);
 Route::get('/products', [PageController::class, 'products']);
 Route::get('/sales-dashboard', [PageController::class, 'salesDashboard']);
+Route::get('/erp/dashboard', fn() => view('erp.owner-dashboard'));
 Route::get('/erp/invoice', [PageController::class, 'erpInvoice']);
 Route::get('/erp/laporan-divisi', [PageController::class, 'laporanDivisi']);
 Route::get('/erp/laporan-penjualan', [PageController::class, 'laporanPenjualan']);
