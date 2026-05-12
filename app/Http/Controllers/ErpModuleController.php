@@ -35,7 +35,67 @@ class ErpModuleController extends Controller
             'journals'           => 'journal_entries',
             'coa'                => 'chart_of_accounts',
             'wa-logs'            => 'wa_notification_logs',
+            'assets'             => 'erp_assets',
+            'asset-categories'   => 'erp_asset_categories',
+            'asset-maintenance'  => 'erp_asset_maintenances',
+            'asset-transfers'    => 'erp_asset_transfers',
+            'asset-disposals'    => 'erp_asset_disposals',
+            'asset-audit-logs'   => 'erp_asset_audit_logs',
+            'projects'           => 'erp_projects',
+            'project-tasks'      => 'erp_project_tasks',
+            'project-milestones' => 'erp_project_milestones',
+            'project-timesheets' => 'erp_project_timesheets',
+            'project-costs'      => 'erp_project_costs',
+            'documents'          => 'erp_documents',
+            'document-templates' => 'erp_document_templates',
+            'inspections'        => 'erp_quality_inspections',
+            'ncrs'               => 'erp_quality_ncrs',
+            'supplier-quality'   => 'erp_supplier_quality',
+            'mrp-planning'       => 'erp_mrp_plans',
+            'custom-reports'     => 'erp_custom_reports',
+            'vendors'            => 'erp_vendors',
+            'entities'           => 'erp_entities',
+            'role-matrix'        => 'erp_role_matrix',
+            'delivery-tracking'  => 'erp_delivery_trackings',
+            'audit-trails'       => 'erp_audit_trails',
+            'mfa-settings'       => 'erp_mfa_settings',
+            'session-logs'       => 'erp_session_logs',
+            'vendor-scorecards'  => 'erp_vendor_scorecards',
         ][$module] ?? null;
+    }
+
+    private function moduleTable(string $module): ?string
+    {
+        $table = $this->tableForModule($module);
+        if ($table && Schema::hasTable($table)) {
+            return $table;
+        }
+
+        $fallback = 'erp_' . $module;
+        return Schema::hasTable($fallback) ? $fallback : null;
+    }
+
+    private function applySearchAndFilter($q, string $table, string $search = '', string $filter = '')
+    {
+        if ($search) {
+            $q->where(function ($w) use ($table, $search) {
+                $columns = Schema::getColumnListing($table);
+                foreach ($columns as $column) {
+                    if (in_array($column, ['id', 'created_at', 'updated_at', 'deleted_at'])) {
+                        continue;
+                    }
+                    $w->orWhere($column, 'ilike', "%{$search}%");
+                }
+            });
+        }
+        if ($filter) {
+            $statusColumn = Schema::hasColumn($table, 'status') ? 'status' :
+                            (Schema::hasColumn($table, 'approval_status') ? 'approval_status' : null);
+            if ($statusColumn) {
+                $q->where($statusColumn, $filter);
+            }
+        }
+        return $q;
     }
 
     // ─── SUPPLIERS ────────────────────────────────────────────────────────────
@@ -932,13 +992,30 @@ class ErpModuleController extends Controller
         $search  = $request->query('search', '');
         $filter  = $request->query('filter', '');
         $page    = max(1, (int) $request->query('page', 1));
+        $table   = $this->moduleTable($module);
+
+        if ($table) {
+            $q = DB::table($table);
+            $q = $this->applySearchAndFilter($q, $table, $search, $filter);
+            $total = $q->count();
+            $rows = $q->orderByDesc(Schema::hasColumn($table, 'created_at') ? 'created_at' : 'id')
+                ->skip(($page - 1) * $perPage)
+                ->take($perPage)
+                ->get();
+
+            return response()->json([
+                'data'     => $rows,
+                'total'    => $total,
+                'page'     => $page,
+                'per_page' => $perPage,
+            ]);
+        }
 
         if (!Schema::hasTable('erp_module_data')) {
             return response()->json(['data' => [], 'total' => 0, 'page' => 1, 'per_page' => $perPage]);
         }
 
         $q = DB::table('erp_module_data')->where('module', $module);
-
         if ($search) {
             $q->whereRaw("data::text ilike ?", ["%{$search}%"]);
         }
@@ -969,12 +1046,24 @@ class ErpModuleController extends Controller
 
     public function genericStore(Request $request, string $module): JsonResponse
     {
-        if (!Schema::hasTable('erp_module_data')) {
-            return response()->json(['data' => array_merge($request->all(), ['id' => rand(1000, 9999)])], 201);
+        $table = $this->moduleTable($module);
+        $data  = $request->except(['_token', '_method']);
+
+        if ($table) {
+            if (Schema::hasColumn($table, 'created_at')) {
+                $data['created_at'] = now();
+                $data['updated_at'] = now();
+            }
+            $id = DB::table($table)->insertGetId($data);
+            $record = DB::table($table)->where('id', $id)->first();
+            return response()->json(['data' => $record], 201);
         }
 
-        $data = $request->except(['_token', '_method']);
-        $id   = DB::table('erp_module_data')->insertGetId([
+        if (!Schema::hasTable('erp_module_data')) {
+            return response()->json(['data' => array_merge($data, ['id' => rand(1000, 9999)])], 201);
+        }
+
+        $id = DB::table('erp_module_data')->insertGetId([
             'module'     => $module,
             'data'       => json_encode($data),
             'created_at' => now(),
@@ -986,11 +1075,22 @@ class ErpModuleController extends Controller
 
     public function genericUpdate(Request $request, string $module, int $id): JsonResponse
     {
-        if (!Schema::hasTable('erp_module_data')) {
-            return response()->json(['data' => array_merge($request->all(), ['id' => $id])]);
+        $table = $this->moduleTable($module);
+        $data  = $request->except(['_token', '_method', 'id']);
+
+        if ($table) {
+            if (Schema::hasColumn($table, 'updated_at')) {
+                $data['updated_at'] = now();
+            }
+            DB::table($table)->where('id', $id)->update($data);
+            $record = DB::table($table)->where('id', $id)->first();
+            return response()->json(['data' => $record]);
         }
 
-        $data = $request->except(['_token', '_method', 'id']);
+        if (!Schema::hasTable('erp_module_data')) {
+            return response()->json(['data' => array_merge($data, ['id' => $id])]);
+        }
+
         DB::table('erp_module_data')
             ->where('id', $id)
             ->where('module', $module)
@@ -1001,9 +1101,16 @@ class ErpModuleController extends Controller
 
     public function genericDestroy(string $module, int $id): JsonResponse
     {
+        $table = $this->moduleTable($module);
+        if ($table) {
+            DB::table($table)->where('id', $id)->delete();
+            return response()->json(['message' => 'Deleted']);
+        }
+
         if (Schema::hasTable('erp_module_data')) {
             DB::table('erp_module_data')->where('id', $id)->where('module', $module)->delete();
         }
         return response()->json(['message' => 'Deleted']);
     }
 }
+
