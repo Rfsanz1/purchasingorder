@@ -9,7 +9,7 @@ export class UserService {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
       include: {
-        role: { include: { permissions: true } },
+        role: { include: { permissions: { include: { permission: true } } } },
       },
     });
 
@@ -22,7 +22,7 @@ export class UserService {
       name: user.name,
       email: user.email,
       roles: [user.role.name],
-      permissions: user.role.permissions.map((permission) => permission.name),
+      permissions: user.role.permissions.map((rp) => rp.permission.name),
     };
   }
 
@@ -30,7 +30,7 @@ export class UserService {
     return this.prisma.user.findUnique({
       where: { email },
       include: {
-        role: { include: { permissions: true } },
+        role: { include: { permissions: { include: { permission: true } } } },
       },
     });
   }

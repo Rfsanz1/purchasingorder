@@ -11,7 +11,7 @@ export class AuthService {
     const user = await this.prisma.user.findUnique({
       where: { email },
       include: {
-        role: { include: { permissions: true } },
+        role: { include: { permissions: { include: { permission: true } } } },
       },
     });
 
@@ -20,7 +20,7 @@ export class AuthService {
     }
 
     const roleName = user.role?.name ?? 'user';
-    const permissions = user.role?.permissions?.map((permission) => permission.name) ?? [];
+    const permissions = user.role?.permissions?.map((rp) => rp.permission.name) ?? [];
 
     return {
       ...user,
@@ -69,7 +69,7 @@ export class AuthService {
       const user = await this.prisma.user.findUnique({
         where: { id: payload.sub },
         include: {
-          role: { include: { permissions: true } },
+          role: { include: { permissions: { include: { permission: true } } } },
         },
       });
 
@@ -78,7 +78,7 @@ export class AuthService {
       }
 
       const roleName = user.role?.name ?? 'user';
-      const permissions = user.role?.permissions?.map((p) => p.name) ?? [];
+      const permissions = user.role?.permissions?.map((rp) => rp.permission.name) ?? [];
 
       const accessToken = this.jwtService.sign(
         { sub: user.id, email: user.email, roles: [roleName], permissions },

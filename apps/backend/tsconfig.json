@@ -13,7 +13,9 @@
     "baseUrl": "./",
     "incremental": true,
     "resolveJsonModule": true,
-    "types": ["node"]
+    "types": ["node"],
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "dist"]

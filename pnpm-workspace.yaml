@@ -5,3 +5,11 @@ packages:
   - 'modules/pos/*'
   - 'modules/pos/pos-backend'
   - 'modules/pos/pos-frontend'
+
+onlyBuiltDependencies:
+  - '@nestjs/core'
+  - '@prisma/client'
+  - '@prisma/engines'
+  - bcrypt
+  - esbuild
+  - prisma
