@@ -130,8 +130,11 @@ while [ $RETRY -lt $MAX_RETRIES ]; do
 done
 
 # ── Cache setelah env vars tersedia ────────────────────────────────────────
-echo "Caching config..."
+echo "Clearing caches and caching config..."
+php artisan optimize:clear 2>/dev/null || true
 php artisan config:cache 2>&1 || echo "⚠️ Config cache failed - continuing with uncached config"
+php artisan route:clear 2>/dev/null || true
+php artisan view:clear 2>/dev/null || true
 # Skip route:cache dan view:cache untuk development/testing - mereka perlu full setup
 # php artisan route:cache 2>&1 || echo "Route cache failed - continuing"
 # php artisan view:cache 2>&1 || echo "View cache failed - continuing"
