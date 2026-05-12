@@ -1,9 +1,18 @@
 {
     "private": true,
     "type": "module",
+    "workspaces": [
+        "apps/*",
+        "packages/*",
+        "frontend",
+        "modules/pos/*",
+        "modules/pos/pos-backend",
+        "modules/pos/pos-frontend"
+    ],
     "scripts": {
         "dev": "vite",
-        "build": "vite build"
+        "build": "vite build",
+        "dev:modern": "pnpm --parallel --filter @erp-modern/backend start:dev --filter @erp-modern/frontend dev"
     },
     "devDependencies": {
         "@tailwindcss/vite": "^4.0.0",
