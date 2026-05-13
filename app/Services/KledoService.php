@@ -354,7 +354,8 @@ class KledoService
         $ch = curl_init($url);
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_TIMEOUT        => 15,
+            CURLOPT_CONNECTTIMEOUT => 3,
+            CURLOPT_TIMEOUT        => 5,
             CURLOPT_HTTPHEADER     => $this->headers(),
             CURLOPT_SSL_VERIFYPEER => true,
         ]);
@@ -524,9 +525,36 @@ class KledoService
     // ============================================================
 
     /**
-     * Ambil semua invoice dari Kledo berdasarkan rentang tanggal.
-     * Parse nama sales dari field memo: "Sales: {nama} - {telp}" atau "Order #X - {nama}"
+     * Ambil invoice 1 halaman saja — untuk dashboard (cepat, tidak paginate).
      */
+    public function getInvoicesDashboard(string $startDate, string $endDate, int $limit = 20): array
+    {
+        $url  = "{$this->base}/invoices?per_page={$limit}&page=1"
+              . "&start_date=" . urlencode($startDate)
+              . "&end_date="   . urlencode($endDate)
+              . "&status=all";
+        $data = $this->httpGet($url, 60); // cache 60 detik
+
+        if (!$data) return [];
+
+        $items = $data['data']['data'] ?? $data['data'] ?? [];
+        return array_map(function ($inv) {
+            $memo      = $inv['memo'] ?? $inv['message'] ?? '';
+            $salesNama = $this->parseSalesFromMemo($memo);
+            return [
+                'id'           => $inv['id'],
+                'ref_number'   => $inv['ref_number'] ?? '-',
+                'trans_date'   => $inv['trans_date'] ?? '',
+                'due_date'     => $inv['due_date'] ?? '',
+                'contact_name' => $inv['contact']['name'] ?? $inv['contact_name'] ?? '-',
+                'total'        => (int) ($inv['amount'] ?? $inv['total'] ?? 0),
+                'status'       => $inv['status'] ?? '-',
+                'memo'         => $memo,
+                'sales'        => $salesNama,
+            ];
+        }, $items);
+    }
+
     public function getInvoicesByDateRange(string $startDate, string $endDate, int $perPage = 100): array
     {
         $allInvoices = [];

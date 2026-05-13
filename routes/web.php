@@ -1140,8 +1140,7 @@ foreach ($extraComingSoon as $path => [$title, $description, $features]) {
 // ACTIVATED ERP MODULES — override coming-soon routes (last-registered wins)
 // ══════════════════════════════════════════════════════════════════════════════
 
-// ── Dashboard ──────────────────────────────────────────────────────────────
-Route::get('/erp/owner-dashboard', fn() => view('erp.owner-dashboard'));
+// ── Dashboard (dihapus duplikat — gunakan /erp/dashboard)
 Route::get('/erp/multi-branch-analytics', fn() => view('erp.crud', [
     'title'=>'Multi Branch Analytics','description'=>'Analisa performa seluruh cabang','module'=>'multi-branch-analytics',
     'formFields'=>[['name'=>'cabang','label'=>'Cabang','type'=>'text','required'=>true],['name'=>'periode','label'=>'Periode','type'=>'text'],['name'=>'omzet','label'=>'Omzet','type'=>'number','format'=>'currency'],['name'=>'profit','label'=>'Profit','type'=>'number','format'=>'currency'],['name'=>'total_order','label'=>'Total Order','type'=>'number'],['name'=>'status','label'=>'Status','type'=>'select','options'=>['Aktif','Non-Aktif']]],

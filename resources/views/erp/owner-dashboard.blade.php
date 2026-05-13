@@ -1,12 +1,12 @@
 @extends('layouts.erp')
-@section('title', 'Dashboard Owner')
+@section('title', 'Dashboard Utama')
 @section('content')
 <div x-data="ownerDash()" x-init="init()" class="p-4 md:p-6 max-w-7xl mx-auto">
 
     {{-- Header --}}
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
         <div>
-            <h1 class="text-2xl font-bold text-gray-900">Dashboard Owner</h1>
+            <h1 class="text-2xl font-bold text-gray-900">Dashboard Utama</h1>
             <p class="text-gray-500 mt-0.5 text-sm">Sumber data: <span class="font-medium text-blue-600">Kledo ERP</span> — live realtime</p>
         </div>
         <div class="flex flex-wrap items-center gap-2">
@@ -62,7 +62,27 @@
         <span x-text="errorMsg"></span>
     </div>
 
-    {{-- Skeleton / KPI Row --}}
+    {{-- Akses Cepat (di atas sebelum KPI) --}}
+    <div class="bg-white rounded-xl border shadow-sm p-4 mb-5">
+        <h3 class="font-semibold text-gray-900 text-sm mb-3">⚡ Akses Cepat</h3>
+        <div class="grid grid-cols-3 sm:grid-cols-6 gap-3">
+            @foreach([
+                ['/po-form','Buat Order','bg-blue-50 text-blue-600','M12 4v16m8-8H4'],
+                ['/erp/purchase-order','Purchase Order','bg-purple-50 text-purple-600','M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2'],
+                ['/erp/supplier','Supplier','bg-green-50 text-green-600','M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4'],
+                ['/erp/account-receivable','Piutang','bg-orange-50 text-orange-600','M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'],
+                ['/erp/cash-flow','Arus Kas','bg-teal-50 text-teal-600','M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z'],
+                ['/erp/report-purchase','Laporan','bg-gray-50 text-gray-600','M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'],
+            ] as [$href,$label,$cls,$icon])
+            <a href="{{ $href }}" class="flex flex-col items-center gap-2 p-3 rounded-xl {{ $cls }} hover:opacity-80 transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $icon }}"/></svg>
+                <span class="text-xs font-medium text-center">{{ $label }}</span>
+            </a>
+            @endforeach
+        </div>
+    </div>
+
+    {{-- KPI Row --}}
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
         {{-- Omzet --}}
         <div class="bg-white rounded-xl border p-4 shadow-sm relative overflow-hidden">
@@ -205,25 +225,6 @@
         </div>
     </div>
 
-    {{-- Quick Links --}}
-    <div class="bg-white rounded-xl border shadow-sm p-5">
-        <h3 class="font-semibold text-gray-900 text-sm mb-4">⚡ Akses Cepat</h3>
-        <div class="grid grid-cols-3 sm:grid-cols-6 gap-3">
-            @foreach([
-                ['/po-form','Buat Order','bg-blue-50 text-blue-600','M12 4v16m8-8H4'],
-                ['/erp/purchase-order','Purchase Order','bg-purple-50 text-purple-600','M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2'],
-                ['/erp/supplier','Supplier','bg-green-50 text-green-600','M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4'],
-                ['/erp/account-receivable','Piutang','bg-orange-50 text-orange-600','M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'],
-                ['/erp/cash-flow','Arus Kas','bg-teal-50 text-teal-600','M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z'],
-                ['/erp/report-purchase','Laporan','bg-gray-50 text-gray-600','M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'],
-            ] as [$href,$label,$cls,$icon])
-            <a href="{{ $href }}" class="flex flex-col items-center gap-2 p-3 rounded-xl {{ $cls }} hover:opacity-80 transition">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $icon }}"/></svg>
-                <span class="text-xs font-medium text-center">{{ $label }}</span>
-            </a>
-            @endforeach
-        </div>
-    </div>
 </div>
 
 <script>
@@ -256,8 +257,9 @@ function ownerDash() {
             } catch { return this.lastSync; }
         },
 
-        async init() {
-            await this.load();
+        init() {
+            // Non-blocking: halaman langsung tampil, data load di background
+            setTimeout(() => this.load(), 0);
             this.startAutoRefresh();
         },
 

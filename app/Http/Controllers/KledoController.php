@@ -681,7 +681,8 @@ class KledoController extends Controller
 
         try {
             $svc      = new \App\Services\KledoService();
-            $invoices = $svc->getInvoicesByDateRange($startDate, $endDate, 50);
+            // Dashboard: ambil 1 halaman saja (cepat, max 5 detik)
+            $invoices = $svc->getInvoicesDashboard($startDate, $endDate, 20);
 
             $omzet = array_sum(array_column($invoices, 'total'));
 
