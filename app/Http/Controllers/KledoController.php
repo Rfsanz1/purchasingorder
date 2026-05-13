@@ -29,7 +29,8 @@ class KledoController extends Controller
         $ch = curl_init($url);
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_TIMEOUT        => 15,
+            CURLOPT_CONNECTTIMEOUT => 3,
+            CURLOPT_TIMEOUT        => 5,
             CURLOPT_HTTPHEADER     => array_map(
                 fn($k, $v) => "$k: $v",
                 array_keys($this->kledoHeaders()),
@@ -41,6 +42,52 @@ class KledoController extends Controller
         $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
         return ['status' => $status, 'body' => $body];
+    }
+
+    /**
+     * GET /api/kledo/status
+     * Cek status koneksi Kledo API — ringan, max 5 detik.
+     */
+    public function status(Request $request): JsonResponse
+    {
+        $token      = self::getToken();
+        $cacheCount = 0;
+        $lastSync   = null;
+
+        try {
+            $cacheCount = \DB::table('kledo_sync_logs')->count();
+            $lastSync   = \DB::table('kledo_sync_logs')->max('updated_at')
+                       ?: \DB::table('kledo_sync_logs')->max('created_at');
+        } catch (\Exception $e) {}
+
+        if (!$token) {
+            return response()->json([
+                'connected'   => false,
+                'token_set'   => false,
+                'message'     => 'Token Kledo belum dikonfigurasi',
+                'cache_count' => $cacheCount,
+                'last_sync'   => $lastSync,
+                'setup_url'   => '/erp/integrasi',
+            ]);
+        }
+
+        // Ping ringan ke Kledo — ambil 1 invoice saja
+        try {
+            $resp      = $this->httpGet("{$this->kledoBase}/invoices?per_page=1");
+            $connected = $resp['status'] >= 200 && $resp['status'] < 400;
+            $msg       = $connected ? 'Terhubung ke Kledo ERP' : 'Token tidak valid atau Kledo tidak dapat dijangkau';
+        } catch (\Exception $e) {
+            $connected = false;
+            $msg       = 'Gagal ping Kledo: ' . $e->getMessage();
+        }
+
+        return response()->json([
+            'connected'   => $connected,
+            'token_set'   => true,
+            'message'     => $msg,
+            'cache_count' => $cacheCount,
+            'last_sync'   => $lastSync,
+        ]);
     }
 
     public function contacts(Request $request): JsonResponse

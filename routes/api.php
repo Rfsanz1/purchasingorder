@@ -59,6 +59,7 @@ Route::get('/kledo/spm-brands', [KledoController::class, 'spmBrands']);
 Route::get('/kledo/laporan-penjualan', [KledoController::class, 'laporanPenjualan']);
 Route::post('/kledo/auto-sync', [KledoSyncController::class, 'autoSync']);
 // Dashboard Kledo — data langsung dari Kledo / cache
+Route::get('/kledo/status',     [KledoController::class, 'status']);
 Route::get('/kledo/dashboard',  [KledoController::class, 'dashboardKledo']);
 Route::get('/kledo/invoices',   [KledoController::class, 'invoices']);
 Route::post('/kledo/sync-now',  [KledoController::class, 'syncNow']);

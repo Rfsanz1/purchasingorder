@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'ERP Gentong Mas')</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
@@ -134,6 +135,34 @@
                         <p class="text-xs text-slate-500">ERP System</p>
                     </div>
                 </div>
+            </div>
+
+            {{-- Kledo Status Bar --}}
+            <div class="px-3 py-2 border-b border-slate-800 shrink-0 bg-slate-900/50">
+                <div class="flex items-center justify-between gap-2">
+                    <div class="flex items-center gap-1.5 min-w-0">
+                        {{-- Dot indikator --}}
+                        <span class="w-2 h-2 rounded-full shrink-0 transition-colors"
+                            :class="kledoStatus==='connected'?'bg-green-400 animate-pulse':kledoStatus==='no_token'?'bg-red-400':'bg-yellow-400'">
+                        </span>
+                        <span class="text-xs truncate transition-colors"
+                            :class="kledoStatus==='connected'?'text-green-400':kledoStatus==='no_token'?'text-red-400':'text-yellow-400'"
+                            x-text="kledoStatus==='connected'?'Kledo Terhubung':kledoStatus==='no_token'?'Kledo: Belum Setup':'Kledo: Memeriksa...'">
+                        </span>
+                    </div>
+                    {{-- Tombol sync global --}}
+                    <button @click="globalSyncKledo()" :disabled="kledoSyncing"
+                        class="shrink-0 text-slate-400 hover:text-white transition p-1 rounded hover:bg-slate-700 disabled:opacity-40"
+                        title="Sync Kledo Sekarang">
+                        <svg :class="kledoSyncing?'animate-spin':''" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                        </svg>
+                    </button>
+                </div>
+                {{-- Last sync info --}}
+                <p class="text-xs text-slate-600 mt-0.5 truncate" x-show="kledoLastSync" x-text="'Sync: '+kledoLastSyncLabel"></p>
+                {{-- Cache count --}}
+                <p class="text-xs text-slate-600 truncate" x-show="kledoCacheCount>0" x-text="kledoCacheCount+' data di cache'"></p>
             </div>
 
             {{-- Nav --}}
@@ -584,9 +613,93 @@
         return {
             sidebarOpen: false,
             currentUser: '',
+
+            // ── Kledo global state ──────────────────────────────────
+            kledoStatus: 'checking',   // 'connected' | 'error' | 'no_token' | 'checking'
+            kledoSyncing: false,
+            kledoCacheCount: 0,
+            kledoLastSync: null,
+
+            get kledoLastSyncLabel() {
+                if (!this.kledoLastSync) return '';
+                try {
+                    const d = new Date(this.kledoLastSync);
+                    return d.toLocaleDateString('id-ID',{day:'2-digit',month:'short'}) + ' ' +
+                           d.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+                } catch { return ''; }
+            },
+
             initLayout() {
                 this.currentUser = sessionStorage.getItem('salesUsername') || sessionStorage.getItem('username') || '';
-            }
+
+                // Cek status Kledo saat load (non-blocking)
+                setTimeout(() => this.checkKledoStatus(), 300);
+
+                // Auto-check tiap 60 detik
+                setInterval(() => this.checkKledoStatus(), 60000);
+
+                // Dengar event sync dari tab lain (cross-tab via localStorage)
+                window.addEventListener('storage', (e) => {
+                    if (e.key === 'kledo_last_sync') {
+                        this.kledoLastSync = new Date(parseInt(e.newValue)).toISOString();
+                        this.kledoCacheCount = parseInt(localStorage.getItem('kledo_cache_count') || '0');
+                        // Update status indicator jadi connected
+                        if (this.kledoStatus !== 'connected') this.checkKledoStatus();
+                    }
+                });
+
+                // Dengar event sync dari halaman ini sendiri
+                window.addEventListener('kledo-synced', (e) => {
+                    if (e.detail && !e.detail.error) {
+                        this.kledoStatus = 'connected';
+                        this.kledoLastSync = e.detail.last_sync || new Date().toISOString();
+                    }
+                });
+            },
+
+            async checkKledoStatus() {
+                try {
+                    const r = await fetch('/api/kledo/status');
+                    const d = await r.json();
+                    this.kledoStatus     = d.connected ? 'connected' : (d.token_set ? 'error' : 'no_token');
+                    this.kledoCacheCount = d.cache_count || 0;
+                    this.kledoLastSync   = d.last_sync || null;
+                    // Simpan cache count ke localStorage supaya tab lain bisa baca
+                    localStorage.setItem('kledo_cache_count', this.kledoCacheCount);
+                } catch(e) {
+                    this.kledoStatus = 'error';
+                }
+            },
+
+            async globalSyncKledo() {
+                if (this.kledoSyncing) return;
+                this.kledoSyncing = true;
+                try {
+                    const r = await fetch('/api/kledo/sync-now', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content || '',
+                        },
+                        body: JSON.stringify({ period: 'month' }),
+                    });
+                    const data = await r.json();
+                    if (!data.error) {
+                        this.kledoStatus   = 'connected';
+                        this.kledoLastSync = new Date().toISOString();
+                        const now = Date.now();
+                        // Broadcast ke semua tab via localStorage
+                        localStorage.setItem('kledo_last_sync', now.toString());
+                        // Dispatch custom event ke halaman aktif
+                        window.dispatchEvent(new CustomEvent('kledo-synced', { detail: data }));
+                    }
+                    await this.checkKledoStatus();
+                } catch(e) {
+                    this.kledoStatus = 'error';
+                } finally {
+                    this.kledoSyncing = false;
+                }
+            },
         }
     }
     </script>

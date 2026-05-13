@@ -261,6 +261,23 @@ function ownerDash() {
             // Non-blocking: halaman langsung tampil, data load di background
             setTimeout(() => this.load(), 0);
             this.startAutoRefresh();
+
+            // Dengar sync dari sidebar global atau halaman lain (cross-page)
+            window.addEventListener('kledo-synced', (e) => {
+                if (e.detail && !e.detail.error) {
+                    // Data sudah tersedia dari sync — refresh dashboard
+                    this.countdown = 60;
+                    this.load();
+                }
+            });
+
+            // Dengar sync dari tab browser lain (cross-tab via localStorage)
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'kledo_last_sync') {
+                    this.countdown = 60;
+                    this.load();
+                }
+            });
         },
 
         startAutoRefresh() {
@@ -333,6 +350,10 @@ function ownerDash() {
                 this.topSales     = (data.top_sales || []).slice(0,5);
                 this.recentOrders = (data.recent || []).slice(0,10);
                 this.countdown = 60;
+
+                // Broadcast ke sidebar (indikator status) dan tab lain
+                localStorage.setItem('kledo_last_sync', Date.now().toString());
+                window.dispatchEvent(new CustomEvent('kledo-synced', { detail: data }));
             } catch(e) {
                 this.errorMsg = 'Sync gagal: ' + e.message;
             } finally {

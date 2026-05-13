@@ -225,6 +225,16 @@ function laporanSalesApp() {
 
         async init() {
             await Promise.all([this.cekToken(), this.load()]);
+
+            // Dengar sync dari sidebar global atau halaman lain
+            window.addEventListener('kledo-synced', (e) => {
+                if (e.detail && !e.detail.error) this.load();
+            });
+
+            // Dengar sync dari tab browser lain (cross-tab)
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'kledo_last_sync') this.load();
+            });
         },
 
         async cekToken() {
@@ -260,6 +270,9 @@ function laporanSalesApp() {
                     this.syncOk  = true;
                     this.syncMsg = `Sync selesai — ${json.total_fetched} invoice diambil, ${json.inserted} baru, ${json.updated} diupdate.`;
                     await this.load();
+                    // Broadcast ke sidebar + tab lain
+                    localStorage.setItem('kledo_last_sync', Date.now().toString());
+                    window.dispatchEvent(new CustomEvent('kledo-synced', { detail: json }));
                 }
             } catch (e) {
                 this.syncOk  = false;
