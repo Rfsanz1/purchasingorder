@@ -99,8 +99,8 @@ Route::get('/api/kledo/data-penjualan', [KledoController::class, 'dataPenjualan'
 // ═══════════════════════════════════════════════════════
 Route::get('/erp/supplier',       fn() => view('erp.supplier'));
 Route::get('/erp/purchase-order', fn() => view('erp.purchase-order'));
-Route::get('/erp/cash-in',        fn() => view('erp.cash', ['title' => 'Kas Masuk', 'jenis' => 'masuk']));
-Route::get('/erp/cash-out',       fn() => view('erp.cash', ['title' => 'Kas Keluar', 'jenis' => 'keluar']));
+Route::get('/erp/cash-in',        fn() => view('erp.cash-in'));
+Route::get('/erp/cash-out',       fn() => view('erp.cash-out'));
 Route::get('/erp/profit-loss',    fn() => view('erp.profit-loss'));
 Route::get('/erp/expense',        fn() => view('erp.expense'));
 Route::get('/erp/employees',      fn() => view('erp.employees'));

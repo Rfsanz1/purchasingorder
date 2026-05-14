@@ -105,16 +105,30 @@ class ErpModuleController extends Controller
         $q = DB::table('suppliers');
         if ($s = $request->query('search')) {
             $q->where(function ($w) use ($s) {
-                $w->where('nama', 'ilike', "%$s%")
-                  ->orWhere('kode', 'ilike', "%$s%")
-                  ->orWhere('telepon', 'ilike', "%$s%");
+                $w->where('name', 'ilike', "%$s%")
+                  ->orWhere('supplier_code', 'ilike', "%$s%")
+                  ->orWhere('phone', 'ilike', "%$s%");
             });
         }
         if ($status = $request->query('status')) $q->where('status', $status);
         $total = $q->count();
         $perPage = (int)$request->query('per_page', 20);
         $page = (int)$request->query('page', 1);
-        $rows = $q->orderByDesc('created_at')->skip(($page-1)*$perPage)->take($perPage)->get();
+        $rows = $q->select(
+            'id',
+            'name as nama',
+            'supplier_code as kode',
+            'contact_person as kontak',
+            'phone as telepon',
+            'email',
+            'address as alamat',
+            'city as kota',
+            'notes as catatan',
+            'status',
+            'payment_term_days as top',
+            'created_at',
+            'updated_at'
+        )->orderByDesc('created_at')->skip(($page-1)*$perPage)->take($perPage)->get();
         return response()->json(['data' => $rows, 'total' => $total, 'page' => $page, 'per_page' => $perPage]);
     }
 
@@ -122,34 +136,61 @@ class ErpModuleController extends Controller
     {
         $total = DB::table('suppliers')->count();
         $aktif = DB::table('suppliers')->where('status', 'Aktif')->count();
-        $po_total = DB::table('purchase_orders')->sum('total');
+        $po_total = DB::table('purchase_orders')->sum('total_amount');
         return response()->json(['total' => $total, 'aktif' => $aktif, 'nonaktif' => $total - $aktif, 'total_pembelian' => (float)$po_total]);
     }
 
     public function suppliersStore(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'nama'       => 'required|string|max:200',
-            'kode'       => 'nullable|string|max:20',
-            'kontak'     => 'nullable|string|max:100',
-            'telepon'    => 'nullable|string|max:30',
-            'email'      => 'nullable|email',
-            'alamat'     => 'nullable|string',
-            'kota'       => 'nullable|string|max:100',
-            'npwp'       => 'nullable|string|max:30',
-            'status'     => 'nullable|in:Aktif,Non-Aktif',
-            'catatan'    => 'nullable|string',
-            'top'        => 'nullable|integer',
+            'nama'         => 'required|string|max:200',
+            'kode'         => 'nullable|string|max:20',
+            'kontak'       => 'nullable|string|max:100',
+            'telepon'      => 'nullable|string|max:30',
+            'email'        => 'nullable|email',
+            'alamat'       => 'nullable|string',
+            'kota'         => 'nullable|string|max:100',
+            'npwp'         => 'nullable|string|max:30',
+            'status'       => 'nullable|in:Aktif,Non-Aktif',
+            'catatan'      => 'nullable|string',
+            'top'          => 'nullable|integer',
             'limit_kredit' => 'nullable|numeric',
         ]);
-        $data['created_at'] = $data['updated_at'] = now();
-        $id = DB::table('suppliers')->insertGetId($data);
+        $dbData = [
+            'name'              => $data['nama'],
+            'supplier_code'     => $data['kode'] ?? null,
+            'contact_person'    => $data['kontak'] ?? null,
+            'phone'             => $data['telepon'] ?? null,
+            'email'             => $data['email'] ?? null,
+            'address'           => $data['alamat'] ?? null,
+            'city'              => $data['kota'] ?? null,
+            'notes'             => $data['catatan'] ?? null,
+            'status'            => $data['status'] ?? 'Aktif',
+            'payment_term_days' => (int)($data['top'] ?? 30),
+            'created_at'        => now(),
+            'updated_at'        => now(),
+        ];
+        $id = DB::table('suppliers')->insertGetId($dbData);
         return response()->json(['ok' => true, 'id' => $id], 201);
     }
 
     public function suppliersUpdate(Request $request, int $id): JsonResponse
     {
-        $data = $request->only(['nama','kode','kontak','telepon','email','alamat','kota','npwp','status','catatan','top','limit_kredit','rekening_bank','nama_bank','atas_nama']);
+        $fieldMap = [
+            'nama'    => 'name',
+            'kode'    => 'supplier_code',
+            'kontak'  => 'contact_person',
+            'telepon' => 'phone',
+            'alamat'  => 'address',
+            'kota'    => 'city',
+            'catatan' => 'notes',
+            'top'     => 'payment_term_days',
+        ];
+        $raw = $request->only(['nama','kode','kontak','telepon','email','alamat','kota','npwp','status','catatan','top','limit_kredit']);
+        $data = [];
+        foreach ($raw as $k => $v) {
+            $data[$fieldMap[$k] ?? $k] = $v;
+        }
         $data['updated_at'] = now();
         DB::table('suppliers')->where('id', $id)->update($data);
         return response()->json(['ok' => true]);
@@ -167,13 +208,32 @@ class ErpModuleController extends Controller
     {
         $q = DB::table('purchase_orders as po')
             ->leftJoin('suppliers as s', 'po.supplier_id', '=', 's.id')
-            ->select('po.*', 's.nama as nama_supplier');
+            ->select(
+                'po.id',
+                'po.po_number as no_po',
+                'po.supplier_id',
+                's.name as nama_supplier',
+                's.name as supplier',
+                'po.po_date as tanggal',
+                'po.expected_delivery_date as tanggal_kirim',
+                'po.description as deskripsi',
+                'po.notes as catatan',
+                'po.subtotal',
+                'po.tax_amount as ppn',
+                'po.total_amount as total',
+                'po.status',
+                'po.payment_status',
+                'po.created_by',
+                'po.created_at',
+                'po.updated_at'
+            );
         if ($s = $request->query('search')) {
             $q->where(function($w) use ($s) {
-                $w->where('po.no_po', 'ilike', "%$s%")->orWhere('s.nama', 'ilike', "%$s%");
+                $w->where('po.po_number', 'ilike', "%$s%")->orWhere('s.name', 'ilike', "%$s%");
             });
         }
         if ($status = $request->query('status')) $q->where('po.status', $status);
+        if ($bulan = $request->query('bulan')) $q->whereRaw("to_char(po.po_date, 'YYYY-MM') = ?", [$bulan]);
         $total = $q->count();
         $perPage = (int)$request->query('per_page', 20);
         $page = (int)$request->query('page', 1);
@@ -184,52 +244,98 @@ class ErpModuleController extends Controller
     public function purchaseOrdersSummary(): JsonResponse
     {
         $total = DB::table('purchase_orders')->count();
-        $pending = DB::table('purchase_orders')->where('status', 'Pending')->count();
-        $approved = DB::table('purchase_orders')->where('status', 'Approved')->count();
-        $received = DB::table('purchase_orders')->where('status', 'Diterima')->count();
-        $nilaiTotal = DB::table('purchase_orders')->sum('total');
+        $pending  = DB::table('purchase_orders')->where('status', 'draft')->count();
+        $approved = DB::table('purchase_orders')->whereIn('status', ['acknowledged','sent'])->count();
+        $received = DB::table('purchase_orders')->where('status', 'received')->count();
+        $nilaiTotal = DB::table('purchase_orders')->sum('total_amount');
         return response()->json(compact('total','pending','approved','received','nilaiTotal'));
     }
 
     public function purchaseOrdersStore(Request $request): JsonResponse
     {
-        $data = $request->validate([
+        $request->validate([
+            'supplier'    => 'nullable|string|max:200',
             'supplier_id' => 'nullable|integer',
-            'tanggal'     => 'required|date',
-            'tanggal_kirim' => 'nullable|date',
+            'tanggal'     => 'nullable|date',
+            'exp_delivery'=> 'nullable|date',
             'catatan'     => 'nullable|string',
-            'items'       => 'required|array|min:1',
+            'deskripsi'   => 'nullable|string',
+            'metode_bayar'=> 'nullable|string',
+            'status'      => 'nullable|string',
+            'total'       => 'nullable|numeric',
+            'items'       => 'nullable|array',
         ]);
-        $noPo = 'PO-' . date('Ymd') . '-' . str_pad(DB::table('purchase_orders')->count() + 1, 4, '0', STR_PAD_LEFT);
-        $subtotal = collect($data['items'])->sum(fn($i) => ($i['qty'] ?? 0) * ($i['harga'] ?? 0));
-        $ppn = $subtotal * 0.11;
-        $total = $subtotal + $ppn;
+
+        // Resolve supplier — cari by name atau buat baru
+        $supplierId = $request->supplier_id;
+        if (!$supplierId && $request->supplier) {
+            $existing = DB::table('suppliers')->where('name', $request->supplier)->first();
+            $supplierId = $existing
+                ? $existing->id
+                : DB::table('suppliers')->insertGetId([
+                    'name' => $request->supplier, 'status' => 'Aktif',
+                    'created_at' => now(), 'updated_at' => now(),
+                ]);
+        }
+
+        $items    = $request->items ?? [];
+        $subtotal = count($items) > 0
+            ? collect($items)->sum(fn($i) => ($i['quantity'] ?? $i['qty'] ?? 0) * ($i['unit_price'] ?? $i['harga'] ?? 0))
+            : (float)($request->total ?? 0);
+        $tax   = round($subtotal * 0.11, 2);
+        $totalAmount = $subtotal + $tax;
+
+        $poNumber = 'PO-' . date('Ymd') . '-' . str_pad(DB::table('purchase_orders')->count() + 1, 4, '0', STR_PAD_LEFT);
         $poId = DB::table('purchase_orders')->insertGetId([
-            'no_po' => $noPo, 'supplier_id' => $data['supplier_id'],
-            'tanggal' => $data['tanggal'], 'tanggal_kirim' => $data['tanggal_kirim'] ?? null,
-            'subtotal' => $subtotal, 'ppn' => $ppn, 'total' => $total, 'sisa' => $total,
-            'catatan' => $data['catatan'] ?? null, 'status' => 'Draft',
-            'dibuat_oleh' => 'Admin', 'created_at' => now(), 'updated_at' => now(),
+            'po_number'              => $poNumber,
+            'supplier_id'            => $supplierId,
+            'po_date'                => $request->tanggal ?? now()->toDateString(),
+            'expected_delivery_date' => $request->exp_delivery ?? null,
+            'description'            => $request->deskripsi ?? null,
+            'notes'                  => $request->catatan ?? null,
+            'subtotal'               => $subtotal,
+            'tax_amount'             => $tax,
+            'total_amount'           => $totalAmount,
+            'status'                 => 'draft',
+            'payment_status'         => 'unpaid',
+            'created_by'             => 'Admin',
+            'created_at'             => now(),
+            'updated_at'             => now(),
         ]);
-        foreach ($data['items'] as $item) {
+
+        foreach ($items as $item) {
+            $qty   = $item['quantity'] ?? $item['qty'] ?? 1;
+            $price = $item['unit_price'] ?? $item['harga'] ?? 0;
             DB::table('purchase_order_items')->insert([
-                'purchase_order_id' => $poId, 'nama_produk' => $item['nama_produk'],
-                'sku' => $item['sku'] ?? null, 'satuan' => $item['satuan'] ?? 'pcs',
-                'qty' => $item['qty'] ?? 1, 'qty_diterima' => 0,
-                'harga' => $item['harga'] ?? 0,
-                'total' => ($item['qty'] ?? 1) * ($item['harga'] ?? 0),
-                'created_at' => now(), 'updated_at' => now(),
+                'purchase_order_id' => $poId,
+                'product_id'        => $item['product_id'] ?? null,
+                'quantity'          => $qty,
+                'unit_price'        => $price,
+                'line_total'        => $qty * $price,
+                'received_quantity' => 0,
+                'notes'             => $item['nama_produk'] ?? $item['notes'] ?? null,
+                'created_at'        => now(),
+                'updated_at'        => now(),
             ]);
         }
-        return response()->json(['ok' => true, 'no_po' => $noPo, 'id' => $poId], 201);
+
+        return response()->json(['ok' => true, 'no_po' => $poNumber, 'id' => $poId], 201);
     }
 
     public function purchaseOrdersUpdate(Request $request, int $id): JsonResponse
     {
-        $data = $request->only(['status','status_bayar','dp','catatan','disetujui_oleh']);
+        $data = [];
+        if ($request->has('status'))         $data['status']         = $request->status;
+        if ($request->has('payment_status')) $data['payment_status'] = $request->payment_status;
+        if ($request->has('status_bayar'))   $data['payment_status'] = $request->status_bayar;
+        if ($request->has('notes'))          $data['notes']          = $request->notes;
+        if ($request->has('catatan'))        $data['notes']          = $request->catatan;
+        if ($request->has('disetujui_oleh')) {
+            $data['approved_by'] = $request->disetujui_oleh;
+            $data['approved_at'] = now();
+        }
         $data['updated_at'] = now();
-        if (isset($data['disetujui_oleh'])) $data['disetujui_at'] = now();
-        DB::table('purchase_orders')->where('id', $id)->update($data);
+        if (!empty($data)) DB::table('purchase_orders')->where('id', $id)->update($data);
         return response()->json(['ok' => true]);
     }
 
@@ -283,6 +389,14 @@ class ErpModuleController extends Controller
         return response()->json(['ok' => true, 'id' => $id], 201);
     }
 
+    public function cashUpdate(Request $request, int $id): JsonResponse
+    {
+        $data = $request->only(['jenis','kategori','akun_kas','tanggal','jumlah','metode_pembayaran','referensi','keterangan']);
+        $data['updated_at'] = now();
+        DB::table('cash_transactions')->where('id', $id)->update($data);
+        return response()->json(['ok' => true]);
+    }
+
     public function cashDestroy(int $id): JsonResponse
     {
         DB::table('cash_transactions')->where('id', $id)->delete();
@@ -308,18 +422,36 @@ class ErpModuleController extends Controller
     public function expensesStore(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'kategori'   => 'required|string|max:100',
-            'tanggal'    => 'required|date',
-            'jumlah'     => 'required|numeric|min:1',
-            'metode_bayar' => 'nullable|string|max:30',
-            'deskripsi'  => 'nullable|string',
+            'kategori'    => 'required|string|max:100',
+            'tanggal'     => 'required|date',
+            'jumlah'      => 'required|numeric|min:1',
+            'metode_bayar'=> 'nullable|string|max:30',
+            'deskripsi'   => 'nullable|string',
+            'keterangan'  => 'nullable|string',
         ]);
-        $data['no_expense'] = 'EXP-' . date('Ymd') . '-' . str_pad(DB::table('expenses')->count() + 1, 4, '0', STR_PAD_LEFT);
+        // Terima keterangan sebagai alias untuk deskripsi
+        if (empty($data['deskripsi']) && !empty($data['keterangan'])) {
+            $data['deskripsi'] = $data['keterangan'];
+        }
+        unset($data['keterangan']);
+        $data['no_expense']  = 'EXP-' . date('Ymd') . '-' . str_pad(DB::table('expenses')->count() + 1, 4, '0', STR_PAD_LEFT);
         $data['dibuat_oleh'] = 'Admin';
-        $data['status'] = 'Approved';
-        $data['created_at'] = $data['updated_at'] = now();
+        $data['status']      = 'Approved';
+        $data['created_at']  = $data['updated_at'] = now();
         $id = DB::table('expenses')->insertGetId($data);
-        return response()->json(['ok' => true, 'id' => $id], 201);
+        return response()->json(['ok' => true, 'id' => $id, 'data' => $data + ['id' => $id]], 201);
+    }
+
+    public function expensesUpdate(Request $request, int $id): JsonResponse
+    {
+        $data = $request->only(['kategori','tanggal','jumlah','metode_bayar','deskripsi','keterangan']);
+        if (isset($data['keterangan']) && empty($data['deskripsi'])) {
+            $data['deskripsi'] = $data['keterangan'];
+        }
+        unset($data['keterangan']);
+        $data['updated_at'] = now();
+        DB::table('expenses')->where('id', $id)->update($data);
+        return response()->json(['ok' => true]);
     }
 
     public function expensesDestroy(int $id): JsonResponse

@@ -232,11 +232,13 @@ Route::prefix('erp')->group(function () {
     // Cash Transactions (masuk & keluar)
     Route::get('/cash', [$c, 'cashIndex']);
     Route::post('/cash', [$c, 'cashStore']);
+    Route::put('/cash/{id}', [$c, 'cashUpdate']);
     Route::delete('/cash/{id}', [$c, 'cashDestroy']);
 
     // Expenses
     Route::get('/expenses', [$c, 'expensesIndex']);
     Route::post('/expenses', [$c, 'expensesStore']);
+    Route::put('/expenses/{id}', [$c, 'expensesUpdate']);
     Route::delete('/expenses/{id}', [$c, 'expensesDestroy']);
 
     // Employees
