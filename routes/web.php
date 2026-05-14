@@ -2042,6 +2042,58 @@ Route::get('/pos/{path?}', function ($path = '') {
     return response($body, $httpCode)->header('Content-Type', $contentType);
 })->where('path', '.*');
 
+// ===== OVERRIDE: modules yang sebelumnya generic-module → crud fungsional =====
+Route::get('/erp/goods-receipt', fn() => view('erp.crud', [
+    'title' => 'Penerimaan Barang', 'description' => 'Konfirmasi penerimaan barang dari supplier', 'module' => 'goods-receipts',
+    'addLabel' => 'Tambah Penerimaan', 'filterOptions' => ['Draft','Received','Partial','Cancelled'],
+    'formFields' => [
+        ['name'=>'nomor_penerimaan','label'=>'No Penerimaan','type'=>'text','required'=>true],
+        ['name'=>'supplier','label'=>'Supplier','type'=>'text','required'=>true],
+        ['name'=>'no_po','label'=>'No PO Referensi','type'=>'text'],
+        ['name'=>'tanggal','label'=>'Tanggal Terima','type'=>'date'],
+        ['name'=>'gudang','label'=>'Gudang','type'=>'text'],
+        ['name'=>'produk','label'=>'Produk / Item','type'=>'textarea'],
+        ['name'=>'jumlah_dipesan','label'=>'Jml Dipesan','type'=>'number'],
+        ['name'=>'jumlah_diterima','label'=>'Jml Diterima','type'=>'number'],
+        ['name'=>'kondisi','label'=>'Kondisi','type'=>'select','options'=>['Baik','Rusak','Sebagian Rusak']],
+        ['name'=>'catatan','label'=>'Catatan','type'=>'textarea'],
+        ['name'=>'status','label'=>'Status','type'=>'select','options'=>['Draft','Received','Partial','Cancelled']],
+    ],
+    'tableFields' => [
+        ['name'=>'nomor_penerimaan','label'=>'No Penerimaan'],
+        ['name'=>'supplier','label'=>'Supplier'],
+        ['name'=>'no_po','label'=>'Ref PO'],
+        ['name'=>'tanggal','label'=>'Tgl Terima'],
+        ['name'=>'jumlah_diterima','label'=>'Jml Terima'],
+        ['name'=>'status','label'=>'Status','badge'=>true],
+    ],
+]));
+Route::get('/erp/delivery-proof', fn() => view('erp.crud', [
+    'title' => 'Bukti Pengiriman', 'description' => 'Dokumentasi dan konfirmasi bukti pengiriman ke customer', 'module' => 'delivery-proofs',
+    'addLabel' => 'Tambah Bukti Kirim', 'filterOptions' => ['Pending','Delivered','Failed','Returned'],
+    'formFields' => [
+        ['name'=>'no_surat_jalan','label'=>'No Surat Jalan','type'=>'text','required'=>true],
+        ['name'=>'driver','label'=>'Driver','type'=>'text'],
+        ['name'=>'kendaraan','label'=>'Kendaraan','type'=>'text'],
+        ['name'=>'customer','label'=>'Customer','type'=>'text','required'=>true],
+        ['name'=>'alamat_tujuan','label'=>'Alamat Tujuan','type'=>'textarea'],
+        ['name'=>'tanggal_kirim','label'=>'Tgl Kirim','type'=>'date'],
+        ['name'=>'waktu_tiba','label'=>'Waktu Tiba','type'=>'datetime-local'],
+        ['name'=>'penerima','label'=>'Nama Penerima','type'=>'text'],
+        ['name'=>'foto_bukti','label'=>'Foto / URL Bukti','type'=>'text'],
+        ['name'=>'catatan','label'=>'Catatan','type'=>'textarea'],
+        ['name'=>'status','label'=>'Status','type'=>'select','options'=>['Pending','Delivered','Failed','Returned']],
+    ],
+    'tableFields' => [
+        ['name'=>'no_surat_jalan','label'=>'No SJ'],
+        ['name'=>'driver','label'=>'Driver'],
+        ['name'=>'customer','label'=>'Customer'],
+        ['name'=>'tanggal_kirim','label'=>'Tgl Kirim'],
+        ['name'=>'penerima','label'=>'Penerima'],
+        ['name'=>'status','label'=>'Status','badge'=>true],
+    ],
+]));
+
 // ===== POS SYSTEM =====
 use App\Http\Controllers\PosController;
 Route::get('/pos', [PosController::class, 'index'])->name('pos.index');
