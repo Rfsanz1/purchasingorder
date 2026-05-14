@@ -5,7 +5,6 @@ use App\Http\Controllers\PageController;
 use App\Http\Controllers\KledoController;
 use App\Http\Controllers\Shopee\ShopeeController;
 use App\Http\Controllers\MarketplaceController;
-use App\Http\Controllers\IntegrationDashboardController;
 
 Route::get('/health', fn() => response()->json(['status' => 'ok']));
 
@@ -49,14 +48,14 @@ Route::any('/__mockup/{path?}', function ($path = '') {
     }
     return response($body, $status)->withHeaders($headers);
 })->where('path', '.*');
-Route::redirect('/', '/erp/dashboard');
+Route::get('/', [PageController::class, 'landing']);
 
 // ===== SHOPEE ADMIN =====
 Route::get('/shopee/login', [ShopeeController::class, 'loginPage'])->name('shopee.login');
 Route::post('/shopee/login', [ShopeeController::class, 'login'])->name('shopee.login.post');
 Route::get('/shopee/logout', [ShopeeController::class, 'logout'])->name('shopee.logout');
 Route::middleware(\App\Http\Middleware\ShopeeAuth::class)->group(function () {
-    // Dashboard removed - keeping only main ERP dashboard
+    Route::get('/shopee/dashboard', [ShopeeController::class, 'dashboard'])->name('shopee.dashboard');
     Route::get('/shopee/orders',    [ShopeeController::class, 'orders'])->name('shopee.orders');
     Route::post('/shopee/import-csv',   [ShopeeController::class, 'importCsv'])->name('shopee.import');
     Route::post('/shopee/sync-to-erp',  [ShopeeController::class, 'syncToErp'])->name('shopee.sync');
@@ -71,7 +70,7 @@ Route::post('/marketplace/login', [MarketplaceController::class, 'login'])->name
 Route::get('/marketplace/logout', [MarketplaceController::class, 'logout'])->name('marketplace.logout');
 
 Route::middleware('marketplace.auth')->group(function () {
-    // Dashboard removed - keeping only main ERP dashboard
+    Route::get('/marketplace/dashboard', [MarketplaceController::class, 'dashboard'])->name('marketplace.dashboard');
     Route::get('/marketplace/{platform}/{page?}', [MarketplaceController::class, 'page'])->name('marketplace.page');
 });
 
@@ -577,7 +576,7 @@ Route::get('/erp/auto-reorder', fn() => view('erp.generic-module', [
     'description' => 'Automasi reorder ketika stok mendekati safety stock.',
     'features' => ['Reorder recommendations','Safety stock alerts','Supplier suggestions','Approval workflow']
 ]));
-Route::get('/erp/data-analytics', fn() => view('erp.generic-module', [
+Route::get('/erp/data-analytics', fn() => view('erp.generic-module', ["
     'title' => 'Data Analytics',
     'description' => 'Analisis data lintas modul untuk pemetaan performa bisnis.',
     'features' => ['Dashboard chart','Segmentation','Trend analysis','Anomaly detection']
@@ -1996,51 +1995,7 @@ Route::get('/erp/{platform}/{page}', function ($platform, $page) use ($platformP
 })->where('platform', 'shopee|tiktok|tokopedia|lazada');
 
 // ── POS System — proxy ke React dev server (port 5173) ─────────────────────
-Route::get('/pos/{path?}', function ($path = '') {
-    if (app()->environment('production')) {
-        // Di production, serve dari build output jika ada
-        $buildPath = public_path('pos/index.html');
-        if (file_exists($buildPath)) {
-            return response()->file($buildPath);
-        }
-        return response('<html><body style="font-family:sans-serif;padding:40px"><h2>POS System</h2><p>Build belum tersedia. Jalankan: <code>cd frontend/artifacts/pos-app && pnpm build</code></p></body></html>', 200)->header('Content-Type', 'text/html');
-    }
-
-    // Development: proxy ke Vite dev server
-    $query = request()->getQueryString();
-    $url   = 'http://localhost:5173/pos/' . $path . ($query ? '?' . $query : '');
-
-    $ch = curl_init($url);
-    curl_setopt_array($ch, [
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_FOLLOWLOCATION => true,
-        CURLOPT_TIMEOUT        => 10,
-        CURLOPT_FAILONERROR    => false,
-        CURLOPT_HEADER         => true,
-    ]);
-    $response = curl_exec($ch);
-    $errno    = curl_errno($ch);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    $headerSize = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
-    curl_close($ch);
-
-    if ($errno || $httpCode === 0) {
-        return response()->view('pos-placeholder')->header('Content-Type', 'text/html');
-    }
-
-    $headers = substr($response, 0, $headerSize);
-    $body    = substr($response, $headerSize);
-
-    $contentType = 'text/html';
-    foreach (explode("\r\n", $headers) as $header) {
-        if (stripos($header, 'content-type:') === 0) {
-            $contentType = trim(substr($header, 13));
-            break;
-        }
-    }
-
-    return response($body, $httpCode)->header('Content-Type', $contentType);
-})->where('path', '.*');
+    // POS route temporarily removed for syntax test
 
 // ===== POS SYSTEM =====
 use App\Http\Controllers\PosController;

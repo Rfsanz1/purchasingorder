@@ -30,7 +30,7 @@ COPY composer.json composer.lock ./
 COPY . .
 
 # Create required directories with proper permissions
-RUN mkdir -p bootstrap/cache storage/framework/{sessions,views,cache} storage/logs \
+RUN mkdir -p bootstrap/cache storage/framework/sessions storage/framework/views storage/framework/cache storage/logs \
     && chmod -R 775 bootstrap/cache storage
 
 # Create .env from example for build-time artisan commands

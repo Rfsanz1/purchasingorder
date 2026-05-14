@@ -36,11 +36,6 @@ class PageController extends Controller
         return view('products');
     }
 
-    public function salesDashboard()
-    {
-        return view('sales-dashboard');
-    }
-
     public function erpInvoice()
     {
         return view('erp.invoice');

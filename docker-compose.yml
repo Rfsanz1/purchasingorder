@@ -30,8 +30,8 @@ services:
       - "8080:8080"
     environment:
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/purchasingorder
-      APP_ENV: production
-      APP_DEBUG: "false"
+      APP_ENV: local
+      APP_DEBUG: "true"
       LOG_CHANNEL: stderr
       KLEDO_TOKEN: ${KLEDO_TOKEN}
     depends_on:
@@ -39,10 +39,10 @@ services:
         condition: service_healthy
     command: >
       bash -c "
+      mkdir -p storage/framework/sessions storage/framework/views storage/framework/cache bootstrap/cache && chmod -R 775 storage bootstrap/cache &&
       php artisan key:generate --force &&
       php artisan migrate --force &&
       php artisan config:cache &&
-      php artisan route:cache &&
       php artisan serve --host=0.0.0.0 --port=8080
       "
     volumes:

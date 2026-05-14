@@ -21,7 +21,6 @@ return [
             'label' => 'Sales',
             'active_patterns' => [
                 'po-form',
-                'sales-dashboard',
                 'erp/invoice',
                 'erp/riwayat-penjualan',
                 'erp/quotation',

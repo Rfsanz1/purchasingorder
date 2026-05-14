@@ -4,7 +4,7 @@ cd "$(dirname "$0")"
 
 echo "=== Laravel Production Start ==="
 
-mkdir -p storage/framework/{sessions,views,cache} storage/logs bootstrap/cache
+mkdir -p storage/framework/sessions storage/framework/views storage/framework/cache storage/logs bootstrap/cache
 chmod -R 775 storage bootstrap/cache 2>/dev/null || true
 
 # Install PHP dependencies jika vendor/ belum ada

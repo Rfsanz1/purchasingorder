@@ -139,13 +139,14 @@
         <nav class="flex-1 px-2 py-3 space-y-0.5 slim-scroll" style="overflow-y:auto;">
 
             {{-- Dashboard --}}
-            <a href="{{ route('marketplace.dashboard') }}"
+            {{-- <a href="{{ route('marketplace.dashboard') }}"
                 class="mp-item {{ request()->routeIs('marketplace.dashboard') ? 'active' : '' }}">
                 <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
                 </svg>
                 <span>Dashboard Marketplace</span>
-            </a>
+            </a> --}}
+            {{-- Dashboard removed - keeping only main ERP dashboard --}}
 
             <div class="h-2"></div>
 
@@ -163,7 +164,7 @@
                 </button>
                 <div class="mp-group-items pl-1 space-y-0.5 mt-0.5" :class="open ? 'open' : 'closed'">
                     @foreach([
-                        ['dashboard','Dashboard Shopee'],
+                        // ['dashboard','Dashboard Shopee'], // Removed - keeping only main ERP dashboard
                         ['orders','Pesanan Shopee'],
                         ['products','Produk Shopee'],
                         ['chat','Chat Shopee'],
@@ -196,7 +197,7 @@
                 </button>
                 <div class="mp-group-items pl-1 space-y-0.5 mt-0.5" :class="open ? 'open' : 'closed'">
                     @foreach([
-                        ['dashboard','Dashboard TikTok Shop'],
+                        // ['dashboard','Dashboard TikTok Shop'], // Removed - keeping only main ERP dashboard
                         ['orders','Pesanan TikTok Shop'],
                         ['products','Produk TikTok Shop'],
                         ['chat','Chat TikTok Shop'],
@@ -229,7 +230,7 @@
                 </button>
                 <div class="mp-group-items pl-1 space-y-0.5 mt-0.5" :class="open ? 'open' : 'closed'">
                     @foreach([
-                        ['dashboard','Dashboard Tokopedia'],
+                        // ['dashboard','Dashboard Tokopedia'], // Removed - keeping only main ERP dashboard
                         ['orders','Pesanan Tokopedia'],
                         ['products','Produk Tokopedia'],
                         ['chat','Chat Tokopedia'],
@@ -262,7 +263,7 @@
                 </button>
                 <div class="mp-group-items pl-1 space-y-0.5 mt-0.5" :class="open ? 'open' : 'closed'">
                     @foreach([
-                        ['dashboard','Dashboard Lazada'],
+                        // ['dashboard','Dashboard Lazada'], // Removed - keeping only main ERP dashboard
                         ['orders','Pesanan Lazada'],
                         ['products','Produk Lazada'],
                         ['chat','Chat Lazada'],
