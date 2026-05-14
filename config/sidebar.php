@@ -271,6 +271,7 @@ return [
                 'erp/activity-timeline',
                 'erp/mobile-sync',
                 'erp/payment-gateway',
+                'erp/install-app',
             ],
         ],
     ],

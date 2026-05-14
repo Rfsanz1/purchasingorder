@@ -2,9 +2,28 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'ERP Gentong Mas')</title>
+
+    {{-- PWA Meta Tags --}}
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#1d4ed8">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Gentong Mas">
+    <meta name="application-name" content="ERP Gentong Mas">
+    <meta name="msapplication-TileColor" content="#1d4ed8">
+    <meta name="msapplication-TileImage" content="/icons/icon-144.png">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/icons/icon-144.png">
+    <link rel="apple-touch-icon" sizes="128x128" href="/icons/icon-128.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/icons/icon-96.png">
+    <link rel="shortcut icon" href="/icons/icon-96.png">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -113,6 +132,29 @@
 @endphp
 
 <body class="bg-gray-50 min-h-screen" data-sidebar-source="{{ $sidebarSource }}" x-data="erpLayout()" x-init="initLayout()">
+
+    {{-- PWA Install Banner --}}
+    <div id="pwa-install-banner" class="hidden fixed bottom-4 left-4 right-4 z-50 max-w-sm mx-auto">
+        <div class="bg-slate-900 text-white rounded-2xl shadow-2xl p-4 flex items-center gap-3 border border-slate-700">
+            <div class="w-12 h-12 rounded-xl bg-blue-600 flex items-center justify-center flex-shrink-0">
+                <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                </svg>
+            </div>
+            <div class="flex-1 min-w-0">
+                <p class="text-sm font-semibold leading-tight">Install Gentong Mas ERP</p>
+                <p class="text-xs text-slate-400 mt-0.5">Akses lebih cepat seperti aplikasi</p>
+            </div>
+            <div class="flex flex-col gap-1.5">
+                <button id="pwa-install-btn" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors">
+                    Install
+                </button>
+                <button id="pwa-install-dismiss" class="text-slate-500 hover:text-slate-300 text-xs px-3 py-1 rounded-lg transition-colors">
+                    Nanti
+                </button>
+            </div>
+        </div>
+    </div>
 
     {{-- Mobile overlay --}}
     <div x-show="sidebarOpen" x-cloak class="fixed inset-0 z-30 bg-black/60 lg:hidden" @click="sidebarOpen=false"></div>
@@ -534,6 +576,11 @@
                             <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                             <span>Pengaturan</span>
                         </a>
+                        <a href="/erp/install-app" class="sidebar-item {{ request()->is('erp/install-app') ? 'active' : 'normal' }}"
+                            style="{{ request()->is('erp/install-app') ? '' : 'background:linear-gradient(135deg,#7c3aed,#6d28d9);color:#fff;' }}">
+                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                            <span>📲 Install Aplikasi</span>
+                        </a>
                     </div>
                 </div>
 
@@ -698,6 +745,57 @@
             },
         }
     }
+    </script>
+
+    {{-- PWA: Service Worker + Install Prompt --}}
+    <script>
+    (function() {
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('SW registered:', reg.scope))
+                    .catch(err => console.log('SW error:', err));
+            });
+        }
+
+        let deferredPrompt = null;
+        const installBanner = document.getElementById('pwa-install-banner');
+        const installBtn = document.getElementById('pwa-install-btn');
+        const installDismiss = document.getElementById('pwa-install-dismiss');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            if (installBanner && !localStorage.getItem('pwa-dismissed')) {
+                installBanner.classList.remove('hidden');
+            }
+        });
+
+        if (installBtn) {
+            installBtn.addEventListener('click', async () => {
+                if (!deferredPrompt) return;
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    installBanner.classList.add('hidden');
+                    localStorage.setItem('pwa-installed', '1');
+                }
+                deferredPrompt = null;
+            });
+        }
+
+        if (installDismiss) {
+            installDismiss.addEventListener('click', () => {
+                installBanner.classList.add('hidden');
+                localStorage.setItem('pwa-dismissed', '1');
+            });
+        }
+
+        window.addEventListener('appinstalled', () => {
+            console.log('PWA installed!');
+            if (installBanner) installBanner.classList.add('hidden');
+        });
+    })();
     </script>
 </body>
 </html>

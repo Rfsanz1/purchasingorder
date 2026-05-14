@@ -2104,4 +2104,7 @@ Route::get('/pos/receipt/{id}', [PosController::class, 'receipt'])->name('pos.re
 Route::post('/integration/manual-sync', [IntegrationDashboardController::class, 'manualSync'])->name('integration.manual-sync');
 Route::get('/integration/api-status', [IntegrationDashboardController::class, 'apiStatus'])->name('integration.api-status');
 
+// ===== PWA INSTALL PAGE =====
+Route::get('/erp/install-app', fn() => view('erp.install-app'))->name('erp.install-app');
+
 ?>
