@@ -22,8 +22,8 @@ class OrderObserver
     {
         DB::transaction(function () use ($order) {
             try {
-                // Parse items dari raw_items jika ada
-                $items = json_decode($order->raw_items, true) ?? [];
+                // raw_items already cast to array by Eloquent model
+                $items = is_array($order->raw_items) ? $order->raw_items : [];
 
                 if (empty($items)) {
                     // Fallback: parse dari nama_produk dan jumlah_produk
@@ -103,7 +103,8 @@ class OrderObserver
 
     private function restoreStock(Order $order): void
     {
-        $items = json_decode($order->raw_items, true) ?? [];
+        // raw_items already cast to array by Eloquent model
+        $items = is_array($order->raw_items) ? $order->raw_items : [];
 
         if (empty($items)) {
             $items = [
