@@ -2117,7 +2117,7 @@ Route::get('/erp/toko-online', function () {
 })->name('erp.toko-online');
 
 // ═══════════════════════════════════════════════════════════════════════
-// ODOO-COMPLETE MODULE ROUTES — semua modul Odoo 17
+// ODOO-COMPLETE MODULE ROUTES — semua modul Odoo 17 (generic fallback)
 // ═══════════════════════════════════════════════════════════════════════
 
 // ── SALES ──────────────────────────────────────────────────────────────
@@ -2224,5 +2224,15 @@ Route::get('/erp/payment-gateway', fn() => view('erp.generic-module', ['title'=>
 Route::get('/erp/webhook', fn() => view('erp.generic-module', ['title'=>'Webhook','description'=>'Kirim notifikasi otomatis ke sistem eksternal saat event tertentu terjadi.','features'=>['Event Trigger','Custom Payload','Retry Logic','Log Request','Auth Header','Test Webhook']]));
 Route::get('/erp/backup', fn() => view('erp.generic-module', ['title'=>'Backup Data','description'=>'Backup dan restore data ERP dengan mudah dan aman.','features'=>['Database Backup','File Backup','Jadwal Otomatis','Cloud Upload','Enkripsi','One-Click Restore']]));
 Route::get('/erp/company-profile', fn() => view('erp.generic-module', ['title'=>'Profil Perusahaan','description'=>'Konfigurasi identitas perusahaan, logo, alamat, dan data dasar bisnis.','features'=>['Nama & Logo','Alamat Lengkap','NPWP & NIB','Kontak Resmi','Tanda Tangan','Template Dokumen']]));
+
+// ═══════════════════════════════════════════════════════════════════════
+// ODOO FULL-FEATURED APP ROUTES — HARUS di paling bawah agar override
+// route lama. Sub-menu + CRUD + stats + kanban (localStorage based)
+// ═══════════════════════════════════════════════════════════════════════
+foreach (config('odoo_apps') as $slug => $appCfg) {
+    Route::get('/erp/' . $slug, function () use ($appCfg) {
+        return view('erp.odoo-app', ['app' => $appCfg]);
+    });
+}
 
 ?>

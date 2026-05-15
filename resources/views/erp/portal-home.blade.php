@@ -117,7 +117,7 @@ function portalHome() {
                 modules:[
                     mod('Accounting','/erp/accounting','📊','#7C7BAD','#9b9acf','Pembukuan'),
                     mod('Invoicing','/erp/invoicing','🧾','#7C7BAD','#8e8dc0','Invoice'),
-                    mod('Expenses','/erp/expenses','🧾','#00A09D','#00b5b2','Pengeluaran Karyawan'),
+                    mod('Expenses','/erp/expenses-app','🧾','#00A09D','#00b5b2','Pengeluaran Karyawan'),
                     mod('Documents','/erp/documents','📁','#00A09D','#00c5c2','Dokumen'),
                     mod('Sign','/erp/sign','✍️','#16a085','#1abc9c','Tanda Tangan Digital'),
                     mod('Kas Masuk','/erp/cash-in','💵','#22c55e','#4ade80','Cash In'),
@@ -154,7 +154,7 @@ function portalHome() {
                 modules:[
                     mod('Inventory','/products','📦','#F06050','#f07060','Stok & Produk'),
                     mod('Manufacturing','/erp/manufacturing','🏭','#f59e0b','#fbbf24','Produksi'),
-                    mod('Purchase','/erp/purchase-order','🛒','#f97316','#fb923c','Pembelian'),
+                    mod('Purchase','/erp/purchase','🛒','#f97316','#fb923c','Pembelian'),
                     mod('Maintenance','/erp/maintenance','🔧','#6b7280','#9ca3af','Perawatan Mesin'),
                     mod('PLM','/erp/plm','📐','#0ea5e9','#38bdf8','Product Lifecycle'),
                     mod('Quality','/erp/quality','✅','#22c55e','#4ade80','Kontrol Kualitas'),
@@ -189,7 +189,7 @@ function portalHome() {
                 label:'Purchase & Supplier', desc:'Pembelian, supplier, penerimaan barang, hutang usaha',
                 modules:[
                     mod('Supplier','/erp/supplier','🤝','#F4A460','#f5b070','Pemasok'),
-                    mod('Purchase Order','/erp/purchase-order','🛒','#f97316','#fb923c','PO'),
+                    mod('Purchase Order','/erp/purchase','🛒','#f97316','#fb923c','PO'),
                     mod('Penerimaan Barang','/erp/goods-receipt','📥','#10b981','#34d399','GRN'),
                     mod('Purchase Request','/erp/purchase-request','📝','#6366f1','#818cf8','PR'),
                     mod('Approval','/erp/purchase-approval','✅','#22c55e','#4ade80','Persetujuan'),
@@ -218,7 +218,7 @@ function portalHome() {
                     mod('Lunch','/erp/lunch','🍱','#e74c3c','#ec6457','Makan Siang'),
                     mod('Payroll','/erp/payroll','💰','#22c55e','#4ade80','Penggajian'),
                     mod('Referrals','/erp/referrals','🔗','#9b59b6','#a96bc6','Referral Karyawan'),
-                    mod('Fleet','/erp/fleet','🚛','#f97316','#fb923c','Armada Kendaraan'),
+                    mod('Fleet','/erp/fleet-app','🚛','#f97316','#fb923c','Armada Kendaraan'),
                     mod('Absensi','/erp/attendance','🕐','#0ea5e9','#38bdf8','Attendance'),
                     mod('Insentif','/erp/incentive','🏅','#f59e0b','#fbbf24','Incentive'),
                     mod('Divisi','/erp/division','🏬','#6366f1','#818cf8','Division'),
