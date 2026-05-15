@@ -78,6 +78,11 @@ Route::get('/kledo/token-status',       [KledoSyncController::class, 'tokenStatu
 
 Route::get('/settings', [SettingsController::class, 'index']);
 Route::put('/settings', [SettingsController::class, 'update']);
+Route::post('/settings/toko-online', function (\Illuminate\Http\Request $req) {
+    $url = trim($req->input('toko_online_url', ''));
+    \App\Models\AppSetting::updateOrCreate(['key' => 'toko_online_url'], ['value' => $url]);
+    return response()->json(['ok' => true]);
+});
 
 // Integrasi pihak ketiga
 Route::get('/integrasi',                  [\App\Http\Controllers\IntegrasiController::class, 'index']);

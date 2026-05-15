@@ -2107,4 +2107,10 @@ Route::get('/integration/api-status', [IntegrationDashboardController::class, 'a
 // ===== PWA INSTALL PAGE =====
 Route::get('/erp/install-app', fn() => view('erp.install-app'))->name('erp.install-app');
 
+// ===== TOKO ONLINE (BAGISTO) =====
+Route::get('/erp/toko-online', function () {
+    $tokoUrl = \App\Models\AppSetting::where('key', 'toko_online_url')->value('value') ?? '';
+    return view('erp.toko-online', compact('tokoUrl'));
+})->name('erp.toko-online');
+
 ?>

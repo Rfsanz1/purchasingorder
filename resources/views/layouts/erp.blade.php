@@ -596,6 +596,16 @@
                 </a>
 
                 {{-- ══════════════════════════════════════════════════════════
+                     TOKO ONLINE (BAGISTO) — Purple
+                ══════════════════════════════════════════════════════════ --}}
+                <a href="/erp/toko-online"
+                    class="sidebar-item {{ request()->is('erp/toko-online') ? 'active' : '' }}"
+                    style="{{ request()->is('erp/toko-online') ? '' : 'background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;box-shadow:0 2px 8px rgba(124,58,237,.3);font-weight:700;' }}margin-top:4px;">
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                    <span>🛒 Toko Online</span>
+                </a>
+
+                {{-- ══════════════════════════════════════════════════════════
                      MARKETPLACE CENTER — Orange
                 ══════════════════════════════════════════════════════════ --}}
                 <a href="/marketplace/login"
