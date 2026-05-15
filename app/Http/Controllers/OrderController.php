@@ -590,7 +590,7 @@ class OrderController extends Controller
 
             Order::where('order_id', $orderId)->update(['whatsapp_sent' => $whatsappSent ? 'true' : 'false']);
 
-            if (\App\Http\Controllers\IntegrasiController::getToken('kledo_token', 'KLEDO_TOKEN') && count($rawItems) > 0 && !empty($d['nomorTelepon'])) {
+            if (\App\Http\Controllers\IntegrasiController::getToken('kledo_token', 'KLEDO_TOKEN') && count($rawItems) > 0) {
                 try {
                     $kledoItems = [];
                     foreach ($rawItems as $item) {
