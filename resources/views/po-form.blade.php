@@ -42,8 +42,25 @@
                     <input type="text" x-model="form.namaKontak" class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="Nama lengkap customer">
                 </div>
                 <div>
-                    <label class="text-sm font-medium text-gray-700 block mb-1">Nomor Telepon <span class="text-gray-400 text-xs">(opsional, boleh kosong)</span></label>
-                    <input type="tel" x-model="form.nomorTelepon" class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="08xx atau +62xx">
+                    <label class="text-sm font-medium text-gray-700 block mb-1">
+                        Nomor Telepon
+                        <span x-show="!form.nomorTelepon" class="ml-1 inline-flex items-center gap-1 bg-amber-100 text-amber-700 text-xs font-semibold px-2 py-0.5 rounded-full">
+                            ⚠️ Hanya kirim ke WA
+                        </span>
+                        <span x-show="form.nomorTelepon" class="ml-1 inline-flex items-center gap-1 bg-green-100 text-green-700 text-xs font-semibold px-2 py-0.5 rounded-full">
+                            ✅ Masuk Kledo + WA
+                        </span>
+                    </label>
+                    <input type="tel" x-model="form.nomorTelepon"
+                        :class="form.nomorTelepon
+                            ? 'border-green-300 focus:ring-green-400'
+                            : 'border-amber-300 focus:ring-amber-400'"
+                        class="w-full border-2 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2"
+                        placeholder="08xx atau +62xx — wajib isi agar masuk Kledo">
+                    <p class="mt-1 text-xs text-gray-500">
+                        <span class="font-medium text-amber-600">Tanpa nomor telepon</span> → pesanan hanya dikirim ke WhatsApp grup. 
+                        <span class="font-medium text-green-600">Isi nomor</span> → pesanan masuk ke Kledo + WA.
+                    </p>
                 </div>
                 <div x-data="{ showStruktur: false }">
                     <div class="flex items-center justify-between mb-1">
