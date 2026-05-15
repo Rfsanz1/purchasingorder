@@ -320,7 +320,7 @@ class KledoController extends Controller
         return $normalized !== null && $normalized === $phone;
     }
 
-    public static function findOrCreateContact(string $nama, string $telepon, string $alamat): ?int
+    public static function findOrCreateContact(string $nama, ?string $telepon, string $alamat): ?int
     {
         try {
             $base    = 'https://api.kledo.com/api/v1/finance';
@@ -330,7 +330,7 @@ class KledoController extends Controller
                 'Content-Type: application/json',
             ];
 
-            $normalizedPhone = self::normalizePhoneForKledo($telepon);
+            $normalizedPhone = self::normalizePhoneForKledo($telepon ?? '');
             $searchName = trim($nama);
             if (empty($searchName)) {
                 $searchName = 'Customer ' . date('YmdHis');
@@ -338,7 +338,7 @@ class KledoController extends Controller
             $searchQueries  = array_filter([
                 $searchName,
                 $normalizedPhone,
-                preg_replace('/\D/', '', $telepon),
+                $telepon ? preg_replace('/\D/', '', $telepon) : '',
             ]);
 
             foreach ($searchQueries as $query) {

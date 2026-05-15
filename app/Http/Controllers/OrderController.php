@@ -626,7 +626,7 @@ class OrderController extends Controller
                     }
 
                     if (count($kledoItems) > 0) {
-                        $contactId  = KledoController::findOrCreateContact($d['namaKontak'], $d['nomorTelepon'], $d['alamat']);
+                        $contactId  = KledoController::findOrCreateContact($d['namaKontak'] ?? '', $d['nomorTelepon'] ?? '', $d['alamat'] ?? '');
                         if ($contactId) {
                             $salesPhone = self::SALES_PHONE[strtoupper($d['salesPerson'] ?? '')] ?? '';
                             $baseMemo   = $salesPhone ? "{$d['salesPerson']} - {$salesPhone}" : "{$d['salesPerson']}";
