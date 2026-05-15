@@ -49,7 +49,10 @@ Route::any('/__mockup/{path?}', function ($path = '') {
     }
     return response($body, $status)->withHeaders($headers);
 })->where('path', '.*');
-Route::redirect('/', '/erp/dashboard');
+Route::redirect('/', '/portal');
+
+// ===== PORTAL HOME — satu pintu semua modul =====
+Route::get('/portal', fn() => view('erp.portal-home'));
 
 // ===== SHOPEE ADMIN =====
 Route::get('/shopee/login', [ShopeeController::class, 'loginPage'])->name('shopee.login');
