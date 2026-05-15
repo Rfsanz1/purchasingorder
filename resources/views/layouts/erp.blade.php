@@ -27,9 +27,21 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; }
+        :root {
+            --sneat-primary: #696cff;
+            --sneat-primary-light: rgba(105,108,255,0.16);
+            --sneat-primary-hover: rgba(105,108,255,0.08);
+            --sneat-body-bg: #f5f5f9;
+            --sneat-sidebar-bg: #fff;
+            --sneat-sidebar-border: #e7e3fc;
+            --sneat-text-muted: #a5a3ae;
+            --sneat-text-body: #6d6777;
+            --sneat-text-heading: #433c50;
+            --sneat-card-shadow: 0 2px 6px rgba(47,43,61,.12);
+        }
+        body { font-family: 'Public Sans', sans-serif; color: var(--sneat-text-body); }
         [x-cloak] { display: none !important; }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
@@ -37,33 +49,39 @@
         /* ─── SIDEBAR ITEM ─────────────────────────────────────────────────── */
         .sidebar-item {
             display: flex; align-items: center; gap: 9px;
-            padding: 7px 10px; border-radius: 8px;
+            padding: 8px 12px; border-radius: 8px;
             font-size: 0.8125rem; font-weight: 500;
             transition: all 0.15s; cursor: pointer; user-select: none; text-decoration: none;
+            color: var(--sneat-text-body);
         }
         .sidebar-item.active {
-            background: #2563eb; color: #fff;
-            box-shadow: 0 1px 4px rgba(37,99,235,.3);
+            background: var(--sneat-primary-light);
+            color: var(--sneat-primary) !important;
+            font-weight: 600;
+            box-shadow: none;
         }
-        .sidebar-item.normal { color: #94a3b8; }
-        .sidebar-item.normal:hover { background: #1e293b; color: #e2e8f0; }
+        .sidebar-item.normal { color: var(--sneat-text-body); }
+        .sidebar-item.normal:hover {
+            background: var(--sneat-primary-hover);
+            color: var(--sneat-primary);
+        }
 
         /* ─── GROUP HEADER ─────────────────────────────────────────────────── */
         .group-header {
             display: flex; align-items: center; justify-content: space-between;
-            padding: 6px 10px; border-radius: 8px; cursor: pointer;
-            font-size: 0.75rem; font-weight: 600;
-            color: #64748b;
+            padding: 8px 12px; border-radius: 8px; cursor: pointer;
+            font-size: 0.8125rem; font-weight: 500;
+            color: var(--sneat-text-body);
             transition: background 0.15s, color 0.15s; user-select: none;
         }
-        .group-header:hover { background: #1e293b; color: #94a3b8; }
-        .group-header.has-active { color: #60a5fa; }
+        .group-header:hover { background: var(--sneat-primary-hover); color: var(--sneat-primary); }
+        .group-header.has-active { color: var(--sneat-primary); font-weight: 600; }
 
         /* ─── SECTION LABEL ────────────────────────────────────────────────── */
         .section-label {
             font-size: 0.6rem; font-weight: 700; text-transform: uppercase;
-            letter-spacing: 0.1em; color: #334155;
-            padding: 12px 10px 3px 10px; display: block;
+            letter-spacing: 0.12em; color: var(--sneat-text-muted);
+            padding: 16px 12px 4px 12px; display: block;
         }
 
         /* ─── CHEVRON ──────────────────────────────────────────────────────── */
@@ -80,21 +98,22 @@
 
         /* ─── LAYOUT ───────────────────────────────────────────────────────── */
         html { overflow-x: hidden; }
-        body { overflow-x: hidden; }
+        body { overflow-x: hidden; background: var(--sneat-body-bg); }
 
         aside {
             position: fixed;
             top: 0; left: 0; bottom: 0; right: auto;
-            width: 15rem;
+            width: 16rem;
             z-index: 40;
-            background: #0f172a;
-            border-right: 1px solid #1e293b;
+            background: var(--sneat-sidebar-bg);
+            border-right: 1px solid var(--sneat-sidebar-border);
+            box-shadow: 4px 0 24px rgba(47,43,61,.06);
             display: flex;
             flex-direction: column;
             overflow-y: auto;
             overflow-x: hidden;
             transform: translateX(-100%);
-            transition: transform 0.2s ease;
+            transition: transform 0.22s cubic-bezier(.4,0,.2,1);
         }
 
         @media (min-width: 1024px) {
@@ -122,6 +141,37 @@
             max-width: 100%;
         }
 
+        /* ─── TOP NAVBAR ───────────────────────────────────────────────────── */
+        .sneat-navbar {
+            height: 3.75rem;
+            background: #fff;
+            border-bottom: 1px solid var(--sneat-sidebar-border);
+            box-shadow: 0 1px 8px rgba(47,43,61,.08);
+            display: flex; align-items: center;
+            padding: 0 1.25rem;
+            gap: 0.75rem;
+            position: sticky; top: 0; z-index: 20;
+        }
+
+        /* ─── SNEAT CARD ───────────────────────────────────────────────────── */
+        .sneat-card {
+            background: #fff;
+            border-radius: 0.75rem;
+            box-shadow: var(--sneat-card-shadow);
+            border: none;
+        }
+
+        /* ─── BADGE ────────────────────────────────────────────────────────── */
+        .sneat-badge {
+            display: inline-flex; align-items: center;
+            padding: 2px 8px; border-radius: 999px;
+            font-size: 0.7rem; font-weight: 600;
+        }
+        .sneat-badge-primary { background: var(--sneat-primary-light); color: var(--sneat-primary); }
+        .sneat-badge-success { background: rgba(113,221,55,.16); color: #71dd37; }
+        .sneat-badge-warning { background: rgba(255,171,0,.16); color: #ffab00; }
+        .sneat-badge-danger  { background: rgba(255,62,29,.16); color: #ff3e1d; }
+
         main { overflow-x: hidden; }
     </style>
     @stack('head')
@@ -131,7 +181,7 @@
     $sidebarSource = config('sidebar.source') ?? 'config/sidebar.php';
 @endphp
 
-<body class="bg-gray-50 min-h-screen" data-sidebar-source="{{ $sidebarSource }}" x-data="erpLayout()" x-init="initLayout()">
+<body class="min-h-screen" data-sidebar-source="{{ $sidebarSource }}" x-data="erpLayout()" x-init="initLayout()" style="background:var(--sneat-body-bg)">
 
     {{-- PWA Install Banner --}}
     <div id="pwa-install-banner" class="hidden fixed bottom-4 left-4 right-4 z-50 max-w-sm mx-auto">
@@ -167,44 +217,40 @@
             class="fixed inset-y-0 left-0 z-40 w-60 flex flex-col transition-transform duration-200 lg:relative lg:translate-x-0 lg:z-auto">
 
             {{-- Logo --}}
-            <div class="px-4 py-4 border-b border-slate-800 shrink-0">
+            <div class="px-4 py-4 shrink-0" style="border-bottom:1px solid var(--sneat-sidebar-border)">
                 <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center shrink-0">
-                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
+                    <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style="background:linear-gradient(135deg,#696cff,#9155fd)">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
                     </div>
                     <div>
-                        <p class="font-bold text-white text-sm leading-tight">Gentong Mas</p>
-                        <p class="text-xs text-slate-500">ERP System</p>
+                        <p class="font-bold text-sm leading-tight" style="color:var(--sneat-text-heading)">Gentong Mas</p>
+                        <p class="text-xs" style="color:var(--sneat-text-muted)">ERP System</p>
                     </div>
                 </div>
             </div>
 
             {{-- Kledo Status Bar --}}
-            <div class="px-3 py-2 border-b border-slate-800 shrink-0 bg-slate-900/50">
+            <div class="px-3 py-2 shrink-0" style="border-bottom:1px solid var(--sneat-sidebar-border);background:#fafafa">
                 <div class="flex items-center justify-between gap-2">
                     <div class="flex items-center gap-1.5 min-w-0">
-                        {{-- Dot indikator --}}
                         <span class="w-2 h-2 rounded-full shrink-0 transition-colors"
                             :class="kledoStatus==='connected'?'bg-green-400 animate-pulse':kledoStatus==='no_token'?'bg-red-400':'bg-yellow-400'">
                         </span>
-                        <span class="text-xs truncate transition-colors"
-                            :class="kledoStatus==='connected'?'text-green-400':kledoStatus==='no_token'?'text-red-400':'text-yellow-400'"
+                        <span class="text-xs truncate font-medium transition-colors"
+                            :class="kledoStatus==='connected'?'text-green-600':kledoStatus==='no_token'?'text-red-500':'text-yellow-600'"
                             x-text="kledoStatus==='connected'?'Kledo Terhubung':kledoStatus==='no_token'?'Kledo: Belum Setup':'Kledo: Memeriksa...'">
                         </span>
                     </div>
-                    {{-- Tombol sync global --}}
                     <button @click="globalSyncKledo()" :disabled="kledoSyncing"
-                        class="shrink-0 text-slate-400 hover:text-white transition p-1 rounded hover:bg-slate-700 disabled:opacity-40"
+                        class="shrink-0 transition p-1 rounded disabled:opacity-40"
+                        style="color:var(--sneat-text-muted)"
                         title="Sync Kledo Sekarang">
                         <svg :class="kledoSyncing?'animate-spin':''" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                         </svg>
                     </button>
                 </div>
-                {{-- Last sync info --}}
-                <p class="text-xs text-slate-600 mt-0.5 truncate" x-show="kledoLastSync" x-text="'Sync: '+kledoLastSyncLabel"></p>
-                {{-- Cache count --}}
-                <p class="text-xs text-slate-600 truncate" x-show="kledoCacheCount>0" x-text="kledoCacheCount+' data di cache'"></p>
+                <p class="text-xs mt-0.5 truncate" style="color:var(--sneat-text-muted)" x-show="kledoLastSync" x-text="'Sync: '+kledoLastSyncLabel"></p>
             </div>
 
             {{-- Nav --}}
@@ -620,15 +666,18 @@
             </nav>
 
             {{-- Bottom user info --}}
-            <div class="px-3 py-3 border-t border-slate-800 shrink-0">
-                <div class="flex items-center gap-2 px-2 py-2 rounded-lg bg-slate-800">
-                    <div class="w-7 h-7 bg-blue-600 rounded-full flex items-center justify-center shrink-0">
-                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+            <div class="px-3 py-3 shrink-0" style="border-top:1px solid var(--sneat-sidebar-border)">
+                <div class="flex items-center gap-2 px-2 py-2 rounded-xl" style="background:var(--sneat-primary-hover)">
+                    <div class="w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-white text-xs font-bold" style="background:linear-gradient(135deg,#696cff,#9155fd)">
+                        <span x-text="(currentUser||'G').charAt(0).toUpperCase()"></span>
                     </div>
-                    <div class="min-w-0">
-                        <p class="text-xs font-semibold text-slate-200 truncate" x-text="currentUser || 'Gentong Mas'"></p>
-                        <p class="text-xs text-slate-500">ERP v1.0</p>
+                    <div class="min-w-0 flex-1">
+                        <p class="text-xs font-semibold truncate" style="color:var(--sneat-text-heading)" x-text="currentUser || 'Gentong Mas'"></p>
+                        <p class="text-xs" style="color:var(--sneat-text-muted)">ERP v1.0</p>
                     </div>
+                    <a href="/logout" class="p-1 rounded transition" style="color:var(--sneat-text-muted)" title="Logout">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                    </a>
                 </div>
             </div>
         </aside>
@@ -636,21 +685,66 @@
         {{-- ===== MAIN CONTENT ===== --}}
         <div class="erp-main">
 
-            {{-- Top bar (mobile) --}}
-            <div class="lg:hidden flex items-center gap-3 px-4 py-3 bg-white border-b border-gray-100 sticky top-0 z-20">
-                <button @click="sidebarOpen=!sidebarOpen" class="p-2 rounded-xl hover:bg-gray-100 text-gray-600">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+            {{-- ═══ TOP NAVBAR (Sneat style) ═══ --}}
+            <nav class="sneat-navbar">
+                {{-- Hamburger (mobile) --}}
+                <button @click="sidebarOpen=!sidebarOpen" class="lg:hidden p-1.5 rounded-lg transition" style="color:var(--sneat-text-muted)">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/></svg>
                 </button>
-                <div class="flex items-center gap-2 flex-1 min-w-0">
-                    <div class="w-6 h-6 bg-blue-600 rounded-lg flex items-center justify-center shrink-0">
-                        <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
-                    </div>
-                    <span class="font-bold text-gray-900 text-sm truncate">@yield('title', 'ERP Gentong Mas')</span>
+
+                {{-- Page title (mobile) --}}
+                <span class="lg:hidden text-sm font-semibold truncate" style="color:var(--sneat-text-heading)">@yield('title', 'ERP')</span>
+
+                {{-- Breadcrumb (desktop) --}}
+                <div class="hidden lg:flex items-center gap-2 text-sm" style="color:var(--sneat-text-muted)">
+                    <span>ERP</span>
+                    <span>/</span>
+                    <span style="color:var(--sneat-text-heading);font-weight:500">@yield('title', 'Dashboard')</span>
                 </div>
-            </div>
+
+                <div class="flex-1"></div>
+
+                {{-- Kledo status pill (desktop only) --}}
+                <div class="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium"
+                    :class="kledoStatus==='connected'?'bg-green-50 text-green-600':kledoStatus==='no_token'?'bg-red-50 text-red-500':'bg-yellow-50 text-yellow-600'">
+                    <span class="w-1.5 h-1.5 rounded-full"
+                        :class="kledoStatus==='connected'?'bg-green-400 animate-pulse':kledoStatus==='no_token'?'bg-red-400':'bg-yellow-400'"></span>
+                    <span x-text="kledoStatus==='connected'?'Kledo OK':kledoStatus==='no_token'?'Kledo Belum Setup':'Memeriksa...'"></span>
+                </div>
+
+                {{-- Notif bell --}}
+                <button class="relative p-2 rounded-lg transition" style="color:var(--sneat-text-muted)" title="Notifikasi">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                </button>
+
+                {{-- User avatar --}}
+                <div class="flex items-center gap-2 pl-2 cursor-pointer" x-data="{open:false}" @click="open=!open" @click.outside="open=false">
+                    <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold" style="background:linear-gradient(135deg,#696cff,#9155fd)">
+                        <span x-text="(currentUser||'G').charAt(0).toUpperCase()"></span>
+                    </div>
+                    <div class="hidden sm:block text-left">
+                        <p class="text-xs font-semibold leading-tight" style="color:var(--sneat-text-heading)" x-text="currentUser||'Admin'"></p>
+                        <p class="text-xs leading-tight" style="color:var(--sneat-text-muted)">Administrator</p>
+                    </div>
+                    <svg class="w-4 h-4 hidden sm:block" style="color:var(--sneat-text-muted)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+
+                    {{-- Dropdown --}}
+                    <div x-show="open" x-cloak class="absolute right-4 top-14 w-44 bg-white rounded-xl shadow-lg border z-50 py-1" style="border-color:var(--sneat-sidebar-border)">
+                        <a href="/erp/install-app" class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-50" style="color:var(--sneat-text-body)">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                            Install App
+                        </a>
+                        <div class="my-1" style="border-top:1px solid var(--sneat-sidebar-border)"></div>
+                        <a href="/logout" class="flex items-center gap-2 px-4 py-2 text-sm text-red-500 hover:bg-red-50">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                            Logout
+                        </a>
+                    </div>
+                </div>
+            </nav>
 
             {{-- Page content --}}
-            <main class="flex-1">
+            <main class="flex-1 p-1">
                 @yield('content')
             </main>
         </div>
