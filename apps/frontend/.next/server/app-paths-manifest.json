@@ -1,27 +1,4 @@
 {
-  "/dashboard/page": "app/dashboard/page.js",
-  "/page": "app/page.js",
-  "/login/page": "app/login/page.js",
-  "/hr/payrolls/page": "app/hr/payrolls/page.js",
-  "/customers/page": "app/customers/page.js",
   "/inventory/page": "app/inventory/page.js",
-  "/purchasing/suppliers/page": "app/purchasing/suppliers/page.js",
-  "/finance/coa/page": "app/finance/coa/page.js",
-  "/hr/employees/page": "app/hr/employees/page.js",
-  "/sales/orders/page": "app/sales/orders/page.js",
-  "/kledo/page": "app/kledo/page.js",
-  "/purchasing/purchase-orders/page": "app/purchasing/purchase-orders/page.js",
-  "/driver/page": "app/driver/page.js",
-  "/pos/page": "app/pos/page.js",
-  "/notifications/page": "app/notifications/page.js",
-  "/sales/faktur/page": "app/sales/faktur/page.js",
-  "/finance/bank-accounts/page": "app/finance/bank-accounts/page.js",
-  "/hr/attendances/page": "app/hr/attendances/page.js",
-  "/inventory/stock-movements/page": "app/inventory/stock-movements/page.js",
-  "/inventory/stock-opnames/page": "app/inventory/stock-opnames/page.js",
-  "/inventory/warehouses/page": "app/inventory/warehouses/page.js",
-  "/purchasing/goods-receipts/page": "app/purchasing/goods-receipts/page.js",
-  "/settings/page": "app/settings/page.js",
-  "/finance/journal-entries/page": "app/finance/journal-entries/page.js",
-  "/reports/page": "app/reports/page.js"
+  "/login/page": "app/login/page.js"
 }

@@ -2,14 +2,14 @@ import '../styles/globals.css';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'ERP Modern Dashboard',
-  description: 'Modern ERP enterprise dashboard for purchasingorder',
+  title: 'Gentong Mas ERP',
+  description: 'Enterprise Resource Planning — Gentong Mas',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body className="min-h-screen bg-slate-950 text-slate-100 antialiased">{children}</body>
+    <html lang="id">
+      <body className="min-h-screen antialiased">{children}</body>
     </html>
   );
 }

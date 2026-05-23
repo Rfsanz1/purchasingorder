@@ -1,15 +1,17 @@
 import { ReactNode } from 'react';
-import { Sidebar } from '../sidebar/Sidebar';
-import { Topbar } from '../topbar/Topbar';
+import { OdooLayout } from './OdooLayout';
 
-export function ModernLayout({ children }: { children: ReactNode }) {
+interface ModernLayoutProps {
+  children: ReactNode;
+  title?: string;
+  subtitle?: string;
+}
+
+// Kept for backwards compatibility — wraps the new OdooLayout
+export function ModernLayout({ children, title, subtitle }: ModernLayoutProps) {
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100">
-      <Sidebar />
-      <div className="ml-[260px] min-h-screen flex flex-col">
-        <Topbar />
-        <main className="flex-1 p-6">{children}</main>
-      </div>
-    </div>
+    <OdooLayout title={title} subtitle={subtitle}>
+      {children}
+    </OdooLayout>
   );
 }
