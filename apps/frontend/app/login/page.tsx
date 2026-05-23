@@ -8,7 +8,7 @@ export default function LoginPage() {
   const router = useRouter();
   const { login, loadProfile, token, error, loading } = useAuthStore();
   const [email, setEmail] = useState('admin@example.com');
-  const [password, setPassword] = useState('password');
+  const [password, setPassword] = useState('admin123');
 
   if (token) {
     router.push('/');
