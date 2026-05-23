@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Param, Post, Put, UseGuards } from '@nestjs/common';
 import { NotificationService } from './notification.service.js';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard.js';
 import { PermissionsGuard } from '../../common/guards/permissions.guard.js';
@@ -8,7 +8,7 @@ import { CurrentUser } from '../../common/decorators/current-user.decorator.js';
 @Controller('notifications')
 @UseGuards(JwtAuthGuard, PermissionsGuard)
 export class NotificationController {
-  constructor(private readonly notificationService: NotificationService) {}
+  constructor(@Inject(NotificationService) private readonly notificationService: NotificationService) {}
 
   @Get()
   @Permissions('notifications.view')

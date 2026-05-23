@@ -1,128 +1,101 @@
 'use client';
 
-import Link from 'next/link';
-import { Briefcase, Database, Package, ShieldCheck } from 'lucide-react';
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { DashboardSummary } from '../components/dashboard/DashboardSummary';
 import { ModernLayout } from '../components/layout/ModernLayout';
 import { useAuthStore } from '../lib/store/useAuthStore';
 import { useDashboardStore } from '../lib/store/useDashboardStore';
+import { Package, Users, ShoppingCart, DollarSign, TrendingUp, Activity, Zap, AlertTriangle } from 'lucide-react';
 
-const actionCards = [
-  {
-    href: '/inventory',
-    label: 'Inventory overview',
-    description: 'Pantau stok dan mutasi barang secara real time.',
-    icon: Briefcase,
-  },
-  {
-    href: '/warehouse',
-    label: 'Warehouse map',
-    description: 'Kelola gudang dan lokasi penyimpanan secara modular.',
-    icon: Database,
-  },
-  {
-    href: '/notifications',
-    label: 'Notifications',
-    description: 'Lihat event notifikasi ERP enterprise.',
-    icon: Package,
-  },
-  {
-    href: '/access',
-    label: 'Roles & Permissions',
-    description: 'Atur akses dan hak pengguna dengan RBAC.',
-    icon: ShieldCheck,
-  },
-];
+function StatCard({ label, value, icon: Icon, color }: any) {
+  return (
+    <div className="rounded-2xl bg-slate-900 border border-slate-800 p-5 flex items-center gap-4">
+      <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${color}`}>
+        <Icon className="h-6 w-6 text-white" />
+      </div>
+      <div>
+        <p className="text-xs text-slate-500 uppercase tracking-wide">{label}</p>
+        <p className="text-2xl font-bold text-white mt-0.5">{value}</p>
+      </div>
+    </div>
+  );
+}
 
 export default function HomePage() {
+  const { token, user, loadProfile } = useAuthStore();
+  const { summary, fetchSummary } = useDashboardStore();
   const router = useRouter();
-  const { token, loadProfile } = useAuthStore();
-  const { summary, loadSummary, isLoading, error } = useDashboardStore();
 
   useEffect(() => {
-    if (!token) {
-      router.push('/login');
-      return;
-    }
+    if (!token) { router.push('/login'); return; }
+    loadProfile();
+    fetchSummary();
+  }, [token]);
 
-    void loadProfile();
-    loadSummary();
-  }, [loadProfile, loadSummary, router, token]);
+  if (!token) return null;
+
+  const stats = [
+    { label: 'Total Users', value: summary?.users ?? '-', icon: Users, color: 'bg-blue-600' },
+    { label: 'Roles', value: summary?.roles ?? '-', icon: ShieldIcon, color: 'bg-purple-600' },
+    { label: 'Notifikasi', value: summary?.notifications ?? '-', icon: BellIcon, color: 'bg-amber-500' },
+    { label: 'Permissions', value: summary?.permissions ?? '-', icon: Activity, color: 'bg-emerald-600' },
+  ];
+
+  const modules = [
+    { label: 'Inventory', href: '/inventory', icon: Package, desc: 'Produk & stok', color: 'from-blue-600 to-blue-800' },
+    { label: 'Sales Order', href: '/sales/orders', icon: ShoppingCart, desc: 'Order penjualan', color: 'from-emerald-600 to-emerald-800' },
+    { label: 'Purchasing', href: '/purchasing/purchase-orders', icon: TrendingUp, desc: 'Purchase Order', color: 'from-orange-500 to-orange-700' },
+    { label: 'Pelanggan', href: '/customers', icon: Users, desc: 'Data pelanggan', color: 'from-purple-600 to-purple-800' },
+    { label: 'Finance', href: '/finance/journal-entries', icon: DollarSign, desc: 'Akuntansi', color: 'from-cyan-600 to-cyan-800' },
+    { label: 'HR & Payroll', href: '/hr/employees', icon: Activity, desc: 'Karyawan & gaji', color: 'from-pink-600 to-pink-800' },
+    { label: 'Kledo ERP', href: '/kledo', icon: Zap, desc: 'Integrasi Kledo', color: 'from-yellow-500 to-yellow-700' },
+    { label: 'POS / Kasir', href: '/pos', icon: AlertTriangle, desc: 'Point of Sale', color: 'from-red-600 to-red-800' },
+  ];
 
   return (
     <ModernLayout>
-      <div className="space-y-8 p-6 lg:p-8">
-        <section className="grid gap-8 xl:grid-cols-[1.4fr_1fr]">
-          <div className="rounded-[32px] border border-[rgba(148,163,184,0.12)] bg-slate-900/80 p-8 shadow-[0_40px_120px_-80px_rgba(0,0,0,0.7)]">
-            <p className="text-sm uppercase tracking-[0.24em] text-[var(--primary-soft)]">ERP Modern Enterprise</p>
-            <h1 className="mt-4 text-4xl font-semibold text-white sm:text-5xl">Selamat datang di Gentong Mas ERP</h1>
-            <p className="mt-5 max-w-2xl text-sm leading-7 text-slate-400 sm:text-base">
-              Platform ERP modern dengan legacy bridge, API-first architecture, dan modular workflow untuk inventory, purchasing, sales, dan reporting.
-            </p>
-            <div className="mt-8 grid gap-4 sm:grid-cols-2">
-              {actionCards.slice(0, 2).map((action) => {
-                const Icon = action.icon;
-                return (
-                  <Link
-                    key={action.href}
-                    href={action.href}
-                    className="group rounded-3xl border border-slate-800 bg-slate-950/80 p-5 transition hover:border-[var(--primary)] hover:bg-slate-900"
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="inline-flex h-11 w-11 items-center justify-center rounded-3xl bg-[var(--primary)]/10 text-[var(--primary)]">
-                        <Icon className="h-5 w-5" />
-                      </span>
-                      <div>
-                        <p className="text-sm font-semibold text-white">{action.label}</p>
-                        <p className="mt-1 text-xs text-slate-400">{action.description}</p>
-                      </div>
-                    </div>
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
+      <div className="max-w-7xl mx-auto space-y-8">
+        <div>
+          <h1 className="text-2xl font-bold text-white">Selamat datang, {user?.name ?? 'Admin'} 👋</h1>
+          <p className="text-slate-400 mt-1">Gentong Mas ERP — {new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+        </div>
 
-          <div className="space-y-6">
-            <DashboardSummary summary={summary} isLoading={isLoading} error={error} />
-            <div className="rounded-[32px] border border-[rgba(148,163,184,0.12)] bg-slate-900/80 p-6 shadow-[0_24px_80px_-32px_rgba(0,0,0,0.7)]">
-              <p className="text-sm uppercase tracking-[0.24em] text-[var(--primary-soft)]">Legacy Bridge</p>
-              <h2 className="mt-3 text-2xl font-semibold text-white">Dual-read dan incremental migration</h2>
-              <p className="mt-3 text-sm leading-6 text-slate-400">
-                Backend baru berjalan paralel dengan Laravel legacy, menjaga data existing dan memulai migrasi modul demi modul.
-              </p>
-            </div>
-          </div>
-        </section>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {stats.map(s => <StatCard key={s.label} {...s} />)}
+        </div>
 
-        <section>
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            {actionCards.map((action) => {
-              const Icon = action.icon;
-              return (
-                <Link
-                  key={action.href}
-                  href={action.href}
-                  className="group rounded-[32px] border border-slate-800 bg-slate-900/90 p-6 text-sm transition hover:border-[var(--primary)] hover:bg-slate-950"
-                >
-                  <div className="flex items-center justify-between gap-4">
-                    <div>
-                      <p className="text-xs uppercase tracking-[0.24em] text-[var(--primary-soft)]">{action.label}</p>
-                      <p className="mt-3 text-base font-semibold text-white">{action.description}</p>
-                    </div>
-                    <span className="inline-flex h-12 w-12 items-center justify-center rounded-3xl bg-[var(--primary)]/10 text-[var(--primary)]">
-                      <Icon className="h-6 w-6" />
-                    </span>
-                  </div>
-                  <div className="mt-5 text-xs text-slate-500">Buka modul</div>
-                </Link>
-              );
-            })}
+        <div>
+          <h2 className="text-lg font-semibold text-white mb-4">Modul ERP</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {modules.map(m => (
+              <a key={m.href} href={m.href} className={`rounded-2xl bg-gradient-to-br ${m.color} p-5 flex flex-col gap-3 hover:scale-[1.02] transition-transform`}>
+                <m.icon className="h-7 w-7 text-white/80" />
+                <div>
+                  <p className="font-semibold text-white">{m.label}</p>
+                  <p className="text-xs text-white/60 mt-0.5">{m.desc}</p>
+                </div>
+              </a>
+            ))}
           </div>
-        </section>
+        </div>
+
+        <div className="rounded-2xl bg-slate-900 border border-slate-800 p-5">
+          <h3 className="font-semibold text-white mb-3 flex items-center gap-2"><Activity className="h-4 w-4 text-cyan-400" /> System Info</h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+            <div><p className="text-slate-500">Backend</p><p className="text-white font-medium">NestJS v11</p></div>
+            <div><p className="text-slate-500">Frontend</p><p className="text-white font-medium">Next.js 14</p></div>
+            <div><p className="text-slate-500">Database</p><p className="text-white font-medium">PostgreSQL</p></div>
+            <div><p className="text-slate-500">ORM</p><p className="text-white font-medium">Prisma</p></div>
+          </div>
+        </div>
       </div>
     </ModernLayout>
   );
+}
+
+function ShieldIcon({ className }: { className?: string }) {
+  return <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>;
+}
+function BellIcon({ className }: { className?: string }) {
+  return <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>;
 }

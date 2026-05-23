@@ -1,11 +1,14 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../../database/prisma.service.js';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly prisma: PrismaService, private readonly jwtService: JwtService) {}
+  constructor(
+    @Inject(PrismaService) private readonly prisma: PrismaService,
+    @Inject(JwtService) private readonly jwtService: JwtService,
+  ) {}
 
   async validateUser(email: string, password: string) {
     const user = await this.prisma.user.findUnique({
@@ -16,35 +19,27 @@ export class AuthService {
     });
 
     if (!user || !(await bcrypt.compare(password, user.password))) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException('Kredensial tidak valid');
     }
 
     const roleName = user.role?.name ?? 'user';
     const permissions = user.role?.permissions?.map((rp) => rp.permission.name) ?? [];
 
-    return {
-      ...user,
-      roles: [roleName],
-      permissions,
-    };
+    return { ...user, roles: [roleName], permissions };
   }
 
   async login(email: string, password: string) {
     const user = await this.validateUser(email, password);
+    const secret = process.env.JWT_SECRET || 'change-this-secret';
+
     const accessToken = this.jwtService.sign(
       { sub: user.id, email: user.email, roles: user.roles, permissions: user.permissions },
-      {
-        secret: process.env.JWT_SECRET || 'change-this-secret',
-        expiresIn: process.env.JWT_EXPIRES_IN || '15m',
-      },
+      { secret, expiresIn: process.env.JWT_EXPIRES_IN || '24h' },
     );
 
     const refreshToken = this.jwtService.sign(
       { sub: user.id, email: user.email },
-      {
-        secret: process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET || 'change-this-secret',
-        expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
-      },
+      { secret: process.env.JWT_REFRESH_SECRET || secret, expiresIn: '7d' },
     );
 
     return {
@@ -73,24 +68,20 @@ export class AuthService {
         },
       });
 
-      if (!user) {
-        throw new UnauthorizedException('User not found');
-      }
+      if (!user) throw new UnauthorizedException('User tidak ditemukan');
 
       const roleName = user.role?.name ?? 'user';
       const permissions = user.role?.permissions?.map((rp) => rp.permission.name) ?? [];
+      const secret = process.env.JWT_SECRET || 'change-this-secret';
 
       const accessToken = this.jwtService.sign(
         { sub: user.id, email: user.email, roles: [roleName], permissions },
-        {
-          secret: process.env.JWT_SECRET || 'change-this-secret',
-          expiresIn: process.env.JWT_EXPIRES_IN || '15m',
-        },
+        { secret, expiresIn: process.env.JWT_EXPIRES_IN || '24h' },
       );
 
       return { accessToken, refreshToken: token };
     } catch {
-      throw new UnauthorizedException('Refresh token invalid');
+      throw new UnauthorizedException('Refresh token tidak valid');
     }
   }
 }

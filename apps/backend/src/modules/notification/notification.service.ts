@@ -1,12 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service.js';
 import { NotificationGateway } from './notification.gateway.js';
 
 @Injectable()
 export class NotificationService {
   constructor(
-    private readonly prisma: PrismaService,
-    private readonly notificationGateway: NotificationGateway,
+    @Inject(PrismaService) private readonly prisma: PrismaService,
+    @Inject(NotificationGateway) private readonly notificationGateway: NotificationGateway,
   ) {}
 
   async findAll(recipient: string) {
