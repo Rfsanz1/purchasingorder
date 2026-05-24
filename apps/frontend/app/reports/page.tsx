@@ -1,34 +1,55 @@
 'use client';
-import { ModernLayout } from '../../components/layout/ModernLayout';
-import { BarChart3, TrendingUp, FileText, DollarSign, Users, Package } from 'lucide-react';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuthStore } from '../../lib/store/useAuthStore';
+import AppShell from '../../components/layout/AppShell';
+import { REPORTS_CONFIG, REPORTS_NAV } from '../../lib/nav-configs';
+import { BarChart3, TrendingUp, FileText, DollarSign, Users, Package, Truck, UserCheck } from 'lucide-react';
 
-const reports = [
-  { href: '/reports/sales', icon: TrendingUp, label: 'Laporan Penjualan', desc: 'Revenue, order, dan performa sales per periode', color: 'from-emerald-600 to-emerald-800' },
-  { href: '/reports/inventory', icon: Package, label: 'Laporan Inventory', desc: 'Stok masuk/keluar, nilai inventory, & perputaran', color: 'from-blue-600 to-blue-800' },
-  { href: '/reports/finance', icon: DollarSign, label: 'Laporan Keuangan', desc: 'Neraca, laba rugi, arus kas', color: 'from-cyan-600 to-cyan-800' },
-  { href: '/reports/customers', icon: Users, label: 'Laporan Pelanggan', desc: 'Analisis pelanggan, repeat order, CRM', color: 'from-purple-600 to-purple-800' },
-  { href: '/reports/purchasing', icon: FileText, label: 'Laporan Pembelian', desc: 'PO, penerimaan barang, supplier analysis', color: 'from-orange-600 to-orange-800' },
-  { href: '/reports/hr', icon: BarChart3, label: 'Laporan HR & Payroll', desc: 'Absensi, gaji, dan kinerja karyawan', color: 'from-pink-600 to-pink-800' },
+const REPORT_CARDS = [
+  { href: '/reports/sales',      icon: TrendingUp, label: 'Lap. Penjualan',  desc: 'Revenue, order, performa sales per periode',    color: '#00ACC1', bg: 'rgba(0,172,193,.1)' },
+  { href: '/reports/inventory',  icon: Package,    label: 'Lap. Inventaris', desc: 'Stok masuk/keluar, nilai inventory, perputaran', color: '#F57C00', bg: 'rgba(245,124,0,.1)' },
+  { href: '/reports/finance',    icon: DollarSign, label: 'Lap. Keuangan',   desc: 'Neraca, laba rugi, arus kas bulanan',           color: '#388E3C', bg: 'rgba(56,142,60,.1)' },
+  { href: '/reports/customers',  icon: Users,      label: 'Lap. Pelanggan',  desc: 'Analisis pelanggan, repeat order, CRM',         color: '#8E24AA', bg: 'rgba(142,36,170,.1)' },
+  { href: '/reports/purchasing', icon: Truck,      label: 'Lap. Pembelian',  desc: 'PO, penerimaan barang, analisis supplier',       color: '#5D4037', bg: 'rgba(93,64,55,.1)' },
+  { href: '/reports/hr',         icon: UserCheck,  label: 'Lap. SDM',        desc: 'Absensi, gaji, dan kinerja karyawan',           color: '#C2185B', bg: 'rgba(194,24,91,.1)' },
 ];
 
 export default function ReportsPage() {
+  const { token } = useAuthStore();
+  const router = useRouter();
+  useEffect(() => { if (!token) router.push('/login'); }, [token]);
+  if (!token) return null;
+
   return (
-    <ModernLayout>
-      <div className="max-w-5xl mx-auto space-y-6">
-        <div><h1 className="text-2xl font-bold text-white flex items-center gap-2"><BarChart3 className="h-6 w-6 text-slate-400" /> Laporan</h1><p className="text-slate-400 mt-1">Analitik & laporan bisnis lengkap</p></div>
+    <AppShell {...REPORTS_CONFIG} navItems={REPORTS_NAV} activeHref="/reports">
+      <div className="p-6 space-y-6 max-w-5xl mx-auto">
+        <div>
+          <h1 className="text-xl font-bold" style={{ color: '#433C50' }}>Laporan & Analitik</h1>
+          <p className="text-sm mt-0.5" style={{ color: '#A5A3AE' }}>Pilih laporan yang ingin Anda lihat</p>
+        </div>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          {reports.map(r => (
-            <a key={r.href} href={r.href} className={`rounded-2xl bg-gradient-to-br ${r.color} p-5 flex flex-col gap-3 hover:scale-[1.02] transition-transform`}>
-              <r.icon className="h-7 w-7 text-white/80" />
-              <div><p className="font-semibold text-white">{r.label}</p><p className="text-xs text-white/60 mt-1">{r.desc}</p></div>
+          {REPORT_CARDS.map((r) => (
+            <a key={r.href} href={r.href} className="bg-white rounded-2xl p-5 transition"
+              style={{ border: '1.5px solid #EDE8F5', boxShadow: '0 1px 4px rgba(47,43,61,.06)' }}
+              onMouseEnter={(e) => { e.currentTarget.style.borderColor = r.color; e.currentTarget.style.boxShadow = `0 4px 12px rgba(47,43,61,.1)`; }}
+              onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#EDE8F5'; e.currentTarget.style.boxShadow = '0 1px 4px rgba(47,43,61,.06)'; }}>
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl mb-3" style={{ backgroundColor: r.bg }}>
+                <r.icon className="h-5 w-5" style={{ color: r.color }} />
+              </div>
+              <p className="text-sm font-bold" style={{ color: '#433C50' }}>{r.label}</p>
+              <p className="text-xs mt-1" style={{ color: '#A5A3AE' }}>{r.desc}</p>
             </a>
           ))}
         </div>
-        <div className="rounded-2xl bg-slate-900 border border-slate-800 p-6">
-          <h3 className="font-semibold text-white mb-4 flex items-center gap-2"><BarChart3 className="h-4 w-4 text-slate-400" /> Info Laporan</h3>
-          <p className="text-sm text-slate-400">Pilih laporan di atas untuk melihat analitik detail. Semua laporan dapat diekspor ke format Excel (xlsx) atau PDF.</p>
+        <div className="bg-white rounded-2xl p-6" style={{ border: '1.5px solid #EDE8F5', boxShadow: '0 1px 4px rgba(47,43,61,.06)' }}>
+          <div className="flex items-center gap-2 mb-3">
+            <BarChart3 className="h-4 w-4" style={{ color: '#A5A3AE' }} />
+            <h3 className="text-sm font-bold" style={{ color: '#433C50' }}>Info Laporan</h3>
+          </div>
+          <p className="text-sm" style={{ color: '#A5A3AE' }}>Pilih laporan di atas untuk melihat analitik detail. Semua laporan dapat diekspor ke format Excel (.xlsx) atau PDF.</p>
         </div>
       </div>
-    </ModernLayout>
+    </AppShell>
   );
 }

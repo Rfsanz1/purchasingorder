@@ -1,16 +1,29 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { ModernLayout } from '../../components/layout/ModernLayout';
+import { useRouter } from 'next/navigation';
+import { useAuthStore } from '../../lib/store/useAuthStore';
+import AppShell from '../../components/layout/AppShell';
+import { CRM_CONFIG, CRM_NAV } from '../../lib/nav-configs';
 import { api } from '../../lib/api';
-import { Users, Plus, Search, RefreshCw } from 'lucide-react';
+import { Users, Plus, Search, RefreshCw, Star, MessageSquare } from 'lucide-react';
+
+const SUB_NAV = [
+  { label: 'Semua Pelanggan', href: '/customers' },
+  { label: 'Loyalty Points',  href: '/customers/loyalty' },
+  { label: 'WhatsApp Log',    href: '/customers/whatsapp-log' },
+];
 
 export default function CustomersPage() {
+  const { token } = useAuthStore();
+  const router = useRouter();
   const [data, setData] = useState<any[]>([]);
   const [summary, setSummary] = useState<any>(null);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
+
+  useEffect(() => { if (!token) router.push('/login'); }, [token]);
 
   const load = async () => {
     setLoading(true);
@@ -24,55 +37,106 @@ export default function CustomersPage() {
       setSummary(s.data);
     } catch {} finally { setLoading(false); }
   };
-  useEffect(() => { load(); }, [search, page]);
+  useEffect(() => { if (token) load(); }, [search, page, token]);
+
+  if (!token) return null;
 
   return (
-    <ModernLayout>
-      <div className="max-w-7xl mx-auto space-y-6">
+    <AppShell {...CRM_CONFIG} navItems={CRM_NAV} activeHref="/customers">
+      <div className="p-6 space-y-6 max-w-6xl mx-auto">
         <div className="flex items-center justify-between">
-          <div><h1 className="text-2xl font-bold text-white flex items-center gap-2"><Users className="h-6 w-6 text-purple-400" /> Pelanggan</h1><p className="text-slate-400 mt-1">Manajemen data pelanggan</p></div>
-          <button className="flex items-center gap-2 rounded-xl bg-purple-600 hover:bg-purple-500 px-4 py-2 text-sm font-medium text-white transition"><Plus className="h-4 w-4" /> Tambah Pelanggan</button>
+          <div>
+            <h1 className="text-xl font-bold" style={{ color: '#433C50' }}>Data Pelanggan</h1>
+            <p className="text-sm mt-0.5" style={{ color: '#A5A3AE' }}>Manajemen data pelanggan & riwayat transaksi</p>
+          </div>
+          <button className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold text-white" style={{ backgroundColor: CRM_CONFIG.appColor }}>
+            <Plus className="h-4 w-4" /> Tambah Pelanggan
+          </button>
         </div>
+
+        {/* sub nav */}
+        <div className="flex gap-1 p-1 rounded-xl w-fit" style={{ backgroundColor: '#F5F2FB' }}>
+          {SUB_NAV.map((n) => (
+            <a key={n.href} href={n.href} className="px-4 py-1.5 rounded-lg text-xs font-semibold transition"
+              style={n.href === '/customers' ? { backgroundColor: 'white', color: '#433C50', boxShadow: '0 1px 3px rgba(47,43,61,.1)' } : { color: '#A5A3AE' }}>
+              {n.label}
+            </a>
+          ))}
+        </div>
+
         {summary && (
           <div className="grid grid-cols-3 gap-4">
-            <div className="rounded-2xl bg-slate-900 border border-slate-800 p-4"><p className="text-xs text-slate-500">Total</p><p className="text-3xl font-bold text-white mt-1">{summary.total}</p></div>
-            <div className="rounded-2xl bg-slate-900 border border-slate-800 p-4"><p className="text-xs text-slate-500">Aktif</p><p className="text-3xl font-bold text-emerald-400 mt-1">{summary.active}</p></div>
-            <div className="rounded-2xl bg-slate-900 border border-slate-800 p-4"><p className="text-xs text-slate-500">Nonaktif</p><p className="text-3xl font-bold text-slate-400 mt-1">{summary.inactive}</p></div>
+            {[
+              { label: 'Total Pelanggan', value: summary.total, color: '#8E24AA', bg: 'rgba(142,36,170,.1)' },
+              { label: 'Pelanggan Aktif', value: summary.active, color: '#4CAF50', bg: 'rgba(76,175,80,.1)' },
+              { label: 'Tidak Aktif',     value: summary.inactive, color: '#A5A3AE', bg: 'rgba(165,163,174,.1)' },
+            ].map((s) => (
+              <div key={s.label} className="bg-white rounded-2xl p-5" style={{ border: '1.5px solid #EDE8F5', boxShadow: '0 1px 4px rgba(47,43,61,.06)' }}>
+                <p className="text-xs font-medium" style={{ color: '#A5A3AE' }}>{s.label}</p>
+                <p className="text-2xl font-bold mt-1" style={{ color: '#433C50' }}>{s.value ?? 0}</p>
+              </div>
+            ))}
           </div>
         )}
-        <div className="rounded-2xl bg-slate-900 border border-slate-800">
-          <div className="flex items-center gap-3 p-4 border-b border-slate-800">
-            <div className="relative flex-1 max-w-sm"><Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" /><input className="w-full rounded-xl bg-slate-800 border border-slate-700 pl-9 pr-4 py-2 text-sm text-white placeholder-slate-500 focus:outline-none" placeholder="Cari pelanggan..." value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} /></div>
-            <button onClick={load} className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 transition text-slate-400"><RefreshCw className="h-4 w-4" /></button>
+
+        <div className="bg-white rounded-2xl" style={{ border: '1.5px solid #EDE8F5', boxShadow: '0 1px 4px rgba(47,43,61,.06)' }}>
+          <div className="flex items-center gap-3 px-6 py-4" style={{ borderBottom: '1px solid #EDE8F5' }}>
+            <div className="relative flex-1 max-w-sm">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5" style={{ color: '#B0AAB9' }} />
+              <input className="w-full rounded-lg pl-9 pr-4 py-2 text-sm" style={{ border: '1px solid #EDE8F5', color: '#433C50', outline: 'none' }} placeholder="Cari pelanggan..." value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} />
+            </div>
+            <button onClick={load} className="p-2 rounded-lg" style={{ border: '1px solid #EDE8F5', color: '#A5A3AE' }}>
+              <RefreshCw className="h-4 w-4" />
+            </button>
           </div>
-          <div className="overflow-x-auto"><table className="w-full text-sm">
-            <thead><tr className="border-b border-slate-800 text-slate-500 text-xs uppercase">
-              <th className="text-left px-4 py-3">Nama</th><th className="text-left px-4 py-3">Email</th><th className="text-left px-4 py-3">Telepon</th><th className="text-left px-4 py-3">Kota</th><th className="text-center px-4 py-3">Status</th>
-            </tr></thead>
-            <tbody className="divide-y divide-slate-800">
-              {loading ? <tr><td colSpan={5} className="py-12 text-center text-slate-500">Memuat...</td></tr>
-              : data.length === 0 ? <tr><td colSpan={5} className="py-12 text-center text-slate-500">Belum ada pelanggan</td></tr>
-              : data.map(c => (
-                <tr key={c.id} className="hover:bg-slate-800/50 transition">
-                  <td className="px-4 py-3 font-medium text-white">{c.name}</td>
-                  <td className="px-4 py-3 text-slate-400">{c.email||'-'}</td>
-                  <td className="px-4 py-3 text-slate-400">{c.phone||'-'}</td>
-                  <td className="px-4 py-3 text-slate-400">{c.city||'-'}</td>
-                  <td className="px-4 py-3 text-center"><span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${c.active ? 'bg-emerald-900/50 text-emerald-400' : 'bg-slate-800 text-slate-500'}`}>{c.active ? 'Aktif' : 'Nonaktif'}</span></td>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr style={{ borderBottom: '1px solid #EDE8F5' }}>
+                  {['Nama', 'Email', 'Telepon', 'Kota', 'Status'].map((h) => (
+                    <th key={h} className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide" style={{ color: '#A5A3AE' }}>{h}</th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table></div>
-          <div className="flex items-center justify-between px-4 py-3 border-t border-slate-800 text-sm text-slate-500">
-            <span>Total: {total}</span>
+              </thead>
+              <tbody>
+                {loading ? (
+                  <tr><td colSpan={5} className="px-6 py-12 text-center text-sm" style={{ color: '#A5A3AE' }}>Memuat data...</td></tr>
+                ) : data.length === 0 ? (
+                  <tr><td colSpan={5} className="px-6 py-12 text-center text-sm" style={{ color: '#A5A3AE' }}>Belum ada pelanggan</td></tr>
+                ) : data.map((c, i) => (
+                  <tr key={c.id} style={{ borderBottom: i < data.length - 1 ? '1px solid #F5F2FB' : 'none' }}
+                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#FDFCFF'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; }}>
+                    <td className="px-6 py-3.5">
+                      <div className="flex items-center gap-2.5">
+                        <div className="flex h-7 w-7 items-center justify-center rounded-full text-white text-xs font-bold flex-shrink-0" style={{ backgroundColor: '#8E24AA' }}>{c.name?.charAt(0)}</div>
+                        <span className="text-sm font-medium" style={{ color: '#433C50' }}>{c.name}</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-3.5 text-sm" style={{ color: '#A5A3AE' }}>{c.email || '–'}</td>
+                    <td className="px-6 py-3.5 text-sm" style={{ color: '#A5A3AE' }}>{c.phone || '–'}</td>
+                    <td className="px-6 py-3.5 text-sm" style={{ color: '#A5A3AE' }}>{c.city || '–'}</td>
+                    <td className="px-6 py-3.5">
+                      <span className="inline-flex px-2.5 py-1 rounded-full text-xs font-semibold"
+                        style={{ color: c.active ? '#4CAF50' : '#A5A3AE', backgroundColor: c.active ? 'rgba(76,175,80,.1)' : 'rgba(165,163,174,.12)' }}>
+                        {c.active ? 'Aktif' : 'Nonaktif'}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="flex items-center justify-between px-6 py-3" style={{ borderTop: '1px solid #EDE8F5' }}>
+            <span className="text-xs" style={{ color: '#A5A3AE' }}>Total: {total}</span>
             <div className="flex gap-2">
-              <button onClick={() => setPage(p => Math.max(1,p-1))} disabled={page===1} className="px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-40 transition">←</button>
-              <span className="px-3 py-1 text-white">Hal {page}</span>
-              <button onClick={() => setPage(p => p+1)} disabled={data.length<20} className="px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-40 transition">→</button>
+              <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="px-3 py-1 rounded-lg text-xs disabled:opacity-40" style={{ border: '1px solid #EDE8F5', color: '#433C50' }}>← Prev</button>
+              <span className="px-3 py-1 text-xs" style={{ color: '#433C50' }}>Hal {page}</span>
+              <button onClick={() => setPage(p => p + 1)} disabled={data.length < 20} className="px-3 py-1 rounded-lg text-xs disabled:opacity-40" style={{ border: '1px solid #EDE8F5', color: '#433C50' }}>Next →</button>
             </div>
           </div>
         </div>
       </div>
-    </ModernLayout>
+    </AppShell>
   );
 }
