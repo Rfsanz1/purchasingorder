@@ -543,8 +543,14 @@ video {
 .mb-1\.5{
   margin-bottom: 0.375rem;
 }
+.mb-10{
+  margin-bottom: 2.5rem;
+}
 .mb-2{
   margin-bottom: 0.5rem;
+}
+.mb-2\.5{
+  margin-bottom: 0.625rem;
 }
 .mb-3{
   margin-bottom: 0.75rem;
@@ -579,6 +585,9 @@ video {
 .mt-1{
   margin-top: 0.25rem;
 }
+.mt-10{
+  margin-top: 2.5rem;
+}
 .mt-2{
   margin-top: 0.5rem;
 }
@@ -593,15 +602,6 @@ video {
 }
 .mt-6{
   margin-top: 1.5rem;
-}
-.mb-10{
-  margin-bottom: 2.5rem;
-}
-.mb-2\.5{
-  margin-bottom: 0.625rem;
-}
-.mt-10{
-  margin-top: 2.5rem;
 }
 .line-clamp-1{
   overflow: hidden;
@@ -711,6 +711,9 @@ video {
 .h-screen{
   height: 100vh;
 }
+.h-1{
+  height: 0.25rem;
+}
 .max-h-52{
   max-height: 13rem;
 }
@@ -749,6 +752,9 @@ video {
 }
 .w-2\.5{
   width: 0.625rem;
+}
+.w-20{
+  width: 5rem;
 }
 .w-28{
   width: 7rem;
@@ -816,9 +822,6 @@ video {
 }
 .w-full{
   width: 100%;
-}
-.w-20{
-  width: 5rem;
 }
 .w-px{
   width: 1px;
@@ -1650,6 +1653,10 @@ video {
   padding-top: 5rem;
   padding-bottom: 5rem;
 }
+.py-24{
+  padding-top: 6rem;
+  padding-bottom: 6rem;
+}
 .py-3{
   padding-top: 0.75rem;
   padding-bottom: 0.75rem;
@@ -1670,15 +1677,14 @@ video {
   padding-top: 2rem;
   padding-bottom: 2rem;
 }
-.py-24{
-  padding-top: 6rem;
-  padding-bottom: 6rem;
-}
 .pb-1{
   padding-bottom: 0.25rem;
 }
 .pb-2\.5{
   padding-bottom: 0.625rem;
+}
+.pb-3{
+  padding-bottom: 0.75rem;
 }
 .pb-32{
   padding-bottom: 8rem;
@@ -1715,9 +1721,6 @@ video {
 }
 .pt-3{
   padding-top: 0.75rem;
-}
-.pb-3{
-  padding-bottom: 0.75rem;
 }
 .pt-4{
   padding-top: 1rem;
@@ -1997,6 +2000,9 @@ video {
 .opacity-\[0\.07\]{
   opacity: 0.07;
 }
+.opacity-60{
+  opacity: 0.6;
+}
 .shadow-2xl{
   --tw-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
   --tw-shadow-colored: 0 25px 50px -12px var(--tw-shadow-color);
@@ -2271,20 +2277,20 @@ select:focus-visible {
   .sm\:flex{
     display: flex;
   }
+  .sm\:w-52{
+    width: 13rem;
+  }
   .sm\:w-56{
     width: 14rem;
   }
-  .sm\:w-52{
-    width: 13rem;
+  .sm\:grid-cols-2{
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .sm\:grid-cols-3{
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
   .sm\:grid-cols-4{
     grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-  .sm\:grid-cols-2{
-    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .sm\:flex-row{
     flex-direction: row;

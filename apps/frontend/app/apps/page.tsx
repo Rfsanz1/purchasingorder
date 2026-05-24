@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '../../lib/store/useAuthStore';
+import { useModulesStore } from '../../lib/store/useModulesStore';
 import {
   ShoppingCart, Users, Package, FileText, DollarSign, Truck,
   BarChart2, Settings, ShieldCheck, Monitor, UserCheck, Star,
@@ -10,8 +11,6 @@ import {
   Clock, MessageSquare, Wrench, Factory, Award, BookOpen,
   HeartHandshake, Car, Layers, Building2, X, ArrowLeft, LogOut,
 } from 'lucide-react';
-
-type AppStatus = 'installed' | 'installing' | 'not_installed';
 
 interface ERPApp {
   id: string;
@@ -56,122 +55,110 @@ const APP_DEFS: ERPApp[] = [
   { id: 'access', name: 'Akses & Peran', desc: 'User, role & permission', longDesc: 'Kelola pengguna, peran, dan hak akses secara granular untuk setiap modul di seluruh sistem ERP.', icon: ShieldCheck, color: '#F44336', bgColor: '#FFEBEE', category: 'Sistem', version: '17.0', installs: '14.2K', rating: 4.7, deps: [], href: '/access' },
 ];
 
-const STORAGE_KEY = 'erp_installed_apps';
-const DEFAULT_INSTALLED = ['sales', 'crm', 'pos', 'invoice', 'accounting', 'inventory', 'purchase', 'hr', 'reports', 'settings', 'access'];
 const CATEGORIES = ['Semua', 'Penjualan', 'Keuangan', 'Operasional', 'SDM', 'Produksi', 'Layanan', 'Sistem', 'Integrasi'];
-
-function getInstalled(): string[] {
-  if (typeof window === 'undefined') return DEFAULT_INSTALLED;
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored) : DEFAULT_INSTALLED;
-  } catch { return DEFAULT_INSTALLED; }
-}
-
-function saveInstalled(ids: string[]) {
-  if (typeof window !== 'undefined') localStorage.setItem(STORAGE_KEY, JSON.stringify(ids));
-}
 
 export default function AppStorePage() {
   const { token, user, logout } = useAuthStore();
+  const { installed, install, uninstall, hydrate } = useModulesStore();
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
-  const [installedIds, setInstalledIds] = useState<string[]>(DEFAULT_INSTALLED);
   const [installing, setInstalling] = useState<Record<string, number>>({});
   const [search, setSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState('Semua');
   const [selectedApp, setSelectedApp] = useState<ERPApp | null>(null);
 
   useEffect(() => { setMounted(true); }, []);
-  useEffect(() => { if (!mounted) return; if (!token) router.push('/login'); }, [mounted, token]);
-  useEffect(() => { if (mounted) setInstalledIds(getInstalled()); }, [mounted]);
+  useEffect(() => {
+    if (!mounted) return;
+    if (!token) { router.push('/login'); return; }
+    hydrate();
+  }, [mounted, token]);
 
-  const getStatus = (id: string): AppStatus => {
+  const getStatus = useCallback((id: string) => {
     if (installing[id] !== undefined) return 'installing';
-    if (installedIds.includes(id)) return 'installed';
+    if (installed.includes(id)) return 'installed';
     return 'not_installed';
-  };
+  }, [installing, installed]);
 
-  const handleInstall = (appId: string, e?: React.MouseEvent) => {
+  const handleInstall = useCallback((appId: string, e?: React.MouseEvent) => {
     e?.stopPropagation();
     if (getStatus(appId) !== 'not_installed') return;
     const app = APP_DEFS.find(a => a.id === appId)!;
+    const missingDeps = app.deps.filter(d => !installed.includes(d));
+    const toInstall = [appId, ...missingDeps];
 
-    const toInstall = [appId, ...app.deps.filter(d => !installedIds.includes(d))];
-    const initialProgress: Record<string, number> = {};
-    toInstall.forEach(id => { initialProgress[id] = 0; });
-    setInstalling(prev => ({ ...prev, ...initialProgress }));
+    const initial: Record<string, number> = {};
+    toInstall.forEach(id => { initial[id] = 0; });
+    setInstalling(prev => ({ ...prev, ...initial }));
 
-    toInstall.forEach(id => {
-      let progress = 0;
-      const interval = setInterval(() => {
-        progress += Math.random() * 15 + 5;
-        if (progress >= 100) {
-          progress = 100;
-          clearInterval(interval);
-          setTimeout(() => {
-            setInstalledIds(prev => {
-              const next = prev.includes(id) ? prev : [...prev, id];
-              saveInstalled(next);
-              return next;
-            });
-            setInstalling(prev => { const n = { ...prev }; delete n[id]; return n; });
-          }, 300);
-        }
-        setInstalling(prev => ({ ...prev, [id]: Math.min(progress, 100) }));
-      }, 100);
+    toInstall.forEach((id, idx) => {
+      // Stagger deps slightly
+      const delay = idx * 200;
+      setTimeout(() => {
+        let progress = 0;
+        const iv = setInterval(() => {
+          progress += Math.random() * 14 + 6;
+          if (progress >= 100) {
+            progress = 100;
+            clearInterval(iv);
+            setTimeout(() => {
+              install(id);
+              setInstalling(prev => { const n = { ...prev }; delete n[id]; return n; });
+            }, 300);
+          }
+          setInstalling(prev => ({ ...prev, [id]: Math.min(progress, 100) }));
+        }, 80);
+      }, delay);
     });
-  };
+  }, [getStatus, installed, install]);
 
-  const handleUninstall = (appId: string, e?: React.MouseEvent) => {
+  const handleUninstall = useCallback((appId: string, e?: React.MouseEvent) => {
     e?.stopPropagation();
-    const next = installedIds.filter(id => id !== appId);
-    setInstalledIds(next);
-    saveInstalled(next);
+    uninstall(appId);
     if (selectedApp?.id === appId) setSelectedApp(null);
-  };
+  }, [uninstall, selectedApp]);
 
   if (!mounted || !token) return null;
 
+  const featured = APP_DEFS.filter(a => a.featured);
   const filtered = APP_DEFS.filter(a => {
     const matchCat = activeCategory === 'Semua' || a.category === activeCategory;
     const q = search.toLowerCase();
-    const matchSearch = !q || a.name.toLowerCase().includes(q) || a.desc.toLowerCase().includes(q) || a.category.toLowerCase().includes(q);
-    return matchCat && matchSearch;
+    return matchCat && (!q || a.name.toLowerCase().includes(q) || a.desc.toLowerCase().includes(q));
   });
 
-  const featured = APP_DEFS.filter(a => a.featured);
-  const installedCount = installedIds.length;
-
+  /* ── Detail view ── */
   if (selectedApp) {
     const status = getStatus(selectedApp.id);
     const progress = installing[selectedApp.id];
-    const depApps = selectedApp.deps.map(d => APP_DEFS.find(a => a.id === d)).filter(Boolean) as ERPApp[];
     const Icon = selectedApp.icon;
+    const depApps = selectedApp.deps.map(d => APP_DEFS.find(a => a.id === d)).filter(Boolean) as ERPApp[];
+
     return (
       <div className="min-h-screen" style={{ backgroundColor: '#F5F4F9' }}>
-        <header className="sticky top-0 z-30 flex items-center justify-between px-6 h-14 border-b bg-white" style={{ borderColor: '#EDE8F5' }}>
+        <header className="sticky top-0 z-30 flex items-center justify-between px-6 h-14 bg-white border-b" style={{ borderColor: '#EDE8F5' }}>
           <button onClick={() => setSelectedApp(null)} className="flex items-center gap-2 text-sm font-medium" style={{ color: '#714B67' }}>
             <ArrowLeft className="h-4 w-4" /> Kembali ke App Store
           </button>
-          <button onClick={() => router.push('/')} className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg" style={{ color: '#A5A3AE', border: '1px solid #EDE8F5' }}>
-            <ArrowLeft className="h-3 w-3" /> Dashboard
+          <button onClick={() => router.push('/')} className="text-xs px-3 py-1.5 rounded-lg border" style={{ color: '#A5A3AE', borderColor: '#EDE8F5' }}>
+            Dashboard
           </button>
         </header>
-        <div className="max-w-3xl mx-auto px-6 py-10 space-y-4">
+
+        <div className="max-w-3xl mx-auto px-6 py-10">
           <div className="bg-white rounded-2xl p-8 border" style={{ borderColor: '#EDE8F5' }}>
-            <div className="flex items-start gap-6">
+            <div className="flex items-start gap-6 flex-wrap">
               <div className="flex h-20 w-20 items-center justify-center rounded-2xl flex-shrink-0" style={{ backgroundColor: selectedApp.bgColor }}>
                 <Icon className="h-10 w-10" style={{ color: selectedApp.color }} />
               </div>
-              <div className="flex-1">
+              <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-3 flex-wrap">
                   <h1 className="text-2xl font-bold" style={{ color: '#2F2B3D' }}>{selectedApp.name}</h1>
                   {selectedApp.featured && <span className="px-2 py-0.5 rounded-full text-xs font-semibold" style={{ backgroundColor: '#FFF3E0', color: '#E65100' }}>⭐ Unggulan</span>}
                   {status === 'installed' && <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold" style={{ backgroundColor: '#E8F5E9', color: '#2E7D32' }}><CheckCircle2 className="h-3 w-3" /> Terinstal</span>}
                 </div>
                 <p className="text-sm mt-1" style={{ color: '#A5A3AE' }}>{selectedApp.category} · v{selectedApp.version}</p>
-                <div className="flex items-center gap-3 mt-2 text-xs" style={{ color: '#A5A3AE' }}>
+                <div className="flex items-center gap-2 mt-2 text-xs" style={{ color: '#A5A3AE' }}>
                   <span className="flex items-center gap-0.5">
                     {[1,2,3,4,5].map(i => <Star key={i} className="h-3 w-3" fill={i <= Math.round(selectedApp.rating) ? selectedApp.color : 'none'} style={{ color: selectedApp.color }} />)}
                     {selectedApp.rating}
@@ -179,6 +166,8 @@ export default function AppStorePage() {
                   · {selectedApp.installs} instalasi
                 </div>
               </div>
+
+              {/* Action button */}
               <div className="flex-shrink-0">
                 {status === 'not_installed' && (
                   <button onClick={() => handleInstall(selectedApp.id)} className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white" style={{ backgroundColor: '#714B67' }}>
@@ -186,7 +175,7 @@ export default function AppStorePage() {
                   </button>
                 )}
                 {status === 'installing' && (
-                  <div className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white" style={{ backgroundColor: '#714B67', minWidth: 130 }}>
+                  <div className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white" style={{ backgroundColor: '#714B67', minWidth: 140 }}>
                     <div className="flex justify-between mb-1.5"><span>Menginstal...</span><span className="text-xs">{Math.round(progress ?? 0)}%</span></div>
                     <div className="h-1.5 rounded-full" style={{ backgroundColor: 'rgba(255,255,255,.3)' }}>
                       <div className="h-1.5 rounded-full transition-all" style={{ width: `${progress ?? 0}%`, backgroundColor: '#fff' }} />
@@ -197,31 +186,43 @@ export default function AppStorePage() {
                   <div className="flex flex-col gap-2">
                     {selectedApp.href && (
                       <button onClick={() => router.push(selectedApp.href!)} className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white" style={{ backgroundColor: '#714B67' }}>
-                        <ChevronRight className="h-4 w-4" /> Buka
+                        <ChevronRight className="h-4 w-4" /> Buka Modul
                       </button>
                     )}
-                    <button onClick={(e) => handleUninstall(selectedApp.id, e)} className="flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-medium border" style={{ color: '#EA5455', borderColor: '#FFCDD2', backgroundColor: '#FFF5F5' }}>
-                      <X className="h-4 w-4" /> Uninstall
-                    </button>
+                    {selectedApp.id !== 'settings' && selectedApp.id !== 'access' && (
+                      <button onClick={e => handleUninstall(selectedApp.id, e)} className="flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-medium border" style={{ color: '#EA5455', borderColor: '#FFCDD2', backgroundColor: '#FFF5F5' }}>
+                        <X className="h-4 w-4" /> Uninstall
+                      </button>
+                    )}
                   </div>
                 )}
               </div>
             </div>
+
             <div className="mt-6 pt-6 border-t" style={{ borderColor: '#EDE8F5' }}>
               <h2 className="text-sm font-semibold mb-2" style={{ color: '#433C50' }}>Tentang Modul</h2>
               <p className="text-sm leading-relaxed" style={{ color: '#6D6777' }}>{selectedApp.longDesc}</p>
             </div>
+
             {depApps.length > 0 && (
               <div className="mt-4 pt-4 border-t" style={{ borderColor: '#EDE8F5' }}>
-                <h2 className="text-sm font-semibold mb-2" style={{ color: '#433C50' }}>Dependensi (otomatis terinstal)</h2>
+                <h2 className="text-sm font-semibold mb-3" style={{ color: '#433C50' }}>Dependensi (terinstal otomatis bersama modul ini)</h2>
                 <div className="flex flex-wrap gap-2">
                   {depApps.map(dep => {
                     const DepIcon = dep.icon;
+                    const depStatus = getStatus(dep.id);
+                    const depProgress = installing[dep.id];
                     return (
-                      <span key={dep.id} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium" style={{ backgroundColor: dep.bgColor, color: dep.color }}>
-                        <DepIcon className="h-3.5 w-3.5" /> {dep.name}
-                        {installedIds.includes(dep.id) && <CheckCircle2 className="h-3 w-3" />}
-                      </span>
+                      <div key={dep.id} className="flex items-center gap-2 px-3 py-2 rounded-xl border" style={{ backgroundColor: dep.bgColor, borderColor: dep.color + '30' }}>
+                        <DepIcon className="h-4 w-4 flex-shrink-0" style={{ color: dep.color }} />
+                        <span className="text-xs font-semibold" style={{ color: dep.color }}>{dep.name}</span>
+                        {depStatus === 'installed' && <CheckCircle2 className="h-3.5 w-3.5" style={{ color: '#2E7D32' }} />}
+                        {depStatus === 'installing' && (
+                          <div className="w-12 h-1 rounded-full" style={{ backgroundColor: 'rgba(0,0,0,.1)' }}>
+                            <div className="h-1 rounded-full transition-all" style={{ width: `${depProgress ?? 0}%`, backgroundColor: dep.color }} />
+                          </div>
+                        )}
+                      </div>
                     );
                   })}
                 </div>
@@ -233,6 +234,7 @@ export default function AppStorePage() {
     );
   }
 
+  /* ── List view ── */
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#F5F4F9' }}>
       <header className="sticky top-0 z-30 border-b bg-white" style={{ borderColor: '#EDE8F5' }}>
@@ -246,9 +248,8 @@ export default function AppStorePage() {
           </div>
           <div className="flex items-center gap-3">
             <span className="text-xs hidden sm:block" style={{ color: '#A5A3AE' }}>
-              <span className="font-bold" style={{ color: '#433C50' }}>{installedCount}</span> terinstal
+              <span className="font-bold" style={{ color: '#433C50' }}>{installed.length}</span> terinstal
             </span>
-            <div className="h-4 w-px hidden sm:block" style={{ backgroundColor: '#EDE8F5' }} />
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5" style={{ color: '#B0AAB9' }} />
               <input
@@ -264,7 +265,7 @@ export default function AppStorePage() {
             </button>
           </div>
         </div>
-        <div className="flex gap-1 px-6 pb-3 overflow-x-auto scrollbar-hide">
+        <div className="flex gap-1 px-6 pb-3 overflow-x-auto">
           {CATEGORIES.map(cat => (
             <button key={cat} onClick={() => setActiveCategory(cat)}
               className="px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all"
@@ -276,6 +277,7 @@ export default function AppStorePage() {
       </header>
 
       <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+        {/* Featured section */}
         {!search && activeCategory === 'Semua' && (
           <section className="mb-10">
             <h2 className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: '#A5A3AE' }}>Modul Unggulan</h2>
@@ -302,7 +304,7 @@ export default function AppStorePage() {
                           </div>
                         </div>
                       ) : (
-                        <button onClick={e => handleInstall(app.id, e)} className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold text-white transition-all hover:opacity-90" style={{ backgroundColor: '#714B67' }}>
+                        <button onClick={e => handleInstall(app.id, e)} className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold text-white hover:opacity-90 transition-all" style={{ backgroundColor: '#714B67' }}>
                           <Download className="h-3 w-3" /> Install
                         </button>
                       )}
@@ -320,6 +322,7 @@ export default function AppStorePage() {
           </section>
         )}
 
+        {/* All modules grid */}
         <section>
           {!search && activeCategory === 'Semua' && (
             <h2 className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: '#A5A3AE' }}>Semua Modul</h2>
@@ -339,7 +342,7 @@ export default function AppStorePage() {
                   <div key={app.id} onClick={() => setSelectedApp(app)} className="bg-white rounded-xl p-4 cursor-pointer border hover:shadow-md transition-all" style={{ borderColor: '#EDE8F5' }}>
                     <div className="flex items-center gap-2.5 mb-2.5">
                       <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl" style={{ backgroundColor: app.bgColor }}>
-                        <Icon className="h-4.5 w-4.5" style={{ color: app.color }} />
+                        <Icon className="h-5 w-5" style={{ color: app.color }} />
                       </div>
                       <div className="min-w-0">
                         <p className="font-bold text-xs truncate" style={{ color: '#2F2B3D' }}>{app.name}</p>
@@ -352,9 +355,11 @@ export default function AppStorePage() {
                         <span className="flex items-center gap-1 text-xs font-semibold" style={{ color: '#2E7D32' }}>
                           <CheckCircle2 className="h-3 w-3" /> Aktif
                         </span>
-                        <button onClick={e => handleUninstall(app.id, e)} className="text-[10px] px-2 py-0.5 rounded-md border" style={{ color: '#EA5455', borderColor: '#FFCDD2' }}>
-                          Hapus
-                        </button>
+                        {app.id !== 'settings' && app.id !== 'access' && (
+                          <button onClick={e => handleUninstall(app.id, e)} className="text-[10px] px-2 py-0.5 rounded-md border" style={{ color: '#EA5455', borderColor: '#FFCDD2' }}>
+                            Hapus
+                          </button>
+                        )}
                       </div>
                     ) : status === 'installing' ? (
                       <div>
@@ -377,6 +382,7 @@ export default function AppStorePage() {
           )}
         </section>
 
+        {/* Custom module CTA */}
         <div className="mt-10 rounded-2xl p-6 flex items-center gap-4" style={{ background: 'linear-gradient(135deg, #714B67 0%, #9C6B8E 100%)' }}>
           <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl" style={{ backgroundColor: 'rgba(255,255,255,.15)' }}>
             <Zap className="h-6 w-6 text-white" />
