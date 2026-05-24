@@ -1,7 +1,1 @@
-{
-  "/install/page": "app/install/page.js",
-  "/page": "app/page.js",
-  "/purchasing/page": "app/purchasing/page.js",
-  "/crm/page": "app/crm/page.js",
-  "/login/page": "app/login/page.js"
-}
+{}
