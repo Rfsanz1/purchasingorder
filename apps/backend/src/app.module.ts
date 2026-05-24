@@ -17,6 +17,15 @@ import { KledoModule } from './modules/kledo/kledo.module.js';
 import { SettingsModule } from './modules/settings/settings.module.js';
 import { DriverAreasModule } from './modules/driver-areas/driver-areas.module.js';
 import { PosModule } from './modules/pos/pos.module.js';
+import { CrmModule } from './modules/crm/crm.module.js';
+import { ProjectModule } from './modules/project/project.module.js';
+import { HelpdeskModule } from './modules/helpdesk/helpdesk.module.js';
+import { ManufacturingModule } from './modules/manufacturing/manufacturing.module.js';
+import { LeaveModule } from './modules/leave/leave.module.js';
+import { RecruitmentModule } from './modules/recruitment/recruitment.module.js';
+import { QualityModule } from './modules/quality/quality.module.js';
+import { MaintenanceModule } from './modules/maintenance/maintenance.module.js';
+import { FleetModule } from './modules/fleet/fleet.module.js';
 import { PrismaService } from './database/prisma.service.js';
 
 @Module({
@@ -39,6 +48,15 @@ import { PrismaService } from './database/prisma.service.js';
     SettingsModule,
     DriverAreasModule,
     PosModule,
+    CrmModule,
+    ProjectModule,
+    HelpdeskModule,
+    ManufacturingModule,
+    LeaveModule,
+    RecruitmentModule,
+    QualityModule,
+    MaintenanceModule,
+    FleetModule,
   ],
   providers: [PrismaService],
 })

@@ -208,6 +208,8 @@ model Supplier {
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
   purchaseOrders PurchaseOrder[]
+  rfqs           RequestForQuotation[]
+  pricelist      VendorPricelist[]
 }
 
 // SALES & ORDERS
@@ -434,8 +436,10 @@ model Employee {
   status       String       @default("aktif")
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
-  payrolls     Payroll[]
-  attendances  Attendance[]
+  payrolls         Payroll[]
+  attendances      Attendance[]
+  leaveAllocations LeaveAllocation[]
+  leaveRequests    LeaveRequest[]
 }
 
 model Payroll {
@@ -580,4 +584,523 @@ model PosSaleItem {
   qty          Int
   harga        Decimal    @db.Decimal(15, 2)
   subtotal     Decimal    @db.Decimal(15, 2)
+}
+
+// ==================== CRM ====================
+model Lead {
+  id              String        @id @default(uuid())
+  name            String
+  type            String        @default("lead")
+  stage           String        @default("new")
+  priority        Int           @default(0)
+  probability     Decimal       @default(0) @db.Decimal(5, 2)
+  expectedRevenue Decimal       @default(0) @db.Decimal(15, 2)
+  customerId      String?
+  salespersonId   String?
+  teamId          String?
+  team            SalesTeam?    @relation(fields: [teamId], references: [id])
+  phone           String?
+  email           String?
+  company         String?
+  source          String?
+  deadlineDate    DateTime?
+  closingDate     DateTime?
+  lostReason      String?
+  notes           String?
+  activities      CrmActivity[]
+  tags            String[]
+  active          Boolean       @default(true)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+model SalesTeam {
+  id        String   @id @default(uuid())
+  name      String
+  leaderId  String?
+  active    Boolean  @default(true)
+  leads     Lead[]
+  createdAt DateTime @default(now())
+}
+
+model CrmActivity {
+  id         String    @id @default(uuid())
+  leadId     String
+  lead       Lead      @relation(fields: [leadId], references: [id])
+  type       String
+  title      String
+  dueDate    DateTime
+  doneDate   DateTime?
+  assignedTo String?
+  notes      String?
+  status     String    @default("planned")
+  createdAt  DateTime  @default(now())
+}
+
+model LostReason {
+  id     String  @id @default(uuid())
+  name   String  @unique
+  active Boolean @default(true)
+}
+
+// ==================== PROJECT ====================
+model Project {
+  id          String      @id @default(uuid())
+  name        String
+  code        String?     @unique
+  description String?
+  managerId   String?
+  customerId  String?
+  startDate   DateTime?
+  endDate     DateTime?
+  status      String      @default("in_progress")
+  budget      Decimal     @default(0) @db.Decimal(15, 2)
+  tasks       Task[]
+  milestones  Milestone[]
+  active      Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model Task {
+  id             String      @id @default(uuid())
+  projectId      String
+  project        Project     @relation(fields: [projectId], references: [id])
+  parentId       String?
+  parent         Task?       @relation("SubTasks", fields: [parentId], references: [id])
+  subtasks       Task[]      @relation("SubTasks")
+  milestoneId    String?
+  milestone      Milestone?  @relation(fields: [milestoneId], references: [id])
+  assignedTo     String?
+  title          String
+  description    String?
+  stage          String      @default("todo")
+  priority       Int         @default(0)
+  deadline       DateTime?
+  plannedHours   Decimal     @default(0) @db.Decimal(8, 2)
+  effectiveHours Decimal     @default(0) @db.Decimal(8, 2)
+  timesheets     Timesheet[]
+  tags           String[]
+  active         Boolean     @default(true)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+}
+
+model Milestone {
+  id        String   @id @default(uuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id])
+  name      String
+  deadline  DateTime?
+  isDone    Boolean  @default(false)
+  tasks     Task[]
+  createdAt DateTime @default(now())
+}
+
+model Timesheet {
+  id          String   @id @default(uuid())
+  taskId      String
+  task        Task     @relation(fields: [taskId], references: [id])
+  employeeId  String?
+  date        DateTime
+  hours       Decimal  @db.Decimal(8, 2)
+  description String?
+  createdAt   DateTime @default(now())
+}
+
+// ==================== HELPDESK ====================
+model HelpdeskTeam {
+  id          String           @id @default(uuid())
+  name        String
+  description String?
+  email       String?
+  slaHours    Int              @default(24)
+  tickets     HelpdeskTicket[]
+  active      Boolean          @default(true)
+  createdAt   DateTime         @default(now())
+}
+
+model HelpdeskTicket {
+  id            String        @id @default(uuid())
+  noTicket      String        @unique
+  teamId        String?
+  team          HelpdeskTeam? @relation(fields: [teamId], references: [id])
+  customerId    String?
+  assignedTo    String?
+  subject       String
+  description   String?
+  priority      Int           @default(0)
+  stage         String        @default("new")
+  slaDeadline   DateTime?
+  closedAt      DateTime?
+  rating        Int?
+  ratingComment String?
+  tags          String[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+// ==================== MANUFACTURING ====================
+model BillOfMaterial {
+  id                  String               @id @default(uuid())
+  productId           String
+  reference           String?
+  qty                 Decimal              @default(1) @db.Decimal(15, 2)
+  type                String               @default("manufacture")
+  components          BomComponent[]
+  active              Boolean              @default(true)
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  manufacturingOrders ManufacturingOrder[]
+}
+
+model BomComponent {
+  id        String         @id @default(uuid())
+  bomId     String
+  bom       BillOfMaterial @relation(fields: [bomId], references: [id])
+  productId String
+  qty       Decimal        @db.Decimal(15, 2)
+  uom       String         @default("pcs")
+}
+
+model WorkCenter {
+  id         String      @id @default(uuid())
+  name       String
+  code       String      @unique
+  capacity   Decimal     @default(1) @db.Decimal(8, 2)
+  timeEff    Decimal     @default(100) @db.Decimal(5, 2)
+  active     Boolean     @default(true)
+  workOrders WorkOrder[]
+  createdAt  DateTime    @default(now())
+}
+
+model ManufacturingOrder {
+  id            String          @id @default(uuid())
+  noMo          String          @unique
+  productId     String
+  bomId         String?
+  bom           BillOfMaterial? @relation(fields: [bomId], references: [id])
+  qty           Decimal         @db.Decimal(15, 2)
+  qtyProduced   Decimal         @default(0) @db.Decimal(15, 2)
+  scheduledDate DateTime
+  status        String          @default("draft")
+  workOrders    WorkOrder[]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+}
+
+model WorkOrder {
+  id           String             @id @default(uuid())
+  moId         String
+  mo           ManufacturingOrder @relation(fields: [moId], references: [id])
+  workCenterId String
+  workCenter   WorkCenter         @relation(fields: [workCenterId], references: [id])
+  name         String
+  duration     Decimal            @db.Decimal(8, 2)
+  status       String             @default("pending")
+  startedAt    DateTime?
+  finishedAt   DateTime?
+}
+
+// ==================== HR: LEAVE ====================
+model LeaveType {
+  id               String            @id @default(uuid())
+  name             String            @unique
+  requiresApproval Boolean           @default(true)
+  maxDays          Int?
+  active           Boolean           @default(true)
+  allocations      LeaveAllocation[]
+  requests         LeaveRequest[]
+}
+
+model LeaveAllocation {
+  id           String    @id @default(uuid())
+  employeeId   String
+  employee     Employee  @relation(fields: [employeeId], references: [id])
+  leaveTypeId  String
+  leaveType    LeaveType @relation(fields: [leaveTypeId], references: [id])
+  numberOfDays Decimal   @db.Decimal(5, 1)
+  year         Int
+  status       String    @default("confirmed")
+  createdAt    DateTime  @default(now())
+}
+
+model LeaveRequest {
+  id           String    @id @default(uuid())
+  employeeId   String
+  employee     Employee  @relation(fields: [employeeId], references: [id])
+  leaveTypeId  String
+  leaveType    LeaveType @relation(fields: [leaveTypeId], references: [id])
+  dateFrom     DateTime
+  dateTo       DateTime
+  numberOfDays Decimal   @db.Decimal(5, 1)
+  reason       String?
+  status       String    @default("draft")
+  approvedBy   String?
+  approvedAt   DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+// ==================== RECRUITMENT ====================
+model JobPosition {
+  id                String           @id @default(uuid())
+  name              String
+  departmentId      String?
+  expectedEmployees Int              @default(1)
+  status            String           @default("open")
+  applications      JobApplication[]
+  createdAt         DateTime         @default(now())
+}
+
+model JobApplication {
+  id            String      @id @default(uuid())
+  jobId         String
+  job           JobPosition @relation(fields: [jobId], references: [id])
+  applicantName String
+  email         String?
+  phone         String?
+  stage         String      @default("new")
+  priority      Int         @default(0)
+  cv            String?
+  notes         String?
+  interviewDate DateTime?
+  offerDate     DateTime?
+  refuseReason  String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+// ==================== QUALITY ====================
+model QualityControlPoint {
+  id        String         @id @default(uuid())
+  name      String
+  productId String?
+  operation String
+  checkType String
+  active    Boolean        @default(true)
+  checks    QualityCheck[]
+  createdAt DateTime       @default(now())
+}
+
+model QualityCheck {
+  id            String              @id @default(uuid())
+  qcpId         String
+  qcp           QualityControlPoint @relation(fields: [qcpId], references: [id])
+  status        String              @default("todo")
+  measuredValue Decimal?            @db.Decimal(10, 2)
+  notes         String?
+  picturePath   String?
+  doneAt        DateTime?
+  doneBy        String?
+  createdAt     DateTime            @default(now())
+}
+
+model QualityAlert {
+  id         String   @id @default(uuid())
+  title      String
+  productId  String?
+  stage      String   @default("new")
+  priority   Int      @default(0)
+  rootCause  String?
+  corrective String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+// ==================== MAINTENANCE ====================
+model Equipment {
+  id              String               @id @default(uuid())
+  name            String
+  category        String?
+  serialNo        String?
+  location        String?
+  technicianId    String?
+  purchaseDate    DateTime?
+  warrantyDate    DateTime?
+  nextMaintenance DateTime?
+  active          Boolean              @default(true)
+  requests        MaintenanceRequest[]
+  createdAt       DateTime             @default(now())
+}
+
+model MaintenanceRequest {
+  id            String    @id @default(uuid())
+  noMr          String    @unique
+  equipmentId   String
+  equipment     Equipment @relation(fields: [equipmentId], references: [id])
+  name          String
+  type          String    @default("corrective")
+  priority      Int       @default(0)
+  requestDate   DateTime  @default(now())
+  scheduledDate DateTime?
+  closedDate    DateTime?
+  technicianId  String?
+  status        String    @default("new")
+  notes         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+// ==================== FLEET ====================
+model Vehicle {
+  id              String           @id @default(uuid())
+  licensePlate    String           @unique
+  brand           String
+  model           String
+  year            Int?
+  fuelType        String           @default("bensin")
+  driverId        String?
+  currentOdometer Decimal          @default(0) @db.Decimal(10, 2)
+  active          Boolean          @default(true)
+  services        VehicleService[]
+  createdAt       DateTime         @default(now())
+}
+
+model VehicleService {
+  id          String   @id @default(uuid())
+  vehicleId   String
+  vehicle     Vehicle  @relation(fields: [vehicleId], references: [id])
+  type        String
+  vendor      String?
+  date        DateTime
+  odometer    Decimal? @db.Decimal(10, 2)
+  cost        Decimal  @default(0) @db.Decimal(15, 2)
+  notes       String?
+  nextService DateTime?
+  createdAt   DateTime @default(now())
+}
+
+// ==================== PURCHASING EXTENSIONS ====================
+model RequestForQuotation {
+  id         String    @id @default(uuid())
+  noRfq      String    @unique
+  supplierId String
+  supplier   Supplier  @relation(fields: [supplierId], references: [id])
+  deadline   DateTime?
+  status     String    @default("draft")
+  items      RfqItem[]
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}
+
+model RfqItem {
+  id        String              @id @default(uuid())
+  rfqId     String
+  rfq       RequestForQuotation @relation(fields: [rfqId], references: [id])
+  productId String?
+  nama      String
+  qty       Int
+  hargaBeli Decimal             @db.Decimal(15, 2)
+  subtotal  Decimal             @db.Decimal(15, 2)
+}
+
+model VendorPricelist {
+  id           String   @id @default(uuid())
+  supplierId   String
+  supplier     Supplier @relation(fields: [supplierId], references: [id])
+  productId    String
+  harga        Decimal  @db.Decimal(15, 2)
+  minQty       Int      @default(1)
+  leadTimeDays Int      @default(0)
+  validFrom    DateTime?
+  validTo      DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model ReorderingRule {
+  id          String   @id @default(uuid())
+  productId   String
+  warehouseId String?
+  minQty      Int      @default(0)
+  maxQty      Int      @default(0)
+  qtyMultiple Int      @default(1)
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ==================== INVENTORY EXTENSIONS ====================
+model LotSerial {
+  id         String    @id @default(uuid())
+  productId  String
+  name       String
+  type       String    @default("lot")
+  qty        Decimal   @default(0) @db.Decimal(15, 2)
+  expiryDate DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}
+
+model ScrapOrder {
+  id        String   @id @default(uuid())
+  noScrap   String   @unique
+  productId String
+  lotId     String?
+  qty       Int
+  reason    String?
+  status    String   @default("draft")
+  scrapDate DateTime @default(now())
+  createdAt DateTime @default(now())
+}
+
+// ==================== SALES EXTENSIONS ====================
+model Quotation {
+  id            String          @id @default(uuid())
+  noQuotation   String          @unique
+  customerId    String?
+  salespersonId String?
+  validityDate  DateTime?
+  status        String          @default("draft")
+  subtotal      Decimal         @default(0) @db.Decimal(15, 2)
+  tax           Decimal         @default(0) @db.Decimal(15, 2)
+  total         Decimal         @default(0) @db.Decimal(15, 2)
+  notes         String?
+  items         QuotationItem[]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+}
+
+model QuotationItem {
+  id          String    @id @default(uuid())
+  quotationId String
+  quotation   Quotation @relation(fields: [quotationId], references: [id])
+  productId   String?
+  description String
+  qty         Decimal   @db.Decimal(15, 2)
+  unitPrice   Decimal   @db.Decimal(15, 2)
+  discount    Decimal   @default(0) @db.Decimal(5, 2)
+  tax         Decimal   @default(0) @db.Decimal(15, 2)
+  subtotal    Decimal   @db.Decimal(15, 2)
+}
+
+model Pricelist {
+  id        String          @id @default(uuid())
+  name      String
+  currency  String          @default("IDR")
+  items     PricelistItem[]
+  active    Boolean         @default(true)
+  createdAt DateTime        @default(now())
+}
+
+model PricelistItem {
+  id          String    @id @default(uuid())
+  pricelistId String
+  pricelist   Pricelist @relation(fields: [pricelistId], references: [id])
+  productId   String?
+  minQty      Int       @default(1)
+  price       Decimal   @db.Decimal(15, 2)
+  discount    Decimal   @default(0) @db.Decimal(5, 2)
+}
+
+model Commission {
+  id            String   @id @default(uuid())
+  salespersonId String
+  quotationId   String?
+  amount        Decimal  @db.Decimal(15, 2)
+  percentage    Decimal  @db.Decimal(5, 2)
+  status        String   @default("pending")
+  periode       String
+  createdAt     DateTime @default(now())
 }
