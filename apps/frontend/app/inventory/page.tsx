@@ -1,365 +1,162 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { OdooLayout } from '../../components/layout/OdooLayout';
-import { StatCard } from '../../components/ui/StatCard';
-import { StatusBadge } from '../../components/ui/StatusBadge';
-import { ModuleTab } from '../../components/ui/ModuleTab';
-import { api } from '../../lib/api';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuthStore } from '../../lib/store/useAuthStore';
+import AppShell, { NavItem } from '../../components/layout/AppShell';
 import {
-  Package, Plus, Search, RefreshCw, Filter, MoreVertical,
-  DollarSign, AlertTriangle, CheckCircle, ArrowUpDown, ChevronLeft, ChevronRight,
-  LayoutList
+  Package, BarChart2, ArrowLeftRight, Warehouse, ClipboardCheck,
+  AlertTriangle, Settings, Plus, ArrowUpRight, ArrowDownRight,
 } from 'lucide-react';
 
-interface Product {
-  id: string;
-  name: string;
-  sku: string;
-  category?: { name: string };
-  brand?: string;
-  stok: number;
-  stokMinimum: number;
-  hargaJual: number;
-  uom?: string;
-  active: boolean;
-}
-
-interface Stats {
-  totalProducts: number;
-  lowStock: number;
-  totalStok: number;
-  activeProducts: number;
-  nilaiInventori?: number;
-}
-
-const MOCK_PRODUCTS: Product[] = [
-  { id: '1', name: 'Aqua Galon 19L', sku: 'AQ-19L', category: { name: 'Air Minum' }, brand: 'Aqua', stok: 245, stokMinimum: 50, hargaJual: 21000, uom: 'Galon', active: true },
-  { id: '2', name: 'Le Minerale 600ml', sku: 'LM-600', category: { name: 'Air Minum' }, brand: 'Le Minerale', stok: 12, stokMinimum: 50, hargaJual: 3500, uom: 'Botol', active: true },
-  { id: '3', name: 'Indomie Goreng', sku: 'IM-GRG', category: { name: 'Mie Instan' }, brand: 'Indofood', stok: 480, stokMinimum: 100, hargaJual: 3800, uom: 'Pcs', active: true },
-  { id: '4', name: 'Minyak Goreng Bimoli 2L', sku: 'BML-2L', category: { name: 'Minyak' }, brand: 'Bimoli', stok: 0, stokMinimum: 20, hargaJual: 38000, uom: 'Botol', active: true },
-  { id: '5', name: 'Gula Pasir 1kg', sku: 'GP-1KG', category: { name: 'Sembako' }, brand: 'Gulaku', stok: 85, stokMinimum: 30, hargaJual: 15000, uom: 'Kg', active: true },
-  { id: '6', name: 'Tepung Terigu Segitiga', sku: 'TT-SGB', category: { name: 'Sembako' }, brand: 'Bogasari', stok: 160, stokMinimum: 40, hargaJual: 13500, uom: 'Kg', active: false },
-  { id: '7', name: 'Kecap Manis ABC 250ml', sku: 'ABC-250', category: { name: 'Bumbu' }, brand: 'ABC', stok: 72, stokMinimum: 20, hargaJual: 9500, uom: 'Botol', active: true },
-  { id: '8', name: 'Sabun Lifebuoy 85gr', sku: 'LFB-85', category: { name: 'Kebersihan' }, brand: 'Lifebuoy', stok: 200, stokMinimum: 50, hargaJual: 5500, uom: 'Pcs', active: true },
+const NAV: NavItem[] = [
+  { label: 'Dashboard',        href: '/inventory',                       icon: BarChart2 },
+  { label: 'Produk',           href: '/inventory/products',              icon: Package,
+    children: [
+      { label: 'Semua Produk',  href: '/inventory/products' },
+      { label: 'Kategori',      href: '/inventory/products/categories' },
+    ],
+  },
+  { label: 'Penerimaan',       href: '/purchasing/goods-receipts',       icon: ArrowDownRight },
+  { label: 'Pengiriman',       href: '/inventory/deliveries',            icon: ArrowUpRight },
+  { label: 'Perpindahan Stok', href: '/inventory/stock-movements',       icon: ArrowLeftRight },
+  { label: 'Stock Opname',     href: '/inventory/stock-opnames',         icon: ClipboardCheck },
+  { label: 'Gudang',           href: '/inventory/warehouses',            icon: Warehouse },
+  { label: 'Pengaturan',       href: '/inventory/settings',              icon: Settings },
 ];
 
-const MOCK_STATS: Stats = {
-  totalProducts: 245,
-  lowStock: 18,
-  totalStok: 12450,
-  activeProducts: 230,
-  nilaiInventori: 187500000,
-};
-
-const TABS = [
-  { key: 'products', label: 'Produk' },
-  { key: 'movements', label: 'Mutasi Stok' },
-  { key: 'opnames', label: 'Stock Opname' },
-  { key: 'warehouses', label: 'Gudang' },
+const STATS = [
+  { label: 'Total Produk',        value: '1.248', sub: '12 kategori aktif',     color: '#F57C00', bg: 'rgba(245,124,0,.1)',   icon: Package },
+  { label: 'Stok Menipis',        value: '34',    sub: 'Di bawah min. stok',    color: '#EA5455', bg: 'rgba(234,84,85,.1)',   icon: AlertTriangle },
+  { label: 'Penerimaan Hari Ini', value: '8',     sub: 'Dari 5 supplier',       color: '#4CAF50', bg: 'rgba(76,175,80,.1)',   icon: ArrowDownRight },
+  { label: 'Pengiriman Hari Ini', value: '14',    sub: '3 tertunda konfirmasi', color: '#2196F3', bg: 'rgba(33,150,243,.1)',  icon: ArrowUpRight },
 ];
 
-function getProductStatus(p: Product): { label: string; variant: 'success' | 'warning' | 'danger' | 'default' } {
-  if (!p.active) return { label: 'Nonaktif', variant: 'default' };
-  if (p.stok === 0) return { label: 'Habis', variant: 'danger' };
-  if (p.stok <= p.stokMinimum) return { label: 'Stok Rendah', variant: 'warning' };
-  return { label: 'Aktif', variant: 'success' };
-}
+const LOW_STOCK = [
+  { name: 'Semen Portland 40kg', sku: 'SEM-001', stok: 12,  min: 50,  satuan: 'Sak' },
+  { name: 'Cat Tembok Dulux 5L', sku: 'CAT-023', stok: 3,   min: 20,  satuan: 'Kaleng' },
+  { name: 'Pipa PVC 4 inch',     sku: 'PIP-007', stok: 8,   min: 30,  satuan: 'Batang' },
+  { name: 'Besi Beton 10mm',     sku: 'BES-012', stok: 25,  min: 100, satuan: 'Batang' },
+  { name: 'Keramik 60x60 Putih', sku: 'KER-004', stok: 18,  min: 60,  satuan: 'Dus' },
+];
 
-export default function InventoryPage() {
-  const [activeTab, setActiveTab] = useState('products');
-  const [products, setProducts] = useState<Product[]>(MOCK_PRODUCTS);
-  const [stats] = useState<Stats>(MOCK_STATS);
-  const [search, setSearch] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [page, setPage] = useState(1);
-  const [sortField, setSortField] = useState<string | null>(null);
-  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
-  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
-  const perPage = 10;
+const MOVEMENTS = [
+  { type: 'in',  product: 'Semen Portland 40kg', qty: '+100', from: 'Supplier', date: '24 Mei 09:30' },
+  { type: 'out', product: 'Cat Tembok Dulux 5L', qty: '-12',  from: 'SO-0128',  date: '24 Mei 08:45' },
+  { type: 'in',  product: 'Pipa PVC 4 inch',     qty: '+50',  from: 'Supplier', date: '23 Mei 15:20' },
+  { type: 'out', product: 'Besi Beton 10mm',      qty: '-30',  from: 'SO-0126',  date: '23 Mei 11:10' },
+];
 
-  const handleSort = (field: string) => {
-    if (sortField === field) {
-      setSortDir(sortDir === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortField(field);
-      setSortDir('asc');
-    }
-  };
-
-  const filtered = products.filter(
-    (p) =>
-      p.name.toLowerCase().includes(search.toLowerCase()) ||
-      p.sku.toLowerCase().includes(search.toLowerCase())
-  );
-
-  const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
-  const paginated = filtered.slice((page - 1) * perPage, page * perPage);
-
-  const SortIcon = ({ field }: { field: string }) => (
-    <ArrowUpDown
-      className="h-3 w-3 ml-1 inline-block opacity-40"
-      style={{ color: sortField === field ? '#714B67' : undefined, opacity: sortField === field ? 1 : 0.4 }}
-    />
-  );
+export default function InventoryDashboard() {
+  const { token } = useAuthStore();
+  const router = useRouter();
+  useEffect(() => { if (!token) router.push('/login'); }, [token]);
+  if (!token) return null;
 
   return (
-    <OdooLayout title="Inventory">
-      {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <StatCard label="Total Produk" value={stats.totalProducts.toLocaleString('id-ID')} icon={Package} iconColor="#714B67" />
-        <StatCard label="Stok Rendah" value={stats.lowStock} icon={AlertTriangle} iconColor="#FF9F43" />
-        <StatCard
-          label="Nilai Inventori"
-          value={`Rp ${(stats.nilaiInventori ?? 0 / 1e6).toFixed(0)}jt`}
-          icon={DollarSign}
-          iconColor="#28C76F"
-        />
-        <StatCard label="Produk Aktif" value={stats.activeProducts} icon={CheckCircle} iconColor="#00CFE8" />
-      </div>
+    <AppShell appName="Inventaris" appColor="#F57C00" appGradient="from-amber-500 to-orange-600" appIcon={Package} navItems={NAV} activeHref="/inventory">
+      <div className="p-6 space-y-6 max-w-6xl mx-auto">
 
-      {/* Card */}
-      <div className="bg-white rounded-lg" style={{ boxShadow: '0 2px 6px rgba(47,43,61,.12)', border: '1px solid #E9E0F8' }}>
-        {/* Tabs */}
-        <div className="px-5 pt-4">
-          <ModuleTab tabs={TABS} active={activeTab} onChange={setActiveTab} />
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-xl font-bold" style={{ color: '#433C50' }}>Dashboard Inventaris</h1>
+            <p className="text-sm mt-0.5" style={{ color: '#A5A3AE' }}>Pantau stok, gudang, dan pergerakan barang</p>
+          </div>
+          <button className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold text-white" style={{ backgroundColor: '#F57C00' }}>
+            <Plus className="h-4 w-4" /> Produk Baru
+          </button>
         </div>
 
-        {activeTab === 'products' && (
-          <>
-            {/* Toolbar */}
-            <div className="flex flex-wrap items-center gap-3 px-5 py-4">
-              <button
-                className="flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium text-white transition-opacity hover:opacity-90"
-                style={{ backgroundColor: '#714B67' }}
-              >
-                <Plus className="h-4 w-4" />
-                New Product
-              </button>
-
-              <div className="relative flex-1 min-w-[200px] max-w-sm">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: '#A5A3AE' }} />
-                <input
-                  className="w-full rounded-md pl-9 pr-4 py-2 text-sm transition-all"
-                  style={{
-                    border: '1px solid #E9E0F8',
-                    color: '#433C50',
-                    outline: 'none',
-                  }}
-                  placeholder="Cari produk..."
-                  value={search}
-                  onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-                  onFocus={(e) => { e.target.style.borderColor = '#714B67'; }}
-                  onBlur={(e) => { e.target.style.borderColor = '#E9E0F8'; }}
-                />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {STATS.map((s) => (
+            <div key={s.label} className="bg-white rounded-2xl p-5" style={{ border: '1.5px solid #EDE8F5', boxShadow: '0 1px 4px rgba(47,43,61,.06)' }}>
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-xs font-medium" style={{ color: '#A5A3AE' }}>{s.label}</p>
+                  <p className="text-2xl font-bold mt-1" style={{ color: '#433C50' }}>{s.value}</p>
+                  <p className="text-xs mt-1" style={{ color: '#A5A3AE' }}>{s.sub}</p>
+                </div>
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl" style={{ backgroundColor: s.bg }}>
+                  <s.icon className="h-5 w-5" style={{ color: s.color }} />
+                </div>
               </div>
+            </div>
+          ))}
+        </div>
 
-              <button
-                className="flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-colors"
-                style={{ border: '1px solid #E9E0F8', color: '#6D6777' }}
-              >
-                <Filter className="h-4 w-4" />
-                Filter
-              </button>
-
-              <button
-                className="flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-colors"
-                style={{ border: '1px solid #E9E0F8', color: '#6D6777' }}
-              >
-                <LayoutList className="h-4 w-4" />
-                List
-              </button>
-
-              <button
-                onClick={() => setLoading(!loading)}
-                className="p-2 rounded-md transition-colors ml-auto"
-                style={{ border: '1px solid #E9E0F8', color: '#A5A3AE' }}
-              >
-                <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+        <div className="grid lg:grid-cols-3 gap-4">
+          <div className="lg:col-span-2 bg-white rounded-2xl" style={{ border: '1.5px solid #EDE8F5', boxShadow: '0 1px 4px rgba(47,43,61,.06)' }}>
+            <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom: '1px solid #EDE8F5' }}>
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="h-4 w-4" style={{ color: '#EA5455' }} />
+                <h2 className="text-sm font-bold" style={{ color: '#433C50' }}>Peringatan Stok Menipis</h2>
+              </div>
+              <button className="text-xs font-medium px-3 py-1.5 rounded-lg" style={{ color: '#F57C00', border: '1px solid rgba(245,124,0,.2)', backgroundColor: 'rgba(245,124,0,.06)' }}>
+                Lihat Semua
               </button>
             </div>
-
-            {/* Table */}
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+              <table className="w-full">
                 <thead>
-                  <tr style={{ borderTop: '1px solid #E9E0F8', borderBottom: '1px solid #E9E0F8', backgroundColor: '#FAFAFA' }}>
-                    <th className="w-10 px-4 py-3">
-                      <input type="checkbox" className="rounded" style={{ accentColor: '#714B67' }} />
-                    </th>
-                    <th
-                      className="text-left px-4 py-3 font-semibold text-xs uppercase tracking-wide cursor-pointer select-none"
-                      style={{ color: '#A5A3AE' }}
-                      onClick={() => handleSort('name')}
-                    >
-                      Nama Produk <SortIcon field="name" />
-                    </th>
-                    <th
-                      className="text-left px-4 py-3 font-semibold text-xs uppercase tracking-wide cursor-pointer select-none"
-                      style={{ color: '#A5A3AE' }}
-                      onClick={() => handleSort('category')}
-                    >
-                      Kategori <SortIcon field="category" />
-                    </th>
-                    <th
-                      className="text-right px-4 py-3 font-semibold text-xs uppercase tracking-wide cursor-pointer select-none"
-                      style={{ color: '#A5A3AE' }}
-                      onClick={() => handleSort('stok')}
-                    >
-                      Stok <SortIcon field="stok" />
-                    </th>
-                    <th className="text-left px-4 py-3 font-semibold text-xs uppercase tracking-wide" style={{ color: '#A5A3AE' }}>UoM</th>
-                    <th
-                      className="text-right px-4 py-3 font-semibold text-xs uppercase tracking-wide cursor-pointer select-none"
-                      style={{ color: '#A5A3AE' }}
-                      onClick={() => handleSort('hargaJual')}
-                    >
-                      Harga Jual <SortIcon field="hargaJual" />
-                    </th>
-                    <th className="text-center px-4 py-3 font-semibold text-xs uppercase tracking-wide" style={{ color: '#A5A3AE' }}>Status</th>
-                    <th className="w-10 px-4 py-3" />
+                  <tr style={{ borderBottom: '1px solid #EDE8F5' }}>
+                    {['Produk', 'SKU', 'Stok Saat Ini', 'Min. Stok', 'Satuan'].map((h) => (
+                      <th key={h} className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide" style={{ color: '#A5A3AE' }}>{h}</th>
+                    ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {paginated.length === 0 ? (
-                    <tr>
-                      <td colSpan={8} className="py-16 text-center text-sm" style={{ color: '#A5A3AE' }}>
-                        <Package className="h-10 w-10 mx-auto mb-3 opacity-30" />
-                        <p>Belum ada produk</p>
-                      </td>
-                    </tr>
-                  ) : (
-                    paginated.map((p) => {
-                      const status = getProductStatus(p);
-                      return (
-                        <tr
-                          key={p.id}
-                          className="transition-colors"
-                          style={{ borderBottom: '1px solid #F5F5F9' }}
-                          onMouseEnter={(e) => { (e.currentTarget as HTMLTableRowElement).style.backgroundColor = '#FAFAFA'; }}
-                          onMouseLeave={(e) => { (e.currentTarget as HTMLTableRowElement).style.backgroundColor = ''; }}
-                        >
-                          <td className="px-4 py-3">
-                            <input type="checkbox" className="rounded" style={{ accentColor: '#714B67' }} />
-                          </td>
-                          <td className="px-4 py-3">
-                            <p className="font-medium" style={{ color: '#433C50' }}>{p.name}</p>
-                            <p className="text-xs font-mono mt-0.5" style={{ color: '#A5A3AE' }}>{p.sku}</p>
-                          </td>
-                          <td className="px-4 py-3" style={{ color: '#6D6777' }}>{p.category?.name ?? '-'}</td>
-                          <td className="px-4 py-3 text-right">
-                            <span
-                              className="font-semibold"
-                              style={{ color: p.stok === 0 ? '#EA5455' : p.stok <= p.stokMinimum ? '#FF9F43' : '#433C50' }}
-                            >
-                              {p.stok.toLocaleString('id-ID')}
-                            </span>
-                          </td>
-                          <td className="px-4 py-3 text-sm" style={{ color: '#6D6777' }}>{p.uom ?? '-'}</td>
-                          <td className="px-4 py-3 text-right" style={{ color: '#433C50' }}>
-                            {Number(p.hargaJual).toLocaleString('id-ID', {
-                              style: 'currency',
-                              currency: 'IDR',
-                              maximumFractionDigits: 0,
-                            })}
-                          </td>
-                          <td className="px-4 py-3 text-center">
-                            <StatusBadge label={status.label} variant={status.variant} />
-                          </td>
-                          <td className="px-4 py-3 relative">
-                            <button
-                              onClick={() => setOpenMenuId(openMenuId === p.id ? null : p.id)}
-                              className="p-1 rounded-md transition-colors"
-                              style={{ color: '#A5A3AE' }}
-                            >
-                              <MoreVertical className="h-4 w-4" />
-                            </button>
-                            {openMenuId === p.id && (
-                              <div
-                                className="absolute right-8 top-8 z-10 w-36 rounded-lg overflow-hidden"
-                                style={{ backgroundColor: '#FFFFFF', boxShadow: '0 8px 24px rgba(47,43,61,.16)', border: '1px solid #E9E0F8' }}
-                              >
-                                {['Edit', 'Duplicate', 'Hapus'].map((action) => (
-                                  <button
-                                    key={action}
-                                    className="w-full text-left px-4 py-2.5 text-sm transition-colors hover:bg-[rgba(113,75,103,.06)]"
-                                    style={{ color: action === 'Hapus' ? '#EA5455' : '#6D6777' }}
-                                    onClick={() => setOpenMenuId(null)}
-                                  >
-                                    {action}
-                                  </button>
-                                ))}
-                              </div>
-                            )}
-                          </td>
-                        </tr>
-                      );
-                    })
-                  )}
+                  {LOW_STOCK.map((p, i) => {
+                    const pct = Math.round((p.stok / p.min) * 100);
+                    return (
+                      <tr key={p.sku} style={{ borderBottom: i < LOW_STOCK.length - 1 ? '1px solid #F5F2FB' : 'none' }}
+                        onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#FDFCFF'; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; }}
+                      >
+                        <td className="px-6 py-3.5 text-sm font-medium" style={{ color: '#433C50' }}>{p.name}</td>
+                        <td className="px-6 py-3.5 text-xs font-mono" style={{ color: '#A5A3AE' }}>{p.sku}</td>
+                        <td className="px-6 py-3.5">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-bold" style={{ color: pct < 30 ? '#EA5455' : '#FF9800' }}>{p.stok}</span>
+                            <div className="w-16 h-1.5 rounded-full" style={{ backgroundColor: '#F5F2FB' }}>
+                              <div className="h-1.5 rounded-full" style={{ backgroundColor: pct < 30 ? '#EA5455' : '#FF9800', width: `${Math.min(pct, 100)}%` }} />
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-3.5 text-sm" style={{ color: '#A5A3AE' }}>{p.min}</td>
+                        <td className="px-6 py-3.5 text-xs" style={{ color: '#A5A3AE' }}>{p.satuan}</td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
-
-            {/* Pagination */}
-            <div
-              className="flex items-center justify-between px-5 py-3"
-              style={{ borderTop: '1px solid #E9E0F8' }}
-            >
-              <span className="text-xs" style={{ color: '#A5A3AE' }}>
-                {((page - 1) * perPage) + 1}–{Math.min(page * perPage, filtered.length)} / {filtered.length} produk
-              </span>
-              <div className="flex items-center gap-1">
-                <button
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  disabled={page === 1}
-                  className="p-1.5 rounded-md transition-colors disabled:opacity-40"
-                  style={{ border: '1px solid #E9E0F8', color: '#6D6777' }}
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </button>
-                {Array.from({ length: totalPages }, (_, i) => i + 1)
-                  .filter((p) => p === 1 || p === totalPages || Math.abs(p - page) <= 1)
-                  .reduce<React.ReactNode[]>((acc, p, idx, arr) => {
-                    if (idx > 0 && arr[idx - 1] !== p - 1) {
-                      acc.push(<span key={`ellipsis-${p}`} className="px-2 text-xs" style={{ color: '#A5A3AE' }}>…</span>);
-                    }
-                    acc.push(
-                      <button
-                        key={p}
-                        onClick={() => setPage(p)}
-                        className="h-7 w-7 rounded-md text-xs font-medium transition-colors"
-                        style={{
-                          backgroundColor: p === page ? '#714B67' : 'transparent',
-                          color: p === page ? '#FFFFFF' : '#6D6777',
-                          border: p === page ? 'none' : '1px solid #E9E0F8',
-                        }}
-                      >
-                        {p}
-                      </button>
-                    );
-                    return acc;
-                  }, [])}
-                <button
-                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  disabled={page === totalPages}
-                  className="p-1.5 rounded-md transition-colors disabled:opacity-40"
-                  style={{ border: '1px solid #E9E0F8', color: '#6D6777' }}
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </button>
-              </div>
-            </div>
-          </>
-        )}
-
-        {activeTab !== 'products' && (
-          <div className="flex flex-col items-center justify-center py-20" style={{ color: '#A5A3AE' }}>
-            <Package className="h-12 w-12 mb-3 opacity-30" />
-            <p className="font-medium">Segera hadir</p>
-            <p className="text-sm mt-1">Fitur {TABS.find(t => t.key === activeTab)?.label} sedang dalam pengembangan</p>
           </div>
-        )}
+
+          <div className="bg-white rounded-2xl" style={{ border: '1.5px solid #EDE8F5', boxShadow: '0 1px 4px rgba(47,43,61,.06)' }}>
+            <div className="px-6 py-4" style={{ borderBottom: '1px solid #EDE8F5' }}>
+              <h2 className="text-sm font-bold" style={{ color: '#433C50' }}>Pergerakan Terbaru</h2>
+            </div>
+            <div className="p-4 space-y-3">
+              {MOVEMENTS.map((m, i) => (
+                <div key={i} className="flex items-start gap-3">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full flex-shrink-0"
+                    style={{ backgroundColor: m.type === 'in' ? 'rgba(76,175,80,.12)' : 'rgba(234,84,85,.12)' }}>
+                    {m.type === 'in'
+                      ? <ArrowDownRight className="h-4 w-4" style={{ color: '#4CAF50' }} />
+                      : <ArrowUpRight className="h-4 w-4" style={{ color: '#EA5455' }} />}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-semibold leading-tight" style={{ color: '#433C50' }}>{m.product}</p>
+                    <p className="text-[10px] mt-0.5" style={{ color: '#A5A3AE' }}>{m.from} · {m.date}</p>
+                  </div>
+                  <span className="text-xs font-bold flex-shrink-0" style={{ color: m.type === 'in' ? '#4CAF50' : '#EA5455' }}>{m.qty}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
       </div>
-    </OdooLayout>
+    </AppShell>
   );
 }

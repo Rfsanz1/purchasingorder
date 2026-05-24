@@ -4,97 +4,45 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '../lib/store/useAuthStore';
 import {
-  ShoppingCart, Users, Monitor, FileText, Package, Truck,
-  DollarSign, BarChart2, Zap, Settings, ShieldCheck, Search,
-  LogOut, Bell, ChevronRight, Grid,
+  ShoppingCart, Users, Package, FileText, DollarSign, Truck,
+  BarChart2, Settings, ShieldCheck, Monitor, UserCheck, LogOut,
+  Bell, Search, Grid, ChevronDown,
 } from 'lucide-react';
 
-interface Module {
-  label: string;
+interface App {
+  id: string;
+  name: string;
   desc: string;
   href: string;
   icon: React.ElementType;
+  color: string;
   gradient: string;
+  category: string;
 }
 
-const MODULE_CATEGORIES = [
-  {
-    category: 'Penjualan & CRM',
-    modules: [
-      { label: 'Penjualan', desc: 'Order & penawaran', href: '/sales/orders', icon: ShoppingCart, gradient: 'from-teal-400 to-teal-600' },
-      { label: 'CRM', desc: 'Kelola pelanggan', href: '/crm', icon: Users, gradient: 'from-violet-400 to-purple-600' },
-      { label: 'Point of Sale', desc: 'Kasir & transaksi', href: '/pos', icon: Monitor, gradient: 'from-orange-400 to-orange-600' },
-      { label: 'Invoice', desc: 'Tagihan & pembayaran', href: '/sales/faktur', icon: FileText, gradient: 'from-blue-400 to-blue-600' },
-    ],
-  },
-  {
-    category: 'Operasional',
-    modules: [
-      { label: 'Inventaris', desc: 'Produk, stok & gudang', href: '/inventory', icon: Package, gradient: 'from-red-400 to-orange-500' },
-      { label: 'Pembelian', desc: 'PO & supplier', href: '/purchasing/purchase-orders', icon: Truck, gradient: 'from-amber-400 to-orange-500' },
-      { label: 'Pengiriman', desc: 'Driver & logistik', href: '/driver', icon: Truck, gradient: 'from-green-400 to-emerald-600' },
-    ],
-  },
-  {
-    category: 'Keuangan',
-    modules: [
-      { label: 'Akuntansi', desc: 'Jurnal, COA & kas', href: '/finance/journal-entries', icon: DollarSign, gradient: 'from-violet-500 to-purple-700' },
-    ],
-  },
-  {
-    category: 'SDM',
-    modules: [
-      { label: 'Karyawan', desc: 'Data & penggajian', href: '/hr/employees', icon: Users, gradient: 'from-pink-400 to-rose-500' },
-    ],
-  },
-  {
-    category: 'Laporan & Sistem',
-    modules: [
-      { label: 'Laporan', desc: 'Analitik bisnis', href: '/reports', icon: BarChart2, gradient: 'from-slate-400 to-slate-600' },
-      { label: 'AI & Otomasi', desc: 'Fitur AI & analitik', href: '/ai', icon: Zap, gradient: 'from-yellow-400 to-amber-500' },
-      { label: 'Pengaturan', desc: 'Konfigurasi sistem', href: '/settings', icon: Settings, gradient: 'from-gray-400 to-gray-600' },
-      { label: 'Akses & Peran', desc: 'User & permission', href: '/access', icon: ShieldCheck, gradient: 'from-red-500 to-red-700' },
-    ],
-  },
+const APPS: App[] = [
+  { id: 'sales',       name: 'Penjualan',    desc: 'Order & penawaran',        href: '/sales',        icon: ShoppingCart, color: '#00BCD4', gradient: 'from-cyan-400 to-cyan-600',       category: 'Penjualan' },
+  { id: 'crm',         name: 'CRM',           desc: 'Prospek & pelanggan',      href: '/crm',          icon: Users,        color: '#9C27B0', gradient: 'from-purple-400 to-purple-600',   category: 'Penjualan' },
+  { id: 'pos',         name: 'Kasir (POS)',   desc: 'Kasir & transaksi',        href: '/pos',          icon: Monitor,      color: '#FF5722', gradient: 'from-orange-400 to-orange-600',   category: 'Penjualan' },
+  { id: 'invoice',     name: 'Invoice',       desc: 'Tagihan & faktur',         href: '/invoice',      icon: FileText,     color: '#2196F3', gradient: 'from-blue-400 to-blue-600',       category: 'Keuangan' },
+  { id: 'accounting',  name: 'Akuntansi',     desc: 'Jurnal, COA & kas',        href: '/accounting',   icon: DollarSign,   color: '#4CAF50', gradient: 'from-green-500 to-emerald-600',   category: 'Keuangan' },
+  { id: 'inventory',   name: 'Inventaris',    desc: 'Stok, gudang & produk',    href: '/inventory',    icon: Package,      color: '#FF9800', gradient: 'from-amber-400 to-orange-500',    category: 'Operasional' },
+  { id: 'purchase',    name: 'Pembelian',     desc: 'PO & supplier',            href: '/purchasing',   icon: Truck,        color: '#795548', gradient: 'from-stone-400 to-stone-600',     category: 'Operasional' },
+  { id: 'hr',          name: 'Karyawan',      desc: 'SDM & penggajian',         href: '/hr',           icon: UserCheck,    color: '#E91E63', gradient: 'from-pink-400 to-rose-500',       category: 'SDM' },
+  { id: 'driver',      name: 'Pengiriman',    desc: 'Driver & logistik',        href: '/driver',       icon: Truck,        color: '#009688', gradient: 'from-teal-400 to-teal-600',       category: 'Operasional' },
+  { id: 'reports',     name: 'Laporan',       desc: 'Analitik & laporan',       href: '/reports',      icon: BarChart2,    color: '#607D8B', gradient: 'from-slate-400 to-slate-600',     category: 'Sistem' },
+  { id: 'settings',    name: 'Pengaturan',    desc: 'Konfigurasi sistem',       href: '/settings',     icon: Settings,     color: '#9E9E9E', gradient: 'from-gray-400 to-gray-600',       category: 'Sistem' },
+  { id: 'access',      name: 'Akses & Peran', desc: 'User & permission',        href: '/access',       icon: ShieldCheck,  color: '#F44336', gradient: 'from-red-400 to-red-600',         category: 'Sistem' },
 ];
 
-function ModuleCard({ mod }: { mod: Module }) {
-  return (
-    <a
-      href={mod.href}
-      className="group flex flex-col items-center gap-3 rounded-xl bg-white px-4 py-5 text-center transition-all duration-200 focus:outline-none"
-      style={{
-        boxShadow: '0 1px 4px rgba(47,43,61,.07)',
-        border: '1.5px solid #EDE8F5',
-      }}
-      onMouseEnter={(e) => {
-        const el = e.currentTarget;
-        el.style.transform = 'translateY(-3px)';
-        el.style.boxShadow = '0 8px 24px rgba(113,75,103,.15)';
-        el.style.borderColor = '#714B67';
-      }}
-      onMouseLeave={(e) => {
-        const el = e.currentTarget;
-        el.style.transform = 'translateY(0)';
-        el.style.boxShadow = '0 1px 4px rgba(47,43,61,.07)';
-        el.style.borderColor = '#EDE8F5';
-      }}
-    >
-      <div className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${mod.gradient} shadow-sm`}>
-        <mod.icon className="h-5 w-5 text-white" />
-      </div>
-      <div>
-        <p className="text-sm font-semibold leading-tight" style={{ color: '#433C50' }}>{mod.label}</p>
-        <p className="text-xs mt-1 leading-relaxed" style={{ color: '#B0AAB9' }}>{mod.desc}</p>
-      </div>
-    </a>
-  );
-}
+const CATEGORIES = ['Semua', ...Array.from(new Set(APPS.map((a) => a.category)))];
 
-export default function HomePage() {
+export default function AppSwitcher() {
   const { token, user, logout, loadProfile } = useAuthStore();
   const router = useRouter();
   const [search, setSearch] = useState('');
+  const [activeCategory, setActiveCategory] = useState('Semua');
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
 
   useEffect(() => {
     if (!token) { router.push('/login'); return; }
@@ -103,186 +51,213 @@ export default function HomePage() {
 
   if (!token) return null;
 
-  const q = search.trim().toLowerCase();
-  const filtered = q
-    ? MODULE_CATEGORIES
-        .map((cat) => ({ ...cat, modules: cat.modules.filter((m) => m.label.toLowerCase().includes(q) || m.desc.toLowerCase().includes(q)) }))
-        .filter((cat) => cat.modules.length > 0)
-    : MODULE_CATEGORIES;
+  const filtered = APPS.filter((a) => {
+    const matchCat = activeCategory === 'Semua' || a.category === activeCategory;
+    const q = search.toLowerCase();
+    const matchSearch = !q || a.name.toLowerCase().includes(q) || a.desc.toLowerCase().includes(q);
+    return matchCat && matchSearch;
+  });
 
-  const totalModules = MODULE_CATEGORIES.reduce((a, c) => a + c.modules.length, 0);
+  const grouped = CATEGORIES.slice(1).reduce<Record<string, App[]>>((acc, cat) => {
+    const apps = filtered.filter((a) => a.category === cat);
+    if (apps.length) acc[cat] = apps;
+    return acc;
+  }, {});
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#F5F4F9' }}>
 
       {/* ── Topbar ── */}
       <header
-        className="sticky top-0 z-30 flex items-center justify-between px-6 h-14"
+        className="sticky top-0 z-30 flex items-center justify-between px-4 sm:px-8 h-14"
         style={{ backgroundColor: '#FFFFFF', borderBottom: '1px solid #EDE8F5', boxShadow: '0 1px 0 rgba(47,43,61,.06)' }}
       >
-        {/* Brand */}
+        {/* Logo */}
         <div className="flex items-center gap-3">
           <div
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-white font-bold text-sm flex-shrink-0"
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-white font-extrabold text-sm flex-shrink-0"
             style={{ background: 'linear-gradient(135deg, #714B67, #9C6B8E)' }}
           >
             G
           </div>
-          <span className="font-bold text-sm" style={{ color: '#433C50' }}>Gentong Mas ERP</span>
+          <span className="font-bold text-sm hidden sm:block" style={{ color: '#433C50' }}>Gentong Mas ERP</span>
         </div>
 
-        {/* Actions */}
+        {/* Right */}
         <div className="flex items-center gap-2">
-          <button
-            className="relative p-2 rounded-lg transition-colors"
-            style={{ color: '#A5A3AE' }}
-            title="Notifikasi"
-          >
+          <button className="p-2 rounded-lg" style={{ color: '#A5A3AE' }}>
             <Bell className="h-5 w-5" />
           </button>
           <a
             href="/install"
-            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
-            style={{ backgroundColor: 'rgba(113,75,103,.08)', color: '#714B67', border: '1px solid rgba(113,75,103,.18)' }}
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium"
+            style={{ backgroundColor: 'rgba(113,75,103,.07)', color: '#714B67', border: '1px solid rgba(113,75,103,.15)' }}
           >
             <Grid className="h-3.5 w-3.5" />
-            Kelola Modul
+            Kelola Aplikasi
           </a>
-          <div
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg cursor-default"
-            style={{ border: '1px solid #EDE8F5' }}
-          >
-            <div
-              className="flex h-6 w-6 items-center justify-center rounded-full text-white text-xs font-bold flex-shrink-0"
-              style={{ background: 'linear-gradient(135deg, #714B67, #9C6B8E)' }}
+
+          {/* User dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setUserMenuOpen((v) => !v)}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg"
+              style={{ border: '1px solid #EDE8F5' }}
             >
-              {(user?.name ?? user?.email ?? 'U').charAt(0).toUpperCase()}
-            </div>
-            <span className="text-sm font-medium hidden sm:block" style={{ color: '#433C50' }}>
-              {user?.name ?? 'Admin'}
-            </span>
+              <div
+                className="flex h-6 w-6 items-center justify-center rounded-full text-white text-xs font-bold"
+                style={{ background: 'linear-gradient(135deg, #714B67, #9C6B8E)' }}
+              >
+                {(user?.name ?? 'A').charAt(0).toUpperCase()}
+              </div>
+              <span className="text-sm font-medium hidden sm:block" style={{ color: '#433C50' }}>{user?.name ?? 'Admin'}</span>
+              <ChevronDown className="h-3.5 w-3.5 hidden sm:block" style={{ color: '#A5A3AE' }} />
+            </button>
+            {userMenuOpen && (
+              <>
+                <div className="fixed inset-0 z-10" onClick={() => setUserMenuOpen(false)} />
+                <div
+                  className="absolute right-0 top-full mt-1 w-48 rounded-xl py-1 z-20"
+                  style={{ backgroundColor: '#fff', border: '1px solid #EDE8F5', boxShadow: '0 8px 24px rgba(47,43,61,.14)' }}
+                >
+                  <div className="px-4 py-2.5" style={{ borderBottom: '1px solid #EDE8F5' }}>
+                    <p className="text-xs font-semibold" style={{ color: '#433C50' }}>{user?.name ?? 'Admin'}</p>
+                    <p className="text-[11px] mt-0.5" style={{ color: '#A5A3AE' }}>{user?.email}</p>
+                  </div>
+                  <button
+                    onClick={() => { logout(); router.push('/login'); }}
+                    className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-left transition-colors"
+                    style={{ color: '#EA5455' }}
+                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgba(234,84,85,.06)'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; }}
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Keluar
+                  </button>
+                </div>
+              </>
+            )}
           </div>
-          <button
-            onClick={() => { logout(); router.push('/login'); }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-colors"
-            style={{ color: '#EA5455', border: '1px solid rgba(234,84,85,.18)' }}
-            title="Logout"
-          >
-            <LogOut className="h-4 w-4" />
-            <span className="hidden sm:block text-xs font-medium">Keluar</span>
-          </button>
         </div>
       </header>
 
-      {/* ── Hero / Welcome ── */}
-      <div
-        className="px-6 py-8"
-        style={{ background: 'linear-gradient(135deg, #714B67 0%, #9C6B8E 100%)' }}
-      >
-        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-xl font-bold text-white">
-              Selamat datang, {user?.name ?? 'Admin'} 👋
-            </h1>
-            <p className="text-sm mt-1" style={{ color: 'rgba(255,255,255,.7)' }}>
-              {new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-            </p>
-          </div>
-          <div className="flex gap-3">
-            {[
-              { label: 'Modul', value: totalModules },
-              { label: 'Kategori', value: MODULE_CATEGORIES.length },
-            ].map((s) => (
-              <div
-                key={s.label}
-                className="flex flex-col items-center px-5 py-3 rounded-xl"
-                style={{ backgroundColor: 'rgba(255,255,255,.14)', backdropFilter: 'blur(4px)' }}
-              >
-                <span className="text-2xl font-bold text-white">{s.value}</span>
-                <span className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,.7)' }}>{s.label}</span>
-              </div>
-            ))}
-          </div>
+      {/* ── Hero ── */}
+      <div style={{ background: 'linear-gradient(135deg, #714B67 0%, #9C6B8E 100%)' }} className="px-6 sm:px-8 py-10">
+        <div className="max-w-5xl mx-auto">
+          <h1 className="text-2xl font-bold text-white">
+            Selamat datang, {user?.name ?? 'Admin'} 👋
+          </h1>
+          <p className="mt-1 text-sm" style={{ color: 'rgba(255,255,255,.7)' }}>
+            {new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+          </p>
+          <p className="mt-3 text-sm font-medium" style={{ color: 'rgba(255,255,255,.8)' }}>
+            Pilih aplikasi yang ingin Anda buka
+          </p>
         </div>
       </div>
 
-      {/* ── Search bar ── */}
+      {/* ── Filter bar ── */}
       <div
-        className="sticky top-14 z-20 px-6 py-3"
+        className="sticky top-14 z-20 px-6 sm:px-8 py-3 flex flex-col sm:flex-row gap-3 sm:items-center"
         style={{ backgroundColor: '#F5F4F9', borderBottom: '1px solid #EDE8F5' }}
       >
-        <div className="max-w-5xl mx-auto relative">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: '#B0AAB9' }} />
+        {/* Search */}
+        <div className="relative flex-shrink-0">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: '#B0AAB9' }} />
           <input
-            className="w-full max-w-sm rounded-lg pl-10 pr-4 py-2.5 text-sm transition-all"
-            style={{
-              backgroundColor: '#FFFFFF',
-              border: '1px solid #EDE8F5',
-              color: '#433C50',
-              boxShadow: '0 1px 4px rgba(47,43,61,.06)',
-              outline: 'none',
-            }}
-            placeholder="Cari modul..."
+            className="rounded-lg pl-9 pr-4 py-2 text-sm w-full sm:w-56 transition-all"
+            style={{ backgroundColor: '#fff', border: '1px solid #EDE8F5', color: '#433C50', outline: 'none' }}
+            placeholder="Cari aplikasi..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             onFocus={(e) => { e.target.style.borderColor = '#714B67'; }}
             onBlur={(e) => { e.target.style.borderColor = '#EDE8F5'; }}
           />
         </div>
+
+        {/* Category pills */}
+        <div className="flex gap-1.5 flex-wrap">
+          {CATEGORIES.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setActiveCategory(cat)}
+              className="px-3 py-1.5 rounded-full text-xs font-medium transition-all"
+              style={{
+                backgroundColor: activeCategory === cat ? '#714B67' : '#FFFFFF',
+                color: activeCategory === cat ? '#FFFFFF' : '#6D6777',
+                border: `1px solid ${activeCategory === cat ? '#714B67' : '#EDE8F5'}`,
+              }}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* ── Module grid ── */}
-      <main className="max-w-5xl mx-auto px-6 py-8 space-y-10">
+      {/* ── App grid ── */}
+      <main className="max-w-5xl mx-auto px-6 sm:px-8 py-8 space-y-10">
         {filtered.length === 0 ? (
           <div className="flex flex-col items-center py-20" style={{ color: '#B0AAB9' }}>
             <Search className="h-12 w-12 mb-4 opacity-30" />
-            <p className="font-semibold text-base">Modul tidak ditemukan</p>
-            <p className="text-sm mt-1">Coba kata kunci yang berbeda</p>
+            <p className="font-semibold">Aplikasi tidak ditemukan</p>
+          </div>
+        ) : activeCategory !== 'Semua' ? (
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-4">
+            {filtered.map((app) => <AppCard key={app.id} app={app} />)}
           </div>
         ) : (
-          filtered.map((cat) => (
-            <section key={cat.category}>
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xs font-bold uppercase tracking-widest" style={{ color: '#A5A3AE' }}>
-                  {cat.category}
-                </h2>
-                <span
-                  className="text-xs px-2 py-0.5 rounded-full"
-                  style={{ backgroundColor: '#EDE8F5', color: '#714B67' }}
-                >
-                  {cat.modules.length} modul
-                </span>
-              </div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-                {cat.modules.map((mod) => (
-                  <ModuleCard key={mod.href} mod={mod} />
-                ))}
+          Object.entries(grouped).map(([cat, apps]) => (
+            <section key={cat}>
+              <h2
+                className="text-xs font-bold uppercase tracking-widest mb-4"
+                style={{ color: '#A5A3AE' }}
+              >
+                {cat}
+              </h2>
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-4">
+                {apps.map((app) => <AppCard key={app.id} app={app} />)}
               </div>
             </section>
           ))
         )}
-
-        {/* Quick link to install */}
-        {!q && (
-          <div
-            className="flex items-center justify-between rounded-2xl px-6 py-4"
-            style={{ backgroundColor: 'rgba(113,75,103,.06)', border: '1.5px dashed rgba(113,75,103,.25)' }}
-          >
-            <div>
-              <p className="text-sm font-semibold" style={{ color: '#714B67' }}>Belum menemukan modul yang Anda cari?</p>
-              <p className="text-xs mt-0.5" style={{ color: '#B0AAB9' }}>Aktifkan modul tambahan dari halaman Kelola Modul</p>
-            </div>
-            <a
-              href="/install"
-              className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold text-white transition-opacity hover:opacity-90 flex-shrink-0"
-              style={{ backgroundColor: '#714B67' }}
-            >
-              Kelola Modul
-              <ChevronRight className="h-4 w-4" />
-            </a>
-          </div>
-        )}
       </main>
     </div>
+  );
+}
+
+function AppCard({ app }: { app: App }) {
+  const router = useRouter();
+  return (
+    <button
+      onClick={() => router.push(app.href)}
+      className="group flex flex-col items-center gap-3 rounded-2xl bg-white p-5 text-center transition-all duration-200 focus:outline-none w-full"
+      style={{
+        boxShadow: '0 1px 4px rgba(47,43,61,.07)',
+        border: '1.5px solid #EDE8F5',
+      }}
+      onMouseEnter={(e) => {
+        const el = e.currentTarget;
+        el.style.transform = 'translateY(-4px)';
+        el.style.boxShadow = `0 12px 28px ${app.color}28`;
+        el.style.borderColor = app.color;
+      }}
+      onMouseLeave={(e) => {
+        const el = e.currentTarget;
+        el.style.transform = 'translateY(0)';
+        el.style.boxShadow = '0 1px 4px rgba(47,43,61,.07)';
+        el.style.borderColor = '#EDE8F5';
+      }}
+    >
+      <div
+        className={`flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${app.gradient}`}
+        style={{ boxShadow: `0 4px 12px ${app.color}40` }}
+      >
+        <app.icon className="h-7 w-7 text-white" />
+      </div>
+      <div>
+        <p className="text-xs font-bold leading-tight" style={{ color: '#433C50' }}>{app.name}</p>
+        <p className="text-[10px] mt-0.5 leading-relaxed" style={{ color: '#B0AAB9' }}>{app.desc}</p>
+      </div>
+    </button>
   );
 }
