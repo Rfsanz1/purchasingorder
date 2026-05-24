@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
+import { useState, useEffect, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '../../lib/store/useAuthStore';
 import { Eye, EyeOff, ShoppingCart, Package, DollarSign, Users, BarChart2, Truck } from 'lucide-react';
@@ -21,7 +21,8 @@ export default function LoginPage() {
   const [password, setPassword] = useState('admin123');
   const [showPass, setShowPass] = useState(false);
 
-  if (token) { router.push('/'); return null; }
+  useEffect(() => { if (token) router.push('/'); }, [token]);
+  if (token) return null;
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();

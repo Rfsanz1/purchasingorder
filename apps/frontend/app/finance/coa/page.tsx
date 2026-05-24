@@ -13,7 +13,8 @@ export default function COAPage() {
     setLoading(true);
     try {
       const r = await api.get('/finance/coa', { params: { search } });
-      setData(r.data.data ?? r.data ?? []);
+      const raw = r.data;
+      setData(Array.isArray(raw) ? raw : Array.isArray(raw?.data) ? raw.data : []);
     } catch {} finally { setLoading(false); }
   };
   useEffect(() => { load(); }, [search]);

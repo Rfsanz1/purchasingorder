@@ -19,8 +19,10 @@ export default function SalesProductsPage() {
   const load = async () => {
     setLoading(true);
     try {
-      const r = await api.get('/kledo/products', { params: { search, limit: 50 } });
-      setData(r.data.data ?? r.data ?? []);
+      const r = await api.get('/inventory/products', { params: { search, limit: 50 } });
+      const raw = r.data;
+      const list = Array.isArray(raw) ? raw : Array.isArray(raw?.data) ? raw.data : [];
+      setData(list);
     } catch { setData([]); } finally { setLoading(false); }
   };
   useEffect(() => { if (token) load(); }, [token, search]);
