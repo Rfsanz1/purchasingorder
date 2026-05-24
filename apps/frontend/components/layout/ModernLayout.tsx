@@ -15,3 +15,5 @@ export function ModernLayout({ children, title, subtitle }: ModernLayoutProps) {
     </OdooLayout>
   );
 }
+
+export default ModernLayout;

@@ -69,7 +69,7 @@ export default function SalesProductsPage() {
                     <td className="px-6 py-3.5 text-xs font-mono" style={{ color: '#A5A3AE' }}>{p.code || p.sku || '–'}</td>
                     <td className="px-6 py-3.5 text-sm font-semibold" style={{ color: '#433C50' }}>{Number(p.price || 0).toLocaleString('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 })}</td>
                     <td className="px-6 py-3.5 text-sm" style={{ color: (p.stock ?? p.qty ?? 0) < 10 ? '#EA5455' : '#433C50' }}>{p.stock ?? p.qty ?? 0}</td>
-                    <td className="px-6 py-3.5 text-xs" style={{ color: '#A5A3AE' }}>{p.unit || p.satuan || '–'}</td>
+                    <td className="px-6 py-3.5 text-xs" style={{ color: '#A5A3AE' }}>{typeof p.unit === 'object' ? (p.unit?.name || p.unit?.symbol || '–') : (p.unit || p.satuan || '–')}</td>
                   </tr>
                 ))}
               </tbody>
