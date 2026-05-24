@@ -43,13 +43,20 @@ export default function AppSwitcher() {
   const [search, setSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState('Semua');
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
     if (!token) { router.push('/login'); return; }
     loadProfile();
-  }, [token]);
+  }, [mounted, token]);
 
-  if (!token) return null;
+  // Render nothing until client is mounted — prevents server/client HTML mismatch
+  if (!mounted || !token) return null;
 
   const filtered = APPS.filter((a) => {
     const matchCat = activeCategory === 'Semua' || a.category === activeCategory;
