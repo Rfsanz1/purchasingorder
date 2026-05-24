@@ -1,181 +1,160 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import ModernLayout from '@/components/layout/ModernLayout';
-import api from '@/lib/api';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuthStore } from '../../lib/store/useAuthStore';
+import AppShell, { NavItem } from '../../components/layout/AppShell';
+import {
+  MessageSquare, BarChart2, Users, Clock, Settings,
+  CheckCircle, AlertTriangle, TrendingUp, Star, Zap,
+} from 'lucide-react';
 
-const STAGES = [
-  { key: 'new', label: 'Baru', color: 'bg-slate-600 text-slate-200' },
-  { key: 'in_progress', label: 'Diproses', color: 'bg-blue-600/30 text-blue-300' },
-  { key: 'solved', label: 'Solved', color: 'bg-emerald-600/30 text-emerald-300' },
-  { key: 'closed', label: 'Closed', color: 'bg-slate-700 text-slate-400' },
+const NAV: NavItem[] = [
+  { label: 'Dashboard',  href: '/helpdesk',          icon: BarChart2 },
+  { label: 'Tiket',      href: '/helpdesk/tickets',  icon: MessageSquare, badge: 12,
+    children: [
+      { label: 'Semua',      href: '/helpdesk/tickets' },
+      { label: 'Terbuka',    href: '/helpdesk/tickets?status=open' },
+      { label: 'Diproses',   href: '/helpdesk/tickets?status=in_progress' },
+      { label: 'Selesai',    href: '/helpdesk/tickets?status=solved' },
+    ],
+  },
+  { label: 'Tim',        href: '/helpdesk/teams',    icon: Users },
+  { label: 'SLA',        href: '/helpdesk/sla',      icon: Zap },
+  { label: 'Laporan',    href: '/helpdesk/reports',  icon: TrendingUp },
+  { label: 'Pengaturan', href: '/helpdesk/settings', icon: Settings },
 ];
 
-const PRIORITY_MAP = [
-  { label: 'Rendah', color: 'text-slate-400' },
-  { label: 'Normal', color: 'text-blue-400' },
-  { label: 'Tinggi', color: 'text-yellow-400' },
-  { label: 'Urgent', color: 'text-red-400' },
+const STATS = [
+  { label: 'Tiket Terbuka',   value: '23',   sub: '5 mendesak',          color: '#E53935', bg: 'rgba(229,57,53,.1)',   icon: MessageSquare },
+  { label: 'Diselesaikan',    value: '148',  sub: 'Bulan ini',            color: '#4CAF50', bg: 'rgba(76,175,80,.1)',   icon: CheckCircle },
+  { label: 'Waktu Respons',   value: '1.4j', sub: 'Rata-rata hari ini',   color: '#2196F3', bg: 'rgba(33,150,243,.1)',  icon: Clock },
+  { label: 'CSAT Score',      value: '4.6',  sub: 'Dari 5.0 (bulan ini)', color: '#FF9800', bg: 'rgba(255,152,0,.1)',   icon: Star },
 ];
 
-export default function HelpdeskPage() {
-  const [tickets, setTickets] = useState<any[]>([]);
-  const [teams, setTeams] = useState<any[]>([]);
-  const [stats, setStats] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState({ stage: '', teamId: '' });
-  const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({ subject: '', description: '', teamId: '', priority: '1', tags: '' });
+const TICKETS = [
+  { id: 'TKT-1234', customer: 'PT Maju Jaya',       subject: 'Invoice tidak muncul di portal',       priority: 3, team: 'Finance Support',  status: 'open',        created: '24 Mei 10:30', sla: 'ok' },
+  { id: 'TKT-1233', customer: 'CV Berkah Abadi',     subject: 'Error saat ekspor laporan stok',       priority: 2, team: 'Teknis',            status: 'in_progress', created: '24 Mei 09:15', sla: 'warning' },
+  { id: 'TKT-1232', customer: 'Toko Sumber Rejeki',  subject: 'Kasir tidak bisa print struk',         priority: 3, team: 'POS Support',       status: 'open',        created: '23 Mei 16:40', sla: 'breached' },
+  { id: 'TKT-1231', customer: 'UD Karya Mandiri',    subject: 'Permintaan training modul akuntansi',  priority: 1, team: 'Customer Success',  status: 'in_progress', created: '23 Mei 11:00', sla: 'ok' },
+  { id: 'TKT-1230', customer: 'PT Global Niaga',     subject: 'Integrasi Kledo gagal sinkronisasi',   priority: 2, team: 'Teknis',            status: 'solved',      created: '22 Mei 14:20', sla: 'ok' },
+];
 
-  useEffect(() => { fetchAll(); }, [filter]);
+const STATUS_MAP: Record<string, { label: string; color: string; bg: string }> = {
+  open:        { label: 'Terbuka',  color: '#E53935', bg: 'rgba(229,57,53,.1)' },
+  in_progress: { label: 'Diproses', color: '#2196F3', bg: 'rgba(33,150,243,.1)' },
+  solved:      { label: 'Selesai',  color: '#4CAF50', bg: 'rgba(76,175,80,.1)' },
+};
 
-  async function fetchAll() {
-    setLoading(true);
-    try {
-      const [tickRes, teamRes, statsRes] = await Promise.all([
-        api.get('/helpdesk/tickets', { params: { stage: filter.stage || undefined, teamId: filter.teamId || undefined } }),
-        api.get('/helpdesk/teams'),
-        api.get('/helpdesk/stats'),
-      ]);
-      setTickets(tickRes.data.data ?? []);
-      setTeams(teamRes.data ?? []);
-      setStats(statsRes.data);
-    } catch { } finally { setLoading(false); }
-  }
+const SLA_MAP: Record<string, { color: string; label: string }> = {
+  ok:       { color: '#4CAF50', label: 'OK' },
+  warning:  { color: '#FF9800', label: 'Hampir' },
+  breached: { color: '#EA5455', label: 'Lewat' },
+};
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    try {
-      await api.post('/helpdesk/tickets', { ...form, priority: parseInt(form.priority), tags: form.tags ? form.tags.split(',').map(t => t.trim()) : [] });
-      setShowForm(false);
-      setForm({ subject: '', description: '', teamId: '', priority: '1', tags: '' });
-      fetchAll();
-    } catch { }
-  }
+const PRIORITY_LABELS = ['', 'Rendah', 'Normal', 'Tinggi', 'Kritis'];
+const PRIORITY_COLORS = ['', '#A5A3AE', '#2196F3', '#FF9800', '#EA5455'];
 
-  async function updateStage(id: string, stage: string) {
-    if (stage === 'closed') { await api.post(`/helpdesk/tickets/${id}/close`); }
-    else { await api.put(`/helpdesk/tickets/${id}`, { stage }); }
-    fetchAll();
-  }
+export default function HelpdeskDashboard() {
+  const { token } = useAuthStore();
+  const router = useRouter();
+  useEffect(() => { if (!token) router.push('/login'); }, [token]);
+  if (!token) return null;
 
   return (
-    <ModernLayout>
+    <AppShell
+      appName="Helpdesk"
+      appColor="#E53935"
+      appGradient="from-red-500 to-red-700"
+      appIcon={MessageSquare}
+      navItems={NAV}
+      activeHref="/helpdesk"
+    >
       <div className="p-6 space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-white">Helpdesk</h1>
-            <p className="text-slate-400 text-sm mt-1">Manajemen tiket dukungan pelanggan</p>
-          </div>
-          <button onClick={() => setShowForm(true)} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium">+ Buat Tiket</button>
-        </div>
-
-        {stats && (
-          <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
-            {[
-              { label: 'Total', value: stats.total, color: 'text-white' },
-              { label: 'Baru', value: stats.open, color: 'text-slate-300' },
-              { label: 'Diproses', value: stats.inProgress, color: 'text-blue-400' },
-              { label: 'Solved', value: stats.solved, color: 'text-emerald-400' },
-              { label: 'Closed', value: stats.closed, color: 'text-slate-500' },
-              { label: 'Urgent', value: stats.urgent, color: 'text-red-400' },
-            ].map(s => (
-              <div key={s.label} className="bg-slate-800 rounded-xl p-3 border border-slate-700 text-center">
-                <p className="text-slate-400 text-xs">{s.label}</p>
-                <p className={`text-xl font-bold mt-1 ${s.color}`}>{s.value}</p>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {STATS.map(s => {
+            const Icon = s.icon;
+            return (
+              <div key={s.label} className="bg-white rounded-2xl p-5 border" style={{ borderColor: '#EDE8F5' }}>
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-xs font-medium" style={{ color: '#A5A3AE' }}>{s.label}</p>
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl" style={{ backgroundColor: s.bg }}>
+                    <Icon className="h-5 w-5" style={{ color: s.color }} />
+                  </div>
+                </div>
+                <p className="text-2xl font-bold" style={{ color: '#2F2B3D' }}>{s.value}</p>
+                <p className="text-xs mt-1" style={{ color: '#A5A3AE' }}>{s.sub}</p>
               </div>
-            ))}
-          </div>
-        )}
-
-        <div className="flex gap-3 flex-wrap">
-          <select value={filter.stage} onChange={e => setFilter(f => ({ ...f, stage: e.target.value }))} className="bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm">
-            <option value="">Semua Stage</option>
-            {STAGES.map(s => <option key={s.key} value={s.key}>{s.label}</option>)}
-          </select>
-          <select value={filter.teamId} onChange={e => setFilter(f => ({ ...f, teamId: e.target.value }))} className="bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm">
-            <option value="">Semua Tim</option>
-            {teams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
-          </select>
+            );
+          })}
         </div>
 
-        {loading ? (
-          <div className="flex items-center justify-center h-48 text-slate-400">Memuat tiket...</div>
-        ) : (
-          <div className="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
-            <table className="w-full text-sm">
-              <thead><tr className="border-b border-slate-700 text-slate-400">
-                <th className="text-left p-4">No. Tiket</th>
-                <th className="text-left p-4">Subjek</th>
-                <th className="text-left p-4 hidden md:table-cell">Tim</th>
-                <th className="text-left p-4">Prioritas</th>
-                <th className="text-left p-4">Stage</th>
-                <th className="text-left p-4">SLA</th>
-                <th className="text-left p-4">Aksi</th>
-              </tr></thead>
+        <div className="bg-white rounded-2xl border" style={{ borderColor: '#EDE8F5' }}>
+          <div className="flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: '#EDE8F5' }}>
+            <h2 className="font-bold text-sm" style={{ color: '#2F2B3D' }}>Tiket Terbaru</h2>
+            <button className="text-xs font-semibold px-3 py-1.5 rounded-lg text-white" style={{ backgroundColor: '#E53935' }}>+ Tiket Baru</button>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead>
+                <tr style={{ borderBottom: '1px solid #EDE8F5' }}>
+                  {['Tiket', 'Pelanggan', 'Subjek', 'Prioritas', 'Tim', 'SLA', 'Status'].map(h => (
+                    <th key={h} className="px-5 py-3 text-left font-semibold" style={{ color: '#A5A3AE' }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
               <tbody>
-                {tickets.map(t => {
-                  const prio = PRIORITY_MAP[t.priority] ?? PRIORITY_MAP[1];
-                  const stage = STAGES.find(s => s.key === t.stage);
-                  const slaOk = !t.slaDeadline || new Date(t.slaDeadline) > new Date();
+                {TICKETS.map(t => {
+                  const st = STATUS_MAP[t.status];
+                  const sla = SLA_MAP[t.sla];
                   return (
-                    <tr key={t.id} className="border-b border-slate-700/50 hover:bg-slate-700/30">
-                      <td className="p-4 text-slate-300 font-mono text-xs">{t.noTicket}</td>
-                      <td className="p-4">
-                        <p className="text-white font-medium">{t.subject}</p>
-                        {t.description && <p className="text-slate-400 text-xs mt-0.5 line-clamp-1">{t.description}</p>}
+                    <tr key={t.id} className="border-b" style={{ borderColor: '#F5F4F9' }}>
+                      <td className="px-5 py-3.5 font-bold" style={{ color: '#E53935' }}>{t.id}</td>
+                      <td className="px-5 py-3.5 font-medium" style={{ color: '#2F2B3D' }}>{t.customer}</td>
+                      <td className="px-5 py-3.5 max-w-xs truncate" style={{ color: '#6D6777' }}>{t.subject}</td>
+                      <td className="px-5 py-3.5 font-semibold" style={{ color: PRIORITY_COLORS[t.priority] }}>{PRIORITY_LABELS[t.priority]}</td>
+                      <td className="px-5 py-3.5" style={{ color: '#6D6777' }}>{t.team}</td>
+                      <td className="px-5 py-3.5">
+                        <span className="font-semibold" style={{ color: sla.color }}>{sla.label}</span>
                       </td>
-                      <td className="p-4 text-slate-400 hidden md:table-cell">{t.team?.name ?? '—'}</td>
-                      <td className={`p-4 font-medium ${prio.color}`}>{prio.label}</td>
-                      <td className="p-4"><span className={`text-xs px-2 py-0.5 rounded-full ${stage?.color ?? ''}`}>{stage?.label ?? t.stage}</span></td>
-                      <td className="p-4">{t.slaDeadline ? <span className={slaOk ? 'text-emerald-400 text-xs' : 'text-red-400 text-xs'}>{slaOk ? '✓ OK' : '⚠ Overdue'}</span> : <span className="text-slate-600 text-xs">—</span>}</td>
-                      <td className="p-4">
-                        <select value={t.stage} onChange={e => updateStage(t.id, e.target.value)} className="bg-slate-700 border border-slate-600 rounded px-2 py-1 text-xs text-white">
-                          {STAGES.map(s => <option key={s.key} value={s.key}>{s.label}</option>)}
-                        </select>
+                      <td className="px-5 py-3.5">
+                        <span className="px-2 py-0.5 rounded-full font-semibold text-[10px]" style={{ backgroundColor: st.bg, color: st.color }}>{st.label}</span>
                       </td>
                     </tr>
                   );
                 })}
-                {tickets.length === 0 && <tr><td colSpan={7} className="p-8 text-center text-slate-500">Tidak ada tiket</td></tr>}
               </tbody>
             </table>
           </div>
-        )}
+        </div>
 
-        {showForm && (
-          <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-            <div className="bg-slate-800 rounded-2xl w-full max-w-md border border-slate-700">
-              <div className="p-5 border-b border-slate-700 flex items-center justify-between">
-                <h2 className="text-white font-semibold">Buat Tiket Baru</h2>
-                <button onClick={() => setShowForm(false)} className="text-slate-400 hover:text-white">✕</button>
+        <div className="grid grid-cols-3 gap-4">
+          {[
+            { label: 'Teknis',          open: 8,  solved: 52, color: '#5C6BC0' },
+            { label: 'Finance Support', open: 5,  solved: 38, color: '#00ACC1' },
+            { label: 'POS Support',     open: 6,  solved: 31, color: '#F57F17' },
+          ].map(team => {
+            const total = team.open + team.solved;
+            const pct = total > 0 ? Math.round((team.solved / total) * 100) : 0;
+            return (
+              <div key={team.label} className="bg-white rounded-2xl p-5 border" style={{ borderColor: '#EDE8F5' }}>
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-xs font-bold" style={{ color: '#2F2B3D' }}>{team.label}</p>
+                  <Users className="h-4 w-4" style={{ color: team.color }} />
+                </div>
+                <div className="flex justify-between text-xs mb-2">
+                  <span style={{ color: '#EA5455' }}>{team.open} terbuka</span>
+                  <span style={{ color: '#4CAF50' }}>{team.solved} selesai</span>
+                </div>
+                <div className="h-2 rounded-full" style={{ backgroundColor: '#EDE8F5' }}>
+                  <div className="h-2 rounded-full" style={{ width: `${pct}%`, backgroundColor: team.color }} />
+                </div>
+                <p className="text-[10px] mt-1.5 text-right font-semibold" style={{ color: '#A5A3AE' }}>{pct}% selesai</p>
               </div>
-              <form onSubmit={handleSubmit} className="p-5 space-y-3">
-                <div><label className="text-slate-400 text-xs mb-1 block">Subjek *</label><input required value={form.subject} onChange={e => setForm(f => ({ ...f, subject: e.target.value }))} className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm" /></div>
-                <div>
-                  <label className="text-slate-400 text-xs mb-1 block">Tim</label>
-                  <select value={form.teamId} onChange={e => setForm(f => ({ ...f, teamId: e.target.value }))} className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm">
-                    <option value="">-- Pilih Tim --</option>
-                    {teams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label className="text-slate-400 text-xs mb-1 block">Prioritas</label>
-                  <select value={form.priority} onChange={e => setForm(f => ({ ...f, priority: e.target.value }))} className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm">
-                    {PRIORITY_MAP.map((p, i) => <option key={i} value={String(i)}>{p.label}</option>)}
-                  </select>
-                </div>
-                <div><label className="text-slate-400 text-xs mb-1 block">Deskripsi</label><textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} rows={3} className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm resize-none" /></div>
-                <div><label className="text-slate-400 text-xs mb-1 block">Tags (pisah koma)</label><input value={form.tags} onChange={e => setForm(f => ({ ...f, tags: e.target.value }))} className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm" placeholder="bug, urgent, billing" /></div>
-                <div className="flex gap-3 pt-2">
-                  <button type="button" onClick={() => setShowForm(false)} className="flex-1 bg-slate-700 text-white py-2 rounded-lg text-sm">Batal</button>
-                  <button type="submit" className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg text-sm font-medium">Simpan</button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
+            );
+          })}
+        </div>
       </div>
-    </ModernLayout>
+    </AppShell>
   );
 }

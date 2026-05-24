@@ -1,227 +1,163 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import ModernLayout from '@/components/layout/ModernLayout';
-import api from '@/lib/api';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuthStore } from '../../lib/store/useAuthStore';
+import AppShell, { NavItem } from '../../components/layout/AppShell';
+import {
+  Layers, BarChart2, CheckSquare, Users, Flag, Settings,
+  CheckCircle, Clock, AlertTriangle, TrendingUp, Calendar,
+} from 'lucide-react';
 
-const STATUS_MAP: Record<string, { label: string; color: string }> = {
-  draft: { label: 'Draft', color: 'bg-slate-600 text-slate-200' },
-  in_progress: { label: 'Aktif', color: 'bg-blue-600/30 text-blue-300' },
-  done: { label: 'Selesai', color: 'bg-emerald-600/30 text-emerald-300' },
-  cancelled: { label: 'Dibatalkan', color: 'bg-red-600/30 text-red-300' },
+const NAV: NavItem[] = [
+  { label: 'Dashboard',   href: '/project',             icon: BarChart2 },
+  { label: 'Proyek',      href: '/project/projects',    icon: Layers },
+  { label: 'Tugas',       href: '/project/tasks',       icon: CheckSquare, badge: 9 },
+  { label: 'Milestone',   href: '/project/milestones',  icon: Flag },
+  { label: 'Tim',         href: '/project/team',        icon: Users },
+  { label: 'Laporan',     href: '/project/reports',     icon: TrendingUp },
+  { label: 'Pengaturan',  href: '/project/settings',    icon: Settings },
+];
+
+const STATS = [
+  { label: 'Proyek Aktif',   value: '7',  sub: '2 hampir deadline',   color: '#5C6BC0', bg: 'rgba(92,107,192,.1)',  icon: Layers },
+  { label: 'Tugas Open',     value: '34', sub: '9 jatuh tempo hari ini', color: '#E53935', bg: 'rgba(229,57,53,.1)', icon: CheckSquare },
+  { label: 'Selesai Minggu Ini', value: '18', sub: '+4 vs minggu lalu', color: '#4CAF50', bg: 'rgba(76,175,80,.1)', icon: CheckCircle },
+  { label: 'Anggota Tim',    value: '12', sub: '3 departemen',         color: '#FF9800', bg: 'rgba(255,152,0,.1)',   icon: Users },
+];
+
+const PROJECTS = [
+  { name: 'Implementasi ERP Fase 2',       code: 'ERP-F2',  progress: 68, tasks: 42, done: 29, deadline: '30 Jun 2026', status: 'on_track',   owner: 'Rudi H.' },
+  { name: 'Website Redesign 2026',         code: 'WEB-26',  progress: 45, tasks: 18, done: 8,  deadline: '15 Jul 2026', status: 'on_track',   owner: 'Sari D.' },
+  { name: 'Integrasi Marketplace',         code: 'MKT-INT', progress: 82, tasks: 25, done: 20, deadline: '31 Mei 2026', status: 'at_risk',    owner: 'Andi S.' },
+  { name: 'Audit Sistem Keamanan',         code: 'SEC-24',  progress: 100, tasks: 12, done: 12, deadline: '20 Mei 2026', status: 'done',     owner: 'Budi P.' },
+  { name: 'Training & Onboarding Q2',     code: 'HR-Q2',   progress: 33, tasks: 9,  done: 3,  deadline: '28 Jun 2026', status: 'on_track',   owner: 'Rina K.' },
+];
+
+const TASKS = [
+  { title: 'Review desain UI modul Akuntansi',  project: 'ERP-F2',   assignee: 'Sari D.',  due: 'Hari ini',    priority: 'high',   stage: 'in_progress' },
+  { title: 'Testing API integrasi marketplace', project: 'MKT-INT',  assignee: 'Andi S.',  due: 'Hari ini',    priority: 'urgent', stage: 'todo' },
+  { title: 'Buat dokumentasi SOP keuangan',    project: 'ERP-F2',   assignee: 'Budi P.',  due: 'Besok',       priority: 'normal', stage: 'todo' },
+  { title: 'Update konten halaman produk',     project: 'WEB-26',   assignee: 'Rudi H.',  due: '27 Mei',      priority: 'normal', stage: 'review' },
+  { title: 'Prepare materi training modul HR', project: 'HR-Q2',    assignee: 'Rina K.',  due: '28 Mei',      priority: 'high',   stage: 'todo' },
+];
+
+const STATUS_PROJECT: Record<string, { label: string; color: string; bg: string }> = {
+  on_track: { label: 'On Track', color: '#4CAF50', bg: 'rgba(76,175,80,.1)' },
+  at_risk:  { label: 'At Risk',  color: '#FF9800', bg: 'rgba(255,152,0,.1)' },
+  delayed:  { label: 'Terlambat', color: '#EA5455', bg: 'rgba(234,84,85,.1)' },
+  done:     { label: 'Selesai',  color: '#A5A3AE', bg: 'rgba(165,163,174,.12)' },
 };
 
-const TASK_STAGES = ['todo', 'in_progress', 'review', 'done'];
-const TASK_STAGE_LABELS: Record<string, string> = { todo: 'To Do', in_progress: 'In Progress', review: 'Review', done: 'Selesai' };
+const PRIORITY_MAP: Record<string, { color: string; label: string }> = {
+  urgent: { color: '#EA5455', label: '🔴 Kritis' },
+  high:   { color: '#FF9800', label: '🟠 Tinggi' },
+  normal: { color: '#2196F3', label: '🔵 Normal' },
+  low:    { color: '#A5A3AE', label: '⚪ Rendah' },
+};
 
-export default function ProjectPage() {
-  const [projects, setProjects] = useState<any[]>([]);
-  const [stats, setStats] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [view, setView] = useState<'projects' | 'tasks'>('projects');
-  const [selectedProject, setSelectedProject] = useState<any>(null);
-  const [tasks, setTasks] = useState<any[]>([]);
-  const [showProjectForm, setShowProjectForm] = useState(false);
-  const [showTaskForm, setShowTaskForm] = useState(false);
-  const [pForm, setPForm] = useState({ name: '', code: '', description: '', startDate: '', endDate: '', budget: '' });
-  const [tForm, setTForm] = useState({ title: '', description: '', stage: 'todo', priority: '0', deadline: '', projectId: '' });
+const STAGE_MAP: Record<string, { label: string; color: string; bg: string }> = {
+  todo:        { label: 'To Do',      color: '#A5A3AE', bg: 'rgba(165,163,174,.12)' },
+  in_progress: { label: 'In Progress', color: '#2196F3', bg: 'rgba(33,150,243,.1)' },
+  review:      { label: 'Review',     color: '#FF9800', bg: 'rgba(255,152,0,.1)' },
+  done:        { label: 'Selesai',    color: '#4CAF50', bg: 'rgba(76,175,80,.1)' },
+};
 
-  useEffect(() => { fetchProjects(); fetchStats(); }, []);
-
-  async function fetchProjects() {
-    setLoading(true);
-    try { const r = await api.get('/project/projects'); setProjects(r.data.data ?? []); }
-    catch { } finally { setLoading(false); }
-  }
-
-  async function fetchStats() {
-    try { const r = await api.get('/project/stats'); setStats(r.data); } catch { }
-  }
-
-  async function fetchTasks(projectId?: string) {
-    try {
-      const r = await api.get('/project/tasks', { params: projectId ? { projectId } : {} });
-      setTasks(r.data.data ?? []);
-    } catch { }
-  }
-
-  async function openProject(p: any) {
-    setSelectedProject(p);
-    await fetchTasks(p.id);
-    setView('tasks');
-  }
-
-  async function handleCreateProject(e: React.FormEvent) {
-    e.preventDefault();
-    try { await api.post('/project/projects', { ...pForm, budget: parseFloat(pForm.budget) || 0 }); setShowProjectForm(false); fetchProjects(); } catch { }
-  }
-
-  async function handleCreateTask(e: React.FormEvent) {
-    e.preventDefault();
-    try {
-      await api.post('/project/tasks', { ...tForm, projectId: selectedProject?.id, priority: parseInt(tForm.priority) });
-      setShowTaskForm(false);
-      fetchTasks(selectedProject?.id);
-    } catch { }
-  }
-
-  async function updateTaskStage(taskId: string, stage: string) {
-    try { await api.put(`/project/tasks/${taskId}`, { stage }); fetchTasks(selectedProject?.id); } catch { }
-  }
-
-  const fmt = (n: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(n);
+export default function ProjectDashboard() {
+  const { token } = useAuthStore();
+  const router = useRouter();
+  useEffect(() => { if (!token) router.push('/login'); }, [token]);
+  if (!token) return null;
 
   return (
-    <ModernLayout>
+    <AppShell
+      appName="Proyek"
+      appColor="#5C6BC0"
+      appGradient="from-indigo-500 to-indigo-700"
+      appIcon={Layers}
+      navItems={NAV}
+      activeHref="/project"
+    >
       <div className="p-6 space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="flex items-center gap-2">
-              {view === 'tasks' && (
-                <button onClick={() => setView('projects')} className="text-slate-400 hover:text-white text-sm">← Proyek</button>
-              )}
-              <h1 className="text-2xl font-bold text-white">
-                {view === 'projects' ? 'Manajemen Proyek' : selectedProject?.name}
-              </h1>
-            </div>
-            <p className="text-slate-400 text-sm mt-1">{view === 'projects' ? 'Kelola semua proyek' : 'Task board kanban'}</p>
-          </div>
-          <button onClick={() => view === 'projects' ? setShowProjectForm(true) : setShowTaskForm(true)}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium">
-            {view === 'projects' ? '+ Buat Proyek' : '+ Tambah Task'}
-          </button>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {STATS.map(s => {
+            const Icon = s.icon;
+            return (
+              <div key={s.label} className="bg-white rounded-2xl p-5 border" style={{ borderColor: '#EDE8F5' }}>
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-xs font-medium" style={{ color: '#A5A3AE' }}>{s.label}</p>
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl" style={{ backgroundColor: s.bg }}>
+                    <Icon className="h-5 w-5" style={{ color: s.color }} />
+                  </div>
+                </div>
+                <p className="text-2xl font-bold" style={{ color: '#2F2B3D' }}>{s.value}</p>
+                <p className="text-xs mt-1" style={{ color: '#A5A3AE' }}>{s.sub}</p>
+              </div>
+            );
+          })}
         </div>
 
-        {stats && view === 'projects' && (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="bg-slate-800 rounded-xl p-4 border border-slate-700"><p className="text-slate-400 text-sm">Total Proyek</p><p className="text-2xl font-bold text-white mt-1">{stats.total}</p></div>
-            <div className="bg-slate-800 rounded-xl p-4 border border-slate-700"><p className="text-slate-400 text-sm">Aktif</p><p className="text-2xl font-bold text-blue-400 mt-1">{stats.active}</p></div>
-            <div className="bg-slate-800 rounded-xl p-4 border border-slate-700"><p className="text-slate-400 text-sm">Selesai</p><p className="text-2xl font-bold text-emerald-400 mt-1">{stats.done}</p></div>
-            <div className="bg-slate-800 rounded-xl p-4 border border-slate-700"><p className="text-slate-400 text-sm">Total Task</p><p className="text-2xl font-bold text-violet-400 mt-1">{stats.totalTasks}</p></div>
-          </div>
-        )}
-
-        {view === 'projects' ? (
-          loading ? (
-            <div className="flex items-center justify-center h-48 text-slate-400">Memuat proyek...</div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {projects.map(p => {
-                const st = STATUS_MAP[p.status] ?? STATUS_MAP.draft;
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 bg-white rounded-2xl border" style={{ borderColor: '#EDE8F5' }}>
+            <div className="flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: '#EDE8F5' }}>
+              <h2 className="font-bold text-sm" style={{ color: '#2F2B3D' }}>Daftar Proyek</h2>
+              <button className="text-xs font-semibold px-3 py-1.5 rounded-lg text-white" style={{ backgroundColor: '#5C6BC0' }}>+ Proyek Baru</button>
+            </div>
+            <div className="divide-y" style={{ borderColor: '#EDE8F5' }}>
+              {PROJECTS.map(proj => {
+                const st = STATUS_PROJECT[proj.status];
                 return (
-                  <div key={p.id} onClick={() => openProject(p)} className="bg-slate-800 rounded-xl border border-slate-700 hover:border-blue-500/50 p-5 cursor-pointer transition-all">
-                    <div className="flex items-start justify-between mb-3">
-                      <div>
-                        <p className="text-white font-semibold">{p.name}</p>
-                        {p.code && <p className="text-slate-500 text-xs mt-0.5">{p.code}</p>}
+                  <div key={proj.code} className="px-5 py-4">
+                    <div className="flex items-start justify-between gap-3 mb-2">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded" style={{ backgroundColor: '#EDE8F5', color: '#5C6BC0' }}>{proj.code}</span>
+                          <span className="text-xs font-bold truncate" style={{ color: '#2F2B3D' }}>{proj.name}</span>
+                        </div>
+                        <p className="text-[11px] mt-0.5" style={{ color: '#A5A3AE' }}>
+                          {proj.owner} · Deadline: {proj.deadline} · {proj.done}/{proj.tasks} tugas
+                        </p>
                       </div>
-                      <span className={`text-xs px-2 py-0.5 rounded-full ${st.color}`}>{st.label}</span>
+                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0" style={{ backgroundColor: st.bg, color: st.color }}>{st.label}</span>
                     </div>
-                    {p.description && <p className="text-slate-400 text-sm mb-3 line-clamp-2">{p.description}</p>}
-                    <div className="flex items-center justify-between text-xs text-slate-500">
-                      <span>{p._count?.tasks ?? 0} task</span>
-                      {p.budget > 0 && <span>{fmt(Number(p.budget))}</span>}
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 h-1.5 rounded-full" style={{ backgroundColor: '#EDE8F5' }}>
+                        <div className="h-1.5 rounded-full transition-all" style={{ width: `${proj.progress}%`, backgroundColor: st.color }} />
+                      </div>
+                      <span className="text-[10px] font-bold flex-shrink-0" style={{ color: '#A5A3AE' }}>{proj.progress}%</span>
                     </div>
-                    {p.startDate && <p className="text-slate-600 text-xs mt-2">{new Date(p.startDate).toLocaleDateString('id-ID')} – {p.endDate ? new Date(p.endDate).toLocaleDateString('id-ID') : '...'}</p>}
                   </div>
                 );
               })}
-              {projects.length === 0 && <p className="text-slate-500 text-center py-10 col-span-3">Belum ada proyek</p>}
             </div>
-          )
-        ) : (
-          <div className="flex gap-4 overflow-x-auto pb-4">
-            {TASK_STAGES.map(stage => {
-              const stageTasks = tasks.filter(t => t.stage === stage);
-              return (
-                <div key={stage} className="flex-shrink-0 w-72 bg-slate-800/60 rounded-xl border border-slate-700">
-                  <div className="p-3 border-b border-slate-700 flex items-center gap-2">
-                    <span className="text-white font-medium text-sm">{TASK_STAGE_LABELS[stage]}</span>
-                    <span className="bg-slate-700 text-slate-300 text-xs px-1.5 py-0.5 rounded-full">{stageTasks.length}</span>
-                  </div>
-                  <div className="p-2 space-y-2 min-h-32 max-h-[60vh] overflow-y-auto">
-                    {stageTasks.map(task => (
-                      <div key={task.id} className="bg-slate-700/60 rounded-lg p-3 border border-slate-600">
-                        <p className="text-white text-sm font-medium">{task.title}</p>
-                        {task.description && <p className="text-slate-400 text-xs mt-1 line-clamp-2">{task.description}</p>}
-                        {task.deadline && <p className="text-slate-500 text-xs mt-2">Due: {new Date(task.deadline).toLocaleDateString('id-ID')}</p>}
-                        <div className="flex gap-1 mt-2 flex-wrap">
-                          {TASK_STAGES.filter(s => s !== stage).map(s => (
-                            <button key={s} onClick={() => updateTaskStage(task.id, s)}
-                              className="text-xs text-slate-400 hover:text-white bg-slate-600/50 hover:bg-slate-600 px-1.5 py-0.5 rounded transition-colors">
-                              → {TASK_STAGE_LABELS[s]}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                    {stageTasks.length === 0 && <p className="text-slate-600 text-xs text-center py-4">Kosong</p>}
-                  </div>
-                </div>
-              );
-            })}
           </div>
-        )}
 
-        {showProjectForm && (
-          <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-            <div className="bg-slate-800 rounded-2xl w-full max-w-md border border-slate-700">
-              <div className="p-5 border-b border-slate-700 flex items-center justify-between">
-                <h2 className="text-white font-semibold">Buat Proyek Baru</h2>
-                <button onClick={() => setShowProjectForm(false)} className="text-slate-400 hover:text-white">✕</button>
-              </div>
-              <form onSubmit={handleCreateProject} className="p-5 space-y-3">
-                <div><label className="text-slate-400 text-xs mb-1 block">Nama Proyek *</label><input required value={pForm.name} onChange={e => setPForm(f => ({ ...f, name: e.target.value }))} className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm" /></div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div><label className="text-slate-400 text-xs mb-1 block">Kode</label><input value={pForm.code} onChange={e => setPForm(f => ({ ...f, code: e.target.value }))} className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm" /></div>
-                  <div><label className="text-slate-400 text-xs mb-1 block">Budget (Rp)</label><input type="number" value={pForm.budget} onChange={e => setPForm(f => ({ ...f, budget: e.target.value }))} className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm" /></div>
-                  <div><label className="text-slate-400 text-xs mb-1 block">Tanggal Mulai</label><input type="date" value={pForm.startDate} onChange={e => setPForm(f => ({ ...f, startDate: e.target.value }))} className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm" /></div>
-                  <div><label className="text-slate-400 text-xs mb-1 block">Tanggal Selesai</label><input type="date" value={pForm.endDate} onChange={e => setPForm(f => ({ ...f, endDate: e.target.value }))} className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm" /></div>
-                </div>
-                <div><label className="text-slate-400 text-xs mb-1 block">Deskripsi</label><textarea value={pForm.description} onChange={e => setPForm(f => ({ ...f, description: e.target.value }))} rows={2} className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm resize-none" /></div>
-                <div className="flex gap-3 pt-2">
-                  <button type="button" onClick={() => setShowProjectForm(false)} className="flex-1 bg-slate-700 text-white py-2 rounded-lg text-sm">Batal</button>
-                  <button type="submit" className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg text-sm font-medium">Simpan</button>
-                </div>
-              </form>
+          <div className="bg-white rounded-2xl border" style={{ borderColor: '#EDE8F5' }}>
+            <div className="flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: '#EDE8F5' }}>
+              <h2 className="font-bold text-sm" style={{ color: '#2F2B3D' }}>Tugas Hari Ini</h2>
+              <span className="text-xs px-2 py-0.5 rounded-full font-semibold" style={{ backgroundColor: 'rgba(234,84,85,.1)', color: '#EA5455' }}>9 open</span>
+            </div>
+            <div className="divide-y" style={{ borderColor: '#EDE8F5' }}>
+              {TASKS.map((task, i) => {
+                const pr = PRIORITY_MAP[task.priority];
+                const st = STAGE_MAP[task.stage];
+                return (
+                  <div key={i} className="px-5 py-3.5">
+                    <p className="text-xs font-semibold leading-snug" style={{ color: '#2F2B3D' }}>{task.title}</p>
+                    <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                      <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded" style={{ backgroundColor: '#EDE8F5', color: '#5C6BC0' }}>{task.project}</span>
+                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ backgroundColor: st.bg, color: st.color }}>{st.label}</span>
+                      <span className="text-[10px] flex items-center gap-0.5" style={{ color: '#A5A3AE' }}>
+                        <Calendar className="h-2.5 w-2.5" />{task.due}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
-        )}
-
-        {showTaskForm && (
-          <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-            <div className="bg-slate-800 rounded-2xl w-full max-w-md border border-slate-700">
-              <div className="p-5 border-b border-slate-700 flex items-center justify-between">
-                <h2 className="text-white font-semibold">Tambah Task</h2>
-                <button onClick={() => setShowTaskForm(false)} className="text-slate-400 hover:text-white">✕</button>
-              </div>
-              <form onSubmit={handleCreateTask} className="p-5 space-y-3">
-                <div><label className="text-slate-400 text-xs mb-1 block">Judul Task *</label><input required value={tForm.title} onChange={e => setTForm(f => ({ ...f, title: e.target.value }))} className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm" /></div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-slate-400 text-xs mb-1 block">Stage</label>
-                    <select value={tForm.stage} onChange={e => setTForm(f => ({ ...f, stage: e.target.value }))} className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm">
-                      {TASK_STAGES.map(s => <option key={s} value={s}>{TASK_STAGE_LABELS[s]}</option>)}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="text-slate-400 text-xs mb-1 block">Prioritas</label>
-                    <select value={tForm.priority} onChange={e => setTForm(f => ({ ...f, priority: e.target.value }))} className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm">
-                      <option value="0">Normal</option><option value="1">Tinggi</option><option value="2">Sangat Tinggi</option>
-                    </select>
-                  </div>
-                </div>
-                <div><label className="text-slate-400 text-xs mb-1 block">Deadline</label><input type="date" value={tForm.deadline} onChange={e => setTForm(f => ({ ...f, deadline: e.target.value }))} className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm" /></div>
-                <div><label className="text-slate-400 text-xs mb-1 block">Deskripsi</label><textarea value={tForm.description} onChange={e => setTForm(f => ({ ...f, description: e.target.value }))} rows={2} className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm resize-none" /></div>
-                <div className="flex gap-3 pt-2">
-                  <button type="button" onClick={() => setShowTaskForm(false)} className="flex-1 bg-slate-700 text-white py-2 rounded-lg text-sm">Batal</button>
-                  <button type="submit" className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg text-sm font-medium">Simpan</button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
+        </div>
       </div>
-    </ModernLayout>
+    </AppShell>
   );
 }

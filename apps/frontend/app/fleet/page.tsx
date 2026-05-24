@@ -1,207 +1,171 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import ModernLayout from '@/components/layout/ModernLayout';
-import api from '@/lib/api';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuthStore } from '../../lib/store/useAuthStore';
+import AppShell, { NavItem } from '../../components/layout/AppShell';
+import {
+  Car, BarChart2, Users, Wrench, MapPin, Fuel, Settings,
+  CheckCircle, AlertTriangle, Clock, TrendingUp,
+} from 'lucide-react';
 
-const FUEL_TYPES = ['bensin', 'solar', 'listrik', 'hybrid', 'lpg'];
+const NAV: NavItem[] = [
+  { label: 'Dashboard',    href: '/fleet',              icon: BarChart2 },
+  { label: 'Kendaraan',    href: '/fleet/vehicles',     icon: Car,
+    children: [
+      { label: 'Semua Kendaraan', href: '/fleet/vehicles' },
+      { label: 'Aktif',           href: '/fleet/vehicles?status=active' },
+      { label: 'Servis',          href: '/fleet/vehicles?status=service' },
+    ],
+  },
+  { label: 'Driver',       href: '/fleet/drivers',      icon: Users },
+  { label: 'Pengiriman',   href: '/fleet/deliveries',   icon: MapPin, badge: 7 },
+  { label: 'Servis',       href: '/fleet/services',     icon: Wrench },
+  { label: 'BBM',          href: '/fleet/fuel',         icon: Fuel },
+  { label: 'Laporan',      href: '/fleet/reports',      icon: TrendingUp },
+  { label: 'Pengaturan',   href: '/fleet/settings',     icon: Settings },
+];
 
-export default function FleetPage() {
-  const [vehicles, setVehicles] = useState<any[]>([]);
-  const [services, setServices] = useState<any[]>([]);
-  const [stats, setStats] = useState<any>(null);
-  const [tab, setTab] = useState<'vehicles' | 'services'>('vehicles');
-  const [loading, setLoading] = useState(true);
-  const [showVehicleForm, setShowVehicleForm] = useState(false);
-  const [showServiceForm, setShowServiceForm] = useState(false);
-  const [vForm, setVForm] = useState({ licensePlate: '', brand: '', model: '', year: '', fuelType: 'bensin', currentOdometer: '0' });
-  const [sForm, setSForm] = useState({ vehicleId: '', type: 'service rutin', vendor: '', date: new Date().toISOString().split('T')[0], odometer: '', cost: '0', notes: '', nextService: '' });
+const STATS = [
+  { label: 'Total Kendaraan',     value: '24',  sub: '18 aktif, 6 servis', color: '#009688', bg: 'rgba(0,150,136,.1)',   icon: Car },
+  { label: 'Driver Aktif',        value: '21',  sub: '3 tidak hadir',      color: '#2196F3', bg: 'rgba(33,150,243,.1)',  icon: Users },
+  { label: 'Pengiriman Hari Ini', value: '38',  sub: '7 belum berangkat',  color: '#FF9800', bg: 'rgba(255,152,0,.1)',   icon: MapPin },
+  { label: 'Servis Mendatang',    value: '5',   sub: '2 mendesak',         color: '#EA5455', bg: 'rgba(234,84,85,.1)',   icon: Wrench },
+];
 
-  useEffect(() => { fetchAll(); }, []);
+const DELIVERIES = [
+  { id: 'DEL-0241', driver: 'Andi Susanto',  vehicle: 'B 1234 XY', dest: 'PT Maju Jaya – Surabaya',     status: 'on_route',   eta: '14:30' },
+  { id: 'DEL-0240', driver: 'Budi Santoso',  vehicle: 'B 5678 AB', dest: 'CV Berkah – Sidoarjo',        status: 'delivered',  eta: '–' },
+  { id: 'DEL-0239', driver: 'Candra Putra',  vehicle: 'B 9012 CD', dest: 'Toko Sumber – Gresik',        status: 'on_route',   eta: '15:45' },
+  { id: 'DEL-0238', driver: 'Doni Setiawan', vehicle: 'B 3456 EF', dest: 'UD Karya – Malang',           status: 'pending',    eta: '17:00' },
+  { id: 'DEL-0237', driver: 'Eko Wibowo',    vehicle: 'B 7890 GH', dest: 'PT Global – Surabaya',        status: 'delivered',  eta: '–' },
+];
 
-  async function fetchAll() {
-    setLoading(true);
-    try {
-      const [vRes, sRes, statsRes] = await Promise.all([
-        api.get('/fleet/vehicles'),
-        api.get('/fleet/services'),
-        api.get('/fleet/stats'),
-      ]);
-      setVehicles(vRes.data ?? []);
-      setServices(sRes.data.data ?? []);
-      setStats(statsRes.data);
-    } catch { } finally { setLoading(false); }
-  }
+const VEHICLES = [
+  { plate: 'B 1234 XY', brand: 'Mitsubishi Colt', year: 2021, odometer: '48.200 km', fuel: 'Solar',  status: 'active' },
+  { plate: 'B 5678 AB', brand: 'Isuzu Elf',        year: 2020, odometer: '62.800 km', fuel: 'Solar',  status: 'active' },
+  { plate: 'B 9012 CD', brand: 'Toyota Dyna',      year: 2022, odometer: '31.400 km', fuel: 'Solar',  status: 'active' },
+  { plate: 'B 3456 EF', brand: 'Hino 300',         year: 2019, odometer: '87.500 km', fuel: 'Solar',  status: 'service' },
+  { plate: 'B 7890 GH', brand: 'Mitsubishi FE',    year: 2023, odometer: '18.900 km', fuel: 'Solar',  status: 'active' },
+];
 
-  async function handleCreateVehicle(e: React.FormEvent) {
-    e.preventDefault();
-    try {
-      await api.post('/fleet/vehicles', { ...vForm, year: parseInt(vForm.year) || null, currentOdometer: parseFloat(vForm.currentOdometer) });
-      setShowVehicleForm(false);
-      setVForm({ licensePlate: '', brand: '', model: '', year: '', fuelType: 'bensin', currentOdometer: '0' });
-      fetchAll();
-    } catch { }
-  }
+const STATUS_DELIVERY: Record<string, { label: string; color: string; bg: string; icon: React.ElementType }> = {
+  on_route:  { label: 'Dalam Perjalanan', color: '#2196F3', bg: 'rgba(33,150,243,.1)',  icon: MapPin },
+  delivered: { label: 'Terkirim',         color: '#4CAF50', bg: 'rgba(76,175,80,.1)',   icon: CheckCircle },
+  pending:   { label: 'Menunggu',         color: '#FF9800', bg: 'rgba(255,152,0,.1)',   icon: Clock },
+};
 
-  async function handleCreateService(e: React.FormEvent) {
-    e.preventDefault();
-    try {
-      await api.post('/fleet/services', { ...sForm, cost: parseFloat(sForm.cost), odometer: sForm.odometer ? parseFloat(sForm.odometer) : null });
-      setShowServiceForm(false);
-      setSForm({ vehicleId: '', type: 'service rutin', vendor: '', date: new Date().toISOString().split('T')[0], odometer: '', cost: '0', notes: '', nextService: '' });
-      fetchAll();
-    } catch { }
-  }
+const STATUS_VEH: Record<string, { label: string; color: string; bg: string }> = {
+  active:  { label: 'Aktif',       color: '#4CAF50', bg: 'rgba(76,175,80,.1)' },
+  service: { label: 'Servis',      color: '#FF9800', bg: 'rgba(255,152,0,.1)' },
+  idle:    { label: 'Tidak Aktif', color: '#A5A3AE', bg: 'rgba(165,163,174,.12)' },
+};
 
-  const fmt = (n: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(n);
+export default function FleetDashboard() {
+  const { token } = useAuthStore();
+  const router = useRouter();
+  useEffect(() => { if (!token) router.push('/login'); }, [token]);
+  if (!token) return null;
 
   return (
-    <ModernLayout>
+    <AppShell
+      appName="Armada & Pengiriman"
+      appColor="#009688"
+      appGradient="from-teal-500 to-teal-700"
+      appIcon={Car}
+      navItems={NAV}
+      activeHref="/fleet"
+    >
       <div className="p-6 space-y-6">
-        <div className="flex items-center justify-between">
+        {/* Stats */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {STATS.map(s => {
+            const Icon = s.icon;
+            return (
+              <div key={s.label} className="bg-white rounded-2xl p-5 border" style={{ borderColor: '#EDE8F5' }}>
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-xs font-medium" style={{ color: '#A5A3AE' }}>{s.label}</p>
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl" style={{ backgroundColor: s.bg }}>
+                    <Icon className="h-5 w-5" style={{ color: s.color }} />
+                  </div>
+                </div>
+                <p className="text-2xl font-bold" style={{ color: '#2F2B3D' }}>{s.value}</p>
+                <p className="text-xs mt-1" style={{ color: '#A5A3AE' }}>{s.sub}</p>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Deliveries */}
+          <div className="bg-white rounded-2xl border" style={{ borderColor: '#EDE8F5' }}>
+            <div className="flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: '#EDE8F5' }}>
+              <h2 className="font-bold text-sm" style={{ color: '#2F2B3D' }}>Pengiriman Hari Ini</h2>
+              <span className="text-xs px-2 py-0.5 rounded-full font-semibold" style={{ backgroundColor: 'rgba(0,150,136,.1)', color: '#009688' }}>38 total</span>
+            </div>
+            <div className="divide-y" style={{ borderColor: '#EDE8F5' }}>
+              {DELIVERIES.map(d => {
+                const st = STATUS_DELIVERY[d.status];
+                const Icon = st.icon;
+                return (
+                  <div key={d.id} className="flex items-center gap-3 px-5 py-3.5">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg flex-shrink-0" style={{ backgroundColor: st.bg }}>
+                      <Icon className="h-4 w-4" style={{ color: st.color }} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-semibold truncate" style={{ color: '#2F2B3D' }}>{d.dest}</p>
+                      <p className="text-[11px] mt-0.5" style={{ color: '#A5A3AE' }}>{d.driver} · {d.vehicle}</p>
+                    </div>
+                    <div className="text-right flex-shrink-0">
+                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ backgroundColor: st.bg, color: st.color }}>{st.label}</span>
+                      {d.eta !== '–' && <p className="text-[10px] mt-0.5" style={{ color: '#A5A3AE' }}>ETA {d.eta}</p>}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Vehicles */}
+          <div className="bg-white rounded-2xl border" style={{ borderColor: '#EDE8F5' }}>
+            <div className="flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: '#EDE8F5' }}>
+              <h2 className="font-bold text-sm" style={{ color: '#2F2B3D' }}>Status Kendaraan</h2>
+              <button className="text-xs font-semibold" style={{ color: '#009688' }}>Lihat Semua</button>
+            </div>
+            <div className="divide-y" style={{ borderColor: '#EDE8F5' }}>
+              {VEHICLES.map(v => {
+                const st = STATUS_VEH[v.status];
+                return (
+                  <div key={v.plate} className="flex items-center gap-3 px-5 py-3.5">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg flex-shrink-0" style={{ backgroundColor: 'rgba(0,150,136,.08)' }}>
+                      <Car className="h-4 w-4" style={{ color: '#009688' }} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-bold" style={{ color: '#2F2B3D' }}>{v.plate}</p>
+                      <p className="text-[11px] mt-0.5" style={{ color: '#A5A3AE' }}>{v.brand} {v.year} · {v.odometer}</p>
+                    </div>
+                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0" style={{ backgroundColor: st.bg, color: st.color }}>
+                      {st.label}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* Service alert */}
+        <div className="rounded-2xl p-5 flex items-center gap-4" style={{ backgroundColor: 'rgba(234,84,85,.06)', border: '1px solid rgba(234,84,85,.2)' }}>
+          <AlertTriangle className="h-6 w-6 flex-shrink-0" style={{ color: '#EA5455' }} />
           <div>
-            <h1 className="text-2xl font-bold text-white">Fleet — Manajemen Kendaraan</h1>
-            <p className="text-slate-400 text-sm mt-1">Kelola armada & riwayat servis kendaraan</p>
+            <p className="text-sm font-bold" style={{ color: '#2F2B3D' }}>Peringatan Servis</p>
+            <p className="text-xs mt-0.5" style={{ color: '#6D6777' }}>B 3456 EF (Hino 300) telah melewati jadwal servis. Segera jadwalkan perawatan.</p>
           </div>
-          <div className="flex gap-2">
-            {tab === 'vehicles' && <button onClick={() => setShowVehicleForm(true)} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium">+ Kendaraan</button>}
-            {tab === 'services' && <button onClick={() => setShowServiceForm(true)} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium">+ Riwayat Servis</button>}
-          </div>
+          <button className="ml-auto text-xs font-semibold px-4 py-2 rounded-xl flex-shrink-0" style={{ backgroundColor: '#EA5455', color: '#fff' }}>
+            Jadwalkan
+          </button>
         </div>
-
-        {stats && (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="bg-slate-800 rounded-xl p-4 border border-slate-700"><p className="text-slate-400 text-sm">Total Kendaraan</p><p className="text-2xl font-bold text-white mt-1">{stats.total}</p></div>
-            <div className="bg-slate-800 rounded-xl p-4 border border-slate-700"><p className="text-slate-400 text-sm">Aktif</p><p className="text-2xl font-bold text-emerald-400 mt-1">{stats.active}</p></div>
-            <div className="bg-slate-800 rounded-xl p-4 border border-slate-700"><p className="text-slate-400 text-sm">Perlu Servis</p><p className="text-2xl font-bold text-yellow-400 mt-1">{stats.needService}</p></div>
-            <div className="bg-slate-800 rounded-xl p-4 border border-slate-700"><p className="text-slate-400 text-sm">Total Biaya Servis</p><p className="text-lg font-bold text-blue-400 mt-1">{fmt(Number(stats.totalServiceCost))}</p></div>
-          </div>
-        )}
-
-        <div className="flex gap-1 bg-slate-800/50 p-1 rounded-xl w-fit border border-slate-700">
-          {([['vehicles', 'Kendaraan'], ['services', 'Riwayat Servis']] as const).map(([key, label]) => (
-            <button key={key} onClick={() => setTab(key)} className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${tab === key ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}>{label}</button>
-          ))}
-        </div>
-
-        {loading ? (
-          <div className="flex items-center justify-center h-48 text-slate-400">Memuat data...</div>
-        ) : tab === 'vehicles' ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {vehicles.map(v => (
-              <div key={v.id} className="bg-slate-800 rounded-xl border border-slate-700 p-5">
-                <div className="flex items-start justify-between mb-3">
-                  <div>
-                    <p className="text-white font-bold text-lg">{v.licensePlate}</p>
-                    <p className="text-slate-400 text-sm">{v.brand} {v.model} {v.year ? `(${v.year})` : ''}</p>
-                  </div>
-                  <span className={`text-xs px-2 py-0.5 rounded-full ${v.active ? 'bg-emerald-600/30 text-emerald-300' : 'bg-slate-600 text-slate-400'}`}>{v.active ? 'Aktif' : 'Nonaktif'}</span>
-                </div>
-                <div className="space-y-1 text-sm border-t border-slate-700 pt-3">
-                  <div className="flex justify-between"><span className="text-slate-400">Bahan Bakar</span><span className="text-white capitalize">{v.fuelType}</span></div>
-                  <div className="flex justify-between"><span className="text-slate-400">Odometer</span><span className="text-white">{Number(v.currentOdometer).toLocaleString('id-ID')} km</span></div>
-                  <div className="flex justify-between"><span className="text-slate-400">Total Servis</span><span className="text-slate-300">{v._count?.services ?? 0}x</span></div>
-                </div>
-              </div>
-            ))}
-            {vehicles.length === 0 && <p className="text-slate-500 text-center py-10 col-span-3">Belum ada kendaraan terdaftar</p>}
-          </div>
-        ) : (
-          <div className="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
-            <table className="w-full text-sm">
-              <thead><tr className="border-b border-slate-700 text-slate-400">
-                <th className="text-left p-4">Kendaraan</th><th className="text-left p-4">Tipe Servis</th>
-                <th className="text-left p-4">Tanggal</th><th className="text-left p-4 hidden md:table-cell">Vendor</th>
-                <th className="text-left p-4">Biaya</th><th className="text-left p-4">Servis Berikutnya</th>
-              </tr></thead>
-              <tbody>
-                {services.map(s => (
-                  <tr key={s.id} className="border-b border-slate-700/50 hover:bg-slate-700/30">
-                    <td className="p-4"><p className="text-white font-medium">{s.vehicle?.licensePlate ?? '—'}</p><p className="text-slate-400 text-xs">{s.vehicle?.brand} {s.vehicle?.model}</p></td>
-                    <td className="p-4 text-slate-300 capitalize">{s.type}</td>
-                    <td className="p-4 text-slate-400 text-xs">{new Date(s.date).toLocaleDateString('id-ID')}</td>
-                    <td className="p-4 text-slate-400 hidden md:table-cell">{s.vendor ?? '—'}</td>
-                    <td className="p-4 text-white font-medium">{fmt(Number(s.cost))}</td>
-                    <td className="p-4 text-slate-400 text-xs">{s.nextService ? new Date(s.nextService).toLocaleDateString('id-ID') : '—'}</td>
-                  </tr>
-                ))}
-                {services.length === 0 && <tr><td colSpan={6} className="p-8 text-center text-slate-500">Belum ada riwayat servis</td></tr>}
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        {showVehicleForm && (
-          <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-            <div className="bg-slate-800 rounded-2xl w-full max-w-md border border-slate-700">
-              <div className="p-5 border-b border-slate-700 flex items-center justify-between">
-                <h2 className="text-white font-semibold">Tambah Kendaraan</h2>
-                <button onClick={() => setShowVehicleForm(false)} className="text-slate-400 hover:text-white">✕</button>
-              </div>
-              <form onSubmit={handleCreateVehicle} className="p-5 space-y-3">
-                <div><label className="text-slate-400 text-xs mb-1 block">Plat Nomor *</label><input required value={vForm.licensePlate} onChange={e => setVForm(f => ({ ...f, licensePlate: e.target.value.toUpperCase() }))} className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm uppercase" placeholder="B 1234 XYZ" /></div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div><label className="text-slate-400 text-xs mb-1 block">Merk *</label><input required value={vForm.brand} onChange={e => setVForm(f => ({ ...f, brand: e.target.value }))} className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm" placeholder="Toyota" /></div>
-                  <div><label className="text-slate-400 text-xs mb-1 block">Model *</label><input required value={vForm.model} onChange={e => setVForm(f => ({ ...f, model: e.target.value }))} className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm" placeholder="Avanza" /></div>
-                  <div><label className="text-slate-400 text-xs mb-1 block">Tahun</label><input type="number" value={vForm.year} onChange={e => setVForm(f => ({ ...f, year: e.target.value }))} className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm" placeholder="2022" /></div>
-                  <div>
-                    <label className="text-slate-400 text-xs mb-1 block">Bahan Bakar</label>
-                    <select value={vForm.fuelType} onChange={e => setVForm(f => ({ ...f, fuelType: e.target.value }))} className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm">
-                      {FUEL_TYPES.map(ft => <option key={ft} value={ft} className="capitalize">{ft}</option>)}
-                    </select>
-                  </div>
-                  <div className="col-span-2"><label className="text-slate-400 text-xs mb-1 block">Odometer Awal (km)</label><input type="number" value={vForm.currentOdometer} onChange={e => setVForm(f => ({ ...f, currentOdometer: e.target.value }))} className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm" /></div>
-                </div>
-                <div className="flex gap-3 pt-2">
-                  <button type="button" onClick={() => setShowVehicleForm(false)} className="flex-1 bg-slate-700 text-white py-2 rounded-lg text-sm">Batal</button>
-                  <button type="submit" className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg text-sm font-medium">Simpan</button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
-
-        {showServiceForm && (
-          <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-            <div className="bg-slate-800 rounded-2xl w-full max-w-md border border-slate-700">
-              <div className="p-5 border-b border-slate-700 flex items-center justify-between">
-                <h2 className="text-white font-semibold">Tambah Riwayat Servis</h2>
-                <button onClick={() => setShowServiceForm(false)} className="text-slate-400 hover:text-white">✕</button>
-              </div>
-              <form onSubmit={handleCreateService} className="p-5 space-y-3">
-                <div>
-                  <label className="text-slate-400 text-xs mb-1 block">Kendaraan *</label>
-                  <select required value={sForm.vehicleId} onChange={e => setSForm(f => ({ ...f, vehicleId: e.target.value }))} className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm">
-                    <option value="">-- Pilih Kendaraan --</option>
-                    {vehicles.map(v => <option key={v.id} value={v.id}>{v.licensePlate} — {v.brand} {v.model}</option>)}
-                  </select>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-slate-400 text-xs mb-1 block">Tipe Servis</label>
-                    <select value={sForm.type} onChange={e => setSForm(f => ({ ...f, type: e.target.value }))} className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm">
-                      <option value="service rutin">Service Rutin</option>
-                      <option value="perbaikan">Perbaikan</option>
-                      <option value="asuransi">Asuransi</option>
-                      <option value="pajak">Pajak</option>
-                    </select>
-                  </div>
-                  <div><label className="text-slate-400 text-xs mb-1 block">Tanggal *</label><input required type="date" value={sForm.date} onChange={e => setSForm(f => ({ ...f, date: e.target.value }))} className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm" /></div>
-                  <div><label className="text-slate-400 text-xs mb-1 block">Vendor</label><input value={sForm.vendor} onChange={e => setSForm(f => ({ ...f, vendor: e.target.value }))} className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm" /></div>
-                  <div><label className="text-slate-400 text-xs mb-1 block">Odometer (km)</label><input type="number" value={sForm.odometer} onChange={e => setSForm(f => ({ ...f, odometer: e.target.value }))} className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm" /></div>
-                  <div><label className="text-slate-400 text-xs mb-1 block">Biaya (Rp) *</label><input required type="number" value={sForm.cost} onChange={e => setSForm(f => ({ ...f, cost: e.target.value }))} className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm" /></div>
-                  <div><label className="text-slate-400 text-xs mb-1 block">Servis Berikutnya</label><input type="date" value={sForm.nextService} onChange={e => setSForm(f => ({ ...f, nextService: e.target.value }))} className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm" /></div>
-                </div>
-                <div><label className="text-slate-400 text-xs mb-1 block">Catatan</label><textarea value={sForm.notes} onChange={e => setSForm(f => ({ ...f, notes: e.target.value }))} rows={2} className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm resize-none" /></div>
-                <div className="flex gap-3 pt-2">
-                  <button type="button" onClick={() => setShowServiceForm(false)} className="flex-1 bg-slate-700 text-white py-2 rounded-lg text-sm">Batal</button>
-                  <button type="submit" className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg text-sm font-medium">Simpan</button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
       </div>
-    </ModernLayout>
+    </AppShell>
   );
 }

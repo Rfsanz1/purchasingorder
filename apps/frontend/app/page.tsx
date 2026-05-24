@@ -7,7 +7,9 @@ import { useModulesStore } from '../lib/store/useModulesStore';
 import {
   ShoppingCart, Users, Package, FileText, DollarSign, Truck,
   BarChart2, Settings, ShieldCheck, Monitor, UserCheck, LogOut,
-  Bell, Grid, ChevronDown, Lock, Store,
+  Bell, Grid, ChevronDown, Lock, Store, Globe, Car, Factory,
+  Award, Wrench, MessageSquare, Layers, HeartHandshake,
+  Building2, Clock, BookOpen,
 } from 'lucide-react';
 
 interface App {
@@ -22,18 +24,29 @@ interface App {
 }
 
 const ALL_APPS: App[] = [
-  { id: 'sales',       name: 'Penjualan',    desc: 'Order & penawaran',        href: '/sales',        icon: ShoppingCart, color: '#00BCD4', gradient: 'from-cyan-400 to-cyan-600',       category: 'Penjualan' },
-  { id: 'crm',         name: 'CRM',           desc: 'Prospek & pelanggan',      href: '/crm',          icon: Users,        color: '#9C27B0', gradient: 'from-purple-400 to-purple-600',   category: 'Penjualan' },
-  { id: 'pos',         name: 'Kasir (POS)',   desc: 'Kasir & transaksi',        href: '/pos',          icon: Monitor,      color: '#FF5722', gradient: 'from-orange-400 to-orange-600',   category: 'Penjualan' },
-  { id: 'invoice',     name: 'Invoice',       desc: 'Tagihan & faktur',         href: '/invoice',      icon: FileText,     color: '#2196F3', gradient: 'from-blue-400 to-blue-600',       category: 'Keuangan' },
-  { id: 'accounting',  name: 'Akuntansi',     desc: 'Jurnal, COA & kas',        href: '/accounting',   icon: DollarSign,   color: '#4CAF50', gradient: 'from-green-500 to-emerald-600',   category: 'Keuangan' },
-  { id: 'inventory',   name: 'Inventaris',    desc: 'Stok, gudang & produk',    href: '/inventory',    icon: Package,      color: '#FF9800', gradient: 'from-amber-400 to-orange-500',    category: 'Operasional' },
-  { id: 'purchase',    name: 'Pembelian',     desc: 'PO & supplier',            href: '/purchasing',   icon: Truck,        color: '#795548', gradient: 'from-stone-400 to-stone-600',     category: 'Operasional' },
-  { id: 'hr',          name: 'Karyawan',      desc: 'SDM & penggajian',         href: '/hr',           icon: UserCheck,    color: '#E91E63', gradient: 'from-pink-400 to-rose-500',       category: 'SDM' },
-  { id: 'fleet',       name: 'Pengiriman',    desc: 'Driver & logistik',        href: '/fleet',        icon: Truck,        color: '#009688', gradient: 'from-teal-400 to-teal-600',       category: 'Operasional' },
-  { id: 'reports',     name: 'Laporan',       desc: 'Analitik & laporan',       href: '/reports',      icon: BarChart2,    color: '#607D8B', gradient: 'from-slate-400 to-slate-600',     category: 'Sistem' },
-  { id: 'settings',    name: 'Pengaturan',    desc: 'Konfigurasi sistem',       href: '/settings',     icon: Settings,     color: '#9E9E9E', gradient: 'from-gray-400 to-gray-600',       category: 'Sistem' },
-  { id: 'access',      name: 'Akses & Peran', desc: 'User & permission',        href: '/access',       icon: ShieldCheck,  color: '#F44336', gradient: 'from-red-400 to-red-600',         category: 'Sistem' },
+  { id: 'sales',        name: 'Penjualan',       desc: 'Order & penawaran',        href: '/sales',           icon: ShoppingCart,  color: '#00BCD4', gradient: 'from-cyan-400 to-cyan-600',       category: 'Penjualan' },
+  { id: 'crm',          name: 'CRM',              desc: 'Prospek & pelanggan',      href: '/crm',             icon: Users,         color: '#9C27B0', gradient: 'from-purple-400 to-purple-600',   category: 'Penjualan' },
+  { id: 'pos',          name: 'Kasir (POS)',      desc: 'Kasir & transaksi',        href: '/pos',             icon: Monitor,       color: '#FF5722', gradient: 'from-orange-400 to-orange-600',   category: 'Penjualan' },
+  { id: 'ecommerce',    name: 'E-Commerce',       desc: 'Toko online',              href: '/ecommerce',       icon: Globe,         color: '#00897B', gradient: 'from-teal-500 to-emerald-600',    category: 'Penjualan' },
+  { id: 'invoice',      name: 'Invoice',          desc: 'Tagihan & faktur',         href: '/invoice',         icon: FileText,      color: '#2196F3', gradient: 'from-blue-400 to-blue-600',       category: 'Keuangan' },
+  { id: 'accounting',   name: 'Akuntansi',        desc: 'Jurnal, COA & kas',        href: '/accounting',      icon: DollarSign,    color: '#4CAF50', gradient: 'from-green-500 to-emerald-600',   category: 'Keuangan' },
+  { id: 'inventory',    name: 'Inventaris',       desc: 'Stok, gudang & produk',    href: '/inventory',       icon: Package,       color: '#FF9800', gradient: 'from-amber-400 to-orange-500',    category: 'Operasional' },
+  { id: 'purchase',     name: 'Pembelian',        desc: 'PO & supplier',            href: '/purchasing',      icon: Truck,         color: '#795548', gradient: 'from-stone-400 to-stone-600',     category: 'Operasional' },
+  { id: 'fleet',        name: 'Armada',           desc: 'Kendaraan & pengiriman',   href: '/fleet',           icon: Car,           color: '#009688', gradient: 'from-teal-400 to-teal-600',       category: 'Operasional' },
+  { id: 'hr',           name: 'Karyawan',         desc: 'SDM & profil karyawan',    href: '/hr',              icon: UserCheck,     color: '#E91E63', gradient: 'from-pink-400 to-rose-500',       category: 'SDM' },
+  { id: 'payroll',      name: 'Penggajian',       desc: 'Gaji & slip gaji',         href: '/payroll',         icon: DollarSign,    color: '#673AB7', gradient: 'from-purple-500 to-purple-700',   category: 'SDM' },
+  { id: 'attendance',   name: 'Kehadiran',        desc: 'Absensi & jam kerja',      href: '/hr/attendances',  icon: Clock,         color: '#009688', gradient: 'from-teal-400 to-teal-600',       category: 'SDM' },
+  { id: 'leave',        name: 'Cuti & Izin',      desc: 'Manajemen cuti',           href: '/hr/leaves',       icon: BookOpen,      color: '#FF7043', gradient: 'from-orange-400 to-red-500',      category: 'SDM' },
+  { id: 'recruitment',  name: 'Rekrutmen',        desc: 'Lowongan & seleksi',       href: '/recruitment',     icon: HeartHandshake, color: '#AD1457', gradient: 'from-pink-600 to-rose-700',      category: 'SDM' },
+  { id: 'manufacturing', name: 'Manufaktur',      desc: 'Produksi & BOM',           href: '/manufacturing',   icon: Factory,       color: '#546E7A', gradient: 'from-slate-500 to-slate-700',     category: 'Produksi' },
+  { id: 'quality',      name: 'Kualitas',         desc: 'QC & inspeksi',            href: '/quality',         icon: Award,         color: '#1976D2', gradient: 'from-blue-600 to-blue-800',       category: 'Produksi' },
+  { id: 'maintenance',  name: 'Pemeliharaan',     desc: 'Servis mesin & aset',      href: '/maintenance',     icon: Wrench,        color: '#F57F17', gradient: 'from-amber-500 to-amber-700',     category: 'Produksi' },
+  { id: 'helpdesk',     name: 'Helpdesk',         desc: 'Tiket & support',          href: '/helpdesk',        icon: MessageSquare, color: '#E53935', gradient: 'from-red-500 to-red-700',         category: 'Layanan' },
+  { id: 'project',      name: 'Proyek',           desc: 'Tugas & milestone',        href: '/project',         icon: Layers,        color: '#5C6BC0', gradient: 'from-indigo-500 to-indigo-700',   category: 'Layanan' },
+  { id: 'kledo',        name: 'Integrasi Kledo',  desc: 'Sinkronisasi akuntansi',   href: '/kledo',           icon: Building2,     color: '#1565C0', gradient: 'from-blue-700 to-blue-900',       category: 'Integrasi' },
+  { id: 'reports',      name: 'Laporan & BI',     desc: 'Analitik & dashboard',     href: '/reports',         icon: BarChart2,     color: '#607D8B', gradient: 'from-slate-400 to-slate-600',     category: 'Sistem' },
+  { id: 'settings',     name: 'Pengaturan',       desc: 'Konfigurasi sistem',       href: '/settings',        icon: Settings,      color: '#9E9E9E', gradient: 'from-gray-400 to-gray-600',       category: 'Sistem' },
+  { id: 'access',       name: 'Akses & Peran',    desc: 'User & permission',        href: '/access',          icon: ShieldCheck,   color: '#F44336', gradient: 'from-red-400 to-red-600',         category: 'Sistem' },
 ];
 
 export default function AppSwitcher() {

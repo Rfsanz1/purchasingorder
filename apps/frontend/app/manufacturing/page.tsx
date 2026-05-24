@@ -1,247 +1,166 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import ModernLayout from '@/components/layout/ModernLayout';
-import api from '@/lib/api';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuthStore } from '../../lib/store/useAuthStore';
+import AppShell, { NavItem } from '../../components/layout/AppShell';
+import {
+  Factory, BarChart2, ClipboardList, Layers, Cpu, Settings,
+  CheckCircle, Clock, Play, AlertTriangle, TrendingUp, Package,
+} from 'lucide-react';
 
-const MO_STATUS = {
-  draft: { label: 'Draft', color: 'bg-slate-600 text-slate-200' },
-  confirmed: { label: 'Konfirmasi', color: 'bg-blue-600/30 text-blue-300' },
-  in_progress: { label: 'Produksi', color: 'bg-yellow-600/30 text-yellow-300' },
-  done: { label: 'Selesai', color: 'bg-emerald-600/30 text-emerald-300' },
-  scrap: { label: 'Scrap', color: 'bg-red-600/30 text-red-300' },
+const NAV: NavItem[] = [
+  { label: 'Dashboard',        href: '/manufacturing',           icon: BarChart2 },
+  { label: 'Work Order',       href: '/manufacturing/orders',    icon: ClipboardList, badge: 4,
+    children: [
+      { label: 'Semua',         href: '/manufacturing/orders' },
+      { label: 'Produksi',      href: '/manufacturing/orders?status=in_progress' },
+      { label: 'Terjadwal',     href: '/manufacturing/orders?status=confirmed' },
+    ],
+  },
+  { label: 'Bill of Material', href: '/manufacturing/bom',       icon: Layers },
+  { label: 'Work Center',      href: '/manufacturing/workcenters', icon: Cpu },
+  { label: 'Produk Jadi',      href: '/manufacturing/products',  icon: Package },
+  { label: 'Laporan',          href: '/manufacturing/reports',   icon: TrendingUp },
+  { label: 'Pengaturan',       href: '/manufacturing/settings',  icon: Settings },
+];
+
+const STATS = [
+  { label: 'Work Order Aktif',   value: '14',       sub: '4 terjadwal hari ini',  color: '#546E7A', bg: 'rgba(84,110,122,.1)',   icon: ClipboardList },
+  { label: 'Selesai Bulan Ini',  value: '89',        sub: '+15% vs bulan lalu',   color: '#4CAF50', bg: 'rgba(76,175,80,.1)',    icon: CheckCircle },
+  { label: 'Produksi Hari Ini',  value: '1.240 pcs', sub: '82% dari target',      color: '#2196F3', bg: 'rgba(33,150,243,.1)',   icon: Factory },
+  { label: 'Efisiensi OEE',      value: '78.4%',     sub: '+2.1% vs minggu lalu', color: '#FF9800', bg: 'rgba(255,152,0,.1)',    icon: TrendingUp },
+];
+
+const WORK_ORDERS = [
+  { id: 'WO-0124', product: 'Semen Custom Blend 25kg', qty: 500, done: 320, workcenter: 'Mixing Line 1',  status: 'in_progress', deadline: '25 Mei 2026' },
+  { id: 'WO-0123', product: 'Cat Interior Premium 5L', qty: 200, done: 200, workcenter: 'Filling Line',    status: 'done',        deadline: '24 Mei 2026' },
+  { id: 'WO-0122', product: 'Pipa Komposit 3 inch',    qty: 300, done: 0,   workcenter: 'Extrusion Line',  status: 'confirmed',   deadline: '26 Mei 2026' },
+  { id: 'WO-0121', product: 'Bata Ringan AAC 60x20',   qty: 800, done: 800, workcenter: 'Autoclave',       status: 'done',        deadline: '23 Mei 2026' },
+  { id: 'WO-0120', product: 'Keramik Floor 60x60',     qty: 150, done: 60,  workcenter: 'Kiln Line 2',    status: 'in_progress', deadline: '27 Mei 2026' },
+];
+
+const WORKCENTERS = [
+  { name: 'Mixing Line 1',  capacity: '500 kg/jam', utilization: 76, status: 'running' },
+  { name: 'Filling Line',   capacity: '200 unit/jam', utilization: 92, status: 'running' },
+  { name: 'Extrusion Line', capacity: '300 m/jam',  utilization: 45, status: 'idle' },
+  { name: 'Kiln Line 2',    capacity: '150 unit/jam', utilization: 58, status: 'running' },
+  { name: 'Autoclave',      capacity: '1 batch/8jam', utilization: 0, status: 'maintenance' },
+];
+
+const STATUS_MAP: Record<string, { label: string; color: string; bg: string; icon: React.ElementType }> = {
+  in_progress: { label: 'Produksi',  color: '#2196F3', bg: 'rgba(33,150,243,.1)',  icon: Play },
+  confirmed:   { label: 'Terjadwal', color: '#FF9800', bg: 'rgba(255,152,0,.1)',   icon: Clock },
+  done:        { label: 'Selesai',   color: '#4CAF50', bg: 'rgba(76,175,80,.1)',   icon: CheckCircle },
 };
 
-type Tab = 'orders' | 'bom' | 'workcenters';
+const WC_STATUS: Record<string, { color: string; bg: string; label: string }> = {
+  running:     { color: '#4CAF50', bg: 'rgba(76,175,80,.1)',   label: 'Berjalan' },
+  idle:        { color: '#A5A3AE', bg: 'rgba(165,163,174,.12)', label: 'Idle' },
+  maintenance: { color: '#EA5455', bg: 'rgba(234,84,85,.1)',   label: 'Maintenance' },
+};
 
-export default function ManufacturingPage() {
-  const [tab, setTab] = useState<Tab>('orders');
-  const [orders, setOrders] = useState<any[]>([]);
-  const [boms, setBoms] = useState<any[]>([]);
-  const [workCenters, setWorkCenters] = useState<any[]>([]);
-  const [stats, setStats] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [showMoForm, setShowMoForm] = useState(false);
-  const [showBomForm, setShowBomForm] = useState(false);
-  const [showWcForm, setShowWcForm] = useState(false);
-  const [moForm, setMoForm] = useState({ productId: '', qty: '1', scheduledDate: new Date().toISOString().split('T')[0] });
-  const [bomForm, setBomForm] = useState({ productId: '', qty: '1', type: 'manufacture', reference: '' });
-  const [wcForm, setWcForm] = useState({ name: '', code: '', capacity: '1', timeEff: '100' });
-
-  useEffect(() => { fetchAll(); }, []);
-
-  async function fetchAll() {
-    setLoading(true);
-    try {
-      const [ordRes, bomRes, wcRes, statsRes] = await Promise.all([
-        api.get('/manufacturing/orders'),
-        api.get('/manufacturing/bom'),
-        api.get('/manufacturing/work-centers'),
-        api.get('/manufacturing/stats'),
-      ]);
-      setOrders(ordRes.data.data ?? []);
-      setBoms(bomRes.data.data ?? []);
-      setWorkCenters(wcRes.data ?? []);
-      setStats(statsRes.data);
-    } catch { } finally { setLoading(false); }
-  }
-
-  async function handleCreateMo(e: React.FormEvent) {
-    e.preventDefault();
-    try { await api.post('/manufacturing/orders', { ...moForm, qty: parseFloat(moForm.qty) }); setShowMoForm(false); fetchAll(); } catch { }
-  }
-
-  async function handleCreateBom(e: React.FormEvent) {
-    e.preventDefault();
-    try { await api.post('/manufacturing/bom', { ...bomForm, qty: parseFloat(bomForm.qty) }); setShowBomForm(false); fetchAll(); } catch { }
-  }
-
-  async function handleCreateWc(e: React.FormEvent) {
-    e.preventDefault();
-    try { await api.post('/manufacturing/work-centers', { ...wcForm, capacity: parseFloat(wcForm.capacity), timeEff: parseFloat(wcForm.timeEff) }); setShowWcForm(false); fetchAll(); } catch { }
-  }
-
-  async function changeStatus(id: string, action: string) {
-    await api.post(`/manufacturing/orders/${id}/${action}`);
-    fetchAll();
-  }
+export default function ManufacturingDashboard() {
+  const { token } = useAuthStore();
+  const router = useRouter();
+  useEffect(() => { if (!token) router.push('/login'); }, [token]);
+  if (!token) return null;
 
   return (
-    <ModernLayout>
+    <AppShell
+      appName="Manufaktur"
+      appColor="#546E7A"
+      appGradient="from-slate-500 to-slate-700"
+      appIcon={Factory}
+      navItems={NAV}
+      activeHref="/manufacturing"
+    >
       <div className="p-6 space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-white">Manufacturing (MRP)</h1>
-            <p className="text-slate-400 text-sm mt-1">Kelola produksi, BoM & work center</p>
-          </div>
-          <div className="flex gap-2">
-            {tab === 'orders' && <button onClick={() => setShowMoForm(true)} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium">+ Manufacturing Order</button>}
-            {tab === 'bom' && <button onClick={() => setShowBomForm(true)} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium">+ Bill of Materials</button>}
-            {tab === 'workcenters' && <button onClick={() => setShowWcForm(true)} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium">+ Work Center</button>}
-          </div>
+        {/* Stats */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {STATS.map(s => {
+            const Icon = s.icon;
+            return (
+              <div key={s.label} className="bg-white rounded-2xl p-5 border" style={{ borderColor: '#EDE8F5' }}>
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-xs font-medium" style={{ color: '#A5A3AE' }}>{s.label}</p>
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl" style={{ backgroundColor: s.bg }}>
+                    <Icon className="h-5 w-5" style={{ color: s.color }} />
+                  </div>
+                </div>
+                <p className="text-2xl font-bold" style={{ color: '#2F2B3D' }}>{s.value}</p>
+                <p className="text-xs mt-1" style={{ color: '#A5A3AE' }}>{s.sub}</p>
+              </div>
+            );
+          })}
         </div>
 
-        {stats && (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="bg-slate-800 rounded-xl p-4 border border-slate-700"><p className="text-slate-400 text-sm">Total MO</p><p className="text-2xl font-bold text-white mt-1">{stats.total}</p></div>
-            <div className="bg-slate-800 rounded-xl p-4 border border-slate-700"><p className="text-slate-400 text-sm">Draft</p><p className="text-2xl font-bold text-slate-400 mt-1">{stats.draft}</p></div>
-            <div className="bg-slate-800 rounded-xl p-4 border border-slate-700"><p className="text-slate-400 text-sm">Produksi</p><p className="text-2xl font-bold text-yellow-400 mt-1">{stats.inProgress}</p></div>
-            <div className="bg-slate-800 rounded-xl p-4 border border-slate-700"><p className="text-slate-400 text-sm">Selesai</p><p className="text-2xl font-bold text-emerald-400 mt-1">{stats.done}</p></div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Work Orders */}
+          <div className="lg:col-span-2 bg-white rounded-2xl border" style={{ borderColor: '#EDE8F5' }}>
+            <div className="flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: '#EDE8F5' }}>
+              <h2 className="font-bold text-sm" style={{ color: '#2F2B3D' }}>Work Order Aktif</h2>
+              <button className="text-xs font-semibold px-3 py-1.5 rounded-lg text-white" style={{ backgroundColor: '#546E7A' }}>+ Buat WO</button>
+            </div>
+            <div className="divide-y" style={{ borderColor: '#EDE8F5' }}>
+              {WORK_ORDERS.map(wo => {
+                const st = STATUS_MAP[wo.status];
+                const Icon = st.icon;
+                const pct = wo.qty > 0 ? Math.round((wo.done / wo.qty) * 100) : 0;
+                return (
+                  <div key={wo.id} className="px-5 py-4">
+                    <div className="flex items-start justify-between gap-3 mb-2">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-xs font-bold" style={{ color: '#546E7A' }}>{wo.id}</span>
+                          <span className="text-xs font-medium truncate" style={{ color: '#2F2B3D' }}>{wo.product}</span>
+                        </div>
+                        <p className="text-[11px] mt-0.5" style={{ color: '#A5A3AE' }}>{wo.workcenter} · Deadline: {wo.deadline}</p>
+                      </div>
+                      <span className="flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0" style={{ backgroundColor: st.bg, color: st.color }}>
+                        <Icon className="h-3 w-3" />{st.label}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 h-1.5 rounded-full" style={{ backgroundColor: '#EDE8F5' }}>
+                        <div className="h-1.5 rounded-full transition-all" style={{ width: `${pct}%`, backgroundColor: st.color }} />
+                      </div>
+                      <span className="text-[10px] font-bold flex-shrink-0" style={{ color: '#A5A3AE' }}>{wo.done}/{wo.qty} · {pct}%</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
-        )}
 
-        <div className="flex gap-1 bg-slate-800/50 p-1 rounded-xl w-fit border border-slate-700">
-          {([['orders', 'Manufacturing Orders'], ['bom', 'Bill of Materials'], ['workcenters', 'Work Centers']] as [Tab, string][]).map(([key, label]) => (
-            <button key={key} onClick={() => setTab(key)} className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${tab === key ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}>{label}</button>
-          ))}
+          {/* Work Centers */}
+          <div className="bg-white rounded-2xl border" style={{ borderColor: '#EDE8F5' }}>
+            <div className="px-5 py-4 border-b" style={{ borderColor: '#EDE8F5' }}>
+              <h2 className="font-bold text-sm" style={{ color: '#2F2B3D' }}>Work Center</h2>
+            </div>
+            <div className="divide-y" style={{ borderColor: '#EDE8F5' }}>
+              {WORKCENTERS.map(wc => {
+                const st = WC_STATUS[wc.status];
+                return (
+                  <div key={wc.name} className="px-5 py-3.5">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <p className="text-xs font-semibold" style={{ color: '#2F2B3D' }}>{wc.name}</p>
+                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ backgroundColor: st.bg, color: st.color }}>{st.label}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 h-1.5 rounded-full" style={{ backgroundColor: '#EDE8F5' }}>
+                        <div className="h-1.5 rounded-full" style={{ width: `${wc.utilization}%`, backgroundColor: st.color }} />
+                      </div>
+                      <span className="text-[10px]" style={{ color: '#A5A3AE' }}>{wc.utilization}%</span>
+                    </div>
+                    <p className="text-[10px] mt-0.5" style={{ color: '#B0AAB9' }}>{wc.capacity}</p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
-
-        {loading ? (
-          <div className="flex items-center justify-center h-48 text-slate-400">Memuat data...</div>
-        ) : (
-          <>
-            {tab === 'orders' && (
-              <div className="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
-                <table className="w-full text-sm">
-                  <thead><tr className="border-b border-slate-700 text-slate-400">
-                    <th className="text-left p-4">No. MO</th>
-                    <th className="text-left p-4">Produk</th>
-                    <th className="text-left p-4">Qty</th>
-                    <th className="text-left p-4">Jadwal</th>
-                    <th className="text-left p-4">Status</th>
-                    <th className="text-left p-4">Aksi</th>
-                  </tr></thead>
-                  <tbody>
-                    {orders.map(o => {
-                      const st = MO_STATUS[o.status as keyof typeof MO_STATUS] ?? MO_STATUS.draft;
-                      return (
-                        <tr key={o.id} className="border-b border-slate-700/50 hover:bg-slate-700/30">
-                          <td className="p-4 font-mono text-xs text-slate-300">{o.noMo}</td>
-                          <td className="p-4 text-white">{o.productId}</td>
-                          <td className="p-4 text-white">{Number(o.qty).toLocaleString('id-ID')} {o.qtyProduced > 0 && <span className="text-slate-400 text-xs">({Number(o.qtyProduced)} done)</span>}</td>
-                          <td className="p-4 text-slate-400 text-xs">{new Date(o.scheduledDate).toLocaleDateString('id-ID')}</td>
-                          <td className="p-4"><span className={`text-xs px-2 py-0.5 rounded-full ${st.color}`}>{st.label}</span></td>
-                          <td className="p-4 flex gap-1">
-                            {o.status === 'draft' && <button onClick={() => changeStatus(o.id, 'confirm')} className="text-xs bg-blue-600/30 text-blue-300 px-2 py-1 rounded hover:bg-blue-600/50">Konfirmasi</button>}
-                            {o.status === 'confirmed' && <button onClick={() => changeStatus(o.id, 'start')} className="text-xs bg-yellow-600/30 text-yellow-300 px-2 py-1 rounded hover:bg-yellow-600/50">Mulai</button>}
-                            {o.status === 'in_progress' && <button onClick={() => changeStatus(o.id, 'complete')} className="text-xs bg-emerald-600/30 text-emerald-300 px-2 py-1 rounded hover:bg-emerald-600/50">Selesai</button>}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                    {orders.length === 0 && <tr><td colSpan={6} className="p-8 text-center text-slate-500">Belum ada manufacturing order</td></tr>}
-                  </tbody>
-                </table>
-              </div>
-            )}
-
-            {tab === 'bom' && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {boms.map(b => (
-                  <div key={b.id} className="bg-slate-800 rounded-xl border border-slate-700 p-4">
-                    <div className="flex items-start justify-between mb-2">
-                      <p className="text-white font-medium">{b.reference ?? b.productId}</p>
-                      <span className="text-xs bg-slate-700 text-slate-300 px-2 py-0.5 rounded-full">{b.type}</span>
-                    </div>
-                    <p className="text-slate-400 text-sm">Qty: {Number(b.qty)}</p>
-                    <p className="text-slate-500 text-xs mt-2">{b.components?.length ?? 0} komponen</p>
-                  </div>
-                ))}
-                {boms.length === 0 && <p className="text-slate-500 text-center py-10 col-span-3">Belum ada Bill of Materials</p>}
-              </div>
-            )}
-
-            {tab === 'workcenters' && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {workCenters.map(wc => (
-                  <div key={wc.id} className="bg-slate-800 rounded-xl border border-slate-700 p-4">
-                    <p className="text-white font-medium">{wc.name}</p>
-                    <p className="text-slate-500 text-xs font-mono mt-0.5">{wc.code}</p>
-                    <div className="mt-3 space-y-1">
-                      <div className="flex justify-between text-sm"><span className="text-slate-400">Kapasitas</span><span className="text-white">{Number(wc.capacity)}</span></div>
-                      <div className="flex justify-between text-sm"><span className="text-slate-400">Efisiensi</span><span className="text-emerald-400">{Number(wc.timeEff)}%</span></div>
-                    </div>
-                  </div>
-                ))}
-                {workCenters.length === 0 && <p className="text-slate-500 text-center py-10 col-span-3">Belum ada work center</p>}
-              </div>
-            )}
-          </>
-        )}
-
-        {showMoForm && (
-          <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-            <div className="bg-slate-800 rounded-2xl w-full max-w-md border border-slate-700">
-              <div className="p-5 border-b border-slate-700 flex items-center justify-between">
-                <h2 className="text-white font-semibold">Buat Manufacturing Order</h2>
-                <button onClick={() => setShowMoForm(false)} className="text-slate-400 hover:text-white">✕</button>
-              </div>
-              <form onSubmit={handleCreateMo} className="p-5 space-y-3">
-                <div><label className="text-slate-400 text-xs mb-1 block">ID Produk *</label><input required value={moForm.productId} onChange={e => setMoForm(f => ({ ...f, productId: e.target.value }))} className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm" /></div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div><label className="text-slate-400 text-xs mb-1 block">Qty *</label><input required type="number" min="0.1" step="0.1" value={moForm.qty} onChange={e => setMoForm(f => ({ ...f, qty: e.target.value }))} className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm" /></div>
-                  <div><label className="text-slate-400 text-xs mb-1 block">Jadwal *</label><input required type="date" value={moForm.scheduledDate} onChange={e => setMoForm(f => ({ ...f, scheduledDate: e.target.value }))} className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm" /></div>
-                </div>
-                <div className="flex gap-3 pt-2">
-                  <button type="button" onClick={() => setShowMoForm(false)} className="flex-1 bg-slate-700 text-white py-2 rounded-lg text-sm">Batal</button>
-                  <button type="submit" className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg text-sm font-medium">Buat</button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
-
-        {showBomForm && (
-          <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-            <div className="bg-slate-800 rounded-2xl w-full max-w-md border border-slate-700">
-              <div className="p-5 border-b border-slate-700 flex items-center justify-between">
-                <h2 className="text-white font-semibold">Buat Bill of Materials</h2>
-                <button onClick={() => setShowBomForm(false)} className="text-slate-400 hover:text-white">✕</button>
-              </div>
-              <form onSubmit={handleCreateBom} className="p-5 space-y-3">
-                <div><label className="text-slate-400 text-xs mb-1 block">ID Produk *</label><input required value={bomForm.productId} onChange={e => setBomForm(f => ({ ...f, productId: e.target.value }))} className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm" /></div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div><label className="text-slate-400 text-xs mb-1 block">Qty</label><input type="number" value={bomForm.qty} onChange={e => setBomForm(f => ({ ...f, qty: e.target.value }))} className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm" /></div>
-                  <div>
-                    <label className="text-slate-400 text-xs mb-1 block">Tipe</label>
-                    <select value={bomForm.type} onChange={e => setBomForm(f => ({ ...f, type: e.target.value }))} className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm">
-                      <option value="manufacture">Manufacture</option><option value="phantom">Phantom</option><option value="subcontract">Subcontract</option>
-                    </select>
-                  </div>
-                </div>
-                <div><label className="text-slate-400 text-xs mb-1 block">Referensi</label><input value={bomForm.reference} onChange={e => setBomForm(f => ({ ...f, reference: e.target.value }))} className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm" /></div>
-                <div className="flex gap-3 pt-2">
-                  <button type="button" onClick={() => setShowBomForm(false)} className="flex-1 bg-slate-700 text-white py-2 rounded-lg text-sm">Batal</button>
-                  <button type="submit" className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg text-sm font-medium">Buat</button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
-
-        {showWcForm && (
-          <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-            <div className="bg-slate-800 rounded-2xl w-full max-w-md border border-slate-700">
-              <div className="p-5 border-b border-slate-700 flex items-center justify-between">
-                <h2 className="text-white font-semibold">Tambah Work Center</h2>
-                <button onClick={() => setShowWcForm(false)} className="text-slate-400 hover:text-white">✕</button>
-              </div>
-              <form onSubmit={handleCreateWc} className="p-5 space-y-3">
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="col-span-2"><label className="text-slate-400 text-xs mb-1 block">Nama *</label><input required value={wcForm.name} onChange={e => setWcForm(f => ({ ...f, name: e.target.value }))} className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm" /></div>
-                  <div><label className="text-slate-400 text-xs mb-1 block">Kode *</label><input required value={wcForm.code} onChange={e => setWcForm(f => ({ ...f, code: e.target.value }))} className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm" /></div>
-                  <div><label className="text-slate-400 text-xs mb-1 block">Kapasitas</label><input type="number" value={wcForm.capacity} onChange={e => setWcForm(f => ({ ...f, capacity: e.target.value }))} className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm" /></div>
-                  <div><label className="text-slate-400 text-xs mb-1 block">Efisiensi (%)</label><input type="number" value={wcForm.timeEff} onChange={e => setWcForm(f => ({ ...f, timeEff: e.target.value }))} className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm" /></div>
-                </div>
-                <div className="flex gap-3 pt-2">
-                  <button type="button" onClick={() => setShowWcForm(false)} className="flex-1 bg-slate-700 text-white py-2 rounded-lg text-sm">Batal</button>
-                  <button type="submit" className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg text-sm font-medium">Simpan</button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
       </div>
-    </ModernLayout>
+    </AppShell>
   );
 }

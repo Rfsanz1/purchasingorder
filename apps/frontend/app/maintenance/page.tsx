@@ -1,210 +1,145 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import ModernLayout from '@/components/layout/ModernLayout';
-import api from '@/lib/api';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuthStore } from '../../lib/store/useAuthStore';
+import AppShell, { NavItem } from '../../components/layout/AppShell';
+import {
+  Wrench, BarChart2, Calendar, Package, Settings,
+  CheckCircle, AlertTriangle, Clock, TrendingUp, Zap,
+} from 'lucide-react';
 
-const REQ_STATUS = {
-  new: { label: 'Baru', color: 'bg-slate-600 text-slate-200' },
-  in_progress: { label: 'Dikerjakan', color: 'bg-blue-600/30 text-blue-300' },
-  done: { label: 'Selesai', color: 'bg-emerald-600/30 text-emerald-300' },
-  cancelled: { label: 'Batal', color: 'bg-red-600/30 text-red-300' },
+const NAV: NavItem[] = [
+  { label: 'Dashboard',    href: '/maintenance',              icon: BarChart2 },
+  { label: 'Permintaan',   href: '/maintenance/requests',     icon: Wrench, badge: 5 },
+  { label: 'Jadwal',       href: '/maintenance/schedules',    icon: Calendar },
+  { label: 'Peralatan',    href: '/maintenance/equipment',    icon: Package },
+  { label: 'Laporan',      href: '/maintenance/reports',      icon: TrendingUp },
+  { label: 'Pengaturan',   href: '/maintenance/settings',     icon: Settings },
+];
+
+const STATS = [
+  { label: 'Permintaan Aktif',    value: '8',   sub: '3 mendesak',            color: '#F57F17', bg: 'rgba(245,127,23,.1)',  icon: Wrench },
+  { label: 'Selesai Bulan Ini',   value: '34',  sub: '+6 vs bulan lalu',      color: '#4CAF50', bg: 'rgba(76,175,80,.1)',   icon: CheckCircle },
+  { label: 'Jadwal Mendatang',    value: '12',  sub: '3 dalam 7 hari ke depan', color: '#2196F3', bg: 'rgba(33,150,243,.1)', icon: Calendar },
+  { label: 'Total Peralatan',     value: '67',  sub: '5 dalam perbaikan',     color: '#9C27B0', bg: 'rgba(156,39,176,.1)',  icon: Package },
+];
+
+const REQUESTS = [
+  { id: 'MNT-0158', equipment: 'Mesin Mixing Line 1',  issue: 'Getaran abnormal pada gear box',      priority: 'urgent',  technician: 'Iman S.',   status: 'in_progress', created: '24 Mei 2026' },
+  { id: 'MNT-0157', equipment: 'Kompresor Udara #3',   issue: 'Tekanan drop di bawah 6 bar',         priority: 'urgent',  technician: 'Rudi P.',   status: 'in_progress', created: '23 Mei 2026' },
+  { id: 'MNT-0156', equipment: 'Conveyor Belt B',      issue: 'Belt slip saat beban penuh',          priority: 'normal',  technician: 'Iman S.',   status: 'new',         created: '23 Mei 2026' },
+  { id: 'MNT-0155', equipment: 'Panel Listrik Panel 4', issue: 'MCB trip berulang di jalur 3',       priority: 'urgent',  technician: 'Teguh W.',  status: 'new',         created: '22 Mei 2026' },
+  { id: 'MNT-0154', equipment: 'Forklift Toyota #2',   issue: 'Hidrolik lambat saat angkat beban',  priority: 'normal',  technician: 'Rudi P.',   status: 'done',        created: '21 Mei 2026' },
+];
+
+const SCHEDULES = [
+  { equipment: 'Mesin Mixing Line 1',  type: 'Preventif',  date: '28 Mei 2026', technician: 'Iman S.' },
+  { equipment: 'Generator Cadangan',   type: 'Inspeksi',   date: '30 Mei 2026', technician: 'Teguh W.' },
+  { equipment: 'Kompresor Udara #1',   type: 'Penggantian Oli', date: '1 Jun 2026', technician: 'Rudi P.' },
+  { equipment: 'Crane Gudang',         type: 'Sertifikasi', date: '5 Jun 2026', technician: 'Iman S.' },
+];
+
+const STATUS_MAP: Record<string, { label: string; color: string; bg: string; icon: React.ElementType }> = {
+  new:         { label: 'Baru',       color: '#A5A3AE', bg: 'rgba(165,163,174,.12)', icon: Clock },
+  in_progress: { label: 'Dikerjakan', color: '#2196F3', bg: 'rgba(33,150,243,.1)',   icon: Wrench },
+  done:        { label: 'Selesai',    color: '#4CAF50', bg: 'rgba(76,175,80,.1)',    icon: CheckCircle },
 };
 
-export default function MaintenancePage() {
-  const [equipment, setEquipment] = useState<any[]>([]);
-  const [requests, setRequests] = useState<any[]>([]);
-  const [stats, setStats] = useState<any>(null);
-  const [tab, setTab] = useState<'requests' | 'equipment'>('requests');
-  const [loading, setLoading] = useState(true);
-  const [showEqForm, setShowEqForm] = useState(false);
-  const [showReqForm, setShowReqForm] = useState(false);
-  const [eqForm, setEqForm] = useState({ name: '', category: '', serialNo: '', location: '', warrantyDate: '' });
-  const [reqForm, setReqForm] = useState({ equipmentId: '', name: '', type: 'corrective', priority: '0', notes: '', scheduledDate: '' });
-
-  useEffect(() => { fetchAll(); }, []);
-
-  async function fetchAll() {
-    setLoading(true);
-    try {
-      const [eqRes, reqRes, statsRes] = await Promise.all([
-        api.get('/maintenance/equipment'),
-        api.get('/maintenance/requests'),
-        api.get('/maintenance/stats'),
-      ]);
-      setEquipment(eqRes.data ?? []);
-      setRequests(reqRes.data.data ?? []);
-      setStats(statsRes.data);
-    } catch { } finally { setLoading(false); }
-  }
-
-  async function handleCreateEq(e: React.FormEvent) {
-    e.preventDefault();
-    try { await api.post('/maintenance/equipment', eqForm); setShowEqForm(false); fetchAll(); } catch { }
-  }
-
-  async function handleCreateReq(e: React.FormEvent) {
-    e.preventDefault();
-    try { await api.post('/maintenance/requests', { ...reqForm, priority: parseInt(reqForm.priority) }); setShowReqForm(false); fetchAll(); } catch { }
-  }
-
-  async function closeRequest(id: string) { await api.post(`/maintenance/requests/${id}/close`); fetchAll(); }
+export default function MaintenanceDashboard() {
+  const { token } = useAuthStore();
+  const router = useRouter();
+  useEffect(() => { if (!token) router.push('/login'); }, [token]);
+  if (!token) return null;
 
   return (
-    <ModernLayout>
+    <AppShell
+      appName="Pemeliharaan"
+      appColor="#F57F17"
+      appGradient="from-amber-500 to-amber-700"
+      appIcon={Wrench}
+      navItems={NAV}
+      activeHref="/maintenance"
+    >
       <div className="p-6 space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-white">Maintenance</h1>
-            <p className="text-slate-400 text-sm mt-1">Kelola peralatan & permintaan pemeliharaan</p>
-          </div>
-          <div className="flex gap-2">
-            {tab === 'equipment' && <button onClick={() => setShowEqForm(true)} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium">+ Peralatan</button>}
-            {tab === 'requests' && <button onClick={() => setShowReqForm(true)} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium">+ Permintaan</button>}
-          </div>
-        </div>
-
-        {stats && (
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-            {[
-              { label: 'Total', value: stats.total, color: 'text-white' },
-              { label: 'Baru', value: stats.open, color: 'text-slate-300' },
-              { label: 'Dikerjakan', value: stats.inProgress, color: 'text-blue-400' },
-              { label: 'Selesai', value: stats.done, color: 'text-emerald-400' },
-              { label: 'Terlambat', value: stats.overdue, color: 'text-red-400' },
-            ].map(s => (
-              <div key={s.label} className="bg-slate-800 rounded-xl p-3 border border-slate-700 text-center">
-                <p className="text-slate-400 text-xs">{s.label}</p>
-                <p className={`text-xl font-bold mt-1 ${s.color}`}>{s.value}</p>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {STATS.map(s => {
+            const Icon = s.icon;
+            return (
+              <div key={s.label} className="bg-white rounded-2xl p-5 border" style={{ borderColor: '#EDE8F5' }}>
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-xs font-medium" style={{ color: '#A5A3AE' }}>{s.label}</p>
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl" style={{ backgroundColor: s.bg }}>
+                    <Icon className="h-5 w-5" style={{ color: s.color }} />
+                  </div>
+                </div>
+                <p className="text-2xl font-bold" style={{ color: '#2F2B3D' }}>{s.value}</p>
+                <p className="text-xs mt-1" style={{ color: '#A5A3AE' }}>{s.sub}</p>
               </div>
-            ))}
-          </div>
-        )}
-
-        <div className="flex gap-1 bg-slate-800/50 p-1 rounded-xl w-fit border border-slate-700">
-          {([['requests', 'Permintaan Maintenance'], ['equipment', 'Daftar Peralatan']] as const).map(([key, label]) => (
-            <button key={key} onClick={() => setTab(key)} className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${tab === key ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}>{label}</button>
-          ))}
+            );
+          })}
         </div>
 
-        {loading ? (
-          <div className="flex items-center justify-center h-48 text-slate-400">Memuat data...</div>
-        ) : tab === 'requests' ? (
-          <div className="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
-            <table className="w-full text-sm">
-              <thead><tr className="border-b border-slate-700 text-slate-400">
-                <th className="text-left p-4">No. MR</th><th className="text-left p-4">Nama</th>
-                <th className="text-left p-4">Peralatan</th><th className="text-left p-4">Tipe</th>
-                <th className="text-left p-4">Status</th><th className="text-left p-4">Aksi</th>
-              </tr></thead>
-              <tbody>
-                {requests.map(r => {
-                  const st = REQ_STATUS[r.status as keyof typeof REQ_STATUS] ?? REQ_STATUS.new;
-                  return (
-                    <tr key={r.id} className="border-b border-slate-700/50 hover:bg-slate-700/30">
-                      <td className="p-4 font-mono text-xs text-slate-300">{r.noMr}</td>
-                      <td className="p-4 text-white">{r.name}</td>
-                      <td className="p-4 text-slate-300">{r.equipment?.name ?? '—'}</td>
-                      <td className="p-4"><span className="text-xs text-slate-400 capitalize">{r.type}</span></td>
-                      <td className="p-4"><span className={`text-xs px-2 py-0.5 rounded-full ${st.color}`}>{st.label}</span></td>
-                      <td className="p-4">
-                        {(r.status === 'new' || r.status === 'in_progress') && (
-                          <button onClick={() => closeRequest(r.id)} className="text-xs bg-emerald-600/30 text-emerald-300 px-2 py-1 rounded hover:bg-emerald-600/50">✓ Selesai</button>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 bg-white rounded-2xl border" style={{ borderColor: '#EDE8F5' }}>
+            <div className="flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: '#EDE8F5' }}>
+              <h2 className="font-bold text-sm" style={{ color: '#2F2B3D' }}>Permintaan Pemeliharaan</h2>
+              <button className="text-xs font-semibold px-3 py-1.5 rounded-lg text-white" style={{ backgroundColor: '#F57F17' }}>+ Permintaan Baru</button>
+            </div>
+            <div className="divide-y" style={{ borderColor: '#EDE8F5' }}>
+              {REQUESTS.map(req => {
+                const st = STATUS_MAP[req.status];
+                const Icon = st.icon;
+                return (
+                  <div key={req.id} className="flex items-start gap-3 px-5 py-4">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg flex-shrink-0 mt-0.5" style={{ backgroundColor: st.bg }}>
+                      <Icon className="h-4 w-4" style={{ color: st.color }} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-xs font-bold" style={{ color: '#F57F17' }}>{req.id}</span>
+                        {req.priority === 'urgent' && (
+                          <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full" style={{ backgroundColor: 'rgba(234,84,85,.1)', color: '#EA5455' }}>Mendesak</span>
                         )}
-                      </td>
-                    </tr>
-                  );
-                })}
-                {requests.length === 0 && <tr><td colSpan={6} className="p-8 text-center text-slate-500">Belum ada permintaan maintenance</td></tr>}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {equipment.map(eq => (
-              <div key={eq.id} className="bg-slate-800 rounded-xl border border-slate-700 p-4">
-                <div className="flex items-start justify-between mb-2">
-                  <p className="text-white font-semibold">{eq.name}</p>
-                  <span className={`text-xs px-2 py-0.5 rounded-full ${eq.active ? 'bg-emerald-600/30 text-emerald-300' : 'bg-slate-600 text-slate-400'}`}>{eq.active ? 'Aktif' : 'Nonaktif'}</span>
-                </div>
-                <div className="space-y-1 text-sm">
-                  {eq.category && <div className="flex justify-between"><span className="text-slate-400">Kategori</span><span className="text-white">{eq.category}</span></div>}
-                  {eq.serialNo && <div className="flex justify-between"><span className="text-slate-400">S/N</span><span className="text-slate-300 font-mono text-xs">{eq.serialNo}</span></div>}
-                  {eq.location && <div className="flex justify-between"><span className="text-slate-400">Lokasi</span><span className="text-white">{eq.location}</span></div>}
-                  {eq.warrantyDate && <div className="flex justify-between"><span className="text-slate-400">Garansi</span><span className={`text-xs ${new Date(eq.warrantyDate) > new Date() ? 'text-emerald-400' : 'text-red-400'}`}>{new Date(eq.warrantyDate).toLocaleDateString('id-ID')}</span></div>}
-                  <div className="flex justify-between"><span className="text-slate-400">Permintaan</span><span className="text-slate-300">{eq._count?.requests ?? 0}</span></div>
-                </div>
-              </div>
-            ))}
-            {equipment.length === 0 && <p className="text-slate-500 text-center py-10 col-span-3">Belum ada peralatan terdaftar</p>}
-          </div>
-        )}
-
-        {showEqForm && (
-          <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-            <div className="bg-slate-800 rounded-2xl w-full max-w-md border border-slate-700">
-              <div className="p-5 border-b border-slate-700 flex items-center justify-between">
-                <h2 className="text-white font-semibold">Tambah Peralatan</h2>
-                <button onClick={() => setShowEqForm(false)} className="text-slate-400 hover:text-white">✕</button>
-              </div>
-              <form onSubmit={handleCreateEq} className="p-5 space-y-3">
-                <div><label className="text-slate-400 text-xs mb-1 block">Nama Peralatan *</label><input required value={eqForm.name} onChange={e => setEqForm(f => ({ ...f, name: e.target.value }))} className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm" /></div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div><label className="text-slate-400 text-xs mb-1 block">Kategori</label><input value={eqForm.category} onChange={e => setEqForm(f => ({ ...f, category: e.target.value }))} className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm" /></div>
-                  <div><label className="text-slate-400 text-xs mb-1 block">Serial No.</label><input value={eqForm.serialNo} onChange={e => setEqForm(f => ({ ...f, serialNo: e.target.value }))} className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm" /></div>
-                  <div><label className="text-slate-400 text-xs mb-1 block">Lokasi</label><input value={eqForm.location} onChange={e => setEqForm(f => ({ ...f, location: e.target.value }))} className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm" /></div>
-                  <div><label className="text-slate-400 text-xs mb-1 block">Tanggal Garansi</label><input type="date" value={eqForm.warrantyDate} onChange={e => setEqForm(f => ({ ...f, warrantyDate: e.target.value }))} className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm" /></div>
-                </div>
-                <div className="flex gap-3 pt-2">
-                  <button type="button" onClick={() => setShowEqForm(false)} className="flex-1 bg-slate-700 text-white py-2 rounded-lg text-sm">Batal</button>
-                  <button type="submit" className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg text-sm font-medium">Simpan</button>
-                </div>
-              </form>
+                      </div>
+                      <p className="text-xs font-semibold mt-0.5" style={{ color: '#2F2B3D' }}>{req.equipment}</p>
+                      <p className="text-[11px] mt-0.5" style={{ color: '#A5A3AE' }}>{req.issue}</p>
+                      <p className="text-[11px] mt-0.5" style={{ color: '#B0AAB9' }}>Teknisi: {req.technician} · {req.created}</p>
+                    </div>
+                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0" style={{ backgroundColor: st.bg, color: st.color }}>{st.label}</span>
+                  </div>
+                );
+              })}
             </div>
           </div>
-        )}
 
-        {showReqForm && (
-          <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-            <div className="bg-slate-800 rounded-2xl w-full max-w-md border border-slate-700">
-              <div className="p-5 border-b border-slate-700 flex items-center justify-between">
-                <h2 className="text-white font-semibold">Permintaan Maintenance</h2>
-                <button onClick={() => setShowReqForm(false)} className="text-slate-400 hover:text-white">✕</button>
-              </div>
-              <form onSubmit={handleCreateReq} className="p-5 space-y-3">
-                <div>
-                  <label className="text-slate-400 text-xs mb-1 block">Peralatan *</label>
-                  <select required value={reqForm.equipmentId} onChange={e => setReqForm(f => ({ ...f, equipmentId: e.target.value }))} className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm">
-                    <option value="">-- Pilih Peralatan --</option>
-                    {equipment.map(eq => <option key={eq.id} value={eq.id}>{eq.name}</option>)}
-                  </select>
-                </div>
-                <div><label className="text-slate-400 text-xs mb-1 block">Nama Pekerjaan *</label><input required value={reqForm.name} onChange={e => setReqForm(f => ({ ...f, name: e.target.value }))} className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm" /></div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-slate-400 text-xs mb-1 block">Tipe</label>
-                    <select value={reqForm.type} onChange={e => setReqForm(f => ({ ...f, type: e.target.value }))} className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm">
-                      <option value="corrective">Korektif</option><option value="preventive">Preventif</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="text-slate-400 text-xs mb-1 block">Prioritas</label>
-                    <select value={reqForm.priority} onChange={e => setReqForm(f => ({ ...f, priority: e.target.value }))} className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm">
-                      <option value="0">Normal</option><option value="1">Tinggi</option><option value="2">Urgent</option>
-                    </select>
+          <div className="bg-white rounded-2xl border" style={{ borderColor: '#EDE8F5' }}>
+            <div className="px-5 py-4 border-b" style={{ borderColor: '#EDE8F5' }}>
+              <h2 className="font-bold text-sm" style={{ color: '#2F2B3D' }}>Jadwal Pemeliharaan</h2>
+            </div>
+            <div className="divide-y" style={{ borderColor: '#EDE8F5' }}>
+              {SCHEDULES.map(sch => (
+                <div key={sch.equipment} className="px-5 py-4">
+                  <div className="flex items-start gap-2">
+                    <Calendar className="h-4 w-4 flex-shrink-0 mt-0.5" style={{ color: '#2196F3' }} />
+                    <div>
+                      <p className="text-xs font-semibold" style={{ color: '#2F2B3D' }}>{sch.equipment}</p>
+                      <p className="text-[11px] mt-0.5" style={{ color: '#A5A3AE' }}>{sch.type} · {sch.date}</p>
+                      <p className="text-[11px]" style={{ color: '#B0AAB9' }}>Teknisi: {sch.technician}</p>
+                    </div>
                   </div>
                 </div>
-                <div><label className="text-slate-400 text-xs mb-1 block">Jadwal</label><input type="date" value={reqForm.scheduledDate} onChange={e => setReqForm(f => ({ ...f, scheduledDate: e.target.value }))} className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm" /></div>
-                <div><label className="text-slate-400 text-xs mb-1 block">Catatan</label><textarea value={reqForm.notes} onChange={e => setReqForm(f => ({ ...f, notes: e.target.value }))} rows={2} className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm resize-none" /></div>
-                <div className="flex gap-3 pt-2">
-                  <button type="button" onClick={() => setShowReqForm(false)} className="flex-1 bg-slate-700 text-white py-2 rounded-lg text-sm">Batal</button>
-                  <button type="submit" className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg text-sm font-medium">Buat</button>
-                </div>
-              </form>
+              ))}
+            </div>
+            <div className="px-5 py-4 border-t" style={{ borderColor: '#EDE8F5' }}>
+              <button className="w-full py-2 rounded-xl text-xs font-semibold border" style={{ color: '#F57F17', borderColor: 'rgba(245,127,23,.3)' }}>
+                <Zap className="inline h-3.5 w-3.5 mr-1" />
+                Tambah Jadwal
+              </button>
             </div>
           </div>
-        )}
+        </div>
       </div>
-    </ModernLayout>
+    </AppShell>
   );
 }
