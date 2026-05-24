@@ -39,12 +39,16 @@ export class FleetService {
   async createService(dto: any) { return this.prisma.vehicleService.create({ data: dto, include: { vehicle: true } }); }
 
   async getStats() {
-    const [total, active, needService] = await Promise.all([
+    const [total, active] = await Promise.all([
       this.prisma.vehicle.count(),
       this.prisma.vehicle.count({ where: { active: true } }),
-      this.prisma.vehicle.count({ where: { active: true, nextMaintenance: { lte: new Date() } } }),
     ]);
+    const overdueServices = await this.prisma.vehicleService.findMany({
+      where: { nextService: { lte: new Date() } },
+      select: { vehicleId: true },
+      distinct: ['vehicleId'],
+    });
     const totalCost = await this.prisma.vehicleService.aggregate({ _sum: { cost: true } });
-    return { total, active, needService, totalServiceCost: totalCost._sum.cost ?? 0 };
+    return { total, active, needService: overdueServices.length, totalServiceCost: totalCost._sum.cost ?? 0 };
   }
 }
