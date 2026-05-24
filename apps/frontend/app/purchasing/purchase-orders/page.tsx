@@ -1,8 +1,9 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { ModernLayout } from '../../../components/layout/ModernLayout';
 import { api } from '../../../lib/api';
-import { TrendingUp, Plus, Search, RefreshCw, CheckCircle, XCircle } from 'lucide-react';
+import { TrendingUp, Plus, Search, RefreshCw, CheckCircle } from 'lucide-react';
 
 const STATUS_COLORS: Record<string, string> = {
   draft: 'bg-slate-800 text-slate-400', approved: 'bg-emerald-900/50 text-emerald-400',
@@ -10,6 +11,7 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function PurchaseOrdersPage() {
+  const router = useRouter();
   const [data, setData] = useState<any[]>([]);
   const [stats, setStats] = useState<any>(null);
   const [search, setSearch] = useState('');
@@ -41,7 +43,7 @@ export default function PurchaseOrdersPage() {
       <div className="max-w-7xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
           <div><h1 className="text-2xl font-bold text-white flex items-center gap-2"><TrendingUp className="h-6 w-6 text-orange-400" /> Purchase Orders</h1><p className="text-slate-400 mt-1">Manajemen pembelian & PO</p></div>
-          <button className="flex items-center gap-2 rounded-xl bg-orange-600 hover:bg-orange-500 px-4 py-2 text-sm font-medium text-white transition"><Plus className="h-4 w-4" /> Buat PO</button>
+          <button onClick={() => router.push('/purchasing/purchase-orders/new')} className="flex items-center gap-2 rounded-xl bg-orange-600 hover:bg-orange-500 px-4 py-2 text-sm font-medium text-white transition"><Plus className="h-4 w-4" /> Buat PO</button>
         </div>
         {stats && (
           <div className="grid grid-cols-4 gap-4">
