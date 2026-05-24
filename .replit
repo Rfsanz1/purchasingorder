@@ -51,7 +51,7 @@ outputType = "console"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "cd apps/backend && pnpm install && npx prisma generate && PORT=6000 pnpm start:dev"
+args = "cd apps/backend && pnpm install && npx prisma generate && npx prisma db push --accept-data-loss && node --loader ts-node/esm prisma/seed.ts; PORT=6000 pnpm start:dev"
 waitForPort = 6000
 
 [[workflows.workflow]]
@@ -102,10 +102,6 @@ externalPort = 5173
 [[ports]]
 localPort = 6000
 externalPort = 6000
-
-[[ports]]
-localPort = 23288
-externalPort = 5000
 
 [[ports]]
 localPort = 23289
