@@ -55,7 +55,7 @@ outputType = "console"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "cd frontend/artifacts/pos-app && pnpm dev"
+args = "cd frontend/artifacts/pos-app && npm install && npx vite --port 5173 --host 0.0.0.0"
 waitForPort = 5173
 
 [[workflows.workflow]]
@@ -75,12 +75,12 @@ name = "Modern Frontend (Next.js)"
 author = "agent"
 
 [workflows.workflow.metadata]
-outputType = "webview"
+outputType = "console"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "cd apps/frontend && NEXT_PUBLIC_API_URL=http://localhost:6000/api pnpm dev -p 5000"
-waitForPort = 5000
+args = "cd apps/frontend && NEXT_PUBLIC_API_URL=http://localhost:6000/api pnpm dev -p 3000"
+waitForPort = 3000
 
 [agent]
 stack = "BEST_EFFORT_FALLBACK"
@@ -94,10 +94,6 @@ timeoutMs = 20000
 [[ports]]
 localPort = 3000
 externalPort = 3000
-
-[[ports]]
-localPort = 3001
-externalPort = 3001
 
 [[ports]]
 localPort = 3002
@@ -142,6 +138,10 @@ externalPort = 4200
 [[ports]]
 localPort = 23636
 externalPort = 8000
+
+[[ports]]
+localPort = 5173
+externalPort = 5173
 
 [nix]
 channel = "stable-25_05"
