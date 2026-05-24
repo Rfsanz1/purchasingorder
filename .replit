@@ -1,4 +1,4 @@
-modules = ["nodejs-20", "php-8.2", "web"]
+modules = ["nodejs-20", "web"]
 
 [deployment]
 router = "application"
@@ -20,31 +20,15 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Start application"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
 args = "POS App"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Modern Backend (NestJS)"
+args = "NestJS Backend"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Modern Frontend (Next.js)"
-
-[[workflows.workflow]]
-name = "Start application"
-author = "agent"
-
-[workflows.workflow.metadata]
-outputType = "webview"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "PORT=5000 bash start.sh"
-waitForPort = 5000
+args = "Start application"
 
 [[workflows.workflow]]
 name = "POS App"
@@ -59,7 +43,7 @@ args = "cd frontend/artifacts/pos-app && npm install && npx vite --port 5173 --h
 waitForPort = 5173
 
 [[workflows.workflow]]
-name = "Modern Backend (NestJS)"
+name = "NestJS Backend"
 author = "agent"
 
 [workflows.workflow.metadata]
@@ -67,20 +51,20 @@ outputType = "console"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "cd apps/backend && PORT=6000 pnpm start:dev"
+args = "cd apps/backend && pnpm install && npx prisma generate && PORT=6000 pnpm start:dev"
 waitForPort = 6000
 
 [[workflows.workflow]]
-name = "Modern Frontend (Next.js)"
+name = "Start application"
 author = "agent"
 
 [workflows.workflow.metadata]
-outputType = "console"
+outputType = "webview"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "cd apps/frontend && NEXT_PUBLIC_API_URL=http://localhost:6000/api pnpm dev -p 3000"
-waitForPort = 3000
+args = "cd apps/frontend && pnpm install && PORT=5000 npx next dev -p 5000"
+waitForPort = 5000
 
 [agent]
 stack = "BEST_EFFORT_FALLBACK"
@@ -104,6 +88,10 @@ localPort = 3306
 externalPort = 6800
 
 [[ports]]
+localPort = 4000
+externalPort = 3001
+
+[[ports]]
 localPort = 5000
 externalPort = 80
 
@@ -112,24 +100,8 @@ localPort = 5173
 externalPort = 5173
 
 [[ports]]
-localPort = 5174
-externalPort = 3002
-
-[[ports]]
 localPort = 6000
 externalPort = 6000
-
-[[ports]]
-localPort = 8081
-externalPort = 8081
-
-[[ports]]
-localPort = 8082
-externalPort = 5173
-
-[[ports]]
-localPort = 23287
-externalPort = 3000
 
 [[ports]]
 localPort = 23288

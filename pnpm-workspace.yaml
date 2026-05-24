@@ -1,10 +1,6 @@
 packages:
   - 'apps/*'
-  - 'packages/*'
-  - 'frontend'
-  - 'modules/pos/*'
-  - 'modules/pos/pos-backend'
-  - 'modules/pos/pos-frontend'
+  - 'frontend/artifacts/pos-app'
 
 onlyBuiltDependencies:
   - '@nestjs/core'
