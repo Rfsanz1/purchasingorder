@@ -9,10 +9,15 @@ export class InventoryController {
 
   @Get('stats') getStats() { return this.svc.getStats(); }
   @Get('products') getProducts(@Query() q: any) { return this.svc.getProducts(q); }
+  @Get('brands') getBrands() { return this.svc.getBrands(); }
   @Get('products/:id') getProduct(@Param('id') id: string) { return this.svc.getProduct(id); }
   @Post('products') createProduct(@Body() dto: any) { return this.svc.createProduct(dto); }
   @Put('products/:id') updateProduct(@Param('id') id: string, @Body() dto: any) { return this.svc.updateProduct(id, dto); }
   @Delete('products/:id') deleteProduct(@Param('id') id: string) { return this.svc.deleteProduct(id); }
+  @Post('products/:id/stok') updateStok(
+    @Param('id') id: string,
+    @Body() dto: { qty: number; type: 'in' | 'out'; note?: string },
+  ) { return this.svc.updateStok(id, dto.qty, dto.type, dto.note); }
   @Get('stock-movements') getMovements(@Query() q: any) { return this.svc.getStockMovements(q); }
   @Get('stock-opnames') getOpnames(@Query() q: any) { return this.svc.getStockOpnames(q); }
   @Post('stock-opnames') createOpname(@Body() dto: any) { return this.svc.createStockOpname(dto); }

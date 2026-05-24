@@ -14,7 +14,10 @@ export class KledoService {
   private readonly baseUrl: string;
   private readonly token: string;
 
-  constructor(@Inject(HttpService) private readonly http: HttpService, @Inject(PrismaService) private readonly prisma: PrismaService) {
+  constructor(
+    @Inject(HttpService) private readonly http: HttpService,
+    @Inject(PrismaService) private readonly prisma: PrismaService,
+  ) {
     this.baseUrl = process.env.KLEDO_BASE_URL || 'https://app.kledo.com/api/v1';
     this.token = process.env.KLEDO_TOKEN || '';
   }
@@ -66,16 +69,59 @@ export class KledoService {
     return Math.ceil(price * (1 + margin));
   }
 
+  async syncProducts() {
+    const log = await this.prisma.kledoSyncLog.create({
+      data: { type: 'products', status: 'running', message: 'Sync produk dimulai' },
+    });
+    try {
+      const products = await this.getProducts({ per_page: 100 });
+      const list: any[] = products?.data ?? [];
+      for (const p of list) {
+        const sku = p.code ?? p.id?.toString() ?? '';
+        if (!sku) continue;
+        await this.prisma.product.upsert({
+          where: { sku },
+          update: { kledoProductId: p.id?.toString(), hargaKledo: p.price ?? 0 },
+          create: {
+            sku,
+            name: p.name ?? sku,
+            kledoProductId: p.id?.toString(),
+            hargaKledo: p.price ?? 0,
+          },
+        });
+      }
+      await this.prisma.kledoSyncLog.update({
+        where: { id: log.id },
+        data: { status: 'success', message: `${list.length} produk disync` },
+      });
+      return { success: true, synced: list.length };
+    } catch (err: any) {
+      await this.prisma.kledoSyncLog.update({
+        where: { id: log.id },
+        data: { status: 'error', message: err.message },
+      });
+      throw err;
+    }
+  }
+
   async syncNow() {
     const log = await this.prisma.kledoSyncLog.create({ data: { type: 'manual', status: 'running', message: 'Sync dimulai' } });
     try {
       const products = await this.getProducts({ per_page: 100 });
-      await this.prisma.kledoSyncLog.update({ where: { id: log.id }, data: { status: 'success', message: `Sync selesai: ${products?.data?.length ?? 0} produk`, response: products } });
+      await this.prisma.kledoSyncLog.update({
+        where: { id: log.id },
+        data: { status: 'success', message: `Sync selesai: ${products?.data?.length ?? 0} produk`, response: products },
+      });
       return { success: true, synced: products?.data?.length ?? 0 };
     } catch (e: any) {
       await this.prisma.kledoSyncLog.update({ where: { id: log.id }, data: { status: 'error', message: e.message } });
       throw e;
     }
+  }
+
+  async autoSync() {
+    await Promise.allSettled([this.syncProducts()]);
+    return { message: 'Auto sync selesai' };
   }
 
   async getSyncLogs(query: any) {

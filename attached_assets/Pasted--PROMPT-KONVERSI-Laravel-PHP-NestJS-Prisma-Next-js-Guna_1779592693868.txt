@@ -1,0 +1,710 @@
+# 🔄 PROMPT KONVERSI — Laravel PHP → NestJS + Prisma + Next.js
+
+> Gunakan prompt ini untuk mengkonversi seluruh backend Laravel menjadi arsitektur modern yang sudah ada di folder `apps/` (NestJS backend + Next.js frontend).
+
+---
+
+## 🎯 TUJUAN
+
+Konversi semua logic dari **Laravel 12 (PHP)** ke **NestJS 11 (TypeScript)** mengikuti pola arsitektur yang sudah ada di `apps/backend/`, dengan database layer menggunakan **Prisma ORM**, dan frontend menggunakan **Next.js 14 + TailwindCSS**.
+
+---
+
+## 🏗️ PERBANDINGAN ARSITEKTUR
+
+| Komponen | Laravel (LAMA) | NestJS/Prisma (BARU) |
+|---|---|---|
+| Framework | Laravel 12 (PHP) | NestJS 11 (TypeScript) |
+| ORM | Eloquent + Migration | Prisma ORM + `schema.prisma` |
+| Auth | Sanctum (token) | JWT + Passport (`JwtAuthGuard`) |
+| Database | PostgreSQL/MySQL | PostgreSQL via Prisma |
+| Frontend | Blade + Vite | Next.js 14 + TailwindCSS |
+| State Mgmt | Session | Zustand (frontend) |
+| Port | 8000 | 4000 (backend), 3000 (frontend) |
+| Package Mgmt | Composer + npm | pnpm workspaces |
+
+---
+
+## 📁 STRUKTUR TARGET (`apps/backend/src/`)
+
+```
+apps/backend/src/
+├── main.ts                         # Bootstrap NestJS app
+├── app.module.ts                   # Root module (import semua modul)
+├── database/
+│   └── prisma.service.ts           # PrismaService extends PrismaClient
+├── core/
+│   └── auth/
+│       └── jwt.strategy.ts         # Passport JWT Strategy
+├── common/
+│   ├── guards/
+│   │   └── jwt-auth.guard.ts       # @UseGuards(JwtAuthGuard)
+│   ├── decorators/
+│   │   └── current-user.decorator.ts  # @CurrentUser()
+│   └── interceptors/
+└── modules/
+    ├── auth/                        # Login, refresh token, JWT
+    ├── user/                        # CRUD user
+    ├── role/                        # Role & permission
+    ├── dashboard/                   # Stats dashboard
+    ├── sales/                       # Orders & faktur penjualan
+    ├── purchasing/                  # PO, supplier, goods receipt
+    ├── inventory/                   # Produk, stok, warehouse
+    ├── customers/                   # Data pelanggan
+    ├── hr/                          # Karyawan, absensi, payroll
+    ├── finance/                     # COA, jurnal, kas
+    ├── kledo/                       # Integrasi Kledo API
+    ├── notification/                # WhatsApp Fonnte
+    ├── settings/                    # App settings
+    ├── driver-areas/                # Area driver
+    ├── pos/                         # Point of Sale
+    └── health/                      # Health check endpoint
+```
+
+---
+
+## 🗄️ PRISMA SCHEMA (SUDAH ADA — JANGAN UBAH)
+
+File: `apps/backend/prisma/schema.prisma` — 583 baris, sudah lengkap.
+
+Model utama yang ada:
+- **Auth**: `User`, `Role`, `Permission`, `RolePermission`, `AuditLog`
+- **Master**: `AppSetting`, `DriverArea`, `Warehouse`, `ProductCategory`, `ProductUnit`
+- **Produk**: `Product`, `StockMovement`
+- **Penjualan**: `Order`, `OrderItem`, `SaleItem`, `Customer`, `StockOpname`, `StockOpnameItem`
+- **Pembelian**: `Supplier`, `PurchaseOrder`, `PurchaseOrderItem`, `GoodsReceipt`, `GoodsReceiptItem`
+- **Keuangan**: `ChartOfAccount`, `JournalEntry`, `JournalEntryLine`, `CashTransaction`, `BankAccount`, `BankTransaction`, `Invoice`, `InvoiceItem`
+- **SDM**: `Employee`, `Payroll`, `Attendance`
+- **Integrasi**: `KledoSyncLog`, `ShopeeOrder`, `Notification`
+- **POS**: `PosUser`, `PosCashierSession`, `PosCategory`, `PosProduct`, `PosSale`, `PosSaleItem`
+
+---
+
+## 🔁 POLA KONVERSI — SETIAP MODUL
+
+### Setiap modul Laravel → 3 file NestJS:
+
+```
+Laravel                              NestJS (apps/backend/src/modules/{nama}/)
+──────────────────────────────────   ────────────────────────────────────────
+app/Http/Controllers/XController.php → {nama}.controller.ts
+(logic di controller)               → {nama}.service.ts
+app/Models/X.php (Eloquent)         → Prisma model di schema.prisma
+routes/api.php (Route::get...)      → @Get(), @Post() decorator di controller
+```
+
+### Contoh pola module NestJS yang HARUS diikuti:
+
+```typescript
+// {nama}.module.ts
+import { Module } from '@nestjs/common';
+import { XController } from './x.controller.js';
+import { XService } from './x.service.js';
+import { PrismaService } from '../../database/prisma.service.js';
+
+@Module({
+  controllers: [XController],
+  providers: [XService, PrismaService],
+  exports: [XService],
+})
+export class XModule {}
+
+// {nama}.controller.ts
+import { Controller, Get, Post, Put, Delete, Param, Body, Query, Inject, UseGuards } from '@nestjs/common';
+import { XService } from './x.service.js';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard.js';
+
+@Controller('x')
+@UseGuards(JwtAuthGuard)
+export class XController {
+  constructor(@Inject(XService) private readonly svc: XService) {}
+
+  @Get() getAll(@Query() q: any) { return this.svc.getAll(q); }
+  @Get(':id') getOne(@Param('id') id: string) { return this.svc.getOne(id); }
+  @Post() create(@Body() dto: any) { return this.svc.create(dto); }
+  @Put(':id') update(@Param('id') id: string, @Body() dto: any) { return this.svc.update(id, dto); }
+  @Delete(':id') remove(@Param('id') id: string) { return this.svc.remove(id); }
+}
+
+// {nama}.service.ts
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '../../database/prisma.service.js';
+
+@Injectable()
+export class XService {
+  constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
+
+  async getAll(query: any) {
+    const { search, page = 1, limit = 20 } = query;
+    const skip = (Number(page) - 1) * Number(limit);
+    const where: any = {};
+    if (search) where.name = { contains: search, mode: 'insensitive' };
+    const [data, total] = await Promise.all([
+      this.prisma.x.findMany({ where, skip, take: Number(limit), orderBy: { createdAt: 'desc' } }),
+      this.prisma.x.count({ where }),
+    ]);
+    return { data, total, page: Number(page), totalPages: Math.ceil(total / Number(limit)) };
+  }
+
+  async getOne(id: string) {
+    const item = await this.prisma.x.findUnique({ where: { id } });
+    if (!item) throw new NotFoundException('Data tidak ditemukan');
+    return item;
+  }
+
+  async create(dto: any) { return this.prisma.x.create({ data: dto }); }
+  async update(id: string, dto: any) { return this.prisma.x.update({ where: { id }, data: dto }); }
+  async remove(id: string) { return this.prisma.x.delete({ where: { id } }); }
+}
+```
+
+---
+
+## 📋 DAFTAR KONVERSI LENGKAP
+
+### 1. Module `purchasing` (SUDAH ADA — lengkapi)
+
+**Laravel** → `app/Http/Controllers/API/PurchaseOrderController.php`  
+**NestJS** → `apps/backend/src/modules/purchasing/`
+
+Tambahkan logic ini yang belum ada di `purchasing.service.ts`:
+
+```typescript
+// Nomor PO otomatis — sama persis dengan Laravel
+async generatePONumber(): Promise<string> {
+  const year = new Date().getFullYear();
+  const month = String(new Date().getMonth() + 1).padStart(2, '0');
+  const latest = await this.prisma.purchaseOrder.findFirst({
+    where: {
+      createdAt: {
+        gte: new Date(`${year}-${month}-01`),
+        lt: new Date(month === '12' ? `${year+1}-01-01` : `${year}-${String(Number(month)+1).padStart(2,'0')}-01`),
+      },
+    },
+    orderBy: { createdAt: 'desc' },
+  });
+  const seq = latest ? Number(latest.noPo.split('/')[3]) + 1 : 1;
+  return `PO/${year}/${month}/${String(seq).padStart(4, '0')}`;
+}
+
+// Kalkulasi otomatis (subtotal, diskon, PPN 11%, total)
+async createPurchaseOrder(dto: any) {
+  const { items, discountPercentage = 0, ...poData } = dto;
+  const subtotal = items.reduce((sum: number, item: any) => sum + (item.qty * item.hargaBeli), 0);
+  const discount = subtotal * (discountPercentage / 100);
+  const tax = (subtotal - discount) * 0.11;  // PPN 11%
+  const totalHarga = subtotal - discount + tax;
+  const noPo = await this.generatePONumber();
+  return this.prisma.purchaseOrder.create({
+    data: {
+      ...poData, noPo, totalHarga,
+      items: { create: items },
+    },
+    include: { supplier: true, items: { include: { product: true } } },
+  });
+}
+
+// Approve PO
+async approvePurchaseOrder(id: string, userId: string) {
+  return this.prisma.purchaseOrder.update({
+    where: { id },
+    data: { status: 'approved', approvedBy: userId, approvedAt: new Date() },
+  });
+}
+
+// Status flow: draft → sent → approved → partial → received / cancelled
+async changeStatus(id: string, status: string) {
+  const allowed = ['sent', 'approved', 'partial', 'received', 'cancelled'];
+  if (!allowed.includes(status)) throw new Error('Status tidak valid');
+  return this.prisma.purchaseOrder.update({ where: { id }, data: { status } });
+}
+```
+
+Tambahkan endpoint di `purchasing.controller.ts`:
+```typescript
+@Patch('purchase-orders/:id/status')
+changeStatus(@Param('id') id: string, @Body('status') status: string) {
+  return this.svc.changeStatus(id, status);
+}
+
+@Get('purchase-orders/stats')
+getStats() { return this.svc.getStats(); }
+```
+
+---
+
+### 2. Module `sales` (SUDAH ADA — lengkapi)
+
+**Laravel** → `app/Http/Controllers/OrderController.php`  
+**NestJS** → `apps/backend/src/modules/sales/`
+
+Tambahkan ke `sales.service.ts`:
+```typescript
+// WhatsApp notifikasi via Fonnte
+async sendWhatsAppNotification(order: any) {
+  if (!process.env.FONNTE_TOKEN) return;
+  await fetch('https://api.fonnte.com/send', {
+    method: 'POST',
+    headers: { Authorization: process.env.FONNTE_TOKEN },
+    body: JSON.stringify({
+      target: order.nomorTelepon,
+      message: `Halo ${order.namaCustomer}, pesanan Anda (${order.orderId}) sedang diproses.`,
+    }),
+  });
+}
+
+// Upload bukti transfer (base64)
+async uploadBuktiTransfer(id: number, base64Data: string) {
+  return this.prisma.order.update({
+    where: { id },
+    data: { buktiTransferData: base64Data },
+  });
+}
+
+// Update status pengiriman
+async updatePengiriman(id: number, dto: { statusPengiriman: string; driverName?: string }) {
+  return this.prisma.order.update({ where: { id }, data: dto });
+}
+
+// Customer share lokasi via token
+async getCustomerLocation(token: string) {
+  return this.prisma.order.findFirst({
+    where: { customerLocToken: token },
+    select: { customerLat: true, customerLng: true, namaCustomer: true },
+  });
+}
+
+async saveCustomerLocation(token: string, lat: string, lng: string) {
+  return this.prisma.order.updateMany({
+    where: { customerLocToken: token },
+    data: { customerLat: lat, customerLng: lng, customerLocSharedAt: new Date() },
+  });
+}
+```
+
+---
+
+### 3. Module `inventory` (SUDAH ADA — lengkapi)
+
+**Laravel** → `app/Http/Controllers/ProductController.php` + `StockOpnameController.php`  
+**NestJS** → `apps/backend/src/modules/inventory/`
+
+Tambahkan ke `inventory.service.ts`:
+```typescript
+// Update stok produk
+async updateStok(id: string, qty: number, type: 'in' | 'out', note?: string) {
+  const product = await this.prisma.product.findUnique({ where: { id } });
+  if (!product) throw new NotFoundException('Produk tidak ditemukan');
+  const newStok = type === 'in' ? product.stok + qty : product.stok - qty;
+  await Promise.all([
+    this.prisma.product.update({ where: { id }, data: { stok: newStok } }),
+    this.prisma.stockMovement.create({
+      data: { productId: id, type, qty, note: note ?? '' },
+    }),
+  ]);
+  return { stok: newStok };
+}
+
+// Stock Opname
+async createStockOpname(dto: any) {
+  const { items, ...data } = dto;
+  return this.prisma.stockOpname.create({
+    data: { ...data, items: { create: items } },
+    include: { items: { include: { product: true } } },
+  });
+}
+
+// Get brands dari produk
+async getBrands() {
+  const brands = await this.prisma.product.findMany({
+    where: { brand: { not: null } },
+    select: { brand: true },
+    distinct: ['brand'],
+  });
+  return brands.map((b) => b.brand);
+}
+```
+
+---
+
+### 4. Module `kledo` (SUDAH ADA — lengkapi)
+
+**Laravel** → `app/Http/Controllers/KledoController.php` + `KledoSyncController.php`  
+**NestJS** → `apps/backend/src/modules/kledo/`
+
+```typescript
+// kledo.service.ts
+import { Inject, Injectable } from '@nestjs/common';
+import { HttpService } from '@nestjs/axios';
+import { PrismaService } from '../../database/prisma.service.js';
+import { firstValueFrom } from 'rxjs';
+
+@Injectable()
+export class KledoService {
+  private readonly baseUrl = 'https://api.kledo.com/v3';
+  private get headers() {
+    return { Authorization: `Bearer ${process.env.KLEDO_TOKEN}` };
+  }
+
+  constructor(
+    @Inject(PrismaService) private readonly prisma: PrismaService,
+    @Inject(HttpService) private readonly http: HttpService,
+  ) {}
+
+  async getContacts() {
+    const { data } = await firstValueFrom(
+      this.http.get(`${this.baseUrl}/contacts`, { headers: this.headers })
+    );
+    return data;
+  }
+
+  async getProducts() {
+    const { data } = await firstValueFrom(
+      this.http.get(`${this.baseUrl}/products`, { headers: this.headers })
+    );
+    return data;
+  }
+
+  async getProductsWithStock() {
+    const { data } = await firstValueFrom(
+      this.http.get(`${this.baseUrl}/products?include=stock`, { headers: this.headers })
+    );
+    return data;
+  }
+
+  async syncProducts() {
+    const log = await this.prisma.kledoSyncLog.create({
+      data: { type: 'products', status: 'running' }
+    });
+    try {
+      const products = await this.getProducts();
+      // Update produk lokal dari Kledo
+      for (const p of products.data ?? []) {
+        await this.prisma.product.upsert({
+          where: { sku: p.code ?? p.id.toString() },
+          update: { kledoProductId: p.id.toString(), hargaKledo: p.price ?? 0 },
+          create: {
+            sku: p.code ?? p.id.toString(),
+            name: p.name,
+            kledoProductId: p.id.toString(),
+            hargaKledo: p.price ?? 0,
+          },
+        });
+      }
+      await this.prisma.kledoSyncLog.update({
+        where: { id: log.id },
+        data: { status: 'success', message: `${products.data?.length ?? 0} produk disync` }
+      });
+    } catch (err: any) {
+      await this.prisma.kledoSyncLog.update({
+        where: { id: log.id },
+        data: { status: 'error', message: err.message }
+      });
+      throw err;
+    }
+  }
+
+  async autoSync() {
+    await Promise.allSettled([
+      this.syncProducts(),
+    ]);
+    return { message: 'Auto sync selesai' };
+  }
+}
+```
+
+---
+
+### 5. Module `hr` (SUDAH ADA — lengkapi)
+
+**Laravel** → `app/Models/ErpEmployee.php` + `ErpPayroll.php` + `ErpAttendance.php`  
+**NestJS** → `apps/backend/src/modules/hr/`
+
+```typescript
+// hr.service.ts — pola yang sama
+async getEmployees(query: any) { /* findMany dengan search & pagination */ }
+async createPayroll(dto: any) {
+  const { gapok, tunjangan, potongan } = dto;
+  const netto = Number(gapok) + Number(tunjangan) - Number(potongan);
+  return this.prisma.payroll.create({ data: { ...dto, netto } });
+}
+async recordAttendance(dto: any) {
+  return this.prisma.attendance.create({ data: dto });
+}
+```
+
+---
+
+### 6. Module `finance` (SUDAH ADA — lengkapi)
+
+**Laravel** → `app/Models/ErpJournalEntry.php` + `ErpChartOfAccount.php` + `ErpCashTransaction.php`  
+**NestJS** → `apps/backend/src/modules/finance/`
+
+```typescript
+// finance.service.ts
+async createJournalEntry(dto: any) {
+  const { lines, ...entryData } = dto;
+  return this.prisma.journalEntry.create({
+    data: {
+      ...entryData,
+      lines: { create: lines },
+    },
+    include: { lines: true },
+  });
+}
+
+async getCashFlow(query: any) {
+  const { dateFrom, dateTo } = query;
+  const where: any = {};
+  if (dateFrom && dateTo) {
+    where.createdAt = { gte: new Date(dateFrom), lte: new Date(dateTo) };
+  }
+  const [masuk, keluar] = await Promise.all([
+    this.prisma.cashTransaction.aggregate({
+      where: { ...where, type: 'in' }, _sum: { amount: true },
+    }),
+    this.prisma.cashTransaction.aggregate({
+      where: { ...where, type: 'out' }, _sum: { amount: true },
+    }),
+  ]);
+  return {
+    totalMasuk: masuk._sum.amount ?? 0,
+    totalKeluar: keluar._sum.amount ?? 0,
+    saldo: Number(masuk._sum.amount ?? 0) - Number(keluar._sum.amount ?? 0),
+  };
+}
+```
+
+---
+
+### 7. Module `notification` (SUDAH ADA — lengkapi)
+
+**Laravel** → `app/Helpers/FonnteHelper.php`  
+**NestJS** → `apps/backend/src/modules/notification/`
+
+```typescript
+// notification.service.ts
+async sendWhatsApp(target: string, message: string) {
+  if (!process.env.FONNTE_TOKEN) return { skipped: true };
+  const resp = await fetch('https://api.fonnte.com/send', {
+    method: 'POST',
+    headers: { Authorization: process.env.FONNTE_TOKEN },
+    body: JSON.stringify({ target, message }),
+  });
+  const result = await resp.json();
+  await this.prisma.notification.create({
+    data: {
+      recipient: target,
+      title: 'WhatsApp',
+      message,
+      status: result.status ? 'sent' : 'failed',
+    },
+  });
+  return result;
+}
+```
+
+---
+
+## 🌐 FRONTEND NEXT.JS — HALAMAN PURCHASING
+
+**Laravel** → `resources/views/erp/purchase-order.blade.php`  
+**Next.js** → `apps/frontend/app/purchasing/page.tsx`
+
+```typescript
+// apps/frontend/app/purchasing/page.tsx
+'use client';
+import { useState, useEffect } from 'react';
+import { useAuthStore } from '../../lib/store/useAuthStore';
+import api from '../../lib/api';
+
+interface PurchaseOrder {
+  id: string;
+  noPo: string;
+  supplier: { name: string };
+  tanggal: string;
+  totalHarga: number;
+  status: string;
+}
+
+export default function PurchasingPage() {
+  const [orders, setOrders] = useState<PurchaseOrder[]>([]);
+  const [loading, setLoading] = useState(true);
+  const token = useAuthStore((s) => s.token);
+
+  useEffect(() => {
+    api.get('/purchasing/purchase-orders', {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    .then((res) => setOrders(res.data.data))
+    .finally(() => setLoading(false));
+  }, [token]);
+
+  const formatRupiah = (n: number) =>
+    new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(n);
+
+  const statusColor: Record<string, string> = {
+    draft: 'bg-gray-100 text-gray-700',
+    sent: 'bg-blue-100 text-blue-700',
+    approved: 'bg-green-100 text-green-700',
+    partial: 'bg-yellow-100 text-yellow-700',
+    received: 'bg-emerald-100 text-emerald-700',
+    cancelled: 'bg-red-100 text-red-700',
+  };
+
+  return (
+    <div className="p-6">
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold text-gray-900">Purchase Order</h1>
+        <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+          + Buat PO
+        </button>
+      </div>
+
+      {loading ? (
+        <div className="text-center py-10 text-gray-500">Memuat data...</div>
+      ) : (
+        <div className="bg-white rounded-xl shadow overflow-hidden">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                {['No. PO', 'Supplier', 'Tanggal', 'Total', 'Status', 'Aksi'].map((h) => (
+                  <th key={h} className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {orders.map((po) => (
+                <tr key={po.id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 font-mono text-sm font-medium text-blue-600">{po.noPo}</td>
+                  <td className="px-6 py-4 text-sm text-gray-900">{po.supplier.name}</td>
+                  <td className="px-6 py-4 text-sm text-gray-600">
+                    {new Date(po.tanggal).toLocaleDateString('id-ID')}
+                  </td>
+                  <td className="px-6 py-4 text-sm font-medium">{formatRupiah(Number(po.totalHarga))}</td>
+                  <td className="px-6 py-4">
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColor[po.status] ?? ''}`}>
+                      {po.status}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-sm">
+                    <button className="text-blue-600 hover:underline mr-3">Detail</button>
+                    {po.status === 'draft' && (
+                      <button className="text-green-600 hover:underline">Approve</button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+```
+
+---
+
+## ⚙️ ENVIRONMENT VARIABLES (apps/backend/.env)
+
+```dotenv
+# Database
+DATABASE_URL=postgresql://user:pass@host:5432/dbname
+
+# JWT
+JWT_SECRET=your-secret-key-here
+JWT_EXPIRES_IN=24h
+JWT_REFRESH_SECRET=your-refresh-secret
+
+# Integrasi
+KLEDO_TOKEN=           # Token Kledo ERP API
+FONNTE_TOKEN=          # Token WhatsApp Fonnte
+SHOPEE_PARTNER_ID=
+SHOPEE_PARTNER_KEY=
+
+# App
+PORT=4000
+RATE_LIMIT_WINDOW_MS=60000
+RATE_LIMIT_MAX=120
+```
+
+---
+
+## 🚀 PERINTAH MENJALANKAN
+
+```bash
+# Install dependencies
+cd apps/backend
+pnpm install
+
+# Generate Prisma client
+pnpm prisma:generate
+
+# Jalankan migrasi database
+pnpm prisma:migrate
+
+# Seed data awal
+pnpm prisma:seed
+
+# Development
+pnpm start:dev
+
+# Build production
+pnpm build
+pnpm start
+
+# Frontend (di terminal terpisah)
+cd ../frontend
+pnpm install
+pnpm dev
+```
+
+---
+
+## ✅ CHECKLIST KONVERSI
+
+### Backend NestJS
+- [ ] `GET  /api/health` → 200 OK
+- [ ] `POST /api/auth/login` → JWT token
+- [ ] `GET  /api/auth/me` → data user (butuh JWT)
+- [ ] `GET  /api/purchasing/purchase-orders` → list PO dengan pagination
+- [ ] `POST /api/purchasing/purchase-orders` → buat PO + auto nomor + kalkulasi PPN
+- [ ] `POST /api/purchasing/purchase-orders/:id/approve` → approve PO
+- [ ] `GET  /api/purchasing/suppliers` → list supplier
+- [ ] `POST /api/purchasing/goods-receipts` → buat Goods Receipt
+- [ ] `GET  /api/sales/orders` → list order penjualan
+- [ ] `GET  /api/inventory/products` → list produk
+- [ ] `POST /api/inventory/products/:id/stok` → update stok
+- [ ] `GET  /api/kledo/products` → fetch dari Kledo API
+- [ ] `POST /api/kledo/auto-sync` → sync produk & kontak
+- [ ] `GET  /api/hr/employees` → list karyawan
+- [ ] `GET  /api/finance/cash-flow` → arus kas
+
+### Frontend Next.js
+- [ ] `/login` → halaman login, simpan JWT di Zustand
+- [ ] `/` → App switcher (landing semua modul)
+- [ ] `/purchasing` → list PO, create PO, approve PO
+- [ ] `/sales` → list order, status pengiriman
+- [ ] `/inventory` → list produk, update stok
+- [ ] `/hr` → karyawan, absensi, payroll
+- [ ] `/finance` → COA, jurnal, arus kas
+
+---
+
+## 🔑 ATURAN KONVERSI PENTING
+
+1. **ID**: Laravel pakai `integer` autoincrement → NestJS/Prisma pakai `String @id @default(uuid())`
+2. **Nama field**: Laravel `snake_case` (`po_number`) → Prisma `camelCase` (`noPo`)
+3. **Soft delete**: Laravel `SoftDeletes` trait → Prisma tidak ada built-in, gunakan field `deletedAt DateTime?` + filter `where: { deletedAt: null }`
+4. **Validation**: Laravel `$request->validate([...])` → NestJS gunakan `class-validator` di DTO, atau validasi manual di service
+5. **Response format**: Laravel `return $this->success($data, 'msg')` → NestJS return object langsung, NestJS otomatis wrap jadi JSON
+6. **Auth**: Laravel `auth()->user()` → NestJS `@CurrentUser() user: any` dari JWT payload
+7. **Exception**: Laravel `abort(404)` → NestJS `throw new NotFoundException('...')`
+8. **Bahasa**: Semua pesan error & label UI tetap dalam **Bahasa Indonesia**
+
+---
+
+*Konversi ini mempertahankan 100% business logic yang sama, hanya mengubah bahasa pemrograman dan framework dari PHP/Laravel ke TypeScript/NestJS sesuai arsitektur modern di folder `apps/`.*

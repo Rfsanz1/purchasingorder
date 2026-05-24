@@ -28,13 +28,30 @@ export class NotificationService {
     const notification = await this.prisma.notification.create({
       data: { recipient, title, message, status: 'pending' },
     });
-
-    this.notificationGateway.broadcastNotification({
-      recipient,
-      title,
-      message,
-    });
-
+    this.notificationGateway.broadcastNotification({ recipient, title, message });
     return notification;
+  }
+
+  async sendWhatsApp(target: string, message: string) {
+    if (!process.env.FONNTE_TOKEN) return { skipped: true, reason: 'FONNTE_TOKEN tidak dikonfigurasi' };
+    try {
+      const resp = await fetch('https://api.fonnte.com/send', {
+        method: 'POST',
+        headers: { Authorization: process.env.FONNTE_TOKEN },
+        body: JSON.stringify({ target, message }),
+      });
+      const result: any = await resp.json();
+      await this.prisma.notification.create({
+        data: {
+          recipient: target,
+          title: 'WhatsApp',
+          message,
+          status: result.status ? 'sent' : 'failed',
+        },
+      });
+      return result;
+    } catch (e: any) {
+      return { error: e.message };
+    }
   }
 }

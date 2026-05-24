@@ -18,4 +18,5 @@ export class FinanceController {
   @Post('bank-transactions') createBankTx(@Body() dto: any) { return this.svc.createBankTransaction(dto); }
   @Get('cash-transactions') getCashTx(@Query() q: any) { return this.svc.getCashTransactions(q); }
   @Post('cash-transactions') createCashTx(@Body() dto: any) { return this.svc.createCashTransaction(dto); }
+  @Get('cash-flow') getCashFlow(@Query() q: any) { return this.svc.getCashFlow(q); }
 }

@@ -1,9 +1,28 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service.js';
 
 @Injectable()
 export class PurchasingService {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
+
+  async generatePONumber(): Promise<string> {
+    const year = new Date().getFullYear();
+    const month = String(new Date().getMonth() + 1).padStart(2, '0');
+    const nextMonth = Number(month) === 12
+      ? `${year + 1}-01-01`
+      : `${year}-${String(Number(month) + 1).padStart(2, '0')}-01`;
+    const latest = await this.prisma.purchaseOrder.findFirst({
+      where: {
+        createdAt: {
+          gte: new Date(`${year}-${month}-01`),
+          lt: new Date(nextMonth),
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+    const seq = latest ? Number(latest.noPo.split('/')[3]) + 1 : 1;
+    return `PO/${year}/${month}/${String(seq).padStart(4, '0')}`;
+  }
 
   async getPurchaseOrders(query: any) {
     const { search, status, supplierId, page = 1, limit = 20 } = query;
@@ -13,22 +32,36 @@ export class PurchasingService {
     if (status) where.status = status;
     if (supplierId) where.supplierId = supplierId;
     const [data, total] = await Promise.all([
-      this.prisma.purchaseOrder.findMany({ where, skip, take: Number(limit), include: { supplier: true, warehouse: true, items: { include: { product: true } } }, orderBy: { createdAt: 'desc' } }),
+      this.prisma.purchaseOrder.findMany({
+        where, skip, take: Number(limit),
+        include: { supplier: true, warehouse: true, items: { include: { product: true } } },
+        orderBy: { createdAt: 'desc' },
+      }),
       this.prisma.purchaseOrder.count({ where }),
     ]);
     return { data, total, page: Number(page), totalPages: Math.ceil(total / Number(limit)) };
   }
 
   async getPurchaseOrder(id: string) {
-    const po = await this.prisma.purchaseOrder.findUnique({ where: { id }, include: { supplier: true, warehouse: true, items: { include: { product: true } }, goodsReceipts: true } });
+    const po = await this.prisma.purchaseOrder.findUnique({
+      where: { id },
+      include: { supplier: true, warehouse: true, items: { include: { product: true } }, goodsReceipts: true },
+    });
     if (!po) throw new NotFoundException('PO tidak ditemukan');
     return po;
   }
 
   async createPurchaseOrder(dto: any) {
-    const { items, ...poData } = dto;
-    const noPo = `PO/${new Date().getFullYear()}/${String(Date.now()).slice(-5)}`;
-    return this.prisma.purchaseOrder.create({ data: { ...poData, noPo, items: { create: items ?? [] } } });
+    const { items = [], discountPercentage = 0, ...poData } = dto;
+    const subtotal = items.reduce((sum: number, item: any) => sum + (Number(item.qty) * Number(item.hargaBeli)), 0);
+    const discount = subtotal * (Number(discountPercentage) / 100);
+    const tax = (subtotal - discount) * 0.11;
+    const totalHarga = subtotal - discount + tax;
+    const noPo = await this.generatePONumber();
+    return this.prisma.purchaseOrder.create({
+      data: { ...poData, noPo, totalHarga, items: { create: items } },
+      include: { supplier: true, items: { include: { product: true } } },
+    });
   }
 
   async updatePurchaseOrder(id: string, dto: any) {
@@ -36,11 +69,20 @@ export class PurchasingService {
   }
 
   async approvePurchaseOrder(id: string, userId: string) {
-    return this.prisma.purchaseOrder.update({ where: { id }, data: { status: 'approved', approvedBy: userId, approvedAt: new Date() } });
+    return this.prisma.purchaseOrder.update({
+      where: { id },
+      data: { status: 'approved', approvedBy: userId, approvedAt: new Date() },
+    });
   }
 
   async cancelPurchaseOrder(id: string) {
     return this.prisma.purchaseOrder.update({ where: { id }, data: { status: 'cancelled' } });
+  }
+
+  async changeStatus(id: string, status: string) {
+    const allowed = ['sent', 'approved', 'partial', 'received', 'cancelled'];
+    if (!allowed.includes(status)) throw new BadRequestException('Status tidak valid');
+    return this.prisma.purchaseOrder.update({ where: { id }, data: { status } });
   }
 
   async getGoodsReceipts(query: any) {
@@ -50,7 +92,11 @@ export class PurchasingService {
     if (poId) where.purchaseOrderId = poId;
     if (status) where.status = status;
     const [data, total] = await Promise.all([
-      this.prisma.goodsReceipt.findMany({ where, skip, take: Number(limit), include: { purchaseOrder: { include: { supplier: true } }, items: { include: { product: true } } }, orderBy: { createdAt: 'desc' } }),
+      this.prisma.goodsReceipt.findMany({
+        where, skip, take: Number(limit),
+        include: { purchaseOrder: { include: { supplier: true } }, items: { include: { product: true } } },
+        orderBy: { createdAt: 'desc' },
+      }),
       this.prisma.goodsReceipt.count({ where }),
     ]);
     return { data, total, page: Number(page), totalPages: Math.ceil(total / Number(limit)) };

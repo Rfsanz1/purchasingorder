@@ -7,10 +7,11 @@ export class KledoController {
   constructor(@Inject(KledoService) private readonly svc: KledoService) {}
 
   @Get('status') getStatus() { return this.svc.getStatus(); }
+  @Get('spm-brands') getSpmBrands() { return this.svc.getSpmBrands(); }
   @Get('products') @UseGuards(JwtAuthGuard) getProducts(@Query() q: any) { return this.svc.getProducts(q); }
   @Get('contacts') @UseGuards(JwtAuthGuard) getContacts(@Query() q: any) { return this.svc.getContacts(q); }
   @Get('invoices') @UseGuards(JwtAuthGuard) getInvoices(@Query() q: any) { return this.svc.getInvoices(q); }
-  @Get('spm-brands') getSpmBrands() { return this.svc.getSpmBrands(); }
   @Post('sync') @UseGuards(JwtAuthGuard) syncNow() { return this.svc.syncNow(); }
+  @Post('auto-sync') @UseGuards(JwtAuthGuard) autoSync() { return this.svc.autoSync(); }
   @Get('sync-logs') @UseGuards(JwtAuthGuard) getSyncLogs(@Query() q: any) { return this.svc.getSyncLogs(q); }
 }

@@ -20,7 +20,13 @@ export class HrService {
   }
 
   async getEmployee(id: string) {
-    const e = await this.prisma.employee.findUnique({ where: { id }, include: { payrolls: { take: 12, orderBy: { createdAt: 'desc' } }, attendances: { take: 30, orderBy: { tanggal: 'desc' } } } });
+    const e = await this.prisma.employee.findUnique({
+      where: { id },
+      include: {
+        payrolls: { take: 12, orderBy: { createdAt: 'desc' } },
+        attendances: { take: 30, orderBy: { tanggal: 'desc' } },
+      },
+    });
     if (!e) throw new NotFoundException('Karyawan tidak ditemukan');
     return e;
   }
@@ -43,7 +49,12 @@ export class HrService {
     return { data, total, page: Number(page), totalPages: Math.ceil(total / Number(limit)) };
   }
 
-  async createPayroll(dto: any) { return this.prisma.payroll.create({ data: dto }); }
+  async createPayroll(dto: any) {
+    const { gapok, tunjangan = 0, potongan = 0, ...rest } = dto;
+    const netto = Number(gapok) + Number(tunjangan) - Number(potongan);
+    return this.prisma.payroll.create({ data: { ...rest, gapok: Number(gapok), tunjangan: Number(tunjangan), potongan: Number(potongan), netto } });
+  }
+
   async updatePayroll(id: string, dto: any) { return this.prisma.payroll.update({ where: { id }, data: dto }); }
 
   async getAttendances(query: any) {
