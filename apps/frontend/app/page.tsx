@@ -96,12 +96,12 @@ export default function AppSwitcher() {
             <Bell className="h-5 w-5" />
           </button>
           <a
-            href="/install"
+            href="/apps"
             className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium"
             style={{ backgroundColor: 'rgba(113,75,103,.07)', color: '#714B67', border: '1px solid rgba(113,75,103,.15)' }}
           >
             <Grid className="h-3.5 w-3.5" />
-            Kelola Aplikasi
+            App Store
           </a>
 
           {/* User dropdown */}
