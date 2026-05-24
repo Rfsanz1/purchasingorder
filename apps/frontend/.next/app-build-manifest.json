@@ -1,9 +1,9 @@
 {
   "pages": {
-    "/login/page": [
+    "/install/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/login/page.js"
+      "static/chunks/app/install/page.js"
     ],
     "/layout": [
       "static/chunks/webpack.js",

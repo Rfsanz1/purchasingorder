@@ -165,6 +165,14 @@ export default function HomePage() {
           <button className="p-2 rounded-lg" style={{ color: '#6D6777' }}>
             <Bell className="h-4.5 w-4.5" />
           </button>
+          <a
+            href="/install"
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
+            style={{ backgroundColor: 'rgba(113,75,103,.08)', color: '#714B67', border: '1px solid rgba(113,75,103,.2)' }}
+          >
+            <Zap className="h-3.5 w-3.5" />
+            Aplikasi
+          </a>
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg" style={{ border: '1px solid #E9E0F8' }}>
             <div
               className="flex h-6 w-6 items-center justify-center rounded-full text-white text-xs font-semibold"
