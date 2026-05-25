@@ -8,6 +8,7 @@ import {
   DollarSign, BarChart2, FileText, BookOpen, Landmark, Receipt,
   TrendingUp, TrendingDown, Settings, Plus, ArrowUpRight,
 } from 'lucide-react';
+import FeatureHub from '../../components/FeatureHub';
 
 const NAV: NavItem[] = [
   { label: 'Dashboard',       href: '/accounting',                        icon: BarChart2 },
@@ -70,6 +71,8 @@ export default function AccountingDashboard() {
             <Plus className="h-4 w-4" /> Jurnal Baru
           </button>
         </div>
+
+        <FeatureHub moduleId="accounting" color="#059669" bgColor="#D1FAE5" gradient="linear-gradient(135deg, #059669, #047857)" />
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {STATS.map((s) => (

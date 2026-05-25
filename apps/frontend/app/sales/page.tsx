@@ -8,6 +8,7 @@ import {
   ShoppingCart, FileText, Users, BarChart2, TrendingUp, Settings,
   Plus, Search, RefreshCw, ArrowUpRight, Clock, CheckCircle, XCircle, Package
 } from 'lucide-react';
+import FeatureHub from '../../components/FeatureHub';
 
 const NAV: NavItem[] = [
   { label: 'Dashboard',    href: '/sales',               icon: BarChart2 },
@@ -83,6 +84,8 @@ export default function SalesDashboard() {
             </button>
           </div>
         </div>
+
+        <FeatureHub moduleId="sales" color="#7C3AED" bgColor="#EDE9FE" gradient="linear-gradient(135deg, #7C3AED, #6D28D9)" />
 
         {/* KPI Cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

@@ -9,6 +9,7 @@ import {
   Truck, BarChart2, FileText, Building2, PackageCheck,
   Clock, CheckCircle, XCircle, Settings, Plus, Search, TrendingDown,
 } from 'lucide-react';
+import FeatureHub from '../../components/FeatureHub';
 
 const NAV: NavItem[] = [
   { label: 'Dashboard',       href: '/purchasing',                         icon: BarChart2 },
@@ -102,6 +103,8 @@ export default function PurchasingDashboard() {
             <Plus className="h-4 w-4" /> PO Baru
           </button>
         </div>
+
+        <FeatureHub moduleId="purchase" color="#0D9488" bgColor="#CCFBF1" gradient="linear-gradient(135deg, #0D9488, #0F766E)" />
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {STAT_CARDS.map((s) => (

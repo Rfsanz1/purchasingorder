@@ -9,6 +9,7 @@ import {
   Users, Camera, Settings, Eye, TrendingUp, CheckCircle,
   ExternalLink, Zap, Monitor, Smartphone, Clock,
 } from 'lucide-react';
+import FeatureHub from '../../components/FeatureHub';
 
 const NAV: NavItem[] = [
   { label: 'Dashboard',      href: '/website',               icon: BarChart2 },
@@ -80,6 +81,7 @@ export default function WebsiteDashboard() {
       activeHref="/website"
     >
       <div className="p-6 space-y-6">
+        <FeatureHub moduleId="website" color="#0891B2" bgColor="#CFFAFE" gradient="linear-gradient(135deg, #0891B2, #0E7490)" />
         {/* Website live banner */}
         <div className="rounded-2xl p-5 flex items-center gap-4" style={{ background: 'linear-gradient(135deg, #0097A7, #00838F)' }}>
           <div className="flex h-12 w-12 items-center justify-center rounded-xl flex-shrink-0" style={{ backgroundColor: 'rgba(255,255,255,.15)' }}>

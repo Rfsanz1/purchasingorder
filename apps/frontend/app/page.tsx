@@ -11,10 +11,6 @@ import {
   Building2, Globe, Command, X, TrendingUp, Clock, Menu,
 } from 'lucide-react';
 
-const CATEGORY_ICONS: Record<string, string> = {
-  'Website': '🌐', 'Sales': '💰', 'Keuangan': '💳', 'Layanan': '🛠',
-  'Produktivitas': '📚', 'Supply Chain': '📦', 'Marketing': '📢', 'SDM': '👥', 'Sistem': '⚙️',
-};
 
 const RECENT_ROUTES = [
   { name: 'Dashboard Penjualan', href: '/sales',       time: '2 mnt lalu' },
@@ -53,14 +49,6 @@ export default function Dashboard() {
     [installed, mounted],
   );
 
-  const groupedModules = useMemo(() => {
-    const groups: Record<string, typeof installedModules> = {};
-    installedModules.forEach(m => {
-      if (!groups[m.category]) groups[m.category] = [];
-      groups[m.category].push(m);
-    });
-    return groups;
-  }, [installedModules]);
 
   const searchResults = useMemo(() => {
     if (!searchQuery) return installedModules.slice(0, 6);
@@ -245,8 +233,8 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Installed modules by category */}
-        {installedModules.length <= 2 ? (
+        {/* Installed modules */}
+        {installedModules.length === 0 ? (
           <div className="bg-white rounded-2xl border p-12 text-center" style={{ borderColor: '#EDE8F5' }}>
             <div className="flex h-16 w-16 mx-auto items-center justify-center rounded-2xl mb-4" style={{ background: 'linear-gradient(135deg, #7C3AED, #5B21B6)' }}>
               <LayoutGrid className="h-8 w-8 text-white" />
@@ -258,34 +246,39 @@ export default function Dashboard() {
             </Link>
           </div>
         ) : (
-          <>
-            {Object.entries(groupedModules).map(([category, mods]) => (
-              <div key={category}>
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="text-lg">{CATEGORY_ICONS[category] ?? '📦'}</span>
-                  <h2 className="text-sm font-bold" style={{ color: '#2F2B3D' }}>{category}</h2>
-                  <span className="text-[11px] px-2 py-0.5 rounded-full font-semibold" style={{ backgroundColor: '#F5F4F9', color: '#A5A3AE' }}>{mods.length}</span>
-                </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-                  {mods.map(m => {
-                    const Icon = m.icon;
-                    const dest = m.href ?? '/apps';
-                    return (
-                      <Link key={m.id} href={dest} className="bg-white rounded-2xl border p-4 flex flex-col items-center text-center gap-2.5 hover:shadow-md hover:-translate-y-0.5 transition-all group" style={{ borderColor: '#EDE8F5' }}>
-                        <div className="flex h-11 w-11 items-center justify-center rounded-xl transition-transform group-hover:scale-105" style={{ backgroundColor: m.bgColor }}>
-                          <Icon className="h-6 w-6" style={{ color: m.color }} />
-                        </div>
-                        <div className="w-full">
-                          <p className="text-[11px] font-bold leading-snug" style={{ color: '#2F2B3D' }}>{m.name}</p>
-                          <p className="text-[9px] mt-0.5 line-clamp-1" style={{ color: '#A5A3AE' }}>{m.desc}</p>
-                        </div>
-                      </Link>
-                    );
-                  })}
-                </div>
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <h2 className="text-sm font-bold" style={{ color: '#2F2B3D' }}>Modul Terinstal</h2>
+                <span className="text-[11px] px-2 py-0.5 rounded-full font-semibold" style={{ backgroundColor: '#EDE9FE', color: '#7C3AED' }}>{installedModules.length}</span>
               </div>
-            ))}
-          </>
+              <Link href="/apps" className="text-xs font-semibold" style={{ color: '#7C3AED' }}>+ Tambah Modul</Link>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+              {installedModules.map(m => {
+                const dest = m.href ?? '/apps';
+                return (
+                  <Link key={m.id} href={dest} className="bg-white rounded-2xl border p-4 flex flex-col items-center text-center gap-2.5 hover:shadow-md hover:-translate-y-0.5 transition-all group" style={{ borderColor: '#EDE8F5', borderTopColor: m.color, borderTopWidth: 2 }}>
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl text-2xl transition-transform group-hover:scale-110" style={{ background: m.gradient }}>
+                      {m.emoji}
+                    </div>
+                    <div className="w-full">
+                      <p className="text-[11px] font-bold leading-snug" style={{ color: '#2F2B3D' }}>{m.name}</p>
+                      <p className="text-[9px] mt-0.5 line-clamp-2" style={{ color: '#A5A3AE' }}>{m.desc}</p>
+                    </div>
+                  </Link>
+                );
+              })}
+              {/* Add more tile */}
+              <Link href="/apps" className="bg-white rounded-2xl border border-dashed p-4 flex flex-col items-center justify-center text-center gap-2 hover:bg-purple-50 transition-all" style={{ borderColor: '#C4B5FD' }}>
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl" style={{ backgroundColor: '#EDE9FE' }}>
+                  <LayoutGrid className="h-6 w-6" style={{ color: '#7C3AED' }} />
+                </div>
+                <p className="text-[11px] font-bold" style={{ color: '#7C3AED' }}>App Store</p>
+                <p className="text-[9px]" style={{ color: '#A5A3AE' }}>{MODULES.length - installedModules.length} modul lagi</p>
+              </Link>
+            </div>
+          </div>
         )}
 
         {/* Quick links bottom */}
