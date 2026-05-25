@@ -11,5 +11,8 @@
         "dev:pos": "pnpm --filter @workspace/pos-app dev",
         "build:backend": "pnpm --filter @erp-modern/backend build",
         "build:frontend": "pnpm --filter @erp-modern/frontend build"
+    },
+    "dependencies": {
+        "eventemitter3": "^5.0.4"
     }
 }
