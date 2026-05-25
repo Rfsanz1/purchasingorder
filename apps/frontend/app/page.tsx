@@ -1,246 +1,303 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useAuthStore } from '../lib/store/useAuthStore';
 import { useModulesStore } from '../lib/store/useModulesStore';
+import { MODULES, MODULE_CATEGORIES } from '../lib/modules-registry';
 import {
-  ShoppingCart, Users, Package, FileText, DollarSign, Truck,
-  BarChart2, Settings, ShieldCheck, Monitor, UserCheck, LogOut,
-  Bell, Grid, ChevronDown, Lock, Store, Globe, Car, Factory,
-  Award, Wrench, MessageSquare, Layers, HeartHandshake,
-  Building2, Clock, BookOpen,
+  LogOut, Bell, Settings, Search, LayoutGrid, ChevronDown,
+  Building2, Globe, Command, X, TrendingUp, Clock, Menu,
 } from 'lucide-react';
 
-interface App {
-  id: string;
-  name: string;
-  desc: string;
-  href: string;
-  icon: React.ElementType;
-  color: string;
-  gradient: string;
-  category: string;
-}
+const CATEGORY_ICONS: Record<string, string> = {
+  'Website': '🌐', 'Sales': '💰', 'Keuangan': '💳', 'Layanan': '🛠',
+  'Produktivitas': '📚', 'Supply Chain': '📦', 'Marketing': '📢', 'SDM': '👥', 'Sistem': '⚙️',
+};
 
-const ALL_APPS: App[] = [
-  { id: 'sales',        name: 'Penjualan',       desc: 'Order & penawaran',        href: '/sales',           icon: ShoppingCart,  color: '#00BCD4', gradient: 'from-cyan-400 to-cyan-600',       category: 'Penjualan' },
-  { id: 'crm',          name: 'CRM',              desc: 'Prospek & pelanggan',      href: '/crm',             icon: Users,         color: '#9C27B0', gradient: 'from-purple-400 to-purple-600',   category: 'Penjualan' },
-  { id: 'pos',          name: 'Kasir (POS)',      desc: 'Kasir & transaksi',        href: '/pos',             icon: Monitor,       color: '#FF5722', gradient: 'from-orange-400 to-orange-600',   category: 'Penjualan' },
-  { id: 'ecommerce',    name: 'E-Commerce',       desc: 'Toko online',              href: '/ecommerce',       icon: Globe,         color: '#00897B', gradient: 'from-teal-500 to-emerald-600',    category: 'Penjualan' },
-  { id: 'invoice',      name: 'Invoice',          desc: 'Tagihan & faktur',         href: '/invoice',         icon: FileText,      color: '#2196F3', gradient: 'from-blue-400 to-blue-600',       category: 'Keuangan' },
-  { id: 'accounting',   name: 'Akuntansi',        desc: 'Jurnal, COA & kas',        href: '/accounting',      icon: DollarSign,    color: '#4CAF50', gradient: 'from-green-500 to-emerald-600',   category: 'Keuangan' },
-  { id: 'inventory',    name: 'Inventaris',       desc: 'Stok, gudang & produk',    href: '/inventory',       icon: Package,       color: '#FF9800', gradient: 'from-amber-400 to-orange-500',    category: 'Operasional' },
-  { id: 'purchase',     name: 'Pembelian',        desc: 'PO & supplier',            href: '/purchasing',      icon: Truck,         color: '#795548', gradient: 'from-stone-400 to-stone-600',     category: 'Operasional' },
-  { id: 'fleet',        name: 'Armada',           desc: 'Kendaraan & pengiriman',   href: '/fleet',           icon: Car,           color: '#009688', gradient: 'from-teal-400 to-teal-600',       category: 'Operasional' },
-  { id: 'hr',           name: 'Karyawan',         desc: 'SDM & profil karyawan',    href: '/hr',              icon: UserCheck,     color: '#E91E63', gradient: 'from-pink-400 to-rose-500',       category: 'SDM' },
-  { id: 'payroll',      name: 'Penggajian',       desc: 'Gaji & slip gaji',         href: '/payroll',         icon: DollarSign,    color: '#673AB7', gradient: 'from-purple-500 to-purple-700',   category: 'SDM' },
-  { id: 'attendance',   name: 'Kehadiran',        desc: 'Absensi & jam kerja',      href: '/hr/attendances',  icon: Clock,         color: '#009688', gradient: 'from-teal-400 to-teal-600',       category: 'SDM' },
-  { id: 'leave',        name: 'Cuti & Izin',      desc: 'Manajemen cuti',           href: '/hr/leaves',       icon: BookOpen,      color: '#FF7043', gradient: 'from-orange-400 to-red-500',      category: 'SDM' },
-  { id: 'recruitment',  name: 'Rekrutmen',        desc: 'Lowongan & seleksi',       href: '/recruitment',     icon: HeartHandshake, color: '#AD1457', gradient: 'from-pink-600 to-rose-700',      category: 'SDM' },
-  { id: 'manufacturing', name: 'Manufaktur',      desc: 'Produksi & BOM',           href: '/manufacturing',   icon: Factory,       color: '#546E7A', gradient: 'from-slate-500 to-slate-700',     category: 'Produksi' },
-  { id: 'quality',      name: 'Kualitas',         desc: 'QC & inspeksi',            href: '/quality',         icon: Award,         color: '#1976D2', gradient: 'from-blue-600 to-blue-800',       category: 'Produksi' },
-  { id: 'maintenance',  name: 'Pemeliharaan',     desc: 'Servis mesin & aset',      href: '/maintenance',     icon: Wrench,        color: '#F57F17', gradient: 'from-amber-500 to-amber-700',     category: 'Produksi' },
-  { id: 'helpdesk',     name: 'Helpdesk',         desc: 'Tiket & support',          href: '/helpdesk',        icon: MessageSquare, color: '#E53935', gradient: 'from-red-500 to-red-700',         category: 'Layanan' },
-  { id: 'project',      name: 'Proyek',           desc: 'Tugas & milestone',        href: '/project',         icon: Layers,        color: '#5C6BC0', gradient: 'from-indigo-500 to-indigo-700',   category: 'Layanan' },
-  { id: 'kledo',        name: 'Integrasi Kledo',  desc: 'Sinkronisasi akuntansi',   href: '/kledo',           icon: Building2,     color: '#1565C0', gradient: 'from-blue-700 to-blue-900',       category: 'Integrasi' },
-  { id: 'reports',      name: 'Laporan & BI',     desc: 'Analitik & dashboard',     href: '/reports',         icon: BarChart2,     color: '#607D8B', gradient: 'from-slate-400 to-slate-600',     category: 'Sistem' },
-  { id: 'settings',     name: 'Pengaturan',       desc: 'Konfigurasi sistem',       href: '/settings',        icon: Settings,      color: '#9E9E9E', gradient: 'from-gray-400 to-gray-600',       category: 'Sistem' },
-  { id: 'access',       name: 'Akses & Peran',    desc: 'User & permission',        href: '/access',          icon: ShieldCheck,   color: '#F44336', gradient: 'from-red-400 to-red-600',         category: 'Sistem' },
+const RECENT_ROUTES = [
+  { name: 'Dashboard Penjualan', href: '/sales',       time: '2 mnt lalu' },
+  { name: 'Inventaris',          href: '/inventory',   time: '15 mnt lalu' },
+  { name: 'Marketplace',         href: '/marketplace', time: '1 jam lalu' },
 ];
 
-export default function AppSwitcher() {
+export default function Dashboard() {
   const { token, user, logout, loadProfile } = useAuthStore();
   const { installed, hydrate } = useModulesStore();
   const router = useRouter();
+
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
-
-  useEffect(() => { setMounted(true); }, []);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [branch, setBranch] = useState('Pusat - Jakarta');
 
   useEffect(() => {
-    if (!mounted) return;
     if (!token) { router.push('/login'); return; }
     hydrate();
-    loadProfile();
-  }, [mounted, token]);
+    loadProfile().catch(() => {});
+    setMounted(true);
 
-  if (!mounted || !token) return null;
+    const handler = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); setSearchOpen(true); }
+      if (e.key === 'Escape') setSearchOpen(false);
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [token]);
 
-  // Only show apps that are installed
-  const installedApps = ALL_APPS.filter(a => installed.includes(a.id));
-  const categories = ['Semua', ...Array.from(new Set(installedApps.map(a => a.category)))];
+  const installedModules = useMemo(
+    () => MODULES.filter(m => installed.includes(m.id)),
+    [installed, mounted],
+  );
+
+  const groupedModules = useMemo(() => {
+    const groups: Record<string, typeof installedModules> = {};
+    installedModules.forEach(m => {
+      if (!groups[m.category]) groups[m.category] = [];
+      groups[m.category].push(m);
+    });
+    return groups;
+  }, [installedModules]);
+
+  const searchResults = useMemo(() => {
+    if (!searchQuery) return installedModules.slice(0, 6);
+    const q = searchQuery.toLowerCase();
+    return MODULES.filter(m => m.name.toLowerCase().includes(q) || m.desc.toLowerCase().includes(q)).slice(0, 8);
+  }, [searchQuery, installedModules]);
+
+  if (!mounted) return null;
+
+  const displayName = user?.name ?? user?.email?.split('@')[0] ?? 'Admin';
+  const initials = displayName.charAt(0).toUpperCase();
+
+  const NOTIFS = [
+    { msg: '7 error sync Marketplace perlu diperhatikan', time: '5 mnt lalu', color: '#EA5455', dot: true },
+    { msg: 'Stok Samsung S24 Ultra menipis (2 pcs tersisa)', time: '32 mnt lalu', color: '#FF9800', dot: true },
+    { msg: 'Invoice INV-2026-0842 jatuh tempo hari ini', time: '1 jam lalu', color: '#2196F3', dot: false },
+    { msg: '12 tiket helpdesk belum ditangani', time: '2 jam lalu', color: '#9C27B0', dot: false },
+  ];
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#F5F4F9' }}>
-
-      {/* ── Topbar ── */}
-      <header
-        className="sticky top-0 z-30 flex items-center justify-between px-4 sm:px-8 h-14"
-        style={{ backgroundColor: '#FFFFFF', borderBottom: '1px solid #EDE8F5', boxShadow: '0 1px 0 rgba(47,43,61,.06)' }}
-      >
-        <div className="flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg text-white font-extrabold text-sm flex-shrink-0" style={{ background: 'linear-gradient(135deg, #714B67, #9C6B8E)' }}>
-            G
+      {/* Topbar */}
+      <header className="sticky top-0 z-40 bg-white border-b px-6 py-3" style={{ borderColor: '#EDE8F5' }}>
+        <div className="flex items-center gap-4">
+          {/* Logo */}
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl text-white font-black text-sm select-none" style={{ background: 'linear-gradient(135deg, #7C3AED, #5B21B6)' }}>G</div>
+            <div className="hidden sm:block">
+              <p className="text-sm font-bold leading-none" style={{ color: '#2F2B3D' }}>Gentong Mas</p>
+              <p className="text-[10px]" style={{ color: '#A5A3AE' }}>Enterprise ERP</p>
+            </div>
           </div>
-          <span className="font-bold text-sm hidden sm:block" style={{ color: '#433C50' }}>Gentong Mas ERP</span>
-        </div>
 
-        <div className="flex items-center gap-2">
-          <button className="p-2 rounded-lg" style={{ color: '#A5A3AE' }}>
-            <Bell className="h-5 w-5" />
+          {/* Branch selector */}
+          <button className="hidden md:flex items-center gap-2 pl-3 pr-3 py-1.5 rounded-xl text-xs border font-medium transition-colors hover:bg-gray-50" style={{ borderColor: '#EDE8F5', color: '#6D6777' }}>
+            <Building2 className="h-3.5 w-3.5" style={{ color: '#7C3AED' }} />
+            {branch}
+            <ChevronDown className="h-3 w-3" />
           </button>
-          <a
-            href="/apps"
-            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium"
-            style={{ backgroundColor: 'rgba(113,75,103,.07)', color: '#714B67', border: '1px solid rgba(113,75,103,.15)' }}
-          >
-            <Store className="h-3.5 w-3.5" />
-            App Store
-          </a>
 
-          {/* User dropdown */}
-          <div className="relative">
-            <button
-              onClick={() => setUserMenuOpen(v => !v)}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg"
-              style={{ border: '1px solid #EDE8F5' }}
-            >
-              <div className="flex h-6 w-6 items-center justify-center rounded-full text-white text-xs font-bold" style={{ background: 'linear-gradient(135deg, #714B67, #9C6B8E)' }}>
-                {(user?.name ?? 'A').charAt(0).toUpperCase()}
-              </div>
-              <span className="text-sm font-medium hidden sm:block" style={{ color: '#433C50' }}>{user?.name ?? 'Admin'}</span>
-              <ChevronDown className="h-3.5 w-3.5 hidden sm:block" style={{ color: '#A5A3AE' }} />
+          {/* Search */}
+          <div className="flex-1 max-w-xs relative hidden md:block">
+            <button onClick={() => setSearchOpen(true)} className="flex w-full items-center gap-2 pl-3 pr-3 py-2 rounded-xl text-xs border bg-gray-50 text-left" style={{ borderColor: '#EDE8F5', color: '#A5A3AE' }}>
+              <Search className="h-3.5 w-3.5" />
+              <span>Cari modul, fitur...</span>
+              <span className="ml-auto flex items-center gap-0.5 text-[10px] font-mono px-1.5 py-0.5 rounded" style={{ backgroundColor: '#EDE8F5', color: '#A5A3AE' }}>⌘K</span>
             </button>
-            {userMenuOpen && (
-              <>
-                <div className="fixed inset-0 z-10" onClick={() => setUserMenuOpen(false)} />
-                <div className="absolute right-0 top-full mt-1 w-48 rounded-xl py-1 z-20" style={{ backgroundColor: '#fff', border: '1px solid #EDE8F5', boxShadow: '0 8px 24px rgba(47,43,61,.14)' }}>
-                  <div className="px-4 py-2.5" style={{ borderBottom: '1px solid #EDE8F5' }}>
-                    <p className="text-xs font-semibold" style={{ color: '#433C50' }}>{user?.name ?? 'Admin'}</p>
-                    <p className="text-[11px] mt-0.5" style={{ color: '#A5A3AE' }}>{user?.email}</p>
+          </div>
+
+          <div className="ml-auto flex items-center gap-2">
+            {/* App Store button */}
+            <Link href="/apps" className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold border transition-all hover:bg-purple-50" style={{ borderColor: '#7C3AED', color: '#7C3AED' }}>
+              <LayoutGrid className="h-3.5 w-3.5" /> App Store
+            </Link>
+
+            {/* Notifications */}
+            <div className="relative">
+              <button onClick={() => { setNotifOpen(!notifOpen); setUserMenuOpen(false); }} className="relative flex h-8 w-8 items-center justify-center rounded-xl border transition-all hover:bg-gray-50" style={{ borderColor: '#EDE8F5' }}>
+                <Bell className="h-4 w-4" style={{ color: '#6D6777' }} />
+                <span className="absolute top-1 right-1 h-2 w-2 rounded-full border-2 border-white" style={{ backgroundColor: '#EA5455' }} />
+              </button>
+              {notifOpen && (
+                <div className="absolute right-0 top-10 w-80 bg-white rounded-2xl shadow-xl border z-50 overflow-hidden" style={{ borderColor: '#EDE8F5' }}>
+                  <div className="flex items-center justify-between px-4 py-3 border-b" style={{ borderColor: '#EDE8F5' }}>
+                    <p className="text-sm font-bold" style={{ color: '#2F2B3D' }}>Notifikasi</p>
+                    <button className="text-[11px] font-semibold" style={{ color: '#7C3AED' }}>Tandai semua dibaca</button>
                   </div>
-                  <a href="/apps" className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-left" style={{ color: '#714B67' }}>
-                    <Store className="h-4 w-4" /> App Store
-                  </a>
-                  <button
-                    onClick={() => { logout(); router.push('/login'); }}
-                    className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-left"
-                    style={{ color: '#EA5455' }}
-                  >
-                    <LogOut className="h-4 w-4" /> Keluar
-                  </button>
+                  <div className="divide-y" style={{ borderColor: '#EDE8F5' }}>
+                    {NOTIFS.map((n, i) => (
+                      <div key={i} className="flex items-start gap-3 px-4 py-3 hover:bg-gray-50 transition-colors">
+                        <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl mt-0.5" style={{ backgroundColor: n.color + '15' }}>
+                          <div className="h-2 w-2 rounded-full" style={{ backgroundColor: n.color }} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs" style={{ color: '#2F2B3D' }}>{n.msg}</p>
+                          <p className="text-[10px] mt-0.5" style={{ color: '#A5A3AE' }}>{n.time}</p>
+                        </div>
+                        {n.dot && <div className="h-2 w-2 rounded-full flex-shrink-0 mt-1" style={{ backgroundColor: n.color }} />}
+                      </div>
+                    ))}
+                  </div>
+                  <div className="px-4 py-3 text-center">
+                    <Link href="/notifications" className="text-xs font-semibold" style={{ color: '#7C3AED' }}>Lihat semua notifikasi</Link>
+                  </div>
                 </div>
-              </>
-            )}
+              )}
+            </div>
+
+            {/* User menu */}
+            <div className="relative">
+              <button onClick={() => { setUserMenuOpen(!userMenuOpen); setNotifOpen(false); }} className="flex items-center gap-2 pl-1 pr-3 py-1 rounded-xl border transition-all hover:bg-gray-50" style={{ borderColor: '#EDE8F5' }}>
+                <div className="flex h-7 w-7 items-center justify-center rounded-lg text-white text-xs font-bold" style={{ background: 'linear-gradient(135deg, #7C3AED, #5B21B6)' }}>{initials}</div>
+                <span className="hidden sm:block text-xs font-semibold" style={{ color: '#2F2B3D' }}>{displayName}</span>
+                <ChevronDown className="h-3.5 w-3.5" style={{ color: '#A5A3AE' }} />
+              </button>
+              {userMenuOpen && (
+                <div className="absolute right-0 top-10 w-52 bg-white rounded-2xl shadow-xl border z-50 overflow-hidden" style={{ borderColor: '#EDE8F5' }}>
+                  <div className="px-4 py-3 border-b" style={{ borderColor: '#EDE8F5' }}>
+                    <p className="text-sm font-bold" style={{ color: '#2F2B3D' }}>{displayName}</p>
+                    <p className="text-[11px]" style={{ color: '#A5A3AE' }}>{user?.email ?? 'admin@gentongmas.id'}</p>
+                  </div>
+                  <div className="py-1">
+                    <Link href="/settings" className="flex items-center gap-3 px-4 py-2.5 text-xs hover:bg-gray-50 transition-colors" style={{ color: '#6D6777' }}>
+                      <Settings className="h-4 w-4" /> Pengaturan
+                    </Link>
+                    <button onClick={() => { logout(); router.push('/login'); }} className="flex w-full items-center gap-3 px-4 py-2.5 text-xs hover:bg-red-50 transition-colors" style={{ color: '#EA5455' }}>
+                      <LogOut className="h-4 w-4" /> Keluar
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </header>
 
-      {/* ── Hero ── */}
-      <div style={{ background: 'linear-gradient(135deg, #714B67 0%, #9C6B8E 100%)' }} className="px-6 sm:px-8 py-10">
-        <div className="max-w-5xl mx-auto">
-          <h1 className="text-2xl font-bold text-white">
-            Selamat datang, {user?.name ?? 'Admin'} 👋
-          </h1>
-          <p className="mt-1 text-sm" style={{ color: 'rgba(255,255,255,.7)' }}>
-            {new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-          </p>
-          <p className="mt-3 text-sm font-medium" style={{ color: 'rgba(255,255,255,.8)' }}>
-            {installedApps.length} modul aktif · Pilih aplikasi yang ingin Anda buka
-          </p>
-        </div>
-      </div>
-
-      {/* ── App grid ── */}
-      <main className="max-w-5xl mx-auto px-6 sm:px-8 py-8">
-        {installedApps.length === 0 ? (
-          /* Empty state — no modules installed */
-          <div className="flex flex-col items-center py-24 text-center">
-            <div className="flex h-20 w-20 items-center justify-center rounded-2xl mb-6" style={{ backgroundColor: '#EDE8F5' }}>
-              <Grid className="h-10 w-10" style={{ color: '#714B67' }} />
+      {/* Command palette */}
+      {searchOpen && (
+        <div className="fixed inset-0 z-50 flex items-start justify-center pt-24 px-4" style={{ backgroundColor: 'rgba(0,0,0,.5)' }} onClick={() => setSearchOpen(false)}>
+          <div className="w-full max-w-xl bg-white rounded-2xl shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center gap-3 px-4 py-3.5 border-b" style={{ borderColor: '#EDE8F5' }}>
+              <Search className="h-4 w-4 flex-shrink-0" style={{ color: '#A5A3AE' }} />
+              <input autoFocus value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="Cari modul, fitur, atau halaman..." className="flex-1 text-sm bg-transparent focus:outline-none" style={{ color: '#2F2B3D' }} />
+              <button onClick={() => setSearchOpen(false)} className="flex-shrink-0 text-[11px] px-2 py-1 rounded font-mono" style={{ backgroundColor: '#F5F4F9', color: '#A5A3AE' }}>ESC</button>
             </div>
-            <h2 className="text-lg font-bold mb-2" style={{ color: '#433C50' }}>Belum ada modul terinstall</h2>
-            <p className="text-sm mb-6" style={{ color: '#A5A3AE' }}>Buka App Store untuk menginstall modul yang Anda butuhkan</p>
-            <a
-              href="/apps"
-              className="flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold text-white"
-              style={{ backgroundColor: '#714B67' }}
-            >
-              <Store className="h-4 w-4" /> Buka App Store
-            </a>
+            {!searchQuery && (
+              <div className="px-4 pt-3 pb-1">
+                <p className="text-[11px] font-semibold mb-2" style={{ color: '#A5A3AE' }}>Terakhir dikunjungi</p>
+                {RECENT_ROUTES.map(r => (
+                  <Link key={r.href} href={r.href} onClick={() => setSearchOpen(false)} className="flex items-center gap-3 py-2.5 rounded-xl px-2 hover:bg-gray-50 transition-colors">
+                    <Clock className="h-4 w-4 flex-shrink-0" style={{ color: '#A5A3AE' }} />
+                    <span className="text-xs font-medium" style={{ color: '#2F2B3D' }}>{r.name}</span>
+                    <span className="ml-auto text-[10px]" style={{ color: '#A5A3AE' }}>{r.time}</span>
+                  </Link>
+                ))}
+              </div>
+            )}
+            <div className="px-4 pb-4">
+              {searchQuery && <p className="text-[11px] font-semibold mb-2 mt-3" style={{ color: '#A5A3AE' }}>Hasil pencarian</p>}
+              {!searchQuery && <p className="text-[11px] font-semibold mb-2 mt-3" style={{ color: '#A5A3AE' }}>Modul terinstal</p>}
+              {searchResults.map(m => {
+                const Icon = m.icon;
+                return (
+                  <Link key={m.id} href={m.href ?? '/apps'} onClick={() => setSearchOpen(false)} className="flex items-center gap-3 py-2.5 rounded-xl px-2 hover:bg-gray-50 transition-colors">
+                    <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg" style={{ backgroundColor: m.bgColor }}>
+                      <Icon className="h-4 w-4" style={{ color: m.color }} />
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold" style={{ color: '#2F2B3D' }}>{m.name}</p>
+                      <p className="text-[10px]" style={{ color: '#A5A3AE' }}>{m.desc}</p>
+                    </div>
+                    {!installed.includes(m.id) && <span className="ml-auto text-[10px] px-2 py-0.5 rounded-full font-semibold" style={{ backgroundColor: 'rgba(124,58,237,.1)', color: '#7C3AED' }}>Install</span>}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="max-w-7xl mx-auto px-6 py-8 space-y-8" onClick={() => { setUserMenuOpen(false); setNotifOpen(false); }}>
+        {/* Welcome banner */}
+        <div className="rounded-2xl p-6 flex items-center justify-between overflow-hidden relative" style={{ background: 'linear-gradient(135deg, #7C3AED 0%, #5B21B6 60%, #3730A3 100%)' }}>
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-4 right-24 h-24 w-24 rounded-full border-2 border-white" />
+            <div className="absolute -bottom-4 right-48 h-16 w-16 rounded-full border border-white" />
+          </div>
+          <div className="relative">
+            <p className="text-sm font-medium mb-0.5" style={{ color: 'rgba(255,255,255,.75)' }}>Selamat datang kembali,</p>
+            <h1 className="text-2xl font-bold text-white">{displayName} 👋</h1>
+            <p className="text-xs mt-1.5" style={{ color: 'rgba(255,255,255,.7)' }}>Gentong Mas ERP · {installed.length} modul aktif · {new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p>
+          </div>
+          <div className="relative hidden md:flex items-center gap-3">
+            <div className="text-center bg-white/10 rounded-xl px-4 py-2.5">
+              <p className="text-lg font-bold text-white">Rp 4.2 M</p>
+              <p className="text-[11px]" style={{ color: 'rgba(255,255,255,.7)' }}>Revenue Hari Ini</p>
+            </div>
+            <div className="text-center bg-white/10 rounded-xl px-4 py-2.5">
+              <p className="text-lg font-bold text-white">547</p>
+              <p className="text-[11px]" style={{ color: 'rgba(255,255,255,.7)' }}>Order Hari Ini</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Installed modules by category */}
+        {installedModules.length <= 2 ? (
+          <div className="bg-white rounded-2xl border p-12 text-center" style={{ borderColor: '#EDE8F5' }}>
+            <div className="flex h-16 w-16 mx-auto items-center justify-center rounded-2xl mb-4" style={{ background: 'linear-gradient(135deg, #7C3AED, #5B21B6)' }}>
+              <LayoutGrid className="h-8 w-8 text-white" />
+            </div>
+            <h2 className="text-base font-bold mb-2" style={{ color: '#2F2B3D' }}>Mulai dengan menginstall modul</h2>
+            <p className="text-sm mb-6" style={{ color: '#A5A3AE' }}>Kunjungi App Store untuk install modul ERP yang Anda butuhkan</p>
+            <Link href="/apps" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white" style={{ background: 'linear-gradient(135deg, #7C3AED, #5B21B6)' }}>
+              <LayoutGrid className="h-4 w-4" /> Buka App Store
+            </Link>
           </div>
         ) : (
-          Object.entries(
-            categories.slice(1).reduce<Record<string, App[]>>((acc, cat) => {
-              const apps = installedApps.filter(a => a.category === cat);
-              if (apps.length) acc[cat] = apps;
-              return acc;
-            }, {})
-          ).map(([cat, apps]) => (
-            <section key={cat} className="mb-10">
-              <h2 className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: '#A5A3AE' }}>
-                {cat}
-              </h2>
-              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-4">
-                {apps.map(app => <AppCard key={app.id} app={app} />)}
+          <>
+            {Object.entries(groupedModules).map(([category, mods]) => (
+              <div key={category}>
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-lg">{CATEGORY_ICONS[category] ?? '📦'}</span>
+                  <h2 className="text-sm font-bold" style={{ color: '#2F2B3D' }}>{category}</h2>
+                  <span className="text-[11px] px-2 py-0.5 rounded-full font-semibold" style={{ backgroundColor: '#F5F4F9', color: '#A5A3AE' }}>{mods.length}</span>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                  {mods.map(m => {
+                    const Icon = m.icon;
+                    const dest = m.href ?? '/apps';
+                    return (
+                      <Link key={m.id} href={dest} className="bg-white rounded-2xl border p-4 flex flex-col items-center text-center gap-2.5 hover:shadow-md hover:-translate-y-0.5 transition-all group" style={{ borderColor: '#EDE8F5' }}>
+                        <div className="flex h-11 w-11 items-center justify-center rounded-xl transition-transform group-hover:scale-105" style={{ backgroundColor: m.bgColor }}>
+                          <Icon className="h-6 w-6" style={{ color: m.color }} />
+                        </div>
+                        <div className="w-full">
+                          <p className="text-[11px] font-bold leading-snug" style={{ color: '#2F2B3D' }}>{m.name}</p>
+                          <p className="text-[9px] mt-0.5 line-clamp-1" style={{ color: '#A5A3AE' }}>{m.desc}</p>
+                        </div>
+                      </Link>
+                    );
+                  })}
+                </div>
               </div>
-            </section>
-          ))
+            ))}
+          </>
         )}
 
-        {/* App Store CTA */}
-        {installedApps.length > 0 && (
-          <a
-            href="/apps"
-            className="flex items-center gap-4 rounded-2xl p-5 mt-4 transition-all hover:opacity-90"
-            style={{ background: 'linear-gradient(135deg, #714B67 0%, #9C6B8E 100%)' }}
-          >
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl flex-shrink-0" style={{ backgroundColor: 'rgba(255,255,255,.15)' }}>
-              <Store className="h-5 w-5 text-white" />
-            </div>
-            <div>
-              <p className="text-sm font-bold text-white">Tambah lebih banyak modul</p>
-              <p className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,.7)' }}>Kunjungi App Store untuk install fitur baru</p>
-            </div>
-            <Lock className="h-4 w-4 ml-auto text-white opacity-60" />
-          </a>
-        )}
-      </main>
+        {/* Quick links bottom */}
+        <div className="flex items-center justify-between pt-2">
+          <Link href="/apps" className="flex items-center gap-2 text-xs font-semibold px-4 py-2 rounded-xl border hover:bg-purple-50 transition-all" style={{ borderColor: '#7C3AED', color: '#7C3AED' }}>
+            <LayoutGrid className="h-3.5 w-3.5" /> App Store ({MODULES.length - installed.length} belum terinstal)
+          </Link>
+          <Link href="/settings" className="flex items-center gap-2 text-xs font-medium hover:underline" style={{ color: '#A5A3AE' }}>
+            <Settings className="h-3.5 w-3.5" /> Pengaturan
+          </Link>
+        </div>
+      </div>
     </div>
-  );
-}
-
-function AppCard({ app }: { app: App }) {
-  const router = useRouter();
-  return (
-    <button
-      onClick={() => router.push(app.href)}
-      className="group flex flex-col items-center gap-3 rounded-2xl bg-white p-5 text-center transition-all duration-200 focus:outline-none w-full"
-      style={{ boxShadow: '0 1px 4px rgba(47,43,61,.07)', border: '1.5px solid #EDE8F5' }}
-      onMouseEnter={e => {
-        const el = e.currentTarget;
-        el.style.transform = 'translateY(-4px)';
-        el.style.boxShadow = `0 12px 28px ${app.color}28`;
-        el.style.borderColor = app.color;
-      }}
-      onMouseLeave={e => {
-        const el = e.currentTarget;
-        el.style.transform = 'translateY(0)';
-        el.style.boxShadow = '0 1px 4px rgba(47,43,61,.07)';
-        el.style.borderColor = '#EDE8F5';
-      }}
-    >
-      <div
-        className={`flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${app.gradient}`}
-        style={{ boxShadow: `0 4px 12px ${app.color}40` }}
-      >
-        <app.icon className="h-7 w-7 text-white" />
-      </div>
-      <div>
-        <p className="text-xs font-bold leading-tight" style={{ color: '#433C50' }}>{app.name}</p>
-        <p className="text-[10px] mt-0.5 leading-relaxed" style={{ color: '#B0AAB9' }}>{app.desc}</p>
-      </div>
-    </button>
   );
 }

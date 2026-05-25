@@ -1,19 +1,17 @@
 'use client';
 
 import { create } from 'zustand';
+import { DEFAULT_INSTALLED_IDS } from '../modules-registry';
 
-const STORAGE_KEY = 'erp_installed_modules';
-
-// Modul yang aktif by default (sudah terinstall dari awal)
-const DEFAULT_INSTALLED = ['settings', 'access'];
+const STORAGE_KEY = 'erp_installed_modules_v2';
 
 function loadInstalled(): string[] {
-  if (typeof window === 'undefined') return DEFAULT_INSTALLED;
+  if (typeof window === 'undefined') return DEFAULT_INSTALLED_IDS;
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored) : DEFAULT_INSTALLED;
+    return stored ? JSON.parse(stored) : DEFAULT_INSTALLED_IDS;
   } catch {
-    return DEFAULT_INSTALLED;
+    return DEFAULT_INSTALLED_IDS;
   }
 }
 
@@ -32,11 +30,10 @@ interface ModulesState {
 }
 
 export const useModulesStore = create<ModulesState>((set, get) => ({
-  installed: DEFAULT_INSTALLED,
+  installed: DEFAULT_INSTALLED_IDS,
 
   hydrate: () => {
-    const installed = loadInstalled();
-    set({ installed });
+    set({ installed: loadInstalled() });
   },
 
   install: (id: string, deps: string[] = []) => {

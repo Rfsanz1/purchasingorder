@@ -1,15 +1,20 @@
 {
   "pages": {
-    "/page": [
+    "/invoice/list/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/page.js"
+      "static/chunks/app/invoice/list/page.js"
     ],
     "/layout": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/css/app/layout.css",
       "static/chunks/app/layout.js"
+    ],
+    "/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/page.js"
     ],
     "/apps/page": [
       "static/chunks/webpack.js",
@@ -26,10 +31,10 @@
       "static/chunks/main-app.js",
       "static/chunks/app/login/page.js"
     ],
-    "/manufacturing/page": [
+    "/marketplace/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/manufacturing/page.js"
+      "static/chunks/app/marketplace/page.js"
     ]
   }
 }
