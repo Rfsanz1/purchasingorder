@@ -8,7 +8,6 @@ import {
   Factory, BarChart2, ClipboardList, Layers, Cpu, Settings,
   CheckCircle, Clock, Play, AlertTriangle, TrendingUp, Package,
 } from 'lucide-react';
-import FeatureHub from '../../components/FeatureHub';
 
 const NAV: NavItem[] = [
   { label: 'Dashboard',        href: '/manufacturing',           icon: BarChart2 },
@@ -77,7 +76,6 @@ export default function ManufacturingDashboard() {
       activeHref="/manufacturing"
     >
       <div className="p-6 space-y-6">
-        <FeatureHub moduleId="manufacturing" color="#6D28D9" bgColor="#EDE9FE" gradient="linear-gradient(135deg, #6D28D9, #5B21B6)" />
         {/* Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {STATS.map(s => {

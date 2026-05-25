@@ -9,7 +9,6 @@ import {
   CheckCircle, Clock, AlertTriangle, XCircle, Settings,
   TrendingUp, Smartphone, Star, Plus,
 } from 'lucide-react';
-import FeatureHub from '../../components/FeatureHub';
 
 const NAV: NavItem[] = [
   { label: 'Dashboard',      href: '/service',               icon: BarChart2 },
@@ -92,7 +91,6 @@ export default function ServiceDashboard() {
       activeHref="/service"
     >
       <div className="p-6 space-y-6">
-        <FeatureHub moduleId="service" color="#DC2626" bgColor="#FEE2E2" gradient="linear-gradient(135deg, #DC2626, #B91C1C)" />
         {/* Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {STATS.map(s => {

@@ -8,7 +8,6 @@ import {
   UserCheck, BarChart2, Calendar, UserPlus, CalendarX,
   Star, Bus, DollarSign, Settings, Plus, ArrowUpRight, Clock,
 } from 'lucide-react';
-import FeatureHub from '../../components/FeatureHub';
 
 const NAV: NavItem[] = [
   { label: 'Dashboard',   href: '/hr',                    icon: BarChart2 },
@@ -71,8 +70,6 @@ export default function HrDashboard() {
             <Plus className="h-4 w-4" /> Karyawan Baru
           </button>
         </div>
-
-        <FeatureHub moduleId="hrm" color="#DB2777" bgColor="#FCE7F3" gradient="linear-gradient(135deg, #DB2777, #BE185D)" />
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {STATS.map((s) => (

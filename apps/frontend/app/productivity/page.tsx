@@ -9,7 +9,6 @@ import {
   Bell, Calendar, Workflow, Activity, Search, Plus,
   Clock, User, Tag, ChevronRight, Inbox,
 } from 'lucide-react';
-import FeatureHub from '../../components/FeatureHub';
 
 const NAV: NavItem[] = [
   { label: 'Dashboard',     href: '/productivity',           icon: BarChart2 },
@@ -73,7 +72,6 @@ export default function ProductivityDashboard() {
       activeHref="/productivity"
     >
       <div className="p-6 space-y-6">
-        <FeatureHub moduleId="productivity" color="#2563EB" bgColor="#DBEAFE" gradient="linear-gradient(135deg, #2563EB, #1D4ED8)" />
         {/* Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {[

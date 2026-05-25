@@ -8,7 +8,6 @@ import {
   Package, BarChart2, ArrowLeftRight, Warehouse, ClipboardCheck,
   AlertTriangle, Settings, Plus, ArrowUpRight, ArrowDownRight,
 } from 'lucide-react';
-import FeatureHub from '../../components/FeatureHub';
 
 const NAV: NavItem[] = [
   { label: 'Dashboard',        href: '/inventory',                       icon: BarChart2 },
@@ -67,8 +66,6 @@ export default function InventoryDashboard() {
             <Plus className="h-4 w-4" /> Produk Baru
           </button>
         </div>
-
-        <FeatureHub moduleId="inventory" color="#D97706" bgColor="#FEF3C7" gradient="linear-gradient(135deg, #D97706, #B45309)" />
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {STATS.map((s) => (

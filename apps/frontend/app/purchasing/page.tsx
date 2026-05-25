@@ -9,7 +9,6 @@ import {
   Truck, BarChart2, FileText, Building2, PackageCheck,
   Clock, CheckCircle, XCircle, Settings, Plus, Search, TrendingDown,
 } from 'lucide-react';
-import FeatureHub from '../../components/FeatureHub';
 
 const NAV: NavItem[] = [
   { label: 'Dashboard',       href: '/purchasing',                         icon: BarChart2 },
@@ -103,8 +102,6 @@ export default function PurchasingDashboard() {
             <Plus className="h-4 w-4" /> PO Baru
           </button>
         </div>
-
-        <FeatureHub moduleId="purchase" color="#0D9488" bgColor="#CCFBF1" gradient="linear-gradient(135deg, #0D9488, #0F766E)" />
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {STAT_CARDS.map((s) => (
@@ -208,6 +205,80 @@ export default function PurchasingDashboard() {
               </table>
             </div>
           )}
+        </div>
+
+        {/* Supplier + Penerimaan Barang */}
+        <div className="grid lg:grid-cols-2 gap-4">
+          {/* Top Supplier */}
+          <div className="bg-white rounded-2xl" style={{ border: '1.5px solid #EDE8F5', boxShadow: '0 1px 4px rgba(47,43,61,.06)' }}>
+            <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom: '1px solid #EDE8F5' }}>
+              <div className="flex items-center gap-2">
+                <Building2 className="h-4 w-4" style={{ color: '#5D4037' }} />
+                <h2 className="text-sm font-bold" style={{ color: '#433C50' }}>Supplier Aktif</h2>
+              </div>
+              <button className="text-xs font-medium px-3 py-1.5 rounded-lg" style={{ color: '#5D4037', border: '1px solid rgba(93,64,55,.2)', backgroundColor: 'rgba(93,64,55,.06)' }} onClick={() => router.push('/purchasing/suppliers')}>Lihat Semua</button>
+            </div>
+            <div className="p-4 space-y-2.5">
+              {[
+                { name: 'PT Semen Indonesia',    category: 'Bahan Bangunan', total: 'Rp 148 Jt', orders: 12, rating: 4.8 },
+                { name: 'CV Kimia Farma Supply', category: 'Bahan Kimia',   total: 'Rp 92 Jt',  orders: 8,  rating: 4.6 },
+                { name: 'UD Perkasa Material',   category: 'Material Kasar', total: 'Rp 74 Jt',  orders: 6,  rating: 4.5 },
+                { name: 'PT Aneka Logam',        category: 'Logam & Besi',   total: 'Rp 56 Jt',  orders: 5,  rating: 4.7 },
+              ].map((sup) => (
+                <div key={sup.name} className="flex items-center gap-3 rounded-xl p-3.5" style={{ backgroundColor: '#FDFCFF', border: '1px solid #F5F2FB' }}>
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl flex-shrink-0 text-white text-sm font-bold" style={{ backgroundColor: '#5D4037' }}>
+                    {sup.name.charAt(0)}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-bold truncate" style={{ color: '#433C50' }}>{sup.name}</p>
+                    <p className="text-[10px]" style={{ color: '#A5A3AE' }}>{sup.category} · {sup.orders} PO</p>
+                  </div>
+                  <div className="text-right flex-shrink-0">
+                    <p className="text-xs font-bold" style={{ color: '#433C50' }}>{sup.total}</p>
+                    <p className="text-[10px]" style={{ color: '#FF9800' }}>⭐ {sup.rating}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Penerimaan Barang */}
+          <div className="bg-white rounded-2xl" style={{ border: '1.5px solid #EDE8F5', boxShadow: '0 1px 4px rgba(47,43,61,.06)' }}>
+            <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom: '1px solid #EDE8F5' }}>
+              <div className="flex items-center gap-2">
+                <PackageCheck className="h-4 w-4" style={{ color: '#4CAF50' }} />
+                <h2 className="text-sm font-bold" style={{ color: '#433C50' }}>Penerimaan Barang</h2>
+              </div>
+              <button className="text-xs font-medium px-3 py-1.5 rounded-lg" style={{ color: '#4CAF50', border: '1px solid rgba(76,175,80,.2)', backgroundColor: 'rgba(76,175,80,.06)' }} onClick={() => router.push('/purchasing/goods-receipts')}>Lihat Semua</button>
+            </div>
+            <div className="p-4 space-y-2.5">
+              {[
+                { ref: 'GR-0092', po: 'PO-0124', supplier: 'PT Semen Indonesia',    date: '24 Mei 2026', items: 5, status: 'selesai' },
+                { ref: 'GR-0091', po: 'PO-0122', supplier: 'CV Kimia Farma Supply', date: '23 Mei 2026', items: 3, status: 'selesai' },
+                { ref: 'GR-0090', po: 'PO-0121', supplier: 'UD Perkasa Material',   date: '23 Mei 2026', items: 8, status: 'sebagian' },
+                { ref: 'GR-0089', po: 'PO-0119', supplier: 'PT Aneka Logam',        date: '22 Mei 2026', items: 4, status: 'pending' },
+              ].map((gr) => (
+                <div key={gr.ref} className="flex items-center gap-3 rounded-xl p-3.5" style={{ backgroundColor: '#FDFCFF', border: '1px solid #F5F2FB' }}>
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl flex-shrink-0" style={{ backgroundColor: gr.status === 'selesai' ? 'rgba(76,175,80,.12)' : gr.status === 'sebagian' ? 'rgba(255,152,0,.12)' : 'rgba(165,163,174,.12)' }}>
+                    <PackageCheck className="h-4 w-4" style={{ color: gr.status === 'selesai' ? '#4CAF50' : gr.status === 'sebagian' ? '#FF9800' : '#A5A3AE' }} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold" style={{ color: '#433C50' }}>{gr.ref}</span>
+                      <span className="text-[10px]" style={{ color: '#A5A3AE' }}>← {gr.po}</span>
+                    </div>
+                    <p className="text-[10px] truncate" style={{ color: '#A5A3AE' }}>{gr.supplier} · {gr.items} item</p>
+                  </div>
+                  <div className="text-right flex-shrink-0">
+                    <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full" style={{ backgroundColor: gr.status === 'selesai' ? 'rgba(76,175,80,.1)' : gr.status === 'sebagian' ? 'rgba(255,152,0,.1)' : 'rgba(165,163,174,.12)', color: gr.status === 'selesai' ? '#4CAF50' : gr.status === 'sebagian' ? '#FF9800' : '#A5A3AE' }}>
+                      {gr.status}
+                    </span>
+                    <p className="text-[10px] mt-0.5" style={{ color: '#B0AAB9' }}>{gr.date}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
 
       </div>
