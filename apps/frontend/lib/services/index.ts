@@ -6,3 +6,6 @@ export * from './hr';
 export * from './crm';
 export * from './purchasing';
 export * from './notifications';
+export * from './kledo';
+export * from './whatsapp';
+export * from './marketplace';

@@ -1346,6 +1346,10 @@ video {
 .bg-emerald-900\/50{
   background-color: rgb(6 78 59 / 0.5);
 }
+.bg-gray-100{
+  --tw-bg-opacity: 1;
+  background-color: rgb(243 244 246 / var(--tw-bg-opacity, 1));
+}
 .bg-gray-50{
   --tw-bg-opacity: 1;
   background-color: rgb(249 250 251 / var(--tw-bg-opacity, 1));
@@ -1442,10 +1446,6 @@ video {
 }
 .bg-yellow-600\/30{
   background-color: rgb(202 138 4 / 0.3);
-}
-.bg-gray-100{
-  --tw-bg-opacity: 1;
-  background-color: rgb(243 244 246 / var(--tw-bg-opacity, 1));
 }
 .bg-gradient-to-br{
   background-image: linear-gradient(to bottom right, var(--tw-gradient-stops));
