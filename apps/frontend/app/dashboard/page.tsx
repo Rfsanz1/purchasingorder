@@ -142,29 +142,29 @@ export default function DashboardPage() {
   const kpiCards = summary
     ? [
         {
-          label: 'Revenue Hari Ini', value: formatRp(summary.revenue_today),
-          change: `${summary.revenue_growth >= 0 ? '+' : ''}${summary.revenue_growth?.toFixed(1) ?? 0}%`,
+          label: 'Revenue Hari Ini', value: formatRp(summary.revenue_today ?? 0),
+          change: `${(summary.revenue_growth ?? 0) >= 0 ? '+' : ''}${(summary.revenue_growth ?? 0).toFixed(1)}%`,
           up: (summary.revenue_growth ?? 0) >= 0, icon: DollarSign, color: '#22C55E', bg: '#F0FDF4',
         },
         {
-          label: 'Total Order', value: String(summary.total_orders),
-          change: `${(summary.order_growth ?? 0) >= 0 ? '+' : ''}${summary.order_growth?.toFixed(1) ?? 0}%`,
+          label: 'Total Order', value: String(summary.total_orders ?? 0),
+          change: `${(summary.order_growth ?? 0) >= 0 ? '+' : ''}${(summary.order_growth ?? 0).toFixed(1)}%`,
           up: (summary.order_growth ?? 0) >= 0, icon: ShoppingCart, color: '#3B82F6', bg: '#EFF6FF',
         },
         {
-          label: 'Invoice Outstanding', value: formatRp(summary.invoice_outstanding),
+          label: 'Invoice Outstanding', value: formatRp(summary.invoice_outstanding ?? 0),
           change: 'Belum lunas', up: false, icon: FileText, color: '#F59E0B', bg: '#FFFBEB',
         },
         {
-          label: 'Pelanggan Aktif', value: String(summary.active_customers),
+          label: 'Pelanggan Aktif', value: String(summary.active_customers ?? 0),
           change: 'Total aktif', up: true, icon: Users, color: '#8B5CF6', bg: '#F5F3FF',
         },
         {
-          label: 'Stok Rendah', value: `${summary.low_stock_count} Item`,
+          label: 'Stok Rendah', value: `${summary.low_stock_count ?? 0} Item`,
           change: 'Perlu restock', up: false, icon: Package, color: '#EF4444', bg: '#FEF2F2',
         },
         {
-          label: 'PO Pending', value: String(summary.pending_po),
+          label: 'PO Pending', value: String(summary.pending_po ?? 0),
           change: 'Menunggu', up: true, icon: Truck, color: '#14B8A6', bg: '#F0FDFA',
         },
       ]
@@ -284,13 +284,13 @@ export default function DashboardPage() {
                 </div>
                 <div className="text-center p-3 rounded-xl" style={{ backgroundColor: '#F8F7FC' }}>
                   <p className="text-base font-bold" style={{ color: '#433C50' }}>
-                    {summary ? summary.total_orders.toLocaleString('id') : '3,821'}
+                    {summary ? (summary.total_orders ?? 0).toLocaleString('id') : '3,821'}
                   </p>
                   <p className="text-[10px]" style={{ color: '#A5A3AE' }}>Total Order YTD</p>
                 </div>
                 <div className="text-center p-3 rounded-xl" style={{ backgroundColor: '#F8F7FC' }}>
                   <p className="text-base font-bold" style={{ color: '#22C55E' }}>
-                    {summary ? `${summary.revenue_growth >= 0 ? '+' : ''}${summary.revenue_growth?.toFixed(1)}%` : '+18.4%'}
+                    {summary ? `${(summary.revenue_growth ?? 0) >= 0 ? '+' : ''}${(summary.revenue_growth ?? 0).toFixed(1)}%` : '+18.4%'}
                   </p>
                   <p className="text-[10px]" style={{ color: '#A5A3AE' }}>Growth vs Tahun Lalu</p>
                 </div>
