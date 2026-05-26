@@ -72,7 +72,7 @@ const navGroups: NavGroup[] = [
           { href: '/invoice/credit-notes', label: 'Kredit Nota' },
         ],
       },
-      { href: '/pos', label: 'Point of Sale', icon: Monitor },
+      { href: '/pos/orders', label: 'Point of Sale', icon: Monitor },
       { href: '/customers', label: 'Pelanggan', icon: Users },
     ],
   },
@@ -125,9 +125,9 @@ const navGroups: NavGroup[] = [
       {
         label: 'Pengiriman', icon: MapPin,
         children: [
-          { href: '/delivery', label: 'Kelola Pengiriman' },
+          { href: '/delivery/areas', label: 'Wilayah Pengiriman' },
           { href: '/driver', label: 'Dashboard Driver' },
-          { href: '/delivery/areas', label: 'Wilayah' },
+          { href: '/delivery/settings', label: 'Pengaturan Pengiriman' },
         ],
       },
       {
@@ -201,9 +201,8 @@ const navGroups: NavGroup[] = [
       {
         label: 'Payroll', icon: DollarSign,
         children: [
-          { href: '/hr/payrolls', label: 'Slip Gaji' },
-          { href: '/hr/payrolls/batch', label: 'Slip Gaji Massal' },
           { href: '/hr/payrolls/components', label: 'Komponen Gaji' },
+          { href: '/hr/payrolls/batch', label: 'Slip Gaji Massal' },
           { href: '/hr/payrolls/bpjs-calc', label: 'Kalkulator BPJS' },
           { href: '/hr/payrolls/pph21-calc', label: 'Kalkulator PPh21' },
           { href: '/hr/payrolls/bank-export', label: 'Export Bank' },

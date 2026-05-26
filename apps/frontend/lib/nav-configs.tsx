@@ -19,7 +19,6 @@ import { NavItem } from '../components/layout/AppShell';
 
 export const SALES_CONFIG = { appName: 'Penjualan', appColor: '#00ACC1', appGradient: 'from-cyan-500 to-cyan-700', appIcon: ShoppingCart };
 export const SALES_NAV: NavItem[] = [
-  { label: 'Dashboard',        href: '/sales',                 icon: BarChart2 },
   { label: 'Quotation',        href: '/sales/quotations',      icon: FileText,
     children: [
       { label: 'Semua Quotation', href: '/sales/quotations' },
@@ -55,7 +54,6 @@ export const SALES_NAV: NavItem[] = [
 
 export const CRM_CONFIG = { appName: 'CRM', appColor: '#8E24AA', appGradient: 'from-purple-500 to-purple-700', appIcon: Users };
 export const CRM_NAV: NavItem[] = [
-  { label: 'Dashboard',        href: '/crm',                   icon: BarChart2 },
   { label: 'Pipeline',         href: '/crm/pipeline',          icon: LayoutGrid, badge: 12 },
   { label: 'Leads',            href: '/crm/leads',             icon: Star },
   { label: 'Opportunity',      href: '/crm/opportunities',     icon: TrendingUp },
@@ -69,7 +67,6 @@ export const CRM_NAV: NavItem[] = [
 
 export const INVOICE_CONFIG = { appName: 'Invoice', appColor: '#1976D2', appGradient: 'from-blue-500 to-blue-700', appIcon: FileText };
 export const INVOICE_NAV: NavItem[] = [
-  { label: 'Dashboard',          href: '/invoice',                 icon: BarChart2 },
   { label: 'Invoice',            href: '/invoice/list',            icon: FileText, badge: 8,
     children: [
       { label: 'Semua',          href: '/invoice/list' },
@@ -90,7 +87,6 @@ export const INVOICE_NAV: NavItem[] = [
 
 export const ACCOUNTING_CONFIG = { appName: 'Akuntansi', appColor: '#388E3C', appGradient: 'from-green-500 to-emerald-700', appIcon: DollarSign };
 export const ACCOUNTING_NAV: NavItem[] = [
-  { label: 'Dashboard',          href: '/accounting',                  icon: BarChart2 },
   { label: 'Invoice',            href: '/invoice',                     icon: FileText, badge: 8 },
   { label: 'Jurnal',             href: '/finance/journal-entries',     icon: BookOpen,
     children: [
@@ -124,7 +120,6 @@ export const ACCOUNTING_NAV: NavItem[] = [
 
 export const INVENTORY_CONFIG = { appName: 'Inventaris', appColor: '#F57C00', appGradient: 'from-amber-500 to-orange-600', appIcon: Package };
 export const INVENTORY_NAV: NavItem[] = [
-  { label: 'Dashboard',          href: '/inventory',                   icon: BarChart2 },
   { label: 'Produk',             href: '/inventory/products',          icon: Package,
     children: [
       { label: 'Semua Produk',   href: '/inventory/products' },
@@ -153,7 +148,6 @@ export const INVENTORY_NAV: NavItem[] = [
 
 export const HR_CONFIG = { appName: 'Sumber Daya Manusia', appColor: '#C2185B', appGradient: 'from-pink-500 to-rose-600', appIcon: UserCheck };
 export const HR_NAV: NavItem[] = [
-  { label: 'Dashboard',          href: '/hr',                  icon: BarChart2 },
   { label: 'Karyawan',           href: '/hr/employees',        icon: UserCheck,
     children: [
       { label: 'Data Karyawan',   href: '/hr/employees' },
@@ -187,7 +181,6 @@ export const HR_NAV: NavItem[] = [
 
 export const PAYROLL_CONFIG = { appName: 'Penggajian', appColor: '#7B1FA2', appGradient: 'from-purple-600 to-violet-700', appIcon: DollarSign };
 export const PAYROLL_NAV: NavItem[] = [
-  { label: 'Dashboard',          href: '/hr/payrolls',             icon: BarChart2 },
   { label: 'Slip Gaji',          href: '/hr/payrolls/slips',       icon: FileText,
     children: [
       { label: 'Semua Slip',      href: '/hr/payrolls/slips' },
@@ -213,7 +206,6 @@ export const PAYROLL_NAV: NavItem[] = [
 
 export const PURCHASING_CONFIG = { appName: 'Pembelian', appColor: '#5D4037', appGradient: 'from-stone-500 to-stone-700', appIcon: Truck };
 export const PURCHASING_NAV: NavItem[] = [
-  { label: 'Dashboard',           href: '/purchasing',                          icon: BarChart2 },
   { label: 'RFQ',                 href: '/purchasing/rfq',                      icon: FileText, badge: 4,
     children: [
       { label: 'Semua RFQ',       href: '/purchasing/rfq' },
@@ -244,7 +236,6 @@ export const PURCHASING_NAV: NavItem[] = [
 
 export const POS_CONFIG = { appName: 'Kasir (POS)', appColor: '#E64A19', appGradient: 'from-orange-500 to-red-600', appIcon: Monitor };
 export const POS_NAV: NavItem[] = [
-  { label: 'Dashboard',   href: '/pos',              icon: BarChart2 },
   { label: 'Buka Kasir',  href: '/pos/cashier',      icon: Monitor },
   { label: 'Sesi Kasir',  href: '/pos/sessions',     icon: Calendar },
   { label: 'Order',       href: '/pos/orders',        icon: ShoppingCart },
@@ -256,8 +247,7 @@ export const POS_NAV: NavItem[] = [
 
 export const DELIVERY_CONFIG = { appName: 'Pengiriman', appColor: '#1565C0', appGradient: 'from-blue-700 to-indigo-700', appIcon: Truck };
 export const DELIVERY_NAV: NavItem[] = [
-  { label: 'Dashboard',    href: '/delivery',         icon: BarChart2 },
-  { label: 'Pengiriman',   href: '/delivery',         icon: Truck },
+  { label: 'Pengiriman',   href: '/delivery/areas',   icon: Truck },
   { label: 'Wilayah',      href: '/delivery/areas',   icon: MapPin },
   { label: 'Driver',       href: '/driver',           icon: UserCheck },
   { label: 'Pengaturan',   href: '/delivery/settings',icon: Settings },
@@ -265,7 +255,6 @@ export const DELIVERY_NAV: NavItem[] = [
 
 export const MANUFACTURING_CONFIG = { appName: 'Manufaktur', appColor: '#6D28D9', appGradient: 'from-violet-600 to-purple-700', appIcon: Factory };
 export const MANUFACTURING_NAV: NavItem[] = [
-  { label: 'Dashboard',        href: '/manufacturing',                    icon: BarChart2 },
   { label: 'Bill of Material', href: '/manufacturing/bom',                icon: Layers,
     children: [
       { label: 'Semua BOM',    href: '/manufacturing/bom' },
@@ -291,7 +280,6 @@ export const MANUFACTURING_NAV: NavItem[] = [
 
 export const SERVICE_CONFIG = { appName: 'Servis', appColor: '#DC2626', appGradient: 'from-red-500 to-rose-700', appIcon: Wrench };
 export const SERVICE_NAV: NavItem[] = [
-  { label: 'Dashboard',        href: '/service',                   icon: BarChart2 },
   { label: 'Work Order',       href: '/service/work-orders',       icon: ClipboardList },
   { label: 'Estimasi Biaya',   href: '/service/estimates',         icon: DollarSign },
   { label: 'Riwayat Servis',   href: '/service/history',           icon: Clock },
@@ -304,7 +292,6 @@ export const SERVICE_NAV: NavItem[] = [
 
 export const FLEET_CONFIG = { appName: 'Armada', appColor: '#0277BD', appGradient: 'from-blue-600 to-sky-700', appIcon: Car };
 export const FLEET_NAV: NavItem[] = [
-  { label: 'Dashboard',         href: '/fleet',                   icon: BarChart2 },
   { label: 'Kendaraan',         href: '/fleet/vehicles',          icon: Car },
   { label: 'Dokumen Kendaraan', href: '/fleet/documents',         icon: FileText },
   { label: 'Reminder STNK/KIR', href: '/fleet/reminders',        icon: Bell },
@@ -318,7 +305,6 @@ export const FLEET_NAV: NavItem[] = [
 
 export const RECRUITMENT_CONFIG = { appName: 'Rekrutmen', appColor: '#00897B', appGradient: 'from-teal-500 to-teal-700', appIcon: UserPlus };
 export const RECRUITMENT_NAV: NavItem[] = [
-  { label: 'Dashboard',           href: '/recruitment',                       icon: BarChart2 },
   { label: 'Lowongan',            href: '/recruitment/positions',             icon: Briefcase },
   { label: 'Pelamar',             href: '/recruitment/applications',          icon: Users },
   { label: 'Scoring Pelamar',     href: '/recruitment/scoring',               icon: Star },
@@ -332,7 +318,6 @@ export const RECRUITMENT_NAV: NavItem[] = [
 
 export const MARKETPLACE_CONFIG = { appName: 'Marketplace', appColor: '#E91E63', appGradient: 'from-pink-500 to-rose-600', appIcon: ShoppingBag };
 export const MARKETPLACE_NAV: NavItem[] = [
-  { label: 'Dashboard',           href: '/marketplace',                       icon: BarChart2 },
   { label: 'Sinkronisasi Harga',  href: '/marketplace/price-sync',            icon: RefreshCw },
   { label: 'Reservasi Stok',      href: '/marketplace/stock-reservation',     icon: Package },
   { label: 'Retur Marketplace',   href: '/marketplace/returns',               icon: RotateCcw },

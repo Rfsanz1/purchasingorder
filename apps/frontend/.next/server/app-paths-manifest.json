@@ -1,1 +1,8 @@
-{}
+{
+  "/purchasing/rfq/page": "app/purchasing/rfq/page.js",
+  "/purchasing/goods-receipts/page": "app/purchasing/goods-receipts/page.js",
+  "/inventory/page": "app/inventory/page.js",
+  "/inventory/stock-opnames/page": "app/inventory/stock-opnames/page.js",
+  "/login/page": "app/login/page.js",
+  "/page": "app/page.js"
+}
