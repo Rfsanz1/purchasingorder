@@ -8,7 +8,13 @@ import {
   UserCheck, BarChart2, Settings, Bell, ShieldCheck, Store,
   ChevronRight, Zap, Search, Menu, X, LogOut, User, Monitor,
   FileText, Warehouse, ClipboardList, CreditCard, BookOpen, Building2, MapPin,
-  Factory, Wrench, Car, UserPlus, ShoppingBag, Heart, RefreshCw, Globe,
+  Factory, Wrench, Car, UserPlus, ShoppingBag, RefreshCw, Globe,
+  Bot, TrendingUp, Brain, Sparkles, LineChart, FlaskConical, MessageSquare,
+  AlertCircle, FileBarChart, Activity, Cpu, Megaphone, Radio,
+  Receipt, BanknoteIcon, Scale, PiggyBank, BookmarkCheck, BarChart3,
+  HardHat, GraduationCap, HeartPulse, CalendarCheck, ClipboardCheck,
+  Layers, GitBranch, Hash, HardDrive, Link2, Mail, Smartphone,
+  Fuel, Navigation, Target, Percent, Tag, Clock,
 } from 'lucide-react';
 import { useAuthStore } from '../../lib/store/useAuthStore';
 import { useNotificationStore } from '../../lib/store/useNotificationStore';
@@ -23,6 +29,7 @@ interface NavItem {
   label: string;
   icon: React.ElementType;
   children?: NavChild[];
+  badge?: number;
 }
 
 interface NavGroup {
@@ -34,7 +41,7 @@ const navGroups: NavGroup[] = [
   {
     label: 'UTAMA',
     items: [
-      { href: '/', label: 'Dashboard', icon: LayoutDashboard },
+      { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
       { href: '/notifications', label: 'Notifikasi', icon: Bell },
     ],
   },
@@ -48,6 +55,7 @@ const navGroups: NavGroup[] = [
           { href: '/sales/orders', label: 'Sales Orders' },
           { href: '/sales/pricelists', label: 'Price List' },
           { href: '/sales/teams', label: 'Sales Team' },
+          { href: '/sales/targets', label: 'Sales Target' },
           { href: '/sales/commission', label: 'Komisi Sales' },
         ],
       },
@@ -87,7 +95,7 @@ const navGroups: NavGroup[] = [
           { href: '/inventory/transfers', label: 'Transfer Stok' },
           { href: '/inventory/stock-movements', label: 'Mutasi Stok' },
           { href: '/inventory/stock-opnames', label: 'Stock Opname' },
-          { href: '/inventory/warehouses', label: 'Gudang' },
+          { href: '/inventory/warehouses', label: 'Multi Gudang' },
           { href: '/inventory/reorder-rules', label: 'Reorder Rules' },
         ],
       },
@@ -123,14 +131,6 @@ const navGroups: NavGroup[] = [
         ],
       },
       {
-        label: 'Pengiriman', icon: MapPin,
-        children: [
-          { href: '/delivery/areas', label: 'Wilayah Pengiriman' },
-          { href: '/driver', label: 'Dashboard Driver' },
-          { href: '/delivery/settings', label: 'Pengaturan Pengiriman' },
-        ],
-      },
-      {
         label: 'Armada', icon: Car,
         children: [
           { href: '/fleet/vehicles', label: 'Kendaraan' },
@@ -147,6 +147,7 @@ const navGroups: NavGroup[] = [
           { href: '/marketplace/stock-reservation', label: 'Reservasi Stok' },
           { href: '/marketplace/returns', label: 'Retur' },
           { href: '/marketplace/commissions', label: 'Komisi Platform' },
+          { href: '/marketplace/sync-logs', label: 'Sync Logs' },
         ],
       },
     ],
@@ -205,7 +206,8 @@ const navGroups: NavGroup[] = [
           { href: '/hr/payrolls/batch', label: 'Slip Gaji Massal' },
           { href: '/hr/payrolls/bpjs-calc', label: 'Kalkulator BPJS' },
           { href: '/hr/payrolls/pph21-calc', label: 'Kalkulator PPh21' },
-          { href: '/hr/payrolls/bank-export', label: 'Export Bank' },
+          { href: '/hr/payrolls/history', label: 'Riwayat Gaji' },
+          { href: '/hr/payrolls/bank-export', label: 'Export Payroll' },
         ],
       },
       {
@@ -221,10 +223,10 @@ const navGroups: NavGroup[] = [
     ],
   },
   {
-    label: 'LAPORAN & AI',
+    label: 'LAPORAN',
     items: [
       {
-        label: 'Reports', icon: BarChart2,
+        label: 'Semua Laporan', icon: BarChart2,
         children: [
           { href: '/reports/sales', label: 'Lap. Penjualan' },
           { href: '/reports/finance', label: 'Lap. Keuangan' },
@@ -232,15 +234,31 @@ const navGroups: NavGroup[] = [
           { href: '/reports/hr', label: 'Lap. SDM' },
           { href: '/reports/payroll', label: 'Lap. Payroll' },
           { href: '/reports/manufacturing', label: 'Lap. Manufaktur' },
-          { href: '/reports/analytics', label: 'Analytics' },
         ],
       },
+    ],
+  },
+  {
+    label: 'AI CENTER',
+    items: [
       {
-        label: 'AI Features', icon: Zap,
+        label: 'AI Dashboard', icon: Brain, href: '/ai',
+      },
+      {
+        label: 'AI Features', icon: Sparkles,
         children: [
-          { href: '/ai/inventory', label: 'AI Inventory' },
-          { href: '/ai/analytics', label: 'AI Analytics' },
-          { href: '/ai/chatbot', label: 'Chatbot' },
+          { href: '/ai/chatbot', label: 'AI Chat Assistant' },
+          { href: '/ai/forecast', label: 'AI Forecast' },
+          { href: '/ai/recommendation', label: 'AI Rekomendasi' },
+          { href: '/ai/automation', label: 'AI Automation' },
+          { href: '/ai/report-generator', label: 'AI Report Generator' },
+          { href: '/ai/sales-prediction', label: 'AI Sales Prediction' },
+          { href: '/ai/inventory-prediction', label: 'AI Inventory Prediction' },
+          { href: '/ai/financial-analysis', label: 'AI Financial Analysis' },
+          { href: '/ai/hr-assistant', label: 'AI HR Assistant' },
+          { href: '/ai/marketplace-assistant', label: 'AI Marketplace' },
+          { href: '/ai/notifications', label: 'AI Notification' },
+          { href: '/ai/logs', label: 'AI Logs' },
         ],
       },
     ],
@@ -259,18 +277,19 @@ const navGroups: NavGroup[] = [
           { href: '/settings/wa-gateway', label: 'WA Gateway' },
           { href: '/settings/document-numbers', label: 'Format Nomor Dok' },
           { href: '/settings/backup', label: 'Backup & Restore' },
-          { href: '/settings/activity-log', label: 'Activity Log' },
+          { href: '/settings/api-integration', label: 'API Integration' },
+          { href: '/settings/audit-log', label: 'Audit Log' },
         ],
       },
       { href: '/access', label: 'Users & Roles', icon: ShieldCheck },
-      { href: '/kledo', label: 'Integrasi', icon: Building2 },
+      { href: '/kledo', label: 'Integrasi Kledo', icon: Building2 },
     ],
   },
 ];
 
 function NavItemComponent({ item }: { item: NavItem }) {
   const pathname = usePathname();
-  const isChildActive = item.children?.some((c) => pathname.startsWith(c.href)) ?? false;
+  const isChildActive = item.children?.some((c) => pathname.startsWith(c.href.split('?')[0])) ?? false;
   const [open, setOpen] = useState(isChildActive);
 
   if (item.children) {
@@ -286,6 +305,11 @@ function NavItemComponent({ item }: { item: NavItem }) {
         >
           <item.icon className="h-4 w-4 flex-shrink-0" />
           <span className="flex-1 text-left font-medium">{item.label}</span>
+          {item.badge && (
+            <span className="flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[10px] font-bold text-white mr-1" style={{ backgroundColor: '#EA5455' }}>
+              {item.badge}
+            </span>
+          )}
           <ChevronRight
             className="h-3.5 w-3.5 transition-transform duration-200 flex-shrink-0"
             style={{ transform: open ? 'rotate(90deg)' : 'rotate(0deg)' }}
@@ -294,11 +318,12 @@ function NavItemComponent({ item }: { item: NavItem }) {
 
         <div
           className="overflow-hidden transition-all duration-200"
-          style={{ maxHeight: open ? '600px' : '0px' }}
+          style={{ maxHeight: open ? '800px' : '0px' }}
         >
           <div className="ml-4 mt-0.5 pl-3 pb-1 space-y-0.5" style={{ borderLeft: '2px solid #E9E0F8' }}>
             {item.children.map((child) => {
-              const active = pathname === child.href || pathname.startsWith(child.href + '/');
+              const hrefPath = child.href.split('?')[0];
+              const active = pathname === hrefPath || (pathname.startsWith(hrefPath + '/') && hrefPath !== '/');
               return (
                 <Link
                   key={child.href}
@@ -387,7 +412,7 @@ export function OdooLayout({ children, title, subtitle }: OdooLayoutProps) {
           </div>
           <div>
             <h2 className="text-sm font-bold leading-tight" style={{ color: '#433C50' }}>Gentong Mas</h2>
-            <p className="text-xs" style={{ color: '#A5A3AE' }}>ERP System</p>
+            <p className="text-xs" style={{ color: '#A5A3AE' }}>ERP System v2.0</p>
           </div>
           <button
             className="ml-auto lg:hidden"
@@ -430,8 +455,8 @@ export function OdooLayout({ children, title, subtitle }: OdooLayoutProps) {
                 {user?.name?.charAt(0)?.toUpperCase() ?? 'U'}
               </div>
               <div className="flex-1 text-left overflow-hidden">
-                <p className="text-xs font-semibold truncate" style={{ color: '#433C50' }}>{user?.name ?? 'User'}</p>
-                <p className="text-[10px] truncate" style={{ color: '#A5A3AE' }}>{user?.role ?? 'Staff'}</p>
+                <p className="text-xs font-semibold truncate" style={{ color: '#433C50' }}>{user?.name ?? 'Admin'}</p>
+                <p className="text-[10px] truncate" style={{ color: '#A5A3AE' }}>{(user as any)?.role ?? (user?.roles?.[0] ?? 'Super Admin')}</p>
               </div>
               <ChevronRight className="h-3.5 w-3.5 flex-shrink-0" style={{ color: '#A5A3AE', transform: userDropdown ? 'rotate(90deg)' : 'rotate(0deg)' }} />
             </button>
@@ -457,9 +482,7 @@ export function OdooLayout({ children, title, subtitle }: OdooLayoutProps) {
         </div>
       </aside>
 
-      <div style={{ marginLeft: '260px' }} className="hidden lg:block" />
-
-      <main style={{ paddingLeft: '0' }} className="lg:pl-[260px] min-h-screen">
+      <main className="lg:pl-[260px] min-h-screen">
         <header
           className="sticky top-0 z-30 flex items-center gap-4 px-6 py-3"
           style={{ backgroundColor: '#FFFFFF', borderBottom: '1px solid #E9E0F8', boxShadow: '0 1px 4px rgba(47,43,61,.04)' }}
@@ -485,6 +508,9 @@ export function OdooLayout({ children, title, subtitle }: OdooLayoutProps) {
                   {unreadCount > 9 ? '9+' : unreadCount}
                 </span>
               )}
+            </Link>
+            <Link href="/ai/chatbot" className="p-2 rounded-lg transition-colors hover:bg-purple-50 relative" style={{ color: '#714B67' }} title="AI Assistant">
+              <Brain className="h-5 w-5" />
             </Link>
             <Link href="/settings" className="p-2 rounded-lg transition-colors hover:bg-gray-50" style={{ color: '#6D6777' }}>
               <Settings className="h-5 w-5" />
