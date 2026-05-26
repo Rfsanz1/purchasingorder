@@ -7,6 +7,13 @@ import { SALES_CONFIG, SALES_NAV } from '../../../lib/nav-configs';
 import { api } from '../../../lib/api';
 import { ShoppingCart, Plus, Search, RefreshCw, Zap } from 'lucide-react';
 
+const extractName = (val: any): string => {
+  if (!val) return '–';
+  if (typeof val === 'string') return val;
+  if (typeof val === 'object') return val.name ?? val.nama ?? val.email ?? '–';
+  return String(val);
+};
+
 const STATUS_MAP: Record<string, { label: string; color: string; bg: string }> = {
   pending:   { label: 'Pending',    color: '#FF9800', bg: 'rgba(255,152,0,.1)' },
   confirmed: { label: 'Dikonfirmasi', color: '#2196F3', bg: 'rgba(33,150,243,.1)' },
@@ -115,7 +122,7 @@ export default function SalesOrdersPage() {
                       onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; }}>
                       <td className="px-6 py-3.5 text-xs font-mono" style={{ color: '#A5A3AE' }}>#{o.id}</td>
                       <td className="px-6 py-3.5">
-                        <p className="text-sm font-medium" style={{ color: '#433C50' }}>{o.namaCustomer}</p>
+                        <p className="text-sm font-medium" style={{ color: '#433C50' }}>{extractName(o.namaCustomer)}</p>
                         <p className="text-xs" style={{ color: '#A5A3AE' }}>{o.noHp || '–'}</p>
                       </td>
                       <td className="px-6 py-3.5 text-sm" style={{ color: '#A5A3AE' }}>{o.salesName || '–'}</td>

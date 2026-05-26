@@ -7,6 +7,13 @@ import { SALES_CONFIG, SALES_NAV } from '../../../lib/nav-configs';
 import { api } from '../../../lib/api';
 import { FileText, Search, RefreshCw } from 'lucide-react';
 
+const extractName = (val: any): string => {
+  if (!val) return '–';
+  if (typeof val === 'string') return val;
+  if (typeof val === 'object') return val.name ?? val.nama ?? val.email ?? '–';
+  return String(val);
+};
+
 export default function FakturPage() {
   const { token } = useAuthStore();
   const router = useRouter();
@@ -68,7 +75,7 @@ export default function FakturPage() {
                     onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#FDFCFF'; }}
                     onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; }}>
                     <td className="px-6 py-3.5 text-sm font-semibold" style={{ color: '#00ACC1' }}>{f.number || f.id}</td>
-                    <td className="px-6 py-3.5 text-sm" style={{ color: '#433C50' }}>{f.customer || '–'}</td>
+                    <td className="px-6 py-3.5 text-sm" style={{ color: '#433C50' }}>{extractName(f.customer)}</td>
                     <td className="px-6 py-3.5 text-sm font-semibold" style={{ color: '#433C50' }}>{Number(f.total || 0).toLocaleString('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 })}</td>
                     <td className="px-6 py-3.5">
                       <span className="px-2.5 py-1 rounded-full text-xs font-semibold" style={{ backgroundColor: 'rgba(165,163,174,.12)', color: '#A5A3AE' }}>{f.status || '–'}</span>

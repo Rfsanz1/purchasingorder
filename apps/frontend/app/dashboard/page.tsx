@@ -20,6 +20,13 @@ const formatRp = (val: number) => {
   return `Rp ${val}`;
 };
 
+const extractName = (val: any): string => {
+  if (!val) return '–';
+  if (typeof val === 'string') return val;
+  if (typeof val === 'object') return val.name ?? val.nama ?? val.email ?? '–';
+  return String(val);
+};
+
 const QUICK_ACTIONS = [
   { label: 'Buat Quotation', href: '/sales/quotations', icon: FileText, color: '#3B82F6' },
   { label: 'Terima Pembayaran', href: '/invoice/payments', icon: DollarSign, color: '#22C55E' },
@@ -322,7 +329,7 @@ export default function DashboardPage() {
                         <div key={i} className="flex items-center px-5 py-3 hover:bg-gray-50 transition-colors">
                           <div className="flex-1 min-w-0">
                             <p className="text-xs font-bold" style={{ color: '#433C50' }}>{(o as any).order_number ?? o.id}</p>
-                            <p className="text-[11px] mt-0.5 truncate" style={{ color: '#A5A3AE' }}>{o.customer}</p>
+                            <p className="text-[11px] mt-0.5 truncate" style={{ color: '#A5A3AE' }}>{extractName((o as any).customer ?? (o as any).namaCustomer)}</p>
                           </div>
                           <div className="text-right mr-4">
                             <p className="text-xs font-semibold" style={{ color: '#433C50' }}>{amountDisplay}</p>
