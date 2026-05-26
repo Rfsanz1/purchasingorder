@@ -5,7 +5,7 @@ import { useAuthStore } from '../../../lib/store/useAuthStore';
 import AppShell from '../../../components/layout/AppShell';
 import { SALES_CONFIG, SALES_NAV } from '../../../lib/nav-configs';
 import { api } from '../../../lib/api';
-import { ShoppingCart, Plus, Search, RefreshCw } from 'lucide-react';
+import { ShoppingCart, Plus, Search, RefreshCw, Zap } from 'lucide-react';
 
 const STATUS_MAP: Record<string, { label: string; color: string; bg: string }> = {
   pending:   { label: 'Pending',    color: '#FF9800', bg: 'rgba(255,152,0,.1)' },
@@ -51,9 +51,14 @@ export default function SalesOrdersPage() {
             <h1 className="text-xl font-bold" style={{ color: '#433C50' }}>Order Penjualan</h1>
             <p className="text-sm mt-0.5" style={{ color: '#A5A3AE' }}>Kelola semua order dari pelanggan</p>
           </div>
-          <button className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold text-white" style={{ backgroundColor: SALES_CONFIG.appColor }}>
-            <Plus className="h-4 w-4" /> Buat Order
-          </button>
+          <div className="flex items-center gap-2">
+            <button onClick={() => router.push('/sales/smart-order')} className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold border transition" style={{ borderColor: SALES_CONFIG.appColor, color: SALES_CONFIG.appColor }}>
+              <Zap className="h-4 w-4" /> Smart Input
+            </button>
+            <button className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold text-white" style={{ backgroundColor: SALES_CONFIG.appColor }}>
+              <Plus className="h-4 w-4" /> Buat Order
+            </button>
+          </div>
         </div>
 
         {summary && (
