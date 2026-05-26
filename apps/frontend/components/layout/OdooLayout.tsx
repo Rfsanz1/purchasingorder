@@ -395,12 +395,11 @@ export function OdooLayout({ children, title, subtitle }: OdooLayoutProps) {
       )}
 
       <aside
-        className="fixed left-0 top-0 z-50 h-full flex flex-col overflow-hidden transition-transform duration-300 lg:translate-x-0"
+        className={`fixed left-0 top-0 z-50 h-full flex flex-col overflow-hidden transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
         style={{
           width: '260px',
           backgroundColor: '#FFFFFF',
           borderRight: '1px solid #E9E0F8',
-          transform: sidebarOpen ? 'translateX(0)' : undefined,
         }}
       >
         <div className="flex items-center gap-3 px-5 py-4" style={{ borderBottom: '1px solid #E9E0F8' }}>
