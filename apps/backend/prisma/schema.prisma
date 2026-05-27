@@ -1105,6 +1105,69 @@ model Commission {
   createdAt     DateTime @default(now())
 }
 
+// ==================== TAX ENGINE ====================
+
+enum TaxType {
+  PPN
+  PPH21
+  PPH23
+  PPH25
+  PPH4A2
+}
+
+enum TaxLineType {
+  COLLECTED
+  PAID
+}
+
+enum EFakturStatus {
+  DRAFT
+  UPLOADED
+  APPROVED
+}
+
+model Tax {
+  id        String    @id @default(uuid())
+  kode      String    @unique
+  nama      String
+  tipe      TaxType
+  rate      Decimal   @db.Decimal(5, 2)
+  isActive  Boolean   @default(true)
+  accountId String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  taxLines  TaxLine[]
+  efakturs  EFaktur[]
+}
+
+model TaxLine {
+  id            String      @id @default(uuid())
+  referenceId   String
+  referenceType String
+  taxId         String
+  tax           Tax         @relation(fields: [taxId], references: [id])
+  baseAmount    Decimal     @db.Decimal(15, 2)
+  taxAmount     Decimal     @db.Decimal(15, 2)
+  tipe          TaxLineType
+  createdAt     DateTime    @default(now())
+}
+
+model EFaktur {
+  id            String        @id @default(uuid())
+  nomorFaktur   String        @unique
+  tanggal       DateTime
+  taxId         String?
+  tax           Tax?          @relation(fields: [taxId], references: [id])
+  referenceId   String?
+  npwpPembeli   String?
+  namaPembeli   String?
+  nilaiDPP      Decimal       @db.Decimal(15, 2)
+  nilaiPPN      Decimal       @db.Decimal(15, 2)
+  status        EFakturStatus @default(DRAFT)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
 // ==================== DOUBLE-ENTRY ACCOUNTING ====================
 
 enum AccountType {

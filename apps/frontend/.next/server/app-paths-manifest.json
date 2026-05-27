@@ -1,5 +1,3 @@
 {
-  "/accounting/journal-entry/page": "app/accounting/journal-entry/page.js",
-  "/login/page": "app/login/page.js",
-  "/accounting/chart-of-accounts/page": "app/accounting/chart-of-accounts/page.js"
+  "/tax/setup/page": "app/tax/setup/page.js"
 }

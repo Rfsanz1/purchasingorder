@@ -14,6 +14,7 @@ import {
   GitBranch, AlertTriangle, RefreshCw, ShoppingBag,
   Car, Fuel, Navigation, Briefcase, GraduationCap,
   Heart, Clock, User, LayoutGrid, Tag, Megaphone,
+  Calculator,
 } from 'lucide-react';
 import { NavItem } from '../components/layout/AppShell';
 
@@ -353,6 +354,38 @@ export const MARKETPLACE_NAV: NavItem[] = [
   { label: 'Error Log',           href: '/marketplace/error-log',             icon: AlertTriangle },
   { label: 'Retry Sync',          href: '/marketplace/retry-sync',            icon: RefreshCw },
   { label: 'Pengaturan',          href: '/marketplace/settings',              icon: Settings },
+];
+
+export const TAX_CONFIG = { appName: 'Tax Engine', appColor: '#0F766E', appGradient: 'from-teal-600 to-teal-800', appIcon: Calculator };
+export const TAX_NAV: NavItem[] = [
+  { label: 'Setup Pajak',        href: '/tax/setup',         icon: Settings,
+    children: [
+      { label: 'Jenis Pajak',    href: '/tax/setup' },
+      { label: 'PPN (11%)',      href: '/tax/setup?tipe=PPN' },
+      { label: 'PPh 21',         href: '/tax/setup?tipe=PPH21' },
+      { label: 'PPh 23',         href: '/tax/setup?tipe=PPH23' },
+      { label: 'PPh 4(2)',       href: '/tax/setup?tipe=PPH4A2' },
+    ],
+  },
+  { label: 'E-Faktur',           href: '/tax/efaktur',       icon: FileText, badge: 0,
+    children: [
+      { label: 'Semua E-Faktur', href: '/tax/efaktur' },
+      { label: 'Draft',          href: '/tax/efaktur?status=DRAFT' },
+      { label: 'Uploaded',       href: '/tax/efaktur?status=UPLOADED' },
+      { label: 'Approved',       href: '/tax/efaktur?status=APPROVED' },
+    ],
+  },
+  { label: 'Rekap PPN',          href: '/tax/rekap-ppn',     icon: PieChart },
+  { label: 'Kalkulator Pajak',   href: '/tax/calculator',    icon: Calculator },
+  { label: 'PPh 21 Karyawan',    href: '/hr/payrolls/pph21-calc', icon: UserCheck },
+  { label: 'Laporan Pajak',      href: '/tax/reports',       icon: BarChart2,
+    children: [
+      { label: 'Laporan PPN',    href: '/tax/reports?type=ppn' },
+      { label: 'Laporan PPh 21', href: '/tax/reports?type=pph21' },
+      { label: 'Laporan PPh 23', href: '/tax/reports?type=pph23' },
+    ],
+  },
+  { label: 'Pengaturan',         href: '/tax/settings',      icon: Settings },
 ];
 
 export const SETTINGS_CONFIG = { appName: 'Pengaturan', appColor: '#546E7A', appGradient: 'from-slate-500 to-slate-700', appIcon: Settings };

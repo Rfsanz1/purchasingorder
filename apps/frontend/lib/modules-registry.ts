@@ -2,7 +2,7 @@ import type { LucideIcon } from 'lucide-react';
 import {
   LayoutDashboard, ShoppingCart, ShoppingBag, Package,
   Factory, DollarSign, UserCheck, Megaphone,
-  Wrench, Users, Globe, Settings, Building2,
+  Wrench, Users, Globe, Settings, Building2, Calculator,
 } from 'lucide-react';
 
 export type ModuleStatus = 'core' | 'coming-soon' | null;
@@ -196,6 +196,28 @@ export const MODULES: ERP_Module[] = [
     gradient: 'linear-gradient(135deg, #475569, #334155)',
     version: '17.0', installs: '15.0K', rating: 4.8,
     deps: [], href: '/settings', isCore: true, status: 'core',
+  },
+  {
+    id: 'tax_engine',
+    name: 'Tax Engine',
+    emoji: '🧾',
+    desc: 'Perpajakan Indonesia: PPN, PPh 21/23/4(2), e-Faktur, rekap DJP.',
+    longDesc: 'Modul perpajakan lengkap sesuai regulasi Indonesia: kalkulasi PPN 11%, PPh 21 progresif dengan PTKP, PPh 23 withholding, PPh 4(2) final, penomoran dan export e-Faktur format DJP, serta rekap PPN Masukan vs Keluaran per periode.',
+    features: [
+      'Kalkulasi PPN 11%',
+      'PPh 21 Progresif + PTKP 2024',
+      'PPh 23 (Jasa/Dividen/Royalti)',
+      'PPh 4(2) Final (Sewa/Konstruksi)',
+      'E-Faktur & Penomoran Otomatis',
+      'Export CSV Format DJP',
+      'Rekap PPN Masukan vs Keluaran',
+    ],
+    icon: Calculator,
+    color: '#0F766E',
+    bgColor: '#CCFBF1',
+    gradient: 'linear-gradient(135deg, #0F766E, #0D9488)',
+    version: '17.0', installs: '6.1K', rating: 4.9,
+    deps: ['accounting'], href: '/tax/setup', featured: true,
   },
   {
     id: 'multi_branch',

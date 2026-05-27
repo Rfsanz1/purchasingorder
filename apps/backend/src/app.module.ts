@@ -26,6 +26,7 @@ import { RecruitmentModule } from './modules/recruitment/recruitment.module.js';
 import { QualityModule } from './modules/quality/quality.module.js';
 import { MaintenanceModule } from './modules/maintenance/maintenance.module.js';
 import { FleetModule } from './modules/fleet/fleet.module.js';
+import { TaxModule } from './modules/tax/tax.module.js';
 import { CanAccessGuard } from './common/guards/can-access.guard.js';
 import { PrismaService } from './database/prisma.service.js';
 
@@ -58,6 +59,7 @@ import { PrismaService } from './database/prisma.service.js';
     QualityModule,
     MaintenanceModule,
     FleetModule,
+    TaxModule,
   ],
   providers: [PrismaService, CanAccessGuard],
 })
