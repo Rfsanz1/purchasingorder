@@ -1,223 +1,175 @@
-# 🏢 Gentong Mas ERP - Complete Business Management System
+# 🏢 Gentong Mas ERP Ecosystem
 
-Sistem ERP komprehensif berbasis Laravel untuk manajemen bisnis lengkap dengan integrasi marketplace dan otomasi proses bisnis.
+Gentong Mas kini bertransformasi menjadi sistem multi-aplikasi modern dengan satu database dan satu backend API bersama.
 
-## 🚀 Quick Start
+## 🌐 Arsitektur Sistem
 
-### Lokal Development
+Semua aplikasi menggunakan:
+- **Single Database** (PostgreSQL)
+- **Single Backend API** (NestJS + Prisma)
+- **Role-Based Access Control** (RBAC)
+- **Responsive UI** untuk mobile dan desktop
+- **Realtime data sync** via Socket.IO
+- **Notifikasi real-time** untuk Sales, Gudang, Driver, Owner, Admin
+
+### Aplikasi dalam ekosistem
+
+- `ERP Core` - untuk **Owner** dan **Admin**
+- `Sales App` - aplikasi khusus penjualan mobile-first
+- `Gudang App` - aplikasi khusus operasional gudang mobile-first
+- `Driver App` - aplikasi khusus pengiriman mobile-first
+
+## 👥 Role System
+
+Role utama:
+- `Super Admin`
+- `Owner`
+- `Admin`
+- `Sales`
+- `Gudang`
+- `Driver`
+
+Setiap role akan mengakses tampilan dan fitur sesuai tugasnya.
+
+## 🚀 Cara Menjalankan Lokal
+
+### 1. Install dependensi
+
+Pastikan sudah terpasang `pnpm`.
+
 ```bash
-# Clone repo
-git clone https://github.com/Rfsanz1/purchasingorder.git
-cd purchasingorder
-
-# Install dependencies
-composer install
-npm install
-
-# Setup environment
-cp .env.example .env
-php artisan key:generate
-
-# Setup database (PostgreSQL)
-# Edit .env untuk DB connection
-
-# Migrate & seed
-php artisan migrate
-php artisan db:seed
-
-# Jalankan
-php artisan serve
-npm run dev
+cd c:/Users/Asus/purchasingorder
+pnpm install
 ```
 
-### 🚂 Deploy ke Railway
-1. Fork repo ini
-2. Connect ke Railway
-3. Set Environment Variables:
-   ```
-   KLEDO_TOKEN = <token dari Kledo API>
-   ADMIN_PASSWORD = admin123
-   ```
-4. Deploy otomatis
+### 2. Siapkan environment backend
 
-**Detail setup Railway:** [DEPLOY-RAILWAY.md](DEPLOY-RAILWAY.md)
+```bash
+cd apps/backend
+cp .env.example .env
+```
 
-## 🔧 Environment Variables
+Edit `apps/backend/.env` jika perlu:
+- `DATABASE_PROVIDER` = postgresql
+- `DATABASE_URL` = `postgresql://user:password@localhost:5432/erp_modern`
+- `JWT_SECRET` = `replace-with-strong-secret`
+- `PORT` = `4000`
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `KLEDO_TOKEN` | ✅ | Token API dari Kledo ERP |
-| `DATABASE_URL` | ✅ | PostgreSQL connection string |
-| `ADMIN_PASSWORD` | ✅ | Password admin dashboard |
-| `FONNTE_TOKEN` | ❌ | Token WhatsApp API (opsional) |
+Opsional:
+- `JWT_REFRESH_SECRET`
+- `FONNTE_TOKEN`
 
-## 📊 Fitur Utama
+### 3. Jalankan database schema
 
-### ✅ ACTIVE FEATURES (15+)
-- **Purchase Order Management** - Buat & kelola PO
-- **Kledo Integration** - Sync produk, kontak, invoice
-- **WhatsApp Notifications** - Kirim notifikasi via WA
-- **Real-time Dashboard** - Monitoring penjualan
-- **Multi-user Support** - Role-based access
-- **Stock Management** - Tracking stok produk
-- **Customer Management** - Database pelanggan
-- **Driver Management** - Dashboard driver & tracking
-- **Sales Reports** - Laporan penjualan detail
-- **Stock Opname** - Inventarisasi stok
-- **Multi-branch Support** - Dukungan multi-cabang
+```bash
+cd apps/backend
+pnpm prisma generate
+pnpm prisma migrate dev --name init
+```
 
-### 🆕 ERP MODULES - COMING SOON (105+ Features)
+### 4. Jalankan backend API
 
-#### 🏷️ MASTER DATA (8 Features)
-- **Kategori Produk** - Manajemen kategori produk
-- **Brand Produk** - Database brand & merek
-- **Satuan Barang** - Konfigurasi unit produk
-- **Tipe Harga** - Multiple pricing tiers
-- **Pajak** - Konfigurasi pajak kompleks
-- **Data Cabang** - Multi-branch management
-- **Data Salesman** - Sales team management
-- **Metode Pembayaran** - Payment method setup
+Dari root workspace:
 
-#### 💰 AKUNTANSI (8 Features)
-- **Chart of Accounts (COA)** - Struktur akun lengkap
-- **Jurnal Umum** - General journal entries
-- **Buku Besar** - General ledger reports
-- **Neraca** - Balance sheet reports
-- **Arus Kas** - Cash flow statements
-- **Hutang Supplier** - Accounts payable
-- **Piutang Customer** - Accounts receivable
-- **Rekonsiliasi Bank** - Bank reconciliation
+```bash
+pnpm dev:backend
+```
 
-#### 📦 MANAJEMEN STOK (6 Features)
-- **Mutasi Stok** - Stock movement tracking
-- **Transfer Antar Gudang** - Warehouse transfers
-- **Minimum Stock Alert** - Low stock notifications
-- **Serial Number / IMEI** - Product serial tracking
-- **Batch Produk** - Batch & expiry management
-- **History Pergerakan Barang** - Stock movement history
+Backend akan berjalan di:
 
-#### 🛒 PURCHASE FLOW (4 Features)
-- **Permintaan Pembelian** - Purchase requests
-- **Approval Purchase** - Multi-level approvals
-- **Invoice Supplier** - Supplier invoice management
-- **Hutang Jatuh Tempo** - Due payable tracking
+```bash
+http://localhost:4000
+```
 
-#### 📈 SALES FLOW (5 Features)
-- **Quotation / Penawaran** - Sales quotations
-- **Sales Target** - Sales target management
-- **Komisi Sales** - Commission calculations
-- **Piutang Penjualan** - Sales receivable
-- **Tracking Status Order** - Order status tracking
+API prefix default:
 
-#### 👥 HR / KARYAWAN (5 Features)
-- **Data Karyawan** - Employee database
-- **Absensi** - Attendance management
-- **Gaji** - Payroll processing
-- **Role & Hak Akses** - User roles & permissions
-- **Audit Log** - User activity tracking
+```bash
+http://localhost:4000/api
+```
 
-#### 📊 DASHBOARD ANALYTICS (1 Feature)
-- **Analytics Dashboard** - Comprehensive analytics
+### 5. Jalankan frontend
 
-#### 🔧 FITUR TOKO ELEKTRONIK (5 Features)
-- **Servis Barang** - Product service management
-- **Klaim Garansi** - Warranty claims
-- **Tracking Perbaikan** - Service tracking
-- **Kredit Customer** - Customer installment
-- **Jatuh Tempo Cicilan** - Installment due dates
+Dari root workspace:
 
-#### 🌐 OMNICHANNEL / MARKETPLACE (40+ Features)
+```bash
+pnpm dev:frontend
+```
 
-##### 🛍️ Shopee Integration (10 Features)
-- Dashboard Shopee - Overview & monitoring
-- Pesanan Shopee - Order management
-- Produk Shopee - Product sync
-- Stok Shopee - Inventory sync
-- Chat Shopee - Customer communication
-- Pengiriman Shopee - Shipping management
-- Voucher Shopee - Voucher management
-- Customer Shopee - Customer data
-- Analytics Shopee - Performance analytics
-- Pengaturan API Shopee - API configuration
+Frontend akan berjalan di:
 
-##### 📱 TikTok Shop Integration (10 Features)
-- Dashboard TikTok Shop
-- Pesanan TikTok Shop
-- Produk TikTok Shop
-- Stok TikTok Shop
-- Chat TikTok Shop
-- Pengiriman TikTok Shop
-- Voucher TikTok Shop
-- Customer TikTok Shop
-- Analytics TikTok Shop
-- Pengaturan API TikTok Shop
+```bash
+http://localhost:3000
+```
 
-##### 🏪 Tokopedia Integration (10 Features)
-- Dashboard Tokopedia
-- Pesanan Tokopedia
-- Produk Tokopedia
-- Stok Tokopedia
-- Chat Tokopedia
-- Pengiriman Tokopedia
-- Voucher Tokopedia
-- Customer Tokopedia
-- Analytics Tokopedia
-- Pengaturan API Tokopedia
+## 🧭 Cara Mengakses 3 Aplikasi
 
-##### 🛒 Lazada Integration (10 Features)
-- Dashboard Lazada
-- Pesanan Lazada
-- Produk Lazada
-- Stok Lazada
-- Chat Lazada
-- Pengiriman Lazada
-- Voucher Lazada
-- Customer Lazada
-- Analytics Lazada
-- Pengaturan API Lazada
+Setelah login, gunakan halaman launcher utama di `http://localhost:3000`.
 
-#### 🏢 FITUR ENTERPRISE (10 Features)
-- **Approval System** - Multi-level approval workflows
-- **Workflow Automation** - Business process automation
-- **Export PDF/Excel** - Advanced export capabilities
-- **Template Invoice** - Customizable invoice templates
-- **Multi Currency** - Multi-currency support
-- **Multi Pajak** - Complex tax configurations
-- **Backup System** - Automated backup system
-- **API Public** - Public API access
-- **Webhook** - Real-time integrations
-- **Activity Timeline** - System activity tracking
+### ERP Core (Owner + Admin)
 
-## 🛠️ Tech Stack
+- `http://localhost:3000/dashboard`
+- Menu untuk laporan, inventory, accounting, HR, settings, user management, dan audit log.
 
-- **Backend:** Laravel 12, PHP 8.2
-- **Database:** PostgreSQL
-- **Frontend:** Vue.js 3, Tailwind CSS, Alpine.js
-- **Deployment:** Docker, Railway
-- **Integrations:** Kledo ERP, Fonnte WhatsApp, Multiple Marketplaces
-- **UI/UX:** Modern responsive design, Dark mode support
+### Sales App
 
-## 📊 System Statistics
+- `http://localhost:3000/sales`
+- `http://localhost:3000/sales/smart-order`
+- Fitur utama: Smart Order Input, Customer, Quotation, Sales Order, CRM, Target, Riwayat.
 
-- **Total Menu Items:** 120+
-- **Active Features:** 15
-- **Coming Soon Features:** 105+
-- **ERP Modules:** 9 categories
-- **Marketplace Integrations:** 4 platforms
-- **Code Quality:** Clean, scalable, maintainable
+### Gudang App
 
-## 📱 API Endpoints
+- `http://localhost:3000/gudang`
+- `http://localhost:3000/gudang/picking`
+- `http://localhost:3000/gudang/inbound`
+- `http://localhost:3000/gudang/outbound`
+- `http://localhost:3000/gudang/transfer`
+- `http://localhost:3000/gudang/stock-opname`
+- `http://localhost:3000/gudang/history`
 
-### Kledo Integration
-- `GET /api/kledo/token-status` - Check Kledo connection status
-- `GET /api/kledo/products` - Get products from Kledo
-- `POST /api/kledo/sync` - Sync sales data
+### Driver App
 
-### Purchase Orders
-- `GET /api/orders` - List all POs
-- `POST /api/orders` - Create new PO
-- `GET /api/orders/{id}` - Get PO details
+- `http://localhost:3000/driver`
 
+Driver akan melihat tugas pengiriman, maps, upload bukti, tanda tangan, dan riwayat.
+
+## ⚙️ Jalankan hanya bagian tertentu
+
+Jika hanya ingin menjalankan backend:
+
+```bash
+pnpm --filter @erp-modern/backend start:dev
+```
+
+Jika hanya ingin menjalankan frontend:
+
+```bash
+pnpm --filter @erp-modern/frontend dev
+```
+
+## 📌 Catatan penting
+
+- Backend dan frontend **menggunakan satu API dan database yang sama**.
+- Login adalah **role-based**, sehingga Sales/Gudang/Driver tidak akan melihat menu Admin/Accounting/Payroll yang tidak relevan.
+- Realtime notifikasi bekerja melalui koneksi Socket.IO ke backend.
+
+## 📦 Struktur Project
+
+- `apps/backend` — NestJS backend API + Prisma
+- `apps/frontend` — Next.js frontend multi-app
+- `frontend/artifacts/pos-app` — aplikasi POS terpisah
+
+## 🔧 Environment Variables Backend
+
+- `DATABASE_PROVIDER`
+- `DATABASE_URL`
+- `JWT_SECRET`
+- `PORT`
+- `JWT_REFRESH_SECRET` (opsional)
+- `FONNTE_TOKEN` (opsional)
+
+---
+
+Jika kamu ingin, saya bisa juga memperbarui README dengan petunjuk `pnpm` khusus untuk Windows PowerShell dan contoh login role-based. 
 ### ERP Coming Soon Routes
 All ERP features are accessible via `/erp/*` routes with placeholder UI
 

@@ -254,6 +254,17 @@ export const DELIVERY_NAV: NavItem[] = [
   { label: 'Pengaturan',   href: '/delivery/settings',icon: Settings },
 ];
 
+export const WAREHOUSE_CONFIG = { appName: 'Gudang', appColor: '#F57C00', appGradient: 'from-amber-500 to-orange-600', appIcon: Package };
+export const WAREHOUSE_NAV: NavItem[] = [
+  { label: 'Dashboard',      href: '/gudang',               icon: BarChart2 },
+  { label: 'Picking Order',  href: '/gudang/picking',       icon: ClipboardList },
+  { label: 'Barang Masuk',   href: '/gudang/inbound',       icon: ArrowDownRight },
+  { label: 'Barang Keluar',  href: '/gudang/outbound',      icon: ArrowUpRight },
+  { label: 'Transfer',       href: '/gudang/transfer',      icon: ArrowLeftRight },
+  { label: 'Stock Opname',   href: '/gudang/stock-opname',  icon: ClipboardCheck },
+  { label: 'Riwayat',        href: '/gudang/history',       icon: Clock },
+];
+
 export const MANUFACTURING_CONFIG = { appName: 'Manufaktur', appColor: '#6D28D9', appGradient: 'from-violet-600 to-purple-700', appIcon: Factory };
 export const MANUFACTURING_NAV: NavItem[] = [
   { label: 'Bill of Material', href: '/manufacturing/bom',                icon: Layers,

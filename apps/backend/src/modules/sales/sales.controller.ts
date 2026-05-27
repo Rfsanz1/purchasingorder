@@ -1,9 +1,12 @@
 import { Controller, Get, Post, Put, Delete, Patch, Param, Body, Query, Inject, UseGuards } from '@nestjs/common';
 import { SalesService } from './sales.service.js';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard.js';
+import { CanAccessGuard } from '../../common/guards/can-access.guard.js';
+import { CanAccess } from '../../common/decorators/can-access.decorator.js';
 
 @Controller('sales')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, CanAccessGuard)
+@CanAccess({ roles: ['Super Admin', 'Owner', 'Admin', 'Sales'] })
 export class SalesController {
   constructor(@Inject(SalesService) private readonly svc: SalesService) {}
 
