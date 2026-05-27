@@ -1,9 +1,14 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service.js';
+import { KledoService } from '../kledo/kledo.service.js';
 
 @Injectable()
 export class SalesService {
-  constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
+  private readonly logger = new Logger(SalesService.name);
+  constructor(
+    @Inject(PrismaService) private readonly prisma: PrismaService,
+    @Inject(KledoService) private readonly kledo: KledoService,
+  ) {}
 
   async getOrders(query: any) {
     const { search, status, salesName, page = 1, limit = 20 } = query;
@@ -34,9 +39,50 @@ export class SalesService {
 
   async createOrder(dto: any) {
     const { items, ...orderData } = dto;
-    return this.prisma.order.create({
-      data: { ...orderData, items: items ?? [], orderItems: items?.length ? { create: items } : undefined },
+    const dbItems = (items ?? []).map((it: any) => ({
+      nama: it.nama ?? it.name ?? '',
+      qty: Number(it.qty) || 1,
+      harga: it.harga ?? it.price ?? 0,
+      subtotal: it.subtotal ?? (it.qty * (it.harga ?? it.price ?? 0)),
+      ...(it.productId ? { productId: it.productId } : {}),
+    }));
+    const order = await this.prisma.order.create({
+      data: { ...orderData, items: items ?? [], orderItems: dbItems.length ? { create: dbItems } : undefined },
+      include: { orderItems: { include: { product: true } } },
     });
+
+    this.pushInvoiceToKledo(order, items ?? []).catch((e) =>
+      this.logger.warn('Kledo invoice push gagal (non-fatal): ' + e.message),
+    );
+
+    return order;
+  }
+
+  private async pushInvoiceToKledo(order: any, items: any[]) {
+    const kledoItems = items.map((it: any) => ({
+      kledoProductId: it.kledoProductId ?? it.product?.kledoProductId ?? null,
+      nama: it.nama ?? it.name ?? '',
+      qty: Number(it.qty) || 1,
+      harga: Number(it.harga) || Number(it.price) || 0,
+      unitId: it.unitId ?? 1,
+    }));
+
+    const result = await this.kledo.createInvoice({
+      namaCustomer: order.namaCustomer,
+      noHp: order.noHp,
+      orderId: order.id,
+      items: kledoItems,
+    });
+
+    if (result.success && result.kledoInvoiceId) {
+      await this.prisma.order.update({
+        where: { id: order.id },
+        data: { kledoInvoiceId: result.kledoInvoiceId?.toString() },
+      }).catch(() => null);
+    }
+
+    this.logger.log(`Kledo invoice push: orderId=${order.id} result=${JSON.stringify(result)}`);
+    return result;
   }
 
   async updateOrder(id: number, dto: any) {

@@ -48,13 +48,122 @@ export class KledoService {
     const { page = 1, per_page = 50, search } = query;
     const params: any = { page, per_page };
     if (search) params.name = search;
-    const res = await firstValueFrom(this.http.get(`${this.baseUrl}/contacts`, { headers: this.headers, params }));
+    const res = await firstValueFrom(this.http.get(`${this.baseUrl}/finance/contacts`, { headers: this.headers, params }));
     return res.data;
   }
 
   async getInvoices(query: any = {}) {
     const res = await firstValueFrom(this.http.get(`${this.baseUrl}/finance/invoices`, { headers: this.headers, params: query }));
     return res.data;
+  }
+
+  async findOrCreateContact(name: string, phone?: string): Promise<number> {
+    try {
+      const res = await firstValueFrom(
+        this.http.get(`${this.baseUrl}/finance/contacts`, {
+          headers: this.headers,
+          params: { per_page: 100 },
+        }),
+      );
+      const contacts: any[] = res.data?.data?.data ?? [];
+      const found = contacts.find(
+        (c: any) =>
+          c.name?.toLowerCase() === name?.toLowerCase() ||
+          (phone && c.phone && c.phone.replace(/\D/g, '') === phone.replace(/\D/g, '')),
+      );
+      if (found) return found.id;
+    } catch (e) {
+      this.logger.warn('Gagal cari contact Kledo: ' + e);
+    }
+
+    try {
+      const createRes = await firstValueFrom(
+        this.http.post(
+          `${this.baseUrl}/finance/contacts`,
+          { name, phone: phone ?? null, type_id: 4, is_customer: 1 },
+          { headers: this.headers },
+        ),
+      );
+      const newId = createRes.data?.data?.id;
+      if (newId) return newId;
+    } catch (e) {
+      this.logger.warn('Gagal buat contact Kledo: ' + e);
+    }
+
+    return 2806;
+  }
+
+  async createInvoice(dto: {
+    namaCustomer: string;
+    noHp?: string;
+    memo?: string;
+    orderId?: number | string;
+    items: Array<{
+      kledoProductId?: string | null;
+      nama: string;
+      qty: number;
+      harga: number;
+      unitId?: number;
+    }>;
+    dueDays?: number;
+  }) {
+    if (!this.token) {
+      return { success: false, message: 'KLEDO_TOKEN tidak dikonfigurasi' };
+    }
+
+    try {
+      const contactId = await this.findOrCreateContact(dto.namaCustomer, dto.noHp);
+
+      const today = new Date();
+      const transDate = today.toISOString().split('T')[0];
+      const dueDate = new Date(today.getTime() + (dto.dueDays ?? 30) * 86400000)
+        .toISOString()
+        .split('T')[0];
+
+      const items = dto.items
+        .filter((it) => it.kledoProductId)
+        .map((it) => {
+          const amount = it.qty * it.harga;
+          return {
+            finance_account_id: Number(it.kledoProductId),
+            qty: it.qty,
+            price: it.harga,
+            amount,
+            discount_percent: 0,
+            unit_id: it.unitId ?? 1,
+            desc: it.nama,
+          };
+        });
+
+      if (items.length === 0) {
+        return { success: false, message: 'Tidak ada produk dengan Kledo Product ID — invoice tidak dibuat' };
+      }
+
+      const memo = dto.memo ?? (dto.orderId ? `Order #${dto.orderId} - ${dto.namaCustomer}` : dto.namaCustomer);
+
+      const payload = {
+        trans_date: transDate,
+        due_date: dueDate,
+        contact_id: contactId,
+        status_id: 3,
+        term_id: 1,
+        include_tax: 0,
+        memo,
+        items,
+      };
+
+      const res = await firstValueFrom(
+        this.http.post(`${this.baseUrl}/finance/invoices`, payload, { headers: this.headers }),
+      );
+
+      const kledoId = res.data?.id ?? res.data?.data?.id;
+      this.logger.log(`Invoice Kledo berhasil: id=${kledoId} order=${dto.orderId}`);
+      return { success: true, kledoInvoiceId: kledoId, message: res.data?.message ?? 'Tagihan berhasil dibuat' };
+    } catch (e: any) {
+      const msg = e.response?.data?.message ?? e.message;
+      this.logger.error('Gagal buat invoice Kledo: ' + msg);
+      return { success: false, message: msg };
+    }
   }
 
   getSpmBrands() {
