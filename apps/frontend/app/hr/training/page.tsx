@@ -51,8 +51,8 @@ export default function TrainingPage() {
       <div className="p-6 space-y-6 max-w-6xl mx-auto">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold" style={{ color: '#433C50' }}>Training & Pelatihan</h1>
-            <p className="text-sm mt-0.5" style={{ color: '#A5A3AE' }}>Kelola program pelatihan dan pengembangan karyawan</p>
+            <h1 className="text-xl font-bold" style={{ color: '#1E1B4B' }}>Training & Pelatihan</h1>
+            <p className="text-sm mt-0.5" style={{ color: '#9CA3AF' }}>Kelola program pelatihan dan pengembangan karyawan</p>
           </div>
           <button onClick={() => setShowForm(true)} className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-semibold text-white" style={{ backgroundColor: C }}>
             <Plus className="h-4 w-4" /> Buat Training
@@ -67,7 +67,7 @@ export default function TrainingPage() {
             { label: 'Total Peserta', value: items.reduce((s, i) => s + i.participants, 0), color: '#2196F3' },
           ].map(s => (
             <div key={s.label} className="bg-white rounded-2xl p-5" style={{ border: '1.5px solid #EDE8F5', boxShadow: '0 1px 4px rgba(47,43,61,.06)' }}>
-              <p className="text-xs font-medium" style={{ color: '#A5A3AE' }}>{s.label}</p>
+              <p className="text-xs font-medium" style={{ color: '#9CA3AF' }}>{s.label}</p>
               <p className="text-2xl font-bold mt-1" style={{ color: s.color }}>{s.value}</p>
             </div>
           ))}
@@ -77,9 +77,9 @@ export default function TrainingPage() {
           <div className="flex items-center gap-3 px-6 py-4" style={{ borderBottom: '1px solid #EDE8F5' }}>
             <div className="relative flex-1 max-w-sm">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5" style={{ color: '#B0AAB9' }} />
-              <input className="w-full rounded-lg pl-9 pr-4 py-2 text-sm" style={{ border: '1px solid #EDE8F5', color: '#433C50', outline: 'none' }} placeholder="Cari program training..." value={search} onChange={e => setSearch(e.target.value)} />
+              <input className="w-full rounded-lg pl-9 pr-4 py-2 text-sm" style={{ border: '1px solid #EDE8F5', color: '#1E1B4B', outline: 'none' }} placeholder="Cari program training..." value={search} onChange={e => setSearch(e.target.value)} />
             </div>
-            <select className="rounded-lg px-3 py-2 text-sm" style={{ border: '1px solid #EDE8F5', color: '#433C50', outline: 'none' }} value={status} onChange={e => setStatus(e.target.value)}>
+            <select className="rounded-lg px-3 py-2 text-sm" style={{ border: '1px solid #EDE8F5', color: '#1E1B4B', outline: 'none' }} value={status} onChange={e => setStatus(e.target.value)}>
               <option value="">Semua Status</option>
               {Object.entries(STATUS_MAP).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
             </select>
@@ -92,17 +92,17 @@ export default function TrainingPage() {
                 <div key={item.id} className="rounded-xl p-4 border transition-all hover:shadow-md" style={{ border: '1.5px solid #EDE8F5' }}>
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1">
-                      <p className="font-semibold text-sm" style={{ color: '#433C50' }}>{item.title}</p>
-                      <p className="text-xs mt-0.5" style={{ color: '#A5A3AE' }}>{item.category} • {item.trainer}</p>
+                      <p className="font-semibold text-sm" style={{ color: '#1E1B4B' }}>{item.title}</p>
+                      <p className="text-xs mt-0.5" style={{ color: '#9CA3AF' }}>{item.category} • {item.trainer}</p>
                     </div>
                     <span className="px-2 py-1 rounded-full text-xs font-semibold ml-2 flex-shrink-0" style={{ color: s.color, backgroundColor: s.bg }}>{s.label}</span>
                   </div>
                   <div className="grid grid-cols-3 gap-2 mt-3">
-                    <div className="flex items-center gap-1.5 text-xs" style={{ color: '#6D6777' }}>
+                    <div className="flex items-center gap-1.5 text-xs" style={{ color: '#6B7280' }}>
                       <Calendar className="h-3 w-3" />
                       {new Date(item.start).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
                     </div>
-                    <div className="flex items-center gap-1.5 text-xs" style={{ color: '#6D6777' }}>
+                    <div className="flex items-center gap-1.5 text-xs" style={{ color: '#6B7280' }}>
                       <Users className="h-3 w-3" />
                       {item.participants} peserta
                     </div>
@@ -120,8 +120,8 @@ export default function TrainingPage() {
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
             <div className="bg-white rounded-2xl w-full max-w-lg mx-4 overflow-y-auto" style={{ maxHeight: '90vh', boxShadow: '0 20px 60px rgba(0,0,0,.15)' }}>
               <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom: '1px solid #EDE8F5' }}>
-                <h2 className="font-bold" style={{ color: '#433C50' }}>Buat Program Training</h2>
-                <button onClick={() => setShowForm(false)} style={{ color: '#A5A3AE' }}><X className="h-5 w-5" /></button>
+                <h2 className="font-bold" style={{ color: '#1E1B4B' }}>Buat Program Training</h2>
+                <button onClick={() => setShowForm(false)} style={{ color: '#9CA3AF' }}><X className="h-5 w-5" /></button>
               </div>
               <div className="p-6 space-y-4">
                 {[
@@ -133,22 +133,22 @@ export default function TrainingPage() {
                   { key: 'description', label: 'Deskripsi', placeholder: 'Deskripsi program...' },
                 ].map(f => (
                   <div key={f.key}>
-                    <label className="block text-xs font-semibold mb-1.5" style={{ color: '#433C50' }}>{f.label}</label>
-                    <input type={f.type ?? 'text'} className="w-full rounded-lg px-4 py-2.5 text-sm" style={{ border: '1.5px solid #EDE8F5', color: '#433C50', outline: 'none' }} placeholder={(f as any).placeholder} value={(form as any)[f.key]} onChange={e => setForm(f2 => ({ ...f2, [f.key]: e.target.value }))} onFocus={e => e.target.style.borderColor = C} onBlur={e => e.target.style.borderColor = '#EDE8F5'} />
+                    <label className="block text-xs font-semibold mb-1.5" style={{ color: '#1E1B4B' }}>{f.label}</label>
+                    <input type={f.type ?? 'text'} className="w-full rounded-lg px-4 py-2.5 text-sm" style={{ border: '1.5px solid #EDE8F5', color: '#1E1B4B', outline: 'none' }} placeholder={(f as any).placeholder} value={(form as any)[f.key]} onChange={e => setForm(f2 => ({ ...f2, [f.key]: e.target.value }))} onFocus={e => e.target.style.borderColor = C} onBlur={e => e.target.style.borderColor = '#EDE8F5'} />
                   </div>
                 ))}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-semibold mb-1.5" style={{ color: '#433C50' }}>Tanggal Mulai</label>
-                    <input type="date" className="w-full rounded-lg px-4 py-2.5 text-sm" style={{ border: '1.5px solid #EDE8F5', color: '#433C50', outline: 'none' }} value={form.start} onChange={e => setForm(f => ({ ...f, start: e.target.value }))} />
+                    <label className="block text-xs font-semibold mb-1.5" style={{ color: '#1E1B4B' }}>Tanggal Mulai</label>
+                    <input type="date" className="w-full rounded-lg px-4 py-2.5 text-sm" style={{ border: '1.5px solid #EDE8F5', color: '#1E1B4B', outline: 'none' }} value={form.start} onChange={e => setForm(f => ({ ...f, start: e.target.value }))} />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold mb-1.5" style={{ color: '#433C50' }}>Tanggal Selesai</label>
-                    <input type="date" className="w-full rounded-lg px-4 py-2.5 text-sm" style={{ border: '1.5px solid #EDE8F5', color: '#433C50', outline: 'none' }} value={form.end} onChange={e => setForm(f => ({ ...f, end: e.target.value }))} />
+                    <label className="block text-xs font-semibold mb-1.5" style={{ color: '#1E1B4B' }}>Tanggal Selesai</label>
+                    <input type="date" className="w-full rounded-lg px-4 py-2.5 text-sm" style={{ border: '1.5px solid #EDE8F5', color: '#1E1B4B', outline: 'none' }} value={form.end} onChange={e => setForm(f => ({ ...f, end: e.target.value }))} />
                   </div>
                 </div>
                 <div className="flex justify-end gap-3 pt-2" style={{ borderTop: '1px solid #EDE8F5' }}>
-                  <button onClick={() => setShowForm(false)} className="px-5 py-2.5 rounded-lg text-sm font-semibold" style={{ border: '1.5px solid #EDE8F5', color: '#6D6777' }}>Batal</button>
+                  <button onClick={() => setShowForm(false)} className="px-5 py-2.5 rounded-lg text-sm font-semibold" style={{ border: '1.5px solid #EDE8F5', color: '#6B7280' }}>Batal</button>
                   <button onClick={save} className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold text-white" style={{ backgroundColor: C }}>
                     <GraduationCap className="h-4 w-4" /> Simpan Training
                   </button>

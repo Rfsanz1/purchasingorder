@@ -43,8 +43,8 @@ export default function TaxConfigPage() {
       <div className="p-6 space-y-6 max-w-5xl mx-auto">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold" style={{ color: '#433C50' }}>Konfigurasi Pajak</h1>
-            <p className="text-sm mt-0.5" style={{ color: '#A5A3AE' }}>Kelola tarif dan aturan pajak PPN, PPh, dan lainnya</p>
+            <h1 className="text-xl font-bold" style={{ color: '#1E1B4B' }}>Konfigurasi Pajak</h1>
+            <p className="text-sm mt-0.5" style={{ color: '#9CA3AF' }}>Kelola tarif dan aturan pajak PPN, PPh, dan lainnya</p>
           </div>
           <button onClick={() => setShowForm(true)} className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-semibold text-white" style={{ backgroundColor: C }}>
             <Plus className="h-4 w-4" /> Tambah Pajak
@@ -60,7 +60,7 @@ export default function TaxConfigPage() {
             { label: 'Tidak Aktif', value: taxes.filter(t => !t.active).length },
           ].map(s => (
             <div key={s.label} className="bg-white rounded-2xl p-5" style={{ border: '1.5px solid #EDE8F5', boxShadow: '0 1px 4px rgba(47,43,61,.06)' }}>
-              <p className="text-xs font-medium" style={{ color: '#A5A3AE' }}>{s.label}</p>
+              <p className="text-xs font-medium" style={{ color: '#9CA3AF' }}>{s.label}</p>
               <p className="text-2xl font-bold mt-1" style={{ color: C }}>{s.value}</p>
             </div>
           ))}
@@ -68,21 +68,21 @@ export default function TaxConfigPage() {
 
         <div className="bg-white rounded-2xl" style={{ border: '1.5px solid #EDE8F5', boxShadow: '0 1px 4px rgba(47,43,61,.06)' }}>
           <div className="px-6 py-4" style={{ borderBottom: '1px solid #EDE8F5' }}>
-            <h3 className="font-semibold text-sm" style={{ color: '#433C50' }}>Daftar Pajak</h3>
+            <h3 className="font-semibold text-sm" style={{ color: '#1E1B4B' }}>Daftar Pajak</h3>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr style={{ borderBottom: '1px solid #EDE8F5' }}>
                   {['Nama Pajak', 'Tipe', 'Tarif (%)', 'Akun', 'Scope', 'Status', 'Aksi'].map(h => (
-                    <th key={h} className="px-6 py-3 text-left text-xs font-semibold" style={{ color: '#A5A3AE' }}>{h}</th>
+                    <th key={h} className="px-6 py-3 text-left text-xs font-semibold" style={{ color: '#9CA3AF' }}>{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {taxes.map(tax => (
-                  <tr key={tax.id} style={{ borderBottom: '1px solid #F5F5F9' }} className="hover:bg-gray-50">
-                    <td className="px-6 py-3 font-semibold" style={{ color: '#433C50' }}>{tax.name}</td>
+                  <tr key={tax.id} style={{ borderBottom: '1px solid #F5F3FF' }} className="hover:bg-gray-50">
+                    <td className="px-6 py-3 font-semibold" style={{ color: '#1E1B4B' }}>{tax.name}</td>
                     <td className="px-6 py-3">
                       <span className="px-2 py-1 rounded-full text-xs font-semibold" style={{
                         backgroundColor: tax.type === 'sale' ? 'rgba(33,150,243,.1)' : tax.type === 'purchase' ? 'rgba(255,152,0,.1)' : 'rgba(156,39,176,.1)',
@@ -92,8 +92,8 @@ export default function TaxConfigPage() {
                       </span>
                     </td>
                     <td className="px-6 py-3 font-bold" style={{ color: C }}>{tax.rate > 0 ? `${tax.rate}%` : 'Progresif'}</td>
-                    <td className="px-6 py-3 font-mono text-xs" style={{ color: '#6D6777' }}>{tax.account}</td>
-                    <td className="px-6 py-3 text-xs" style={{ color: '#6D6777' }}>{tax.scope}</td>
+                    <td className="px-6 py-3 font-mono text-xs" style={{ color: '#6B7280' }}>{tax.account}</td>
+                    <td className="px-6 py-3 text-xs" style={{ color: '#6B7280' }}>{tax.scope}</td>
                     <td className="px-6 py-3">
                       <button onClick={() => toggleActive(tax.id)} className="relative inline-flex h-5 w-9 items-center rounded-full transition-colors" style={{ backgroundColor: tax.active ? C : '#D1D5DB' }}>
                         <span className="inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform" style={{ transform: tax.active ? 'translateX(18px)' : 'translateX(2px)' }} />
@@ -113,8 +113,8 @@ export default function TaxConfigPage() {
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
             <div className="bg-white rounded-2xl w-full max-w-md mx-4" style={{ boxShadow: '0 20px 60px rgba(0,0,0,.15)' }}>
               <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom: '1px solid #EDE8F5' }}>
-                <h2 className="font-bold" style={{ color: '#433C50' }}>Tambah Pajak Baru</h2>
-                <button onClick={() => setShowForm(false)} style={{ color: '#A5A3AE' }}><X className="h-5 w-5" /></button>
+                <h2 className="font-bold" style={{ color: '#1E1B4B' }}>Tambah Pajak Baru</h2>
+                <button onClick={() => setShowForm(false)} style={{ color: '#9CA3AF' }}><X className="h-5 w-5" /></button>
               </div>
               <div className="p-6 space-y-4">
                 {[
@@ -124,20 +124,20 @@ export default function TaxConfigPage() {
                   { key: 'scope', label: 'Scope / Keterangan', placeholder: 'Penjualan Barang...' },
                 ].map(f => (
                   <div key={f.key}>
-                    <label className="block text-xs font-semibold mb-1.5" style={{ color: '#433C50' }}>{f.label}</label>
-                    <input type={f.type ?? 'text'} className="w-full rounded-lg px-4 py-2.5 text-sm" style={{ border: '1.5px solid #EDE8F5', color: '#433C50', outline: 'none' }} placeholder={f.placeholder} value={(form as any)[f.key]} onChange={e => setForm(f2 => ({ ...f2, [f.key]: e.target.value }))} onFocus={e => e.target.style.borderColor = C} onBlur={e => e.target.style.borderColor = '#EDE8F5'} />
+                    <label className="block text-xs font-semibold mb-1.5" style={{ color: '#1E1B4B' }}>{f.label}</label>
+                    <input type={f.type ?? 'text'} className="w-full rounded-lg px-4 py-2.5 text-sm" style={{ border: '1.5px solid #EDE8F5', color: '#1E1B4B', outline: 'none' }} placeholder={f.placeholder} value={(form as any)[f.key]} onChange={e => setForm(f2 => ({ ...f2, [f.key]: e.target.value }))} onFocus={e => e.target.style.borderColor = C} onBlur={e => e.target.style.borderColor = '#EDE8F5'} />
                   </div>
                 ))}
                 <div>
-                  <label className="block text-xs font-semibold mb-1.5" style={{ color: '#433C50' }}>Tipe Pajak</label>
-                  <select className="w-full rounded-lg px-4 py-2.5 text-sm" style={{ border: '1.5px solid #EDE8F5', color: '#433C50', outline: 'none' }} value={form.type} onChange={e => setForm(f => ({ ...f, type: e.target.value }))}>
+                  <label className="block text-xs font-semibold mb-1.5" style={{ color: '#1E1B4B' }}>Tipe Pajak</label>
+                  <select className="w-full rounded-lg px-4 py-2.5 text-sm" style={{ border: '1.5px solid #EDE8F5', color: '#1E1B4B', outline: 'none' }} value={form.type} onChange={e => setForm(f => ({ ...f, type: e.target.value }))}>
                     <option value="sale">Penjualan</option>
                     <option value="purchase">Pembelian</option>
                     <option value="payroll">Payroll</option>
                   </select>
                 </div>
                 <div className="flex justify-end gap-3 pt-2" style={{ borderTop: '1px solid #EDE8F5' }}>
-                  <button onClick={() => setShowForm(false)} className="px-5 py-2.5 rounded-lg text-sm font-semibold" style={{ border: '1.5px solid #EDE8F5', color: '#6D6777' }}>Batal</button>
+                  <button onClick={() => setShowForm(false)} className="px-5 py-2.5 rounded-lg text-sm font-semibold" style={{ border: '1.5px solid #EDE8F5', color: '#6B7280' }}>Batal</button>
                   <button onClick={save} className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold text-white" style={{ backgroundColor: C }}>
                     <Save className="h-4 w-4" /> Simpan Pajak
                   </button>

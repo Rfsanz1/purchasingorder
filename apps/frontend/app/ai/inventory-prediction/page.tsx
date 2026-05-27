@@ -61,9 +61,9 @@ export default function AiInventoryPredictionPage() {
           {Object.entries(URGENCY_CONFIG).map(([key, cfg]) => {
             const count = INVENTORY_PREDICTIONS.filter(p => p.urgency === key).length;
             return (
-              <div key={key} className="rounded-2xl p-4" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #E9E0F8' }}>
+              <div key={key} className="rounded-2xl p-4" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE' }}>
                 <p className="text-2xl font-bold" style={{ color: cfg.color }}>{count}</p>
-                <p className="text-xs mt-1" style={{ color: '#A5A3AE' }}>Status {cfg.label}</p>
+                <p className="text-xs mt-1" style={{ color: '#9CA3AF' }}>Status {cfg.label}</p>
               </div>
             );
           })}
@@ -83,9 +83,9 @@ export default function AiInventoryPredictionPage() {
               onClick={() => setFilter(f.key)}
               className="px-4 py-2 rounded-xl text-xs font-semibold transition"
               style={{
-                backgroundColor: filter === f.key ? '#714B67' : '#FFFFFF',
-                color: filter === f.key ? '#FFFFFF' : '#6D6777',
-                border: `1.5px solid ${filter === f.key ? '#714B67' : '#E9E0F8'}`,
+                backgroundColor: filter === f.key ? '#5B52D1' : '#FFFFFF',
+                color: filter === f.key ? '#FFFFFF' : '#6B7280',
+                border: `1.5px solid ${filter === f.key ? '#5B52D1' : '#EDE9FE'}`,
               }}
             >
               {f.label}
@@ -94,21 +94,21 @@ export default function AiInventoryPredictionPage() {
         </div>
 
         {/* Table */}
-        <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #E9E0F8' }}>
-          <div className="px-5 py-4 flex items-center justify-between" style={{ borderBottom: '1px solid #E9E0F8' }}>
-            <h3 className="font-bold text-sm flex items-center gap-2" style={{ color: '#433C50' }}>
-              <Package className="h-4 w-4" style={{ color: '#714B67' }} /> Prediksi Stok & Reorder
+        <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE' }}>
+          <div className="px-5 py-4 flex items-center justify-between" style={{ borderBottom: '1px solid #EDE9FE' }}>
+            <h3 className="font-bold text-sm flex items-center gap-2" style={{ color: '#1E1B4B' }}>
+              <Package className="h-4 w-4" style={{ color: '#5B52D1' }} /> Prediksi Stok & Reorder
             </h3>
-            <button className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-xl" style={{ backgroundColor: 'rgba(113,75,103,.1)', color: '#714B67' }}>
+            <button className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-xl" style={{ backgroundColor: 'rgba(91,82,209,.1)', color: '#5B52D1' }}>
               <RefreshCw className="h-3.5 w-3.5" /> Perbarui Prediksi
             </button>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr style={{ backgroundColor: '#F8F7FC' }}>
+                <tr style={{ backgroundColor: '#F5F3FF' }}>
                   {['Produk', 'Stok Saat Ini', 'Stok Min', 'Habis Dalam', 'Demand Prediksi', 'Qty Reorder', 'Status', 'Aksi'].map(h => (
-                    <th key={h} className="px-4 py-3 text-left text-xs font-semibold" style={{ color: '#6D6777' }}>{h}</th>
+                    <th key={h} className="px-4 py-3 text-left text-xs font-semibold" style={{ color: '#6B7280' }}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -117,25 +117,25 @@ export default function AiInventoryPredictionPage() {
                   const cfg = URGENCY_CONFIG[p.urgency];
                   return (
                     <tr key={i} className="hover:bg-gray-50 transition-colors" style={{ borderTop: '1px solid #F0EDF8' }}>
-                      <td className="px-4 py-3 font-semibold text-xs" style={{ color: '#433C50' }}>{p.product}</td>
+                      <td className="px-4 py-3 font-semibold text-xs" style={{ color: '#1E1B4B' }}>{p.product}</td>
                       <td className="px-4 py-3">
-                        <span className="font-bold text-xs" style={{ color: p.urgency === 'critical' ? '#EF4444' : '#433C50' }}>{p.currentStock}</span>
+                        <span className="font-bold text-xs" style={{ color: p.urgency === 'critical' ? '#EF4444' : '#1E1B4B' }}>{p.currentStock}</span>
                       </td>
-                      <td className="px-4 py-3 text-xs" style={{ color: '#6D6777' }}>{p.minStock}</td>
+                      <td className="px-4 py-3 text-xs" style={{ color: '#6B7280' }}>{p.minStock}</td>
                       <td className="px-4 py-3">
-                        <span className="font-semibold text-xs" style={{ color: p.daysUntilStockout <= 3 ? '#EF4444' : '#433C50' }}>
+                        <span className="font-semibold text-xs" style={{ color: p.daysUntilStockout <= 3 ? '#EF4444' : '#1E1B4B' }}>
                           {p.daysUntilStockout} hari
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-xs" style={{ color: '#433C50' }}>{p.predictedDemand.toLocaleString()}</td>
-                      <td className="px-4 py-3 text-xs font-semibold" style={{ color: '#714B67' }}>{p.reorderQty.toLocaleString()}</td>
+                      <td className="px-4 py-3 text-xs" style={{ color: '#1E1B4B' }}>{p.predictedDemand.toLocaleString()}</td>
+                      <td className="px-4 py-3 text-xs font-semibold" style={{ color: '#5B52D1' }}>{p.reorderQty.toLocaleString()}</td>
                       <td className="px-4 py-3">
                         <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold" style={{ backgroundColor: cfg.bg, color: cfg.color }}>
                           {cfg.label}
                         </span>
                       </td>
                       <td className="px-4 py-3">
-                        <a href="/purchasing/rfq" className="flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded-lg" style={{ backgroundColor: 'rgba(113,75,103,.1)', color: '#714B67' }}>
+                        <a href="/purchasing/rfq" className="flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded-lg" style={{ backgroundColor: 'rgba(91,82,209,.1)', color: '#5B52D1' }}>
                           <ShoppingCart className="h-3 w-3" /> RFQ
                         </a>
                       </td>

@@ -52,14 +52,14 @@ export default function AuditLogPage() {
         {/* Stats */}
         <div className="grid grid-cols-4 gap-4">
           {[
-            { label: 'Total Aktivitas Hari Ini', value: AUDIT_LOGS.length, color: '#714B67' },
+            { label: 'Total Aktivitas Hari Ini', value: AUDIT_LOGS.length, color: '#5B52D1' },
             { label: 'User Aktif', value: '12', color: '#22C55E' },
             { label: 'Perubahan Data', value: AUDIT_LOGS.filter(l => ['CREATE','UPDATE','DELETE'].includes(l.action)).length, color: '#3B82F6' },
             { label: 'Alert Keamanan', value: '1', color: '#EF4444' },
           ].map((s, i) => (
-            <div key={i} className="rounded-2xl p-4" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #E9E0F8' }}>
+            <div key={i} className="rounded-2xl p-4" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE' }}>
               <p className="text-2xl font-bold" style={{ color: s.color }}>{s.value}</p>
-              <p className="text-xs mt-1" style={{ color: '#A5A3AE' }}>{s.label}</p>
+              <p className="text-xs mt-1" style={{ color: '#9CA3AF' }}>{s.label}</p>
             </div>
           ))}
         </div>
@@ -67,13 +67,13 @@ export default function AuditLogPage() {
         {/* Filters */}
         <div className="flex items-center gap-3 flex-wrap">
           <div className="flex-1 max-w-sm relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: '#A5A3AE' }} />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: '#9CA3AF' }} />
             <input
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Cari user, record, atau detail..."
               className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm"
-              style={{ border: '1.5px solid #E9E0F8', color: '#433C50', outline: 'none' }}
+              style={{ border: '1.5px solid #EDE9FE', color: '#1E1B4B', outline: 'none' }}
             />
           </div>
           <div className="flex gap-2 flex-wrap">
@@ -83,43 +83,43 @@ export default function AuditLogPage() {
                 onClick={() => setActionFilter(a)}
                 className="px-3 py-2 rounded-xl text-xs font-semibold transition"
                 style={{
-                  backgroundColor: actionFilter === a ? '#714B67' : '#FFFFFF',
-                  color: actionFilter === a ? '#FFFFFF' : '#6D6777',
-                  border: `1.5px solid ${actionFilter === a ? '#714B67' : '#E9E0F8'}`,
+                  backgroundColor: actionFilter === a ? '#5B52D1' : '#FFFFFF',
+                  color: actionFilter === a ? '#FFFFFF' : '#6B7280',
+                  border: `1.5px solid ${actionFilter === a ? '#5B52D1' : '#EDE9FE'}`,
                 }}
               >
                 {a === 'all' ? 'Semua' : a}
               </button>
             ))}
           </div>
-          <button className="ml-auto flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold" style={{ border: '1.5px solid #E9E0F8', color: '#6D6777' }}>
+          <button className="ml-auto flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold" style={{ border: '1.5px solid #EDE9FE', color: '#6B7280' }}>
             <Download className="h-3.5 w-3.5" /> Export Log
           </button>
         </div>
 
         {/* Table */}
-        <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #E9E0F8' }}>
+        <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE' }}>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr style={{ backgroundColor: '#F8F7FC' }}>
+                <tr style={{ backgroundColor: '#F5F3FF' }}>
                   {['ID', 'User', 'Aksi', 'Modul', 'Record', 'Detail', 'IP Address', 'Waktu'].map(h => (
-                    <th key={h} className="px-4 py-3 text-left text-xs font-semibold" style={{ color: '#6D6777' }}>{h}</th>
+                    <th key={h} className="px-4 py-3 text-left text-xs font-semibold" style={{ color: '#6B7280' }}>{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {filtered.map((l, i) => {
-                  const cfg = ACTION_CONFIG[l.action] ?? { color: '#6D6777', bg: 'rgba(107,114,128,.1)' };
+                  const cfg = ACTION_CONFIG[l.action] ?? { color: '#6B7280', bg: 'rgba(107,114,128,.1)' };
                   return (
                     <tr key={i} className="hover:bg-gray-50 transition-colors" style={{ borderTop: '1px solid #F0EDF8' }}>
-                      <td className="px-4 py-3 text-xs font-mono" style={{ color: '#A5A3AE' }}>{l.id}</td>
+                      <td className="px-4 py-3 text-xs font-mono" style={{ color: '#9CA3AF' }}>{l.id}</td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
-                          <div className="flex h-6 w-6 items-center justify-center rounded-full text-white text-[10px] font-bold flex-shrink-0" style={{ background: 'linear-gradient(135deg, #714B67, #9C6B8E)' }}>
+                          <div className="flex h-6 w-6 items-center justify-center rounded-full text-white text-[10px] font-bold flex-shrink-0" style={{ background: 'linear-gradient(135deg, #5B52D1, #8B80F9)' }}>
                             {l.user.charAt(0)}
                           </div>
-                          <p className="text-xs font-medium" style={{ color: '#433C50' }}>{l.user}</p>
+                          <p className="text-xs font-medium" style={{ color: '#1E1B4B' }}>{l.user}</p>
                         </div>
                       </td>
                       <td className="px-4 py-3">
@@ -127,13 +127,13 @@ export default function AuditLogPage() {
                           {l.action}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-xs" style={{ color: '#6D6777' }}>{l.module}</td>
-                      <td className="px-4 py-3 text-xs font-mono font-semibold" style={{ color: '#714B67' }}>{l.record}</td>
-                      <td className="px-4 py-3 text-xs max-w-48 truncate" style={{ color: '#433C50' }}>{l.detail}</td>
-                      <td className="px-4 py-3 text-xs font-mono" style={{ color: '#A5A3AE' }}>{l.ip}</td>
+                      <td className="px-4 py-3 text-xs" style={{ color: '#6B7280' }}>{l.module}</td>
+                      <td className="px-4 py-3 text-xs font-mono font-semibold" style={{ color: '#5B52D1' }}>{l.record}</td>
+                      <td className="px-4 py-3 text-xs max-w-48 truncate" style={{ color: '#1E1B4B' }}>{l.detail}</td>
+                      <td className="px-4 py-3 text-xs font-mono" style={{ color: '#9CA3AF' }}>{l.ip}</td>
                       <td className="px-4 py-3">
-                        <p className="text-xs" style={{ color: '#433C50' }}>{l.time}</p>
-                        <p className="text-[10px]" style={{ color: '#A5A3AE' }}>{l.date}</p>
+                        <p className="text-xs" style={{ color: '#1E1B4B' }}>{l.time}</p>
+                        <p className="text-[10px]" style={{ color: '#9CA3AF' }}>{l.date}</p>
                       </td>
                     </tr>
                   );
@@ -143,8 +143,8 @@ export default function AuditLogPage() {
           </div>
           {filtered.length === 0 && (
             <div className="p-12 text-center">
-              <Activity className="h-8 w-8 mx-auto mb-2" style={{ color: '#A5A3AE' }} />
-              <p className="text-sm" style={{ color: '#A5A3AE' }}>Tidak ada log ditemukan</p>
+              <Activity className="h-8 w-8 mx-auto mb-2" style={{ color: '#9CA3AF' }} />
+              <p className="text-sm" style={{ color: '#9CA3AF' }}>Tidak ada log ditemukan</p>
             </div>
           )}
         </div>

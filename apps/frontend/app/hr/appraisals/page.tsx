@@ -23,7 +23,7 @@ export default function HrAppraisalsPage() {
     <AppShell {...HR_CONFIG} navItems={HR_NAV} activeHref="/hr/appraisals">
       <div className="p-6 space-y-6 max-w-5xl mx-auto">
         <div className="flex items-center justify-between">
-          <div><h1 className="text-xl font-bold" style={{ color: '#433C50' }}>Penilaian Karyawan</h1><p className="text-sm mt-0.5" style={{ color: '#A5A3AE' }}>Performance appraisal per periode</p></div>
+          <div><h1 className="text-xl font-bold" style={{ color: '#1E1B4B' }}>Penilaian Karyawan</h1><p className="text-sm mt-0.5" style={{ color: '#9CA3AF' }}>Performance appraisal per periode</p></div>
           <button className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold text-white" style={{ backgroundColor: HR_CONFIG.appColor }}><Plus className="h-4 w-4" /> Penilaian Baru</button>
         </div>
         <div className="grid gap-3">
@@ -32,8 +32,8 @@ export default function HrAppraisalsPage() {
               <div className="flex items-center gap-4">
                 <div className="flex h-9 w-9 items-center justify-center rounded-full text-white text-sm font-bold" style={{ backgroundColor: HR_CONFIG.appColor }}>{a.name.charAt(0)}</div>
                 <div>
-                  <p className="text-sm font-bold" style={{ color: '#433C50' }}>{a.name}</p>
-                  <p className="text-xs" style={{ color: '#A5A3AE' }}>{a.dept} · {a.period}</p>
+                  <p className="text-sm font-bold" style={{ color: '#1E1B4B' }}>{a.name}</p>
+                  <p className="text-xs" style={{ color: '#9CA3AF' }}>{a.dept} · {a.period}</p>
                 </div>
               </div>
               <div className="flex items-center gap-6">
@@ -42,7 +42,7 @@ export default function HrAppraisalsPage() {
                     <div className="flex items-center gap-1">
                       {[1,2,3,4,5].map(n => <Star key={n} className="h-4 w-4" style={{ fill: n <= Math.round(a.score / 20) ? '#FF9800' : 'none', color: '#FF9800' }} />)}
                     </div>
-                    <p className="text-xs mt-1 font-semibold" style={{ color: '#433C50' }}>{a.score}/100</p>
+                    <p className="text-xs mt-1 font-semibold" style={{ color: '#1E1B4B' }}>{a.score}/100</p>
                   </div>
                 ) : (
                   <button className="px-3 py-1.5 rounded-lg text-xs font-semibold text-white" style={{ backgroundColor: HR_CONFIG.appColor }}>Mulai Penilaian</button>

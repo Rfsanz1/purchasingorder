@@ -41,7 +41,7 @@ const SCHEDULES = [
 ];
 
 const STATUS_MAP: Record<string, { label: string; color: string; bg: string; icon: React.ElementType }> = {
-  new:         { label: 'Baru',       color: '#A5A3AE', bg: 'rgba(165,163,174,.12)', icon: Clock },
+  new:         { label: 'Baru',       color: '#9CA3AF', bg: 'rgba(165,163,174,.12)', icon: Clock },
   in_progress: { label: 'Dikerjakan', color: '#2196F3', bg: 'rgba(33,150,243,.1)',   icon: Wrench },
   done:        { label: 'Selesai',    color: '#4CAF50', bg: 'rgba(76,175,80,.1)',    icon: CheckCircle },
 };
@@ -68,13 +68,13 @@ export default function MaintenanceDashboard() {
             return (
               <div key={s.label} className="bg-white rounded-2xl p-5 border" style={{ borderColor: '#EDE8F5' }}>
                 <div className="flex items-center justify-between mb-3">
-                  <p className="text-xs font-medium" style={{ color: '#A5A3AE' }}>{s.label}</p>
+                  <p className="text-xs font-medium" style={{ color: '#9CA3AF' }}>{s.label}</p>
                   <div className="flex h-9 w-9 items-center justify-center rounded-xl" style={{ backgroundColor: s.bg }}>
                     <Icon className="h-5 w-5" style={{ color: s.color }} />
                   </div>
                 </div>
                 <p className="text-2xl font-bold" style={{ color: '#2F2B3D' }}>{s.value}</p>
-                <p className="text-xs mt-1" style={{ color: '#A5A3AE' }}>{s.sub}</p>
+                <p className="text-xs mt-1" style={{ color: '#9CA3AF' }}>{s.sub}</p>
               </div>
             );
           })}
@@ -103,7 +103,7 @@ export default function MaintenanceDashboard() {
                         )}
                       </div>
                       <p className="text-xs font-semibold mt-0.5" style={{ color: '#2F2B3D' }}>{req.equipment}</p>
-                      <p className="text-[11px] mt-0.5" style={{ color: '#A5A3AE' }}>{req.issue}</p>
+                      <p className="text-[11px] mt-0.5" style={{ color: '#9CA3AF' }}>{req.issue}</p>
                       <p className="text-[11px] mt-0.5" style={{ color: '#B0AAB9' }}>Teknisi: {req.technician} · {req.created}</p>
                     </div>
                     <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0" style={{ backgroundColor: st.bg, color: st.color }}>{st.label}</span>
@@ -124,7 +124,7 @@ export default function MaintenanceDashboard() {
                     <Calendar className="h-4 w-4 flex-shrink-0 mt-0.5" style={{ color: '#2196F3' }} />
                     <div>
                       <p className="text-xs font-semibold" style={{ color: '#2F2B3D' }}>{sch.equipment}</p>
-                      <p className="text-[11px] mt-0.5" style={{ color: '#A5A3AE' }}>{sch.type} · {sch.date}</p>
+                      <p className="text-[11px] mt-0.5" style={{ color: '#9CA3AF' }}>{sch.type} · {sch.date}</p>
                       <p className="text-[11px]" style={{ color: '#B0AAB9' }}>Teknisi: {sch.technician}</p>
                     </div>
                   </div>

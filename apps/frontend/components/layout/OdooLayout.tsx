@@ -241,9 +241,7 @@ const navGroups: NavGroup[] = [
   {
     label: 'AI CENTER',
     items: [
-      {
-        label: 'AI Dashboard', icon: Brain, href: '/ai',
-      },
+      { label: 'AI Dashboard', icon: Brain, href: '/ai' },
       {
         label: 'AI Features', icon: Sparkles,
         children: [
@@ -287,6 +285,27 @@ const navGroups: NavGroup[] = [
   },
 ];
 
+// ── Color tokens (login page palette) ──────────────────────────────────────
+const C = {
+  primary:      '#5B52D1',
+  primaryLight: '#8B80F9',
+  primaryBg:    'rgba(91,82,209,0.08)',
+  primaryBorder:'rgba(91,82,209,0.15)',
+  activeBg:     'rgba(91,82,209,0.10)',
+  hoverBg:      'rgba(91,82,209,0.06)',
+  border:       '#EDE9FE',
+  borderLight:  '#F3F0FF',
+  sidebarBg:    '#FFFFFF',
+  pageBg:       '#F5F3FF',
+  topbarBg:     '#FFFFFF',
+  textDark:     '#1E1B4B',
+  textMid:      '#6B7280',
+  textLight:    '#9CA3AF',
+  navDot:       '#C4B5FD',
+  danger:       '#EF4444',
+  childBorder:  '#DDD6FE',
+};
+
 function NavItemComponent({ item }: { item: NavItem }) {
   const pathname = usePathname();
   const isChildActive = item.children?.some((c) => pathname.startsWith(c.href.split('?')[0])) ?? false;
@@ -297,30 +316,27 @@ function NavItemComponent({ item }: { item: NavItem }) {
       <div>
         <button
           onClick={() => setOpen(!open)}
-          className="w-full flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors group"
+          className="w-full flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm transition-colors"
           style={{
-            backgroundColor: open ? 'rgba(113,75,103,.06)' : 'transparent',
-            color: open ? '#714B67' : '#6D6777',
+            backgroundColor: open ? C.activeBg : 'transparent',
+            color: open ? C.primary : C.textMid,
           }}
         >
           <item.icon className="h-4 w-4 flex-shrink-0" />
           <span className="flex-1 text-left font-medium">{item.label}</span>
           {item.badge && (
-            <span className="flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[10px] font-bold text-white mr-1" style={{ backgroundColor: '#EA5455' }}>
+            <span className="flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[10px] font-bold text-white mr-1" style={{ backgroundColor: C.danger }}>
               {item.badge}
             </span>
           )}
           <ChevronRight
             className="h-3.5 w-3.5 transition-transform duration-200 flex-shrink-0"
-            style={{ transform: open ? 'rotate(90deg)' : 'rotate(0deg)' }}
+            style={{ transform: open ? 'rotate(90deg)' : 'rotate(0deg)', color: open ? C.primary : C.textLight }}
           />
         </button>
 
-        <div
-          className="overflow-hidden transition-all duration-200"
-          style={{ maxHeight: open ? '800px' : '0px' }}
-        >
-          <div className="ml-4 mt-0.5 pl-3 pb-1 space-y-0.5" style={{ borderLeft: '2px solid #E9E0F8' }}>
+        <div className="overflow-hidden transition-all duration-200" style={{ maxHeight: open ? '800px' : '0px' }}>
+          <div className="ml-4 mt-0.5 pl-3 pb-1 space-y-0.5" style={{ borderLeft: `2px solid ${C.childBorder}` }}>
             {item.children.map((child) => {
               const hrefPath = child.href.split('?')[0];
               const active = pathname === hrefPath || (pathname.startsWith(hrefPath + '/') && hrefPath !== '/');
@@ -328,16 +344,16 @@ function NavItemComponent({ item }: { item: NavItem }) {
                 <Link
                   key={child.href}
                   href={child.href}
-                  className="flex items-center gap-2 rounded-md px-3 py-1.5 text-sm transition-colors"
+                  className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-[13px] transition-colors"
                   style={{
-                    backgroundColor: active ? 'rgba(113,75,103,.12)' : 'transparent',
-                    color: active ? '#714B67' : '#6D6777',
+                    backgroundColor: active ? C.activeBg : 'transparent',
+                    color: active ? C.primary : C.textMid,
                     fontWeight: active ? 600 : 400,
                   }}
                 >
                   <span
                     className="h-1.5 w-1.5 rounded-full flex-shrink-0"
-                    style={{ backgroundColor: active ? '#714B67' : '#E9E0F8' }}
+                    style={{ backgroundColor: active ? C.primary : C.navDot }}
                   />
                   {child.label}
                 </Link>
@@ -353,15 +369,16 @@ function NavItemComponent({ item }: { item: NavItem }) {
   return (
     <Link
       href={item.href!}
-      className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors"
+      className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm transition-colors"
       style={{
-        backgroundColor: active ? 'rgba(113,75,103,.12)' : 'transparent',
-        color: active ? '#714B67' : '#6D6777',
+        backgroundColor: active ? C.activeBg : 'transparent',
+        color: active ? C.primary : C.textMid,
         fontWeight: active ? 600 : 400,
       }}
     >
-      <item.icon className="h-4 w-4 flex-shrink-0" />
+      <item.icon className="h-4 w-4 flex-shrink-0" style={{ color: active ? C.primary : C.textMid }} />
       <span>{item.label}</span>
+      {active && <span className="ml-auto h-1.5 w-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: C.primary }} />}
     </Link>
   );
 }
@@ -386,49 +403,38 @@ export function OdooLayout({ children, title, subtitle }: OdooLayoutProps) {
   };
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#F5F5F9' }}>
+    <div className="min-h-screen" style={{ backgroundColor: C.pageBg }}>
       {sidebarOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
+        <div className="fixed inset-0 z-40 bg-black/40 lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
+      {/* ── Sidebar ── */}
       <aside
         className={`fixed left-0 top-0 z-50 h-full flex flex-col overflow-hidden transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
-        style={{
-          width: '260px',
-          backgroundColor: '#FFFFFF',
-          borderRight: '1px solid #E9E0F8',
-        }}
+        style={{ width: '260px', backgroundColor: C.sidebarBg, borderRight: `1px solid ${C.border}` }}
       >
-        <div className="flex items-center gap-3 px-5 py-4" style={{ borderBottom: '1px solid #E9E0F8' }}>
+        {/* Logo */}
+        <div className="flex items-center gap-3 px-5 py-4" style={{ borderBottom: `1px solid ${C.border}` }}>
           <div
-            className="flex h-9 w-9 items-center justify-center rounded-lg text-white font-bold text-base flex-shrink-0"
-            style={{ background: 'linear-gradient(135deg, #714B67, #9C6B8E)' }}
+            className="flex h-9 w-9 items-center justify-center rounded-xl text-white font-bold text-base flex-shrink-0"
+            style={{ background: `linear-gradient(135deg, ${C.primary}, ${C.primaryLight})`, boxShadow: `0 4px 12px ${C.primaryBorder}` }}
           >
             G
           </div>
           <div>
-            <h2 className="text-sm font-bold leading-tight" style={{ color: '#433C50' }}>Gentong Mas</h2>
-            <p className="text-xs" style={{ color: '#A5A3AE' }}>ERP System v2.0</p>
+            <h2 className="text-sm font-bold leading-tight" style={{ color: C.textDark }}>Gentong Mas</h2>
+            <p className="text-[11px]" style={{ color: C.textLight }}>ERP System v2.0</p>
           </div>
-          <button
-            className="ml-auto lg:hidden"
-            onClick={() => setSidebarOpen(false)}
-            style={{ color: '#A5A3AE' }}
-          >
+          <button className="ml-auto lg:hidden" onClick={() => setSidebarOpen(false)} style={{ color: C.textLight }}>
             <X className="h-5 w-5" />
           </button>
         </div>
 
-        <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-4 scrollbar-thin">
+        {/* Nav */}
+        <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-5 scrollbar-thin">
           {navGroups.map((group) => (
             <div key={group.label}>
-              <p
-                className="px-3 mb-1.5 text-[10px] font-semibold tracking-widest"
-                style={{ color: '#A5A3AE' }}
-              >
+              <p className="px-3 mb-1.5 text-[10px] font-bold tracking-widest" style={{ color: C.primaryLight }}>
                 {group.label}
               </p>
               <div className="space-y-0.5">
@@ -440,39 +446,63 @@ export function OdooLayout({ children, title, subtitle }: OdooLayoutProps) {
           ))}
         </nav>
 
-        <div className="px-3 py-3" style={{ borderTop: '1px solid #E9E0F8' }}>
+        {/* User panel */}
+        <div className="px-3 py-3" style={{ borderTop: `1px solid ${C.border}` }}>
           <div className="relative">
             <button
               onClick={() => setUserDropdown(!userDropdown)}
-              className="w-full flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm transition-colors"
-              style={{ backgroundColor: 'rgba(113,75,103,.06)' }}
+              className="w-full flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm transition-colors"
+              style={{ backgroundColor: C.hoverBg, border: `1px solid ${C.border}` }}
             >
               <div
                 className="flex h-7 w-7 items-center justify-center rounded-full text-white text-xs font-bold flex-shrink-0"
-                style={{ background: 'linear-gradient(135deg, #714B67, #9C6B8E)' }}
+                style={{ background: `linear-gradient(135deg, ${C.primary}, ${C.primaryLight})` }}
               >
                 {user?.name?.charAt(0)?.toUpperCase() ?? 'U'}
               </div>
               <div className="flex-1 text-left overflow-hidden">
-                <p className="text-xs font-semibold truncate" style={{ color: '#433C50' }}>{user?.name ?? 'Admin'}</p>
-                <p className="text-[10px] truncate" style={{ color: '#A5A3AE' }}>{(user as any)?.role ?? (user?.roles?.[0] ?? 'Super Admin')}</p>
+                <p className="text-xs font-semibold truncate" style={{ color: C.textDark }}>{user?.name ?? 'Admin'}</p>
+                <p className="text-[10px] truncate" style={{ color: C.textLight }}>{(user as any)?.role ?? (user?.roles?.[0] ?? 'Super Admin')}</p>
               </div>
-              <ChevronRight className="h-3.5 w-3.5 flex-shrink-0" style={{ color: '#A5A3AE', transform: userDropdown ? 'rotate(90deg)' : 'rotate(0deg)' }} />
+              <ChevronRight
+                className="h-3.5 w-3.5 flex-shrink-0 transition-transform duration-200"
+                style={{ color: C.textLight, transform: userDropdown ? 'rotate(90deg)' : 'rotate(0deg)' }}
+              />
             </button>
 
             {userDropdown && (
               <div
-                className="absolute bottom-full left-0 right-0 mb-1 rounded-xl overflow-hidden shadow-lg"
-                style={{ backgroundColor: '#FFFFFF', border: '1px solid #E9E0F8' }}
+                className="absolute bottom-full left-0 right-0 mb-2 rounded-2xl overflow-hidden shadow-xl"
+                style={{ backgroundColor: '#FFFFFF', border: `1px solid ${C.border}`, boxShadow: `0 8px 32px rgba(91,82,209,0.15)` }}
               >
-                <Link href="/settings/users" className="flex items-center gap-2.5 px-4 py-2.5 text-sm hover:bg-gray-50 transition-colors" style={{ color: '#433C50' }} onClick={() => setUserDropdown(false)}>
-                  <User className="h-4 w-4" style={{ color: '#A5A3AE' }} /> Profil Saya
+                <Link
+                  href="/settings/users"
+                  className="flex items-center gap-2.5 px-4 py-2.5 text-sm transition-colors"
+                  style={{ color: C.textDark }}
+                  onMouseEnter={e => (e.currentTarget.style.backgroundColor = C.hoverBg)}
+                  onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
+                  onClick={() => setUserDropdown(false)}
+                >
+                  <User className="h-4 w-4" style={{ color: C.textLight }} /> Profil Saya
                 </Link>
-                <Link href="/settings" className="flex items-center gap-2.5 px-4 py-2.5 text-sm hover:bg-gray-50 transition-colors" style={{ color: '#433C50' }} onClick={() => setUserDropdown(false)}>
-                  <Settings className="h-4 w-4" style={{ color: '#A5A3AE' }} /> Pengaturan
+                <Link
+                  href="/settings"
+                  className="flex items-center gap-2.5 px-4 py-2.5 text-sm transition-colors"
+                  style={{ color: C.textDark }}
+                  onMouseEnter={e => (e.currentTarget.style.backgroundColor = C.hoverBg)}
+                  onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
+                  onClick={() => setUserDropdown(false)}
+                >
+                  <Settings className="h-4 w-4" style={{ color: C.textLight }} /> Pengaturan
                 </Link>
-                <div style={{ borderTop: '1px solid #E9E0F8' }} />
-                <button onClick={handleLogout} className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm hover:bg-gray-50 transition-colors" style={{ color: '#EA5455' }}>
+                <div style={{ borderTop: `1px solid ${C.border}` }} />
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm transition-colors"
+                  style={{ color: C.danger }}
+                  onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'rgba(239,68,68,0.05)')}
+                  onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
+                >
                   <LogOut className="h-4 w-4" /> Keluar
                 </button>
               </div>
@@ -481,37 +511,65 @@ export function OdooLayout({ children, title, subtitle }: OdooLayoutProps) {
         </div>
       </aside>
 
+      {/* ── Main ── */}
       <main className="lg:pl-[260px] min-h-screen">
+        {/* Topbar */}
         <header
           className="sticky top-0 z-30 flex items-center gap-4 px-6 py-3"
-          style={{ backgroundColor: '#FFFFFF', borderBottom: '1px solid #E9E0F8', boxShadow: '0 1px 4px rgba(47,43,61,.04)' }}
+          style={{
+            backgroundColor: C.topbarBg,
+            borderBottom: `1px solid ${C.border}`,
+            boxShadow: '0 1px 8px rgba(91,82,209,0.06)',
+          }}
         >
-          <button className="lg:hidden p-1.5 rounded-lg" style={{ color: '#6D6777' }} onClick={() => setSidebarOpen(true)}>
+          <button className="lg:hidden p-1.5 rounded-xl transition-colors" style={{ color: C.textMid }} onClick={() => setSidebarOpen(true)}
+            onMouseEnter={e => (e.currentTarget.style.backgroundColor = C.hoverBg)}
+            onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
+          >
             <Menu className="h-5 w-5" />
           </button>
 
           {(title || subtitle) && (
             <div className="hidden sm:block">
-              {title && <h1 className="text-sm font-semibold" style={{ color: '#433C50' }}>{title}</h1>}
-              {subtitle && <p className="text-xs" style={{ color: '#A5A3AE' }}>{subtitle}</p>}
+              {title && <h1 className="text-sm font-bold" style={{ color: C.textDark }}>{title}</h1>}
+              {subtitle && <p className="text-xs" style={{ color: C.textLight }}>{subtitle}</p>}
             </div>
           )}
 
           <div className="flex-1" />
 
-          <div className="flex items-center gap-2">
-            <Link href="/notifications" className="relative p-2 rounded-lg transition-colors hover:bg-gray-50" style={{ color: '#6D6777' }}>
+          <div className="flex items-center gap-1.5">
+            <Link
+              href="/notifications"
+              className="relative p-2 rounded-xl transition-colors"
+              style={{ color: C.textMid }}
+              onMouseEnter={e => (e.currentTarget.style.backgroundColor = C.hoverBg)}
+              onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
+            >
               <Bell className="h-5 w-5" />
               {unreadCount > 0 && (
-                <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold text-white" style={{ backgroundColor: '#EA5455' }}>
+                <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold text-white" style={{ backgroundColor: C.danger }}>
                   {unreadCount > 9 ? '9+' : unreadCount}
                 </span>
               )}
             </Link>
-            <Link href="/ai/chatbot" className="p-2 rounded-lg transition-colors hover:bg-purple-50 relative" style={{ color: '#714B67' }} title="AI Assistant">
+            <Link
+              href="/ai/chatbot"
+              className="p-2 rounded-xl transition-colors"
+              style={{ color: C.primary }}
+              title="AI Assistant"
+              onMouseEnter={e => (e.currentTarget.style.backgroundColor = C.hoverBg)}
+              onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
+            >
               <Brain className="h-5 w-5" />
             </Link>
-            <Link href="/settings" className="p-2 rounded-lg transition-colors hover:bg-gray-50" style={{ color: '#6D6777' }}>
+            <Link
+              href="/settings"
+              className="p-2 rounded-xl transition-colors"
+              style={{ color: C.textMid }}
+              onMouseEnter={e => (e.currentTarget.style.backgroundColor = C.hoverBg)}
+              onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
+            >
               <Settings className="h-5 w-5" />
             </Link>
           </div>

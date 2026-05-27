@@ -86,7 +86,7 @@ export default function AiRecommendationPage() {
             <div
               key={i}
               className="rounded-2xl p-5"
-              style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #E9E0F8' }}
+              style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE' }}
             >
               <div className="flex items-start justify-between">
                 <div className="flex items-start gap-3 flex-1">
@@ -100,8 +100,8 @@ export default function AiRecommendationPage() {
                         {r.priority}
                       </span>
                     </div>
-                    <h3 className="font-bold text-sm mb-1" style={{ color: '#433C50' }}>{r.title}</h3>
-                    <p className="text-xs mb-2" style={{ color: '#6D6777' }}>{r.reason}</p>
+                    <h3 className="font-bold text-sm mb-1" style={{ color: '#1E1B4B' }}>{r.title}</h3>
+                    <p className="text-xs mb-2" style={{ color: '#6B7280' }}>{r.reason}</p>
                     <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl w-fit text-xs font-semibold" style={{ backgroundColor: '#F0FDF4', color: '#15803D', border: '1px solid rgba(34,197,94,.2)' }}>
                       <TrendingUp className="h-3 w-3" /> {r.impact}
                     </div>
@@ -119,7 +119,7 @@ export default function AiRecommendationPage() {
                     onClick={() => setDismissed(d => [...d, r.title])}
                     className="p-1.5 rounded-lg hover:bg-gray-100 transition text-xs"
                     title="Abaikan rekomendasi ini"
-                    style={{ color: '#A5A3AE' }}
+                    style={{ color: '#9CA3AF' }}
                   >
                     <CheckCircle className="h-4 w-4" />
                   </button>
@@ -134,7 +134,7 @@ export default function AiRecommendationPage() {
             <button
               onClick={() => setDismissed([])}
               className="text-xs font-semibold"
-              style={{ color: '#714B67' }}
+              style={{ color: '#5B52D1' }}
             >
               Tampilkan {dismissed.length} rekomendasi yang diabaikan
             </button>
@@ -142,10 +142,10 @@ export default function AiRecommendationPage() {
         )}
 
         {active.length === 0 && (
-          <div className="rounded-2xl p-12 text-center" style={{ backgroundColor: '#F8F7FC' }}>
+          <div className="rounded-2xl p-12 text-center" style={{ backgroundColor: '#F5F3FF' }}>
             <CheckCircle className="h-12 w-12 mx-auto mb-3" style={{ color: '#22C55E' }} />
-            <p className="font-bold" style={{ color: '#433C50' }}>Semua rekomendasi sudah ditandai!</p>
-            <p className="text-sm mt-1" style={{ color: '#A5A3AE' }}>AI akan menghasilkan rekomendasi baru secara otomatis.</p>
+            <p className="font-bold" style={{ color: '#1E1B4B' }}>Semua rekomendasi sudah ditandai!</p>
+            <p className="text-sm mt-1" style={{ color: '#9CA3AF' }}>AI akan menghasilkan rekomendasi baru secara otomatis.</p>
           </div>
         )}
       </div>

@@ -107,23 +107,23 @@ export default function AiAutomationPage() {
           {[
             { label: 'Automasi Aktif', value: activeCount, color: '#22C55E' },
             { label: 'Total Rule', value: automations.length, color: '#3B82F6' },
-            { label: 'Total Eksekusi', value: totalRuns, color: '#714B67' },
+            { label: 'Total Eksekusi', value: totalRuns, color: '#5B52D1' },
             { label: 'Berhasil Rate', value: '98.2%', color: '#F59E0B' },
           ].map((s, i) => (
-            <div key={i} className="rounded-2xl p-4" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #E9E0F8' }}>
+            <div key={i} className="rounded-2xl p-4" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE' }}>
               <p className="text-2xl font-bold" style={{ color: s.color }}>{s.value}</p>
-              <p className="text-xs mt-1" style={{ color: '#A5A3AE' }}>{s.label}</p>
+              <p className="text-xs mt-1" style={{ color: '#9CA3AF' }}>{s.label}</p>
             </div>
           ))}
         </div>
 
         {/* Header */}
         <div className="flex items-center justify-between">
-          <h2 className="font-bold" style={{ color: '#433C50' }}>Automation Rules</h2>
+          <h2 className="font-bold" style={{ color: '#1E1B4B' }}>Automation Rules</h2>
           <button
             onClick={() => setShowCreate(true)}
             className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white"
-            style={{ background: 'linear-gradient(135deg, #714B67, #9C6B8E)' }}
+            style={{ background: 'linear-gradient(135deg, #5B52D1, #8B80F9)' }}
           >
             <Plus className="h-4 w-4" /> Buat Rule Baru
           </button>
@@ -135,21 +135,21 @@ export default function AiAutomationPage() {
             <div
               key={a.id}
               className="rounded-2xl p-5"
-              style={{ backgroundColor: '#FFFFFF', border: `1.5px solid ${a.status === 'active' ? '#E9E0F8' : '#F0F0F0'}`, opacity: a.status === 'draft' ? 0.7 : 1 }}
+              style={{ backgroundColor: '#FFFFFF', border: `1.5px solid ${a.status === 'active' ? '#EDE9FE' : '#F0F0F0'}`, opacity: a.status === 'draft' ? 0.7 : 1 }}
             >
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-start gap-3">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl flex-shrink-0" style={{ backgroundColor: (MODULE_COLORS[a.module] ?? '#714B67') + '15' }}>
-                    <Zap className="h-4.5 w-4.5" style={{ color: MODULE_COLORS[a.module] ?? '#714B67' }} />
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl flex-shrink-0" style={{ backgroundColor: (MODULE_COLORS[a.module] ?? '#5B52D1') + '15' }}>
+                    <Zap className="h-4.5 w-4.5" style={{ color: MODULE_COLORS[a.module] ?? '#5B52D1' }} />
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <p className="font-bold text-sm" style={{ color: '#433C50' }}>{a.name}</p>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold" style={{ backgroundColor: (MODULE_COLORS[a.module] ?? '#714B67') + '15', color: MODULE_COLORS[a.module] ?? '#714B67' }}>
+                      <p className="font-bold text-sm" style={{ color: '#1E1B4B' }}>{a.name}</p>
+                      <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold" style={{ backgroundColor: (MODULE_COLORS[a.module] ?? '#5B52D1') + '15', color: MODULE_COLORS[a.module] ?? '#5B52D1' }}>
                         {a.module}
                       </span>
                     </div>
-                    <p className="text-[11px] mt-0.5" style={{ color: '#A5A3AE' }}>{a.id} · {a.runCount} eksekusi · Terakhir: {a.lastRun}</p>
+                    <p className="text-[11px] mt-0.5" style={{ color: '#9CA3AF' }}>{a.id} · {a.runCount} eksekusi · Terakhir: {a.lastRun}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -164,7 +164,7 @@ export default function AiAutomationPage() {
                     {a.status === 'active' ? <Pause className="h-4 w-4" style={{ color: '#F59E0B' }} /> : <Play className="h-4 w-4" style={{ color: '#22C55E' }} />}
                   </button>
                   <button className="p-1.5 rounded-lg hover:bg-gray-100 transition">
-                    <Settings className="h-4 w-4" style={{ color: '#A5A3AE' }} />
+                    <Settings className="h-4 w-4" style={{ color: '#9CA3AF' }} />
                   </button>
                 </div>
               </div>
@@ -174,11 +174,11 @@ export default function AiAutomationPage() {
                 <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs" style={{ backgroundColor: 'rgba(59,130,246,.08)', border: '1px solid rgba(59,130,246,.2)', color: '#1D4ED8' }}>
                   <AlertCircle className="h-3 w-3" /> <strong>TRIGGER:</strong> {a.trigger}
                 </div>
-                <ChevronRight className="h-4 w-4 flex-shrink-0" style={{ color: '#A5A3AE' }} />
+                <ChevronRight className="h-4 w-4 flex-shrink-0" style={{ color: '#9CA3AF' }} />
                 <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-mono" style={{ backgroundColor: 'rgba(245,158,11,.08)', border: '1px solid rgba(245,158,11,.2)', color: '#92400E' }}>
                   IF {a.condition}
                 </div>
-                <ChevronRight className="h-4 w-4 flex-shrink-0" style={{ color: '#A5A3AE' }} />
+                <ChevronRight className="h-4 w-4 flex-shrink-0" style={{ color: '#9CA3AF' }} />
                 <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs" style={{ backgroundColor: 'rgba(34,197,94,.08)', border: '1px solid rgba(34,197,94,.2)', color: '#15803D' }}>
                   <Zap className="h-3 w-3" /> <strong>THEN:</strong> {a.action}
                 </div>
@@ -188,14 +188,14 @@ export default function AiAutomationPage() {
         </div>
 
         {/* Create New Rule Hint */}
-        <div className="rounded-2xl p-6 text-center" style={{ backgroundColor: '#F8F7FC', border: '1.5px dashed #E9E0F8' }}>
-          <Zap className="h-8 w-8 mx-auto mb-3" style={{ color: '#714B67' }} />
-          <p className="font-semibold text-sm mb-1" style={{ color: '#433C50' }}>Buat Automation Rule Baru</p>
-          <p className="text-xs mb-4" style={{ color: '#A5A3AE' }}>Otomasi proses bisnis dengan mudah menggunakan antarmuka visual</p>
+        <div className="rounded-2xl p-6 text-center" style={{ backgroundColor: '#F5F3FF', border: '1.5px dashed #EDE9FE' }}>
+          <Zap className="h-8 w-8 mx-auto mb-3" style={{ color: '#5B52D1' }} />
+          <p className="font-semibold text-sm mb-1" style={{ color: '#1E1B4B' }}>Buat Automation Rule Baru</p>
+          <p className="text-xs mb-4" style={{ color: '#9CA3AF' }}>Otomasi proses bisnis dengan mudah menggunakan antarmuka visual</p>
           <button
             onClick={() => setShowCreate(true)}
             className="px-5 py-2 rounded-xl text-sm font-semibold text-white"
-            style={{ background: 'linear-gradient(135deg, #714B67, #9C6B8E)' }}
+            style={{ background: 'linear-gradient(135deg, #5B52D1, #8B80F9)' }}
           >
             + Tambah Rule
           </button>

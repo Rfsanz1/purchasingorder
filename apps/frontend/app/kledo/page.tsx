@@ -88,8 +88,8 @@ export default function KledoPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold" style={{ color: '#433C50' }}>Integrasi Kledo ERP</h1>
-            <p className="text-sm mt-0.5" style={{ color: '#A5A3AE' }}>Sinkronisasi produk, pelanggan &amp; invoice dari Kledo secara background</p>
+            <h1 className="text-xl font-bold" style={{ color: '#1E1B4B' }}>Integrasi Kledo ERP</h1>
+            <p className="text-sm mt-0.5" style={{ color: '#9CA3AF' }}>Sinkronisasi produk, pelanggan &amp; invoice dari Kledo secara background</p>
           </div>
           <button onClick={load} className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition" style={{ background: '#F5F3FF', color: '#5B52D1', border: '1.5px solid #EDE8F5' }}>
             <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} /> Refresh
@@ -108,7 +108,7 @@ export default function KledoPage() {
             <p className="font-semibold text-sm" style={{ color: status?.connected ? '#388E3C' : '#C62828' }}>
               {status?.connected ? '✅ Kledo Terhubung' : '❌ Kledo Tidak Terhubung'}
             </p>
-            <p className="text-xs mt-0.5" style={{ color: '#A5A3AE' }}>{status?.message || 'Mengecek koneksi...'}</p>
+            <p className="text-xs mt-0.5" style={{ color: '#9CA3AF' }}>{status?.message || 'Mengecek koneksi...'}</p>
           </div>
           {hasRunning && (
             <div className="flex items-center gap-2 text-xs font-medium px-3 py-1.5 rounded-full" style={{ background: 'rgba(245,158,11,.12)', color: '#D97706' }}>
@@ -132,8 +132,8 @@ export default function KledoPage() {
                   {isRunning && <div className="h-2 w-2 rounded-full animate-pulse" style={{ background: color }} />}
                 </div>
                 <div>
-                  <p className="text-sm font-semibold" style={{ color: '#433C50' }}>{label}</p>
-                  <p className="text-xs mt-0.5" style={{ color: '#A5A3AE' }}>{desc}</p>
+                  <p className="text-sm font-semibold" style={{ color: '#1E1B4B' }}>{label}</p>
+                  <p className="text-xs mt-0.5" style={{ color: '#9CA3AF' }}>{desc}</p>
                 </div>
                 <button
                   onClick={() => triggerSync(endpoint, label)}
@@ -153,12 +153,12 @@ export default function KledoPage() {
         {/* Sync Log Table */}
         <div className="bg-white rounded-2xl overflow-hidden" style={{ border: '1.5px solid #EDE8F5', boxShadow: '0 1px 4px rgba(47,43,61,.06)' }}>
           <div className="px-5 py-4 flex items-center justify-between" style={{ borderBottom: '1px solid #F5F2FB' }}>
-            <h3 className="text-sm font-bold" style={{ color: '#433C50' }}>Riwayat Sinkronisasi</h3>
-            <span className="text-xs" style={{ color: '#A5A3AE' }}>Auto-refresh tiap 4 detik saat sync berjalan</span>
+            <h3 className="text-sm font-bold" style={{ color: '#1E1B4B' }}>Riwayat Sinkronisasi</h3>
+            <span className="text-xs" style={{ color: '#9CA3AF' }}>Auto-refresh tiap 4 detik saat sync berjalan</span>
           </div>
           <div className="divide-y" style={{ borderColor: '#F5F2FB' }}>
             {syncLogs.length === 0 ? (
-              <p className="p-5 text-sm text-center" style={{ color: '#A5A3AE' }}>Belum ada riwayat sync</p>
+              <p className="p-5 text-sm text-center" style={{ color: '#9CA3AF' }}>Belum ada riwayat sync</p>
             ) : syncLogs.map((log) => (
               <div key={log.id} className="px-5 py-3 flex items-center gap-4">
                 <div className="h-8 w-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{
@@ -171,9 +171,9 @@ export default function KledoPage() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-semibold uppercase px-1.5 py-0.5 rounded" style={{ background: '#F5F3FF', color: '#5B52D1' }}>{log.type}</span>
-                    <span className="text-xs truncate" style={{ color: '#433C50' }}>{log.message}</span>
+                    <span className="text-xs truncate" style={{ color: '#1E1B4B' }}>{log.message}</span>
                   </div>
-                  <p className="text-xs mt-0.5" style={{ color: '#A5A3AE' }}>
+                  <p className="text-xs mt-0.5" style={{ color: '#9CA3AF' }}>
                     <Clock className="h-3 w-3 inline mr-1" />
                     {new Date(log.createdAt).toLocaleString('id-ID', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                   </p>
@@ -191,15 +191,15 @@ export default function KledoPage() {
 
         {/* SPM Brands */}
         <div className="bg-white rounded-2xl p-5" style={{ border: '1.5px solid #EDE8F5', boxShadow: '0 1px 4px rgba(47,43,61,.06)' }}>
-          <h3 className="text-sm font-bold mb-4" style={{ color: '#433C50' }}>SPM Brand &amp; PIC</h3>
+          <h3 className="text-sm font-bold mb-4" style={{ color: '#1E1B4B' }}>SPM Brand &amp; PIC</h3>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {brands.map((b: any) => (
               <div key={b.brand} className="flex items-center justify-between px-3 py-2 rounded-lg" style={{ background: '#F5F3FF' }}>
                 <span className="text-xs font-bold" style={{ color: '#5B52D1' }}>{b.brand}</span>
-                <span className="text-xs" style={{ color: '#A5A3AE' }}>{b.pic}</span>
+                <span className="text-xs" style={{ color: '#9CA3AF' }}>{b.pic}</span>
               </div>
             ))}
-            {brands.length === 0 && <p className="col-span-3 text-sm" style={{ color: '#A5A3AE' }}>Belum ada data</p>}
+            {brands.length === 0 && <p className="col-span-3 text-sm" style={{ color: '#9CA3AF' }}>Belum ada data</p>}
           </div>
         </div>
 

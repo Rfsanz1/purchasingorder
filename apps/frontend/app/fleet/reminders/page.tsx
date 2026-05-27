@@ -48,8 +48,8 @@ export default function FleetRemindersPage() {
       <div className="p-6 space-y-6 max-w-5xl mx-auto">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold" style={{ color: '#433C50' }}>Reminder STNK & KIR</h1>
-            <p className="text-sm mt-0.5" style={{ color: '#A5A3AE' }}>Pantau masa berlaku dokumen kendaraan dan terima notifikasi otomatis</p>
+            <h1 className="text-xl font-bold" style={{ color: '#1E1B4B' }}>Reminder STNK & KIR</h1>
+            <p className="text-sm mt-0.5" style={{ color: '#9CA3AF' }}>Pantau masa berlaku dokumen kendaraan dan terima notifikasi otomatis</p>
           </div>
           <button className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-semibold text-white" style={{ backgroundColor: C }}>
             <MessageSquare className="h-4 w-4" /> Kirim Notif WA
@@ -61,7 +61,7 @@ export default function FleetRemindersPage() {
             <AlertTriangle className="h-5 w-5 flex-shrink-0 mt-0.5" style={{ color: '#EA5455' }} />
             <div>
               <p className="font-semibold text-sm" style={{ color: '#C62828' }}>{expired.length} Dokumen Sudah Kadaluarsa!</p>
-              <p className="text-xs mt-0.5" style={{ color: '#6D6777' }}>Segera perpanjang dokumen berikut untuk menghindari denda atau tilang.</p>
+              <p className="text-xs mt-0.5" style={{ color: '#6B7280' }}>Segera perpanjang dokumen berikut untuk menghindari denda atau tilang.</p>
             </div>
           </div>
         )}
@@ -71,7 +71,7 @@ export default function FleetRemindersPage() {
             <Bell className="h-5 w-5 flex-shrink-0 mt-0.5" style={{ color: '#FF9800' }} />
             <div>
               <p className="font-semibold text-sm" style={{ color: '#E65100' }}>{soon.length} Dokumen Akan Segera Habis</p>
-              <p className="text-xs mt-0.5" style={{ color: '#6D6777' }}>Dokumen berikut akan habis dalam 30 hari. Segera proses perpanjangan.</p>
+              <p className="text-xs mt-0.5" style={{ color: '#6B7280' }}>Dokumen berikut akan habis dalam 30 hari. Segera proses perpanjangan.</p>
             </div>
           </div>
         )}
@@ -83,7 +83,7 @@ export default function FleetRemindersPage() {
             { label: 'Valid', value: enriched.filter(r => r.status === 'ok').length, color: '#4CAF50' },
           ].map(s => (
             <div key={s.label} className="bg-white rounded-2xl p-5" style={{ border: '1.5px solid #EDE8F5', boxShadow: '0 1px 4px rgba(47,43,61,.06)' }}>
-              <p className="text-xs font-medium" style={{ color: '#A5A3AE' }}>{s.label}</p>
+              <p className="text-xs font-medium" style={{ color: '#9CA3AF' }}>{s.label}</p>
               <p className="text-2xl font-bold mt-1" style={{ color: s.color }}>{s.value}</p>
             </div>
           ))}
@@ -91,14 +91,14 @@ export default function FleetRemindersPage() {
 
         <div className="bg-white rounded-2xl" style={{ border: '1.5px solid #EDE8F5', boxShadow: '0 1px 4px rgba(47,43,61,.06)' }}>
           <div className="px-6 py-4" style={{ borderBottom: '1px solid #EDE8F5' }}>
-            <h3 className="font-semibold text-sm" style={{ color: '#433C50' }}>Status Dokumen Kendaraan</h3>
+            <h3 className="font-semibold text-sm" style={{ color: '#1E1B4B' }}>Status Dokumen Kendaraan</h3>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr style={{ borderBottom: '1px solid #EDE8F5', backgroundColor: '#F8F7FC' }}>
+                <tr style={{ borderBottom: '1px solid #EDE8F5', backgroundColor: '#F5F3FF' }}>
                   {['Kendaraan', 'Tipe Dokumen', 'Tanggal Kadaluarsa', 'Driver', 'Sisa Hari', 'Status', 'Aksi'].map(h => (
-                    <th key={h} className="px-6 py-3 text-left text-xs font-semibold whitespace-nowrap" style={{ color: '#A5A3AE' }}>{h}</th>
+                    <th key={h} className="px-6 py-3 text-left text-xs font-semibold whitespace-nowrap" style={{ color: '#9CA3AF' }}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -107,15 +107,15 @@ export default function FleetRemindersPage() {
                   const s = STATUS_MAP[r.status];
                   const IconComp = s.icon;
                   return (
-                    <tr key={r.id} style={{ borderBottom: '1px solid #F5F5F9' }} className="hover:bg-gray-50">
-                      <td className="px-6 py-3 font-medium text-sm" style={{ color: '#433C50' }}>{r.vehicle}</td>
+                    <tr key={r.id} style={{ borderBottom: '1px solid #F5F3FF' }} className="hover:bg-gray-50">
+                      <td className="px-6 py-3 font-medium text-sm" style={{ color: '#1E1B4B' }}>{r.vehicle}</td>
                       <td className="px-6 py-3">
                         <span className="px-2 py-1 rounded-full text-xs font-semibold" style={{ backgroundColor: `${C}15`, color: C }}>{r.type}</span>
                       </td>
-                      <td className="px-6 py-3 text-sm" style={{ color: r.status === 'expired' ? '#EA5455' : '#433C50' }}>
+                      <td className="px-6 py-3 text-sm" style={{ color: r.status === 'expired' ? '#EA5455' : '#1E1B4B' }}>
                         {new Date(r.expire_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
                       </td>
-                      <td className="px-6 py-3 text-sm" style={{ color: '#6D6777' }}>{r.driver}</td>
+                      <td className="px-6 py-3 text-sm" style={{ color: '#6B7280' }}>{r.driver}</td>
                       <td className="px-6 py-3">
                         <span className="font-bold text-sm" style={{ color: r.status === 'expired' ? '#EA5455' : r.status === 'soon' ? '#FF9800' : '#4CAF50' }}>
                           {r.days < 0 ? `${Math.abs(r.days)} hari lalu` : r.days === 0 ? 'Hari ini' : `${r.days} hari`}

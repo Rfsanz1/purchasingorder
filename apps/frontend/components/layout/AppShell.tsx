@@ -247,7 +247,7 @@ export default function AppShell({
           <div className="flex items-center gap-3">
             <button
               className="lg:hidden p-2 rounded-lg"
-              style={{ color: '#A5A3AE' }}
+              style={{ color: '#9CA3AF' }}
               onClick={() => setSidebarOpen(true)}
             >
               <Menu className="h-5 w-5" />
@@ -255,9 +255,9 @@ export default function AppShell({
             <button
               onClick={() => router.push('/')}
               className="flex items-center gap-1.5 text-xs font-medium transition-colors"
-              style={{ color: '#A5A3AE' }}
+              style={{ color: '#9CA3AF' }}
               onMouseEnter={(e) => { e.currentTarget.style.color = appColor; }}
-              onMouseLeave={(e) => { e.currentTarget.style.color = '#A5A3AE'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = '#9CA3AF'; }}
             >
               <Home className="h-3.5 w-3.5" />
               Beranda
@@ -266,7 +266,7 @@ export default function AppShell({
             <span className="text-xs font-semibold" style={{ color: appColor }}>{appName}</span>
           </div>
           <div className="flex items-center gap-2">
-            <button className="p-2 rounded-lg" style={{ color: '#A5A3AE' }}>
+            <button className="p-2 rounded-lg" style={{ color: '#9CA3AF' }}>
               <Bell className="h-5 w-5" />
             </button>
             <div
@@ -279,7 +279,7 @@ export default function AppShell({
               >
                 {(user?.name ?? 'A').charAt(0).toUpperCase()}
               </div>
-              <span className="text-sm hidden sm:block font-medium" style={{ color: '#433C50' }}>
+              <span className="text-sm hidden sm:block font-medium" style={{ color: '#1E1B4B' }}>
                 {user?.name ?? 'Admin'}
               </span>
             </div>

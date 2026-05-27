@@ -20,7 +20,7 @@ const REPORT_TEMPLATES = [
 const MODULE_COLORS: Record<string, string> = {
   Penjualan: '#22C55E', Inventory: '#14B8A6', Keuangan: '#EF4444',
   Payroll: '#8B5CF6', Pembelian: '#F97316', CRM: '#3B82F6',
-  Manufaktur: '#F59E0B', All: '#714B67',
+  Manufaktur: '#F59E0B', All: '#5B52D1',
 };
 
 export default function AiReportGeneratorPage() {
@@ -65,21 +65,21 @@ export default function AiReportGeneratorPage() {
         </div>
 
         {/* Options */}
-        <div className="rounded-2xl p-5" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #E9E0F8' }}>
-          <h3 className="font-bold text-sm mb-4" style={{ color: '#433C50' }}>Pengaturan Laporan</h3>
+        <div className="rounded-2xl p-5" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE' }}>
+          <h3 className="font-bold text-sm mb-4" style={{ color: '#1E1B4B' }}>Pengaturan Laporan</h3>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold mb-1.5" style={{ color: '#433C50' }}>Periode</label>
+              <label className="block text-xs font-semibold mb-1.5" style={{ color: '#1E1B4B' }}>Periode</label>
               <input
                 type="month"
                 value={period}
                 onChange={e => setPeriod(e.target.value)}
                 className="w-full rounded-xl px-4 py-2.5 text-sm"
-                style={{ border: '1.5px solid #E9E0F8', color: '#433C50', outline: 'none' }}
+                style={{ border: '1.5px solid #EDE9FE', color: '#1E1B4B', outline: 'none' }}
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold mb-1.5" style={{ color: '#433C50' }}>Format Output</label>
+              <label className="block text-xs font-semibold mb-1.5" style={{ color: '#1E1B4B' }}>Format Output</label>
               <div className="flex gap-2">
                 {['pdf', 'excel', 'word'].map(f => (
                   <button
@@ -87,9 +87,9 @@ export default function AiReportGeneratorPage() {
                     onClick={() => setFormat(f)}
                     className="flex-1 py-2.5 rounded-xl text-xs font-semibold uppercase transition"
                     style={{
-                      backgroundColor: format === f ? '#8B5CF6' : '#F8F7FC',
-                      color: format === f ? 'white' : '#6D6777',
-                      border: `1.5px solid ${format === f ? '#8B5CF6' : '#E9E0F8'}`,
+                      backgroundColor: format === f ? '#8B5CF6' : '#F5F3FF',
+                      color: format === f ? 'white' : '#6B7280',
+                      border: `1.5px solid ${format === f ? '#8B5CF6' : '#EDE9FE'}`,
                     }}
                   >
                     {f}
@@ -105,24 +105,24 @@ export default function AiReportGeneratorPage() {
           {REPORT_TEMPLATES.map((r) => {
             const isGenerating = generating === r.id;
             const isDone = generated.includes(r.id);
-            const color = MODULE_COLORS[r.module] ?? '#714B67';
+            const color = MODULE_COLORS[r.module] ?? '#5B52D1';
             return (
               <div
                 key={r.id}
                 className="rounded-2xl p-5 flex items-start gap-4"
-                style={{ backgroundColor: '#FFFFFF', border: `1.5px solid ${isDone ? color + '40' : '#E9E0F8'}` }}
+                style={{ backgroundColor: '#FFFFFF', border: `1.5px solid ${isDone ? color + '40' : '#EDE9FE'}` }}
               >
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl flex-shrink-0" style={{ backgroundColor: color + '15' }}>
                   <FileBarChart className="h-5 w-5" style={{ color }} />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <p className="font-bold text-sm" style={{ color: '#433C50' }}>{r.name}</p>
+                    <p className="font-bold text-sm" style={{ color: '#1E1B4B' }}>{r.name}</p>
                     <span className="text-[10px] px-1.5 py-0.5 rounded-full font-semibold" style={{ backgroundColor: color + '15', color }}>
                       {r.module}
                     </span>
                   </div>
-                  <p className="text-xs mb-3" style={{ color: '#A5A3AE' }}>{r.desc}</p>
+                  <p className="text-xs mb-3" style={{ color: '#9CA3AF' }}>{r.desc}</p>
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => !isGenerating && !isDone && generateReport(r.id, r.time)}
@@ -142,11 +142,11 @@ export default function AiReportGeneratorPage() {
                       )}
                     </button>
                     {isDone && (
-                      <button className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-semibold" style={{ backgroundColor: '#F8F7FC', color: '#433C50' }}>
+                      <button className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-semibold" style={{ backgroundColor: '#F5F3FF', color: '#1E1B4B' }}>
                         <Download className="h-3 w-3" /> Download
                       </button>
                     )}
-                    <span className="ml-auto text-[10px] flex items-center gap-1" style={{ color: '#A5A3AE' }}>
+                    <span className="ml-auto text-[10px] flex items-center gap-1" style={{ color: '#9CA3AF' }}>
                       <Clock className="h-3 w-3" /> {r.time}
                     </span>
                   </div>
@@ -157,16 +157,16 @@ export default function AiReportGeneratorPage() {
         </div>
 
         {/* Custom Report */}
-        <div className="rounded-2xl p-5" style={{ backgroundColor: '#F8F7FC', border: '1.5px dashed #E9E0F8' }}>
-          <h3 className="font-bold text-sm mb-2 flex items-center gap-2" style={{ color: '#433C50' }}>
+        <div className="rounded-2xl p-5" style={{ backgroundColor: '#F5F3FF', border: '1.5px dashed #EDE9FE' }}>
+          <h3 className="font-bold text-sm mb-2 flex items-center gap-2" style={{ color: '#1E1B4B' }}>
             <Sparkles className="h-4 w-4" style={{ color: '#8B5CF6' }} /> Custom Report dengan AI
           </h3>
-          <p className="text-xs mb-3" style={{ color: '#A5A3AE' }}>Deskripsikan laporan yang Anda butuhkan, AI akan membuat templatenya</p>
+          <p className="text-xs mb-3" style={{ color: '#9CA3AF' }}>Deskripsikan laporan yang Anda butuhkan, AI akan membuat templatenya</p>
           <div className="flex gap-2">
             <input
               placeholder="Contoh: Buat laporan penjualan per salesman dan per produk untuk Q1 2026..."
               className="flex-1 rounded-xl px-4 py-2.5 text-sm"
-              style={{ border: '1.5px solid #E9E0F8', color: '#433C50', outline: 'none', backgroundColor: 'white' }}
+              style={{ border: '1.5px solid #EDE9FE', color: '#1E1B4B', outline: 'none', backgroundColor: 'white' }}
             />
             <button className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white flex-shrink-0" style={{ background: 'linear-gradient(135deg, #8B5CF6, #6D28D9)' }}>
               Generate

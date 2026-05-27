@@ -25,8 +25,8 @@ export default function ReportsPage() {
     <AppShell {...REPORTS_CONFIG} navItems={REPORTS_NAV} activeHref="/reports">
       <div className="p-6 space-y-6 max-w-5xl mx-auto">
         <div>
-          <h1 className="text-xl font-bold" style={{ color: '#433C50' }}>Laporan & Analitik</h1>
-          <p className="text-sm mt-0.5" style={{ color: '#A5A3AE' }}>Pilih laporan yang ingin Anda lihat</p>
+          <h1 className="text-xl font-bold" style={{ color: '#1E1B4B' }}>Laporan & Analitik</h1>
+          <p className="text-sm mt-0.5" style={{ color: '#9CA3AF' }}>Pilih laporan yang ingin Anda lihat</p>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {REPORT_CARDS.map((r) => (
@@ -37,17 +37,17 @@ export default function ReportsPage() {
               <div className="flex h-10 w-10 items-center justify-center rounded-xl mb-3" style={{ backgroundColor: r.bg }}>
                 <r.icon className="h-5 w-5" style={{ color: r.color }} />
               </div>
-              <p className="text-sm font-bold" style={{ color: '#433C50' }}>{r.label}</p>
-              <p className="text-xs mt-1" style={{ color: '#A5A3AE' }}>{r.desc}</p>
+              <p className="text-sm font-bold" style={{ color: '#1E1B4B' }}>{r.label}</p>
+              <p className="text-xs mt-1" style={{ color: '#9CA3AF' }}>{r.desc}</p>
             </a>
           ))}
         </div>
         <div className="bg-white rounded-2xl p-6" style={{ border: '1.5px solid #EDE8F5', boxShadow: '0 1px 4px rgba(47,43,61,.06)' }}>
           <div className="flex items-center gap-2 mb-3">
-            <BarChart3 className="h-4 w-4" style={{ color: '#A5A3AE' }} />
-            <h3 className="text-sm font-bold" style={{ color: '#433C50' }}>Info Laporan</h3>
+            <BarChart3 className="h-4 w-4" style={{ color: '#9CA3AF' }} />
+            <h3 className="text-sm font-bold" style={{ color: '#1E1B4B' }}>Info Laporan</h3>
           </div>
-          <p className="text-sm" style={{ color: '#A5A3AE' }}>Pilih laporan di atas untuk melihat analitik detail. Semua laporan dapat diekspor ke format Excel (.xlsx) atau PDF.</p>
+          <p className="text-sm" style={{ color: '#9CA3AF' }}>Pilih laporan di atas untuk melihat analitik detail. Semua laporan dapat diekspor ke format Excel (.xlsx) atau PDF.</p>
         </div>
       </div>
     </AppShell>

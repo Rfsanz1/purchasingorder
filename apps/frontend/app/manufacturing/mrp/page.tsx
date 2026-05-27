@@ -50,11 +50,11 @@ export default function MRPPage() {
       <div className="p-6 space-y-6 max-w-6xl mx-auto">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold" style={{ color: '#433C50' }}>Material Requirements Planning (MRP)</h1>
-            <p className="text-sm mt-0.5" style={{ color: '#A5A3AE' }}>Perencanaan kebutuhan material berdasarkan rencana produksi</p>
+            <h1 className="text-xl font-bold" style={{ color: '#1E1B4B' }}>Material Requirements Planning (MRP)</h1>
+            <p className="text-sm mt-0.5" style={{ color: '#9CA3AF' }}>Perencanaan kebutuhan material berdasarkan rencana produksi</p>
           </div>
           <div className="flex items-center gap-3">
-            <p className="text-xs" style={{ color: '#A5A3AE' }}>Terakhir dijalankan: {lastRun}</p>
+            <p className="text-xs" style={{ color: '#9CA3AF' }}>Terakhir dijalankan: {lastRun}</p>
             <button onClick={runMRP} disabled={running} className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold text-white" style={{ backgroundColor: C }}>
               {running ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Target className="h-4 w-4" />}
               {running ? 'Menghitung...' : 'Jalankan MRP'}
@@ -70,7 +70,7 @@ export default function MRPPage() {
             { label: 'Est. Biaya Pembelian', value: fmt(totalCost), color: C },
           ].map(s => (
             <div key={s.label} className="bg-white rounded-2xl p-5" style={{ border: '1.5px solid #EDE8F5', boxShadow: '0 1px 4px rgba(47,43,61,.06)' }}>
-              <p className="text-xs font-medium" style={{ color: '#A5A3AE' }}>{s.label}</p>
+              <p className="text-xs font-medium" style={{ color: '#9CA3AF' }}>{s.label}</p>
               <p className="text-xl font-bold mt-1 truncate" style={{ color: s.color }}>{s.value}</p>
             </div>
           ))}
@@ -81,7 +81,7 @@ export default function MRPPage() {
             <AlertTriangle className="h-5 w-5 flex-shrink-0 mt-0.5" style={{ color: '#EA5455' }} />
             <div>
               <p className="font-semibold text-sm" style={{ color: '#C62828' }}>Terdapat {shortages.length} material kekurangan</p>
-              <p className="text-xs mt-0.5" style={{ color: '#6D6777' }}>Buat Purchase Order segera untuk material yang kekurangan agar produksi tidak terhambat.</p>
+              <p className="text-xs mt-0.5" style={{ color: '#6B7280' }}>Buat Purchase Order segera untuk material yang kekurangan agar produksi tidak terhambat.</p>
             </div>
             <button className="ml-auto flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg flex-shrink-0" style={{ backgroundColor: '#EA5455', color: '#FFFFFF' }}>
               <ShoppingCart className="h-3.5 w-3.5" /> Buat PO Otomatis
@@ -91,14 +91,14 @@ export default function MRPPage() {
 
         <div className="bg-white rounded-2xl" style={{ border: '1.5px solid #EDE8F5', boxShadow: '0 1px 4px rgba(47,43,61,.06)' }}>
           <div className="px-6 py-4" style={{ borderBottom: '1px solid #EDE8F5' }}>
-            <h3 className="font-semibold text-sm" style={{ color: '#433C50' }}>Hasil Perhitungan MRP</h3>
+            <h3 className="font-semibold text-sm" style={{ color: '#1E1B4B' }}>Hasil Perhitungan MRP</h3>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr style={{ borderBottom: '1px solid #EDE8F5', backgroundColor: '#F8F7FC' }}>
+                <tr style={{ borderBottom: '1px solid #EDE8F5', backgroundColor: '#F5F3FF' }}>
                   {['Material', 'Stok Saat Ini', 'Kebutuhan', 'Perlu Dibeli', 'Satuan', 'Supplier', 'Est. Biaya', 'Urgensi', 'Aksi'].map(h => (
-                    <th key={h} className="px-4 py-3 text-left text-xs font-semibold whitespace-nowrap" style={{ color: '#A5A3AE' }}>{h}</th>
+                    <th key={h} className="px-4 py-3 text-left text-xs font-semibold whitespace-nowrap" style={{ color: '#9CA3AF' }}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -106,8 +106,8 @@ export default function MRPPage() {
                 {results.map((r, i) => {
                   const urg = URGENCY_MAP[r.urgency];
                   return (
-                    <tr key={i} style={{ borderBottom: '1px solid #F5F5F9' }} className="hover:bg-gray-50">
-                      <td className="px-4 py-3 font-medium" style={{ color: '#433C50' }}>
+                    <tr key={i} style={{ borderBottom: '1px solid #F5F3FF' }} className="hover:bg-gray-50">
+                      <td className="px-4 py-3 font-medium" style={{ color: '#1E1B4B' }}>
                         <div className="flex items-center gap-2">
                           {r.status === 'shortage' && <AlertTriangle className="h-3.5 w-3.5 flex-shrink-0" style={{ color: '#EA5455' }} />}
                           {r.status === 'sufficient' && <Check className="h-3.5 w-3.5 flex-shrink-0" style={{ color: '#4CAF50' }} />}
@@ -117,12 +117,12 @@ export default function MRPPage() {
                       <td className="px-4 py-3 text-center" style={{ color: r.current_stock < r.required ? '#EA5455' : '#4CAF50' }}>
                         <span className="font-semibold">{r.current_stock}</span>
                       </td>
-                      <td className="px-4 py-3 text-center font-semibold" style={{ color: '#433C50' }}>{r.required}</td>
+                      <td className="px-4 py-3 text-center font-semibold" style={{ color: '#1E1B4B' }}>{r.required}</td>
                       <td className="px-4 py-3 text-center font-bold" style={{ color: r.to_purchase > 0 ? '#EA5455' : '#4CAF50' }}>
                         {r.to_purchase > 0 ? r.to_purchase : '-'}
                       </td>
-                      <td className="px-4 py-3 text-xs" style={{ color: '#6D6777' }}>{r.unit}</td>
-                      <td className="px-4 py-3 text-xs" style={{ color: '#6D6777' }}>{r.supplier}</td>
+                      <td className="px-4 py-3 text-xs" style={{ color: '#6B7280' }}>{r.unit}</td>
+                      <td className="px-4 py-3 text-xs" style={{ color: '#6B7280' }}>{r.supplier}</td>
                       <td className="px-4 py-3 font-semibold text-xs" style={{ color: C }}>{r.est_cost > 0 ? fmt(r.est_cost) : '-'}</td>
                       <td className="px-4 py-3">
                         <span className="px-2 py-1 rounded-full text-xs font-semibold" style={{ color: urg.color, backgroundColor: urg.bg }}>{urg.label}</span>

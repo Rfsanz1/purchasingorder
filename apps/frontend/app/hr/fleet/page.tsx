@@ -22,7 +22,7 @@ export default function HrFleetPage() {
     <AppShell {...HR_CONFIG} navItems={HR_NAV} activeHref="/hr/fleet">
       <div className="p-6 space-y-6 max-w-5xl mx-auto">
         <div className="flex items-center justify-between">
-          <div><h1 className="text-xl font-bold" style={{ color: '#433C50' }}>Armada Kendaraan</h1><p className="text-sm mt-0.5" style={{ color: '#A5A3AE' }}>Kelola kendaraan operasional perusahaan</p></div>
+          <div><h1 className="text-xl font-bold" style={{ color: '#1E1B4B' }}>Armada Kendaraan</h1><p className="text-sm mt-0.5" style={{ color: '#9CA3AF' }}>Kelola kendaraan operasional perusahaan</p></div>
           <button className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold text-white" style={{ backgroundColor: HR_CONFIG.appColor }}><Plus className="h-4 w-4" /> Tambah Kendaraan</button>
         </div>
         <div className="grid gap-4">
@@ -33,21 +33,21 @@ export default function HrFleetPage() {
                   {v.status === 'service' ? <Wrench className="h-5 w-5" style={{ color: '#FF9800' }} /> : <Bus className="h-5 w-5" style={{ color: HR_CONFIG.appColor }} />}
                 </div>
                 <div>
-                  <p className="text-sm font-bold" style={{ color: '#433C50' }}>{v.id}</p>
-                  <p className="text-xs mt-0.5" style={{ color: '#A5A3AE' }}>{v.type} · Driver: {v.driver}</p>
+                  <p className="text-sm font-bold" style={{ color: '#1E1B4B' }}>{v.id}</p>
+                  <p className="text-xs mt-0.5" style={{ color: '#9CA3AF' }}>{v.type} · Driver: {v.driver}</p>
                 </div>
               </div>
               <div className="flex items-center gap-8">
                 <div className="text-center">
-                  <p className="text-sm font-bold" style={{ color: '#433C50' }}>{v.km.toLocaleString()} km</p>
-                  <p className="text-xs" style={{ color: '#A5A3AE' }}>Odometer</p>
+                  <p className="text-sm font-bold" style={{ color: '#1E1B4B' }}>{v.km.toLocaleString()} km</p>
+                  <p className="text-xs" style={{ color: '#9CA3AF' }}>Odometer</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-xs font-semibold" style={{ color: '#433C50' }}>{v.service}</p>
-                  <p className="text-xs" style={{ color: '#A5A3AE' }}>Service berikutnya</p>
+                  <p className="text-xs font-semibold" style={{ color: '#1E1B4B' }}>{v.service}</p>
+                  <p className="text-xs" style={{ color: '#9CA3AF' }}>Service berikutnya</p>
                 </div>
                 <span className="text-xs px-2.5 py-1 rounded-full font-semibold" style={{
-                  color: v.status === 'active' ? '#4CAF50' : v.status === 'service' ? '#FF9800' : '#A5A3AE',
+                  color: v.status === 'active' ? '#4CAF50' : v.status === 'service' ? '#FF9800' : '#9CA3AF',
                   backgroundColor: v.status === 'active' ? 'rgba(76,175,80,.1)' : v.status === 'service' ? 'rgba(255,152,0,.1)' : 'rgba(165,163,174,.12)',
                 }}>
                   {v.status === 'active' ? 'Aktif' : v.status === 'service' ? 'Servis' : 'Idle'}

@@ -96,12 +96,12 @@ export default function AiChatbotPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-4 flex-shrink-0">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl" style={{ background: 'linear-gradient(135deg, #714B67, #9C6B8E)' }}>
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl" style={{ background: 'linear-gradient(135deg, #5B52D1, #8B80F9)' }}>
               <Bot className="h-5 w-5 text-white" />
             </div>
             <div>
-              <h1 className="font-bold" style={{ color: '#433C50' }}>AI Chat Assistant</h1>
-              <p className="text-xs" style={{ color: '#A5A3AE' }}>Terhubung ke semua modul ERP · GPT-4 Powered</p>
+              <h1 className="font-bold" style={{ color: '#1E1B4B' }}>AI Chat Assistant</h1>
+              <p className="text-xs" style={{ color: '#9CA3AF' }}>Terhubung ke semua modul ERP · GPT-4 Powered</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -109,7 +109,7 @@ export default function AiChatbotPage() {
               <div className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
               Online
             </div>
-            <button onClick={() => setMessages(INITIAL_MESSAGES)} className="p-2 rounded-lg hover:bg-gray-100 transition" title="Reset chat" style={{ color: '#A5A3AE' }}>
+            <button onClick={() => setMessages(INITIAL_MESSAGES)} className="p-2 rounded-lg hover:bg-gray-100 transition" title="Reset chat" style={{ color: '#9CA3AF' }}>
               <Trash2 className="h-4 w-4" />
             </button>
           </div>
@@ -122,7 +122,7 @@ export default function AiChatbotPage() {
               key={q}
               onClick={() => send(q)}
               className="px-3 py-1.5 rounded-full text-xs font-medium transition hover:shadow-sm"
-              style={{ border: '1.5px solid #E9E0F8', color: '#714B67', backgroundColor: 'white' }}
+              style={{ border: '1.5px solid #EDE9FE', color: '#5B52D1', backgroundColor: 'white' }}
             >
               {q}
             </button>
@@ -132,12 +132,12 @@ export default function AiChatbotPage() {
         {/* Messages */}
         <div
           className="flex-1 overflow-y-auto space-y-4 mb-4 rounded-2xl p-5"
-          style={{ border: '1.5px solid #E9E0F8', backgroundColor: '#FAFAFA' }}
+          style={{ border: '1.5px solid #EDE9FE', backgroundColor: '#FAFAFA' }}
         >
           {messages.map((m, i) => (
             <div key={i} className={`flex gap-3 ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
               {m.role === 'bot' && (
-                <div className="flex h-8 w-8 items-center justify-center rounded-full flex-shrink-0" style={{ background: 'linear-gradient(135deg, #714B67, #9C6B8E)' }}>
+                <div className="flex h-8 w-8 items-center justify-center rounded-full flex-shrink-0" style={{ background: 'linear-gradient(135deg, #5B52D1, #8B80F9)' }}>
                   <Bot className="h-4 w-4 text-white" />
                 </div>
               )}
@@ -145,17 +145,17 @@ export default function AiChatbotPage() {
                 <div
                   className="px-4 py-3 rounded-2xl text-sm whitespace-pre-line"
                   style={{
-                    backgroundColor: m.role === 'user' ? '#714B67' : '#FFFFFF',
-                    color: m.role === 'user' ? 'white' : '#433C50',
+                    backgroundColor: m.role === 'user' ? '#5B52D1' : '#FFFFFF',
+                    color: m.role === 'user' ? 'white' : '#1E1B4B',
                     borderBottomRightRadius: m.role === 'user' ? 4 : 16,
                     borderBottomLeftRadius: m.role === 'bot' ? 4 : 16,
-                    border: m.role === 'bot' ? '1.5px solid #E9E0F8' : 'none',
+                    border: m.role === 'bot' ? '1.5px solid #EDE9FE' : 'none',
                     boxShadow: '0 1px 3px rgba(0,0,0,.06)',
                   }}
                 >
                   {m.text}
                 </div>
-                <span className="text-[10px]" style={{ color: '#A5A3AE' }}>{m.time}</span>
+                <span className="text-[10px]" style={{ color: '#9CA3AF' }}>{m.time}</span>
               </div>
               {m.role === 'user' && (
                 <div className="flex h-8 w-8 items-center justify-center rounded-full flex-shrink-0" style={{ background: 'linear-gradient(135deg, #3B82F6, #1D4ED8)' }}>
@@ -166,12 +166,12 @@ export default function AiChatbotPage() {
           ))}
           {loading && (
             <div className="flex gap-3">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full" style={{ background: 'linear-gradient(135deg, #714B67, #9C6B8E)' }}>
+              <div className="flex h-8 w-8 items-center justify-center rounded-full" style={{ background: 'linear-gradient(135deg, #5B52D1, #8B80F9)' }}>
                 <Bot className="h-4 w-4 text-white" />
               </div>
-              <div className="px-4 py-3 rounded-2xl bg-white border flex items-center gap-2" style={{ borderColor: '#E9E0F8' }}>
-                <RefreshCw className="h-3.5 w-3.5 animate-spin" style={{ color: '#714B67' }} />
-                <span className="text-xs" style={{ color: '#A5A3AE' }}>AI sedang memproses...</span>
+              <div className="px-4 py-3 rounded-2xl bg-white border flex items-center gap-2" style={{ borderColor: '#EDE9FE' }}>
+                <RefreshCw className="h-3.5 w-3.5 animate-spin" style={{ color: '#5B52D1' }} />
+                <span className="text-xs" style={{ color: '#9CA3AF' }}>AI sedang memproses...</span>
               </div>
             </div>
           )}
@@ -180,11 +180,11 @@ export default function AiChatbotPage() {
 
         {/* Input */}
         <div className="flex gap-2 flex-shrink-0">
-          <div className="flex-1 flex items-center gap-2 rounded-2xl px-4 py-3" style={{ border: '1.5px solid #E9E0F8', backgroundColor: '#FFFFFF' }}>
-            <Sparkles className="h-4 w-4 flex-shrink-0" style={{ color: '#714B67' }} />
+          <div className="flex-1 flex items-center gap-2 rounded-2xl px-4 py-3" style={{ border: '1.5px solid #EDE9FE', backgroundColor: '#FFFFFF' }}>
+            <Sparkles className="h-4 w-4 flex-shrink-0" style={{ color: '#5B52D1' }} />
             <input
               className="flex-1 text-sm bg-transparent focus:outline-none"
-              style={{ color: '#433C50' }}
+              style={{ color: '#1E1B4B' }}
               placeholder="Tanyakan apapun tentang bisnis Anda..."
               value={input}
               onChange={e => setInput(e.target.value)}
@@ -195,7 +195,7 @@ export default function AiChatbotPage() {
             onClick={() => send(input)}
             disabled={loading || !input.trim()}
             className="flex items-center justify-center h-12 w-12 rounded-2xl text-white transition disabled:opacity-50"
-            style={{ background: 'linear-gradient(135deg, #714B67, #9C6B8E)' }}
+            style={{ background: 'linear-gradient(135deg, #5B52D1, #8B80F9)' }}
           >
             <Send className="h-4 w-4" />
           </button>

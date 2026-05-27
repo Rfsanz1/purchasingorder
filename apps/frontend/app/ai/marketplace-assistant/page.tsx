@@ -67,7 +67,7 @@ export default function AiMarketplaceAssistantPage() {
         {/* Channel Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {CHANNEL_STATS.map((c, i) => (
-            <div key={i} className="rounded-2xl p-4" style={{ backgroundColor: '#FFFFFF', border: `1.5px solid ${c.syncStatus === 'error' ? 'rgba(239,68,68,.3)' : '#E9E0F8'}` }}>
+            <div key={i} className="rounded-2xl p-4" style={{ backgroundColor: '#FFFFFF', border: `1.5px solid ${c.syncStatus === 'error' ? 'rgba(239,68,68,.3)' : '#EDE9FE'}` }}>
               <div className="flex items-center justify-between mb-2">
                 <span className="font-bold text-sm" style={{ color: c.color }}>{c.name}</span>
                 {c.syncStatus === 'synced'
@@ -75,8 +75,8 @@ export default function AiMarketplaceAssistantPage() {
                   : <AlertTriangle className="h-4 w-4" style={{ color: '#EF4444' }} />
                 }
               </div>
-              <p className="text-base font-bold" style={{ color: '#433C50' }}>{c.revenue}</p>
-              <p className="text-xs mt-0.5" style={{ color: '#A5A3AE' }}>{c.orders} order</p>
+              <p className="text-base font-bold" style={{ color: '#1E1B4B' }}>{c.revenue}</p>
+              <p className="text-xs mt-0.5" style={{ color: '#9CA3AF' }}>{c.orders} order</p>
               <span className="text-xs font-semibold" style={{ color: c.growth >= 0 ? '#22C55E' : '#EF4444' }}>
                 {c.growth >= 0 ? '+' : ''}{c.growth}%
               </span>
@@ -86,20 +86,20 @@ export default function AiMarketplaceAssistantPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* AI Suggestions */}
-          <div className="rounded-2xl" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #E9E0F8' }}>
-            <div className="px-5 py-4" style={{ borderBottom: '1px solid #E9E0F8' }}>
-              <h3 className="font-bold text-sm flex items-center gap-2" style={{ color: '#433C50' }}>
+          <div className="rounded-2xl" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE' }}>
+            <div className="px-5 py-4" style={{ borderBottom: '1px solid #EDE9FE' }}>
+              <h3 className="font-bold text-sm flex items-center gap-2" style={{ color: '#1E1B4B' }}>
                 <Tag className="h-4 w-4" style={{ color: '#F97316' }} /> AI Optimasi Suggestions
               </h3>
             </div>
             <div className="p-5 space-y-4">
               {AI_SUGGESTIONS.map((s, i) => (
-                <div key={i} className="rounded-xl p-4" style={{ backgroundColor: '#F8F7FC', border: '1px solid #E9E0F8' }}>
+                <div key={i} className="rounded-xl p-4" style={{ backgroundColor: '#F5F3FF', border: '1px solid #EDE9FE' }}>
                   <div className="flex items-center gap-2 mb-1.5">
                     <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold" style={{ backgroundColor: '#F97316' + '15', color: '#F97316' }}>{s.platform}</span>
-                    <p className="text-xs font-bold" style={{ color: '#433C50' }}>{s.title}</p>
+                    <p className="text-xs font-bold" style={{ color: '#1E1B4B' }}>{s.title}</p>
                   </div>
-                  <p className="text-xs mb-2" style={{ color: '#6D6777' }}>{s.action}</p>
+                  <p className="text-xs mb-2" style={{ color: '#6B7280' }}>{s.action}</p>
                   <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ backgroundColor: 'rgba(34,197,94,.1)', color: '#22C55E' }}>
                     💡 {s.impact}
                   </span>
@@ -109,14 +109,14 @@ export default function AiMarketplaceAssistantPage() {
           </div>
 
           {/* Sync Logs */}
-          <div className="rounded-2xl" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #E9E0F8' }}>
-            <div className="px-5 py-4 flex items-center justify-between" style={{ borderBottom: '1px solid #E9E0F8' }}>
-              <h3 className="font-bold text-sm flex items-center gap-2" style={{ color: '#433C50' }}>
+          <div className="rounded-2xl" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE' }}>
+            <div className="px-5 py-4 flex items-center justify-between" style={{ borderBottom: '1px solid #EDE9FE' }}>
+              <h3 className="font-bold text-sm flex items-center gap-2" style={{ color: '#1E1B4B' }}>
                 <RefreshCw className="h-4 w-4" style={{ color: '#F97316' }} /> Sync Log Terbaru
               </h3>
-              <a href="/marketplace/sync-logs" className="text-xs font-semibold" style={{ color: '#714B67' }}>Lihat Semua</a>
+              <a href="/marketplace/sync-logs" className="text-xs font-semibold" style={{ color: '#5B52D1' }}>Lihat Semua</a>
             </div>
-            <div className="divide-y" style={{ borderColor: '#E9E0F8' }}>
+            <div className="divide-y" style={{ borderColor: '#EDE9FE' }}>
               {SYNC_LOGS.map((log, i) => (
                 <div key={i} className="flex items-start gap-3 px-5 py-3">
                   <div className="mt-0.5">
@@ -127,12 +127,12 @@ export default function AiMarketplaceAssistantPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded" style={{ backgroundColor: '#F8F7FC', color: '#433C50' }}>{log.platform}</span>
-                      <p className="text-xs truncate" style={{ color: '#433C50' }}>{log.product}</p>
+                      <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded" style={{ backgroundColor: '#F5F3FF', color: '#1E1B4B' }}>{log.platform}</span>
+                      <p className="text-xs truncate" style={{ color: '#1E1B4B' }}>{log.product}</p>
                     </div>
                     {log.error && <p className="text-[10px] mt-0.5" style={{ color: '#EF4444' }}>{log.error}</p>}
                   </div>
-                  <span className="text-[10px] flex-shrink-0" style={{ color: '#A5A3AE' }}>{log.time}</span>
+                  <span className="text-[10px] flex-shrink-0" style={{ color: '#9CA3AF' }}>{log.time}</span>
                 </div>
               ))}
             </div>

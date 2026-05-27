@@ -16,7 +16,7 @@ const LEADS = [
 ];
 
 const STAGE_STYLE: Record<string, { color: string; bg: string }> = {
-  'Baru':        { color: '#A5A3AE', bg: 'rgba(165,163,174,.12)' },
+  'Baru':        { color: '#9CA3AF', bg: 'rgba(165,163,174,.12)' },
   'Kualifikasi': { color: '#2196F3', bg: 'rgba(33,150,243,.1)' },
   'Proposal':    { color: '#FF9800', bg: 'rgba(255,152,0,.1)' },
   'Negosiasi':   { color: '#8E24AA', bg: 'rgba(142,36,170,.1)' },
@@ -34,8 +34,8 @@ export default function CrmLeadsPage() {
       <div className="p-6 space-y-6 max-w-6xl mx-auto">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold" style={{ color: '#433C50' }}>Prospek (Leads)</h1>
-            <p className="text-sm mt-0.5" style={{ color: '#A5A3AE' }}>Kelola pipeline prospek penjualan</p>
+            <h1 className="text-xl font-bold" style={{ color: '#1E1B4B' }}>Prospek (Leads)</h1>
+            <p className="text-sm mt-0.5" style={{ color: '#9CA3AF' }}>Kelola pipeline prospek penjualan</p>
           </div>
           <button className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold text-white" style={{ backgroundColor: CRM_CONFIG.appColor }}>
             <Plus className="h-4 w-4" /> Prospek Baru
@@ -45,7 +45,7 @@ export default function CrmLeadsPage() {
           <div className="px-6 py-4" style={{ borderBottom: '1px solid #EDE8F5' }}>
             <div className="relative max-w-sm">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5" style={{ color: '#B0AAB9' }} />
-              <input className="w-full rounded-lg pl-9 pr-4 py-2 text-sm" style={{ border: '1px solid #EDE8F5', color: '#433C50', outline: 'none' }} placeholder="Cari prospek..." />
+              <input className="w-full rounded-lg pl-9 pr-4 py-2 text-sm" style={{ border: '1px solid #EDE8F5', color: '#1E1B4B', outline: 'none' }} placeholder="Cari prospek..." />
             </div>
           </div>
           <div className="overflow-x-auto">
@@ -53,7 +53,7 @@ export default function CrmLeadsPage() {
               <thead>
                 <tr style={{ borderBottom: '1px solid #EDE8F5' }}>
                   {['Kontak', 'Perusahaan', 'Stage', 'Nilai', 'Probabilitas', 'Aksi'].map(h => (
-                    <th key={h} className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide" style={{ color: '#A5A3AE' }}>{h}</th>
+                    <th key={h} className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide" style={{ color: '#9CA3AF' }}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -68,16 +68,16 @@ export default function CrmLeadsPage() {
                         <div className="flex items-center gap-2.5">
                           <div className="flex h-8 w-8 items-center justify-center rounded-full text-white text-xs font-bold flex-shrink-0" style={{ backgroundColor: CRM_CONFIG.appColor }}>{l.name.charAt(0)}</div>
                           <div>
-                            <p className="text-sm font-semibold" style={{ color: '#433C50' }}>{l.name}</p>
-                            <p className="text-xs" style={{ color: '#A5A3AE' }}>{l.phone}</p>
+                            <p className="text-sm font-semibold" style={{ color: '#1E1B4B' }}>{l.name}</p>
+                            <p className="text-xs" style={{ color: '#9CA3AF' }}>{l.phone}</p>
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-3.5 text-sm" style={{ color: '#433C50' }}>{l.company}</td>
+                      <td className="px-6 py-3.5 text-sm" style={{ color: '#1E1B4B' }}>{l.company}</td>
                       <td className="px-6 py-3.5">
                         <span className="inline-flex px-2.5 py-1 rounded-full text-xs font-semibold" style={{ color: st.color, backgroundColor: st.bg }}>{l.stage}</span>
                       </td>
-                      <td className="px-6 py-3.5 text-sm font-semibold" style={{ color: '#433C50' }}>{l.value}</td>
+                      <td className="px-6 py-3.5 text-sm font-semibold" style={{ color: '#1E1B4B' }}>{l.value}</td>
                       <td className="px-6 py-3.5">
                         <div className="flex items-center gap-2">
                           <div className="h-1.5 w-16 rounded-full" style={{ backgroundColor: '#F5F2FB' }}>
@@ -88,8 +88,8 @@ export default function CrmLeadsPage() {
                       </td>
                       <td className="px-6 py-3.5">
                         <div className="flex items-center gap-2">
-                          <button className="p-1.5 rounded-lg" style={{ border: '1px solid #EDE8F5', color: '#A5A3AE' }} title="Telepon"><Phone className="h-3.5 w-3.5" /></button>
-                          <button className="p-1.5 rounded-lg" style={{ border: '1px solid #EDE8F5', color: '#A5A3AE' }} title="Email"><Mail className="h-3.5 w-3.5" /></button>
+                          <button className="p-1.5 rounded-lg" style={{ border: '1px solid #EDE8F5', color: '#9CA3AF' }} title="Telepon"><Phone className="h-3.5 w-3.5" /></button>
+                          <button className="p-1.5 rounded-lg" style={{ border: '1px solid #EDE8F5', color: '#9CA3AF' }} title="Email"><Mail className="h-3.5 w-3.5" /></button>
                         </div>
                       </td>
                     </tr>

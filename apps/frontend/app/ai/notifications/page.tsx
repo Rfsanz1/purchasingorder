@@ -50,48 +50,48 @@ export default function AiNotificationsPage() {
           {[
             { label: 'Rule Aktif', value: rules.filter(r => r.status).length, color: '#22C55E' },
             { label: 'Terkirim Hari Ini', value: '24', color: '#3B82F6' },
-            { label: 'Delivery Rate', value: '99.2%', color: '#714B67' },
+            { label: 'Delivery Rate', value: '99.2%', color: '#5B52D1' },
             { label: 'Channel Aktif', value: '3', color: '#F59E0B' },
           ].map((s, i) => (
-            <div key={i} className="rounded-2xl p-4" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #E9E0F8' }}>
+            <div key={i} className="rounded-2xl p-4" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE' }}>
               <p className="text-2xl font-bold" style={{ color: s.color }}>{s.value}</p>
-              <p className="text-xs mt-1" style={{ color: '#A5A3AE' }}>{s.label}</p>
+              <p className="text-xs mt-1" style={{ color: '#9CA3AF' }}>{s.label}</p>
             </div>
           ))}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Notification Rules */}
-          <div className="rounded-2xl" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #E9E0F8' }}>
-            <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid #E9E0F8' }}>
-              <h3 className="font-bold text-sm flex items-center gap-2" style={{ color: '#433C50' }}>
-                <Zap className="h-4 w-4" style={{ color: '#714B67' }} /> Notification Rules
+          <div className="rounded-2xl" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE' }}>
+            <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid #EDE9FE' }}>
+              <h3 className="font-bold text-sm flex items-center gap-2" style={{ color: '#1E1B4B' }}>
+                <Zap className="h-4 w-4" style={{ color: '#5B52D1' }} /> Notification Rules
               </h3>
-              <button className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-xl" style={{ backgroundColor: 'rgba(113,75,103,.1)', color: '#714B67' }}>
+              <button className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-xl" style={{ backgroundColor: 'rgba(91,82,209,.1)', color: '#5B52D1' }}>
                 <Plus className="h-3.5 w-3.5" /> Tambah Rule
               </button>
             </div>
-            <div className="divide-y" style={{ borderColor: '#E9E0F8' }}>
+            <div className="divide-y" style={{ borderColor: '#EDE9FE' }}>
               {rules.map((r) => (
                 <div key={r.id} className="flex items-start gap-3 px-5 py-3.5">
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-bold" style={{ color: '#433C50' }}>{r.name}</p>
-                    <p className="text-[10px] mt-0.5" style={{ color: '#A5A3AE' }}>{r.trigger}</p>
+                    <p className="text-xs font-bold" style={{ color: '#1E1B4B' }}>{r.name}</p>
+                    <p className="text-[10px] mt-0.5" style={{ color: '#9CA3AF' }}>{r.trigger}</p>
                     <div className="flex items-center gap-2 mt-1 flex-wrap">
                       <span className="text-[10px] px-1.5 py-0.5 rounded font-medium" style={{ backgroundColor: '#EFF6FF', color: '#1D4ED8' }}>{r.channel}</span>
-                      <span className="text-[10px]" style={{ color: '#A5A3AE' }}>{r.recipients}</span>
+                      <span className="text-[10px]" style={{ color: '#9CA3AF' }}>{r.recipients}</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
                     <button
                       onClick={() => setRules(prev => prev.map(rule => rule.id === r.id ? { ...rule, status: !rule.status } : rule))}
                       className="w-10 h-5 rounded-full relative transition-colors"
-                      style={{ backgroundColor: r.status ? '#714B67' : '#E9E0F8' }}
+                      style={{ backgroundColor: r.status ? '#5B52D1' : '#EDE9FE' }}
                     >
                       <div className="absolute top-0.5 h-4 w-4 rounded-full bg-white transition-all shadow-sm" style={{ left: r.status ? '22px' : '2px' }} />
                     </button>
                     <button className="p-1 hover:bg-gray-100 rounded-lg transition">
-                      <Settings className="h-3.5 w-3.5" style={{ color: '#A5A3AE' }} />
+                      <Settings className="h-3.5 w-3.5" style={{ color: '#9CA3AF' }} />
                     </button>
                   </div>
                 </div>
@@ -100,10 +100,10 @@ export default function AiNotificationsPage() {
           </div>
 
           {/* Recent Notifications */}
-          <div className="rounded-2xl" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #E9E0F8' }}>
-            <div className="px-5 py-4" style={{ borderBottom: '1px solid #E9E0F8' }}>
-              <h3 className="font-bold text-sm flex items-center gap-2" style={{ color: '#433C50' }}>
-                <Bell className="h-4 w-4" style={{ color: '#714B67' }} /> Notifikasi Terkini
+          <div className="rounded-2xl" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE' }}>
+            <div className="px-5 py-4" style={{ borderBottom: '1px solid #EDE9FE' }}>
+              <h3 className="font-bold text-sm flex items-center gap-2" style={{ color: '#1E1B4B' }}>
+                <Bell className="h-4 w-4" style={{ color: '#5B52D1' }} /> Notifikasi Terkini
               </h3>
             </div>
             <div className="p-5 space-y-3">
@@ -114,8 +114,8 @@ export default function AiNotificationsPage() {
                   <div key={i} className="flex items-start gap-3 p-3 rounded-xl" style={{ backgroundColor: cfg.bg, border: `1px solid ${cfg.color}25` }}>
                     <Icon className="h-4 w-4 flex-shrink-0 mt-0.5" style={{ color: cfg.color }} />
                     <div className="flex-1">
-                      <p className="text-xs font-medium" style={{ color: '#433C50' }}>{n.msg}</p>
-                      <p className="text-[10px] mt-0.5" style={{ color: '#A5A3AE' }}>{n.sent} · {n.time}</p>
+                      <p className="text-xs font-medium" style={{ color: '#1E1B4B' }}>{n.msg}</p>
+                      <p className="text-[10px] mt-0.5" style={{ color: '#9CA3AF' }}>{n.sent} · {n.time}</p>
                     </div>
                   </div>
                 );

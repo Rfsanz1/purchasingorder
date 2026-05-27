@@ -58,11 +58,11 @@ function OrgNode({ node, depth = 0 }: { node: any; depth?: number }) {
           <div className="h-10 w-10 rounded-full flex items-center justify-center text-white text-sm font-bold mb-2" style={{ backgroundColor: color }}>
             {node.person.charAt(0)}
           </div>
-          <p className="text-xs font-bold text-center" style={{ color: '#433C50' }}>{node.name}</p>
-          <p className="text-[10px] text-center mt-0.5" style={{ color: '#A5A3AE' }}>{node.person}</p>
+          <p className="text-xs font-bold text-center" style={{ color: '#1E1B4B' }}>{node.name}</p>
+          <p className="text-[10px] text-center mt-0.5" style={{ color: '#9CA3AF' }}>{node.person}</p>
           {hasChildren && (
             <div className="mt-1.5">
-              {expanded ? <ChevronDown className="h-3 w-3" style={{ color: '#A5A3AE' }} /> : <ChevronRight className="h-3 w-3" style={{ color: '#A5A3AE' }} />}
+              {expanded ? <ChevronDown className="h-3 w-3" style={{ color: '#9CA3AF' }} /> : <ChevronRight className="h-3 w-3" style={{ color: '#9CA3AF' }} />}
             </div>
           )}
         </div>
@@ -105,8 +105,8 @@ export default function OrganizationPage() {
       <div className="p-6 space-y-6 max-w-6xl mx-auto">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold" style={{ color: '#433C50' }}>Struktur Organisasi</h1>
-            <p className="text-sm mt-0.5" style={{ color: '#A5A3AE' }}>Hierarki jabatan dan departemen perusahaan</p>
+            <h1 className="text-xl font-bold" style={{ color: '#1E1B4B' }}>Struktur Organisasi</h1>
+            <p className="text-sm mt-0.5" style={{ color: '#9CA3AF' }}>Hierarki jabatan dan departemen perusahaan</p>
           </div>
           <button className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-semibold text-white" style={{ backgroundColor: C }}>
             <Plus className="h-4 w-4" /> Edit Struktur
@@ -120,26 +120,26 @@ export default function OrganizationPage() {
                 <Users className="h-4 w-4" style={{ color: d.color }} />
               </div>
               <p className="text-lg font-bold" style={{ color: d.color }}>{d.count}</p>
-              <p className="text-xs mt-0.5" style={{ color: '#A5A3AE' }}>{d.name}</p>
+              <p className="text-xs mt-0.5" style={{ color: '#9CA3AF' }}>{d.name}</p>
             </div>
           ))}
         </div>
 
         <div className="bg-white rounded-2xl p-8 overflow-x-auto" style={{ border: '1.5px solid #EDE8F5', boxShadow: '0 1px 4px rgba(47,43,61,.06)' }}>
-          <h3 className="font-semibold text-sm mb-8 text-center" style={{ color: '#433C50' }}>Struktur Organisasi — Gentong Mas</h3>
+          <h3 className="font-semibold text-sm mb-8 text-center" style={{ color: '#1E1B4B' }}>Struktur Organisasi — Gentong Mas</h3>
           <div className="flex justify-center">
             <OrgNode node={ORG_DATA} />
           </div>
         </div>
 
         <div className="bg-white rounded-2xl p-6" style={{ border: '1.5px solid #EDE8F5', boxShadow: '0 1px 4px rgba(47,43,61,.06)' }}>
-          <h3 className="font-semibold text-sm mb-4" style={{ color: '#433C50' }}>Daftar Jabatan</h3>
+          <h3 className="font-semibold text-sm mb-4" style={{ color: '#1E1B4B' }}>Daftar Jabatan</h3>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr style={{ borderBottom: '1px solid #EDE8F5' }}>
                   {['Jabatan', 'Departemen', 'Melapor Kepada', 'Jumlah Karyawan'].map(h => (
-                    <th key={h} className="px-4 py-3 text-left text-xs font-semibold" style={{ color: '#A5A3AE' }}>{h}</th>
+                    <th key={h} className="px-4 py-3 text-left text-xs font-semibold" style={{ color: '#9CA3AF' }}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -154,10 +154,10 @@ export default function OrganizationPage() {
                   { title: 'Staff Akuntansi', dept: 'Keuangan', reports_to: 'Manajer Keuangan', count: 3 },
                   { title: 'Staff HR', dept: 'SDM', reports_to: 'Manajer SDM', count: 2 },
                 ].map((row, i) => (
-                  <tr key={i} style={{ borderBottom: '1px solid #F5F5F9' }} className="hover:bg-gray-50">
-                    <td className="px-4 py-3 font-medium" style={{ color: '#433C50' }}>{row.title}</td>
-                    <td className="px-4 py-3 text-xs" style={{ color: '#6D6777' }}>{row.dept}</td>
-                    <td className="px-4 py-3 text-xs" style={{ color: '#6D6777' }}>{row.reports_to}</td>
+                  <tr key={i} style={{ borderBottom: '1px solid #F5F3FF' }} className="hover:bg-gray-50">
+                    <td className="px-4 py-3 font-medium" style={{ color: '#1E1B4B' }}>{row.title}</td>
+                    <td className="px-4 py-3 text-xs" style={{ color: '#6B7280' }}>{row.dept}</td>
+                    <td className="px-4 py-3 text-xs" style={{ color: '#6B7280' }}>{row.reports_to}</td>
                     <td className="px-4 py-3 font-bold text-sm" style={{ color: C }}>{row.count}</td>
                   </tr>
                 ))}

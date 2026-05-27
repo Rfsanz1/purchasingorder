@@ -51,10 +51,10 @@ export default function PriceComparisonPage() {
       <div className="p-6 space-y-6 max-w-6xl mx-auto">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold" style={{ color: '#433C50' }}>Perbandingan Harga Supplier</h1>
-            <p className="text-sm mt-0.5" style={{ color: '#A5A3AE' }}>Bandingkan penawaran dari beberapa supplier untuk keputusan terbaik</p>
+            <h1 className="text-xl font-bold" style={{ color: '#1E1B4B' }}>Perbandingan Harga Supplier</h1>
+            <p className="text-sm mt-0.5" style={{ color: '#9CA3AF' }}>Bandingkan penawaran dari beberapa supplier untuk keputusan terbaik</p>
           </div>
-          <button className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-semibold" style={{ border: '1.5px solid #EDE8F5', color: '#6D6777' }}>
+          <button className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-semibold" style={{ border: '1.5px solid #EDE8F5', color: '#6B7280' }}>
             <Download className="h-4 w-4" /> Export Perbandingan
           </button>
         </div>
@@ -62,20 +62,20 @@ export default function PriceComparisonPage() {
         <div className="bg-white rounded-2xl p-5" style={{ border: '1.5px solid #EDE8F5', boxShadow: '0 1px 4px rgba(47,43,61,.06)' }}>
           <div className="grid grid-cols-4 gap-4">
             <div>
-              <p className="text-xs font-medium" style={{ color: '#A5A3AE' }}>Produk</p>
-              <p className="font-semibold mt-0.5" style={{ color: '#433C50' }}>{COMPARISON_DATA.product}</p>
+              <p className="text-xs font-medium" style={{ color: '#9CA3AF' }}>Produk</p>
+              <p className="font-semibold mt-0.5" style={{ color: '#1E1B4B' }}>{COMPARISON_DATA.product}</p>
             </div>
             <div>
-              <p className="text-xs font-medium" style={{ color: '#A5A3AE' }}>Quantity</p>
-              <p className="font-semibold mt-0.5" style={{ color: '#433C50' }}>{COMPARISON_DATA.qty} {COMPARISON_DATA.uom}</p>
+              <p className="text-xs font-medium" style={{ color: '#9CA3AF' }}>Quantity</p>
+              <p className="font-semibold mt-0.5" style={{ color: '#1E1B4B' }}>{COMPARISON_DATA.qty} {COMPARISON_DATA.uom}</p>
             </div>
             <div>
-              <p className="text-xs font-medium" style={{ color: '#A5A3AE' }}>RFQ Referensi</p>
+              <p className="text-xs font-medium" style={{ color: '#9CA3AF' }}>RFQ Referensi</p>
               <p className="font-semibold mt-0.5" style={{ color: C }}>{COMPARISON_DATA.rfq_number}</p>
             </div>
             <div>
-              <p className="text-xs font-medium" style={{ color: '#A5A3AE' }}>Jumlah Penawaran</p>
-              <p className="font-bold text-xl mt-0.5" style={{ color: '#433C50' }}>{suppliers.length} Supplier</p>
+              <p className="text-xs font-medium" style={{ color: '#9CA3AF' }}>Jumlah Penawaran</p>
+              <p className="font-bold text-xl mt-0.5" style={{ color: '#1E1B4B' }}>{suppliers.length} Supplier</p>
             </div>
           </div>
         </div>
@@ -100,32 +100,32 @@ export default function PriceComparisonPage() {
                     <span className="text-[10px] font-bold" style={{ color: '#FF9800' }}>REKOMENDASI</span>
                   </div>
                 )}
-                <p className="font-bold text-sm" style={{ color: '#433C50' }}>{s.name}</p>
-                <p className="text-xl font-bold mt-2" style={{ color: C }}>{fmt(s.price)}<span className="text-xs font-normal" style={{ color: '#A5A3AE' }}>/kg</span></p>
-                <p className="text-xs mt-1" style={{ color: '#433C50' }}>Total: <span className="font-bold">{fmt(s.price * COMPARISON_DATA.qty)}</span></p>
+                <p className="font-bold text-sm" style={{ color: '#1E1B4B' }}>{s.name}</p>
+                <p className="text-xl font-bold mt-2" style={{ color: C }}>{fmt(s.price)}<span className="text-xs font-normal" style={{ color: '#9CA3AF' }}>/kg</span></p>
+                <p className="text-xs mt-1" style={{ color: '#1E1B4B' }}>Total: <span className="font-bold">{fmt(s.price * COMPARISON_DATA.qty)}</span></p>
 
                 <div className="space-y-1 mt-3 pt-3" style={{ borderTop: '1px solid #EDE8F5' }}>
                   <div className="flex justify-between text-xs">
-                    <span style={{ color: '#A5A3AE' }}>Lead Time</span>
-                    <span className="font-semibold" style={{ color: s.lead_time === fastest ? '#4CAF50' : '#433C50' }}>{s.lead_time} hari</span>
+                    <span style={{ color: '#9CA3AF' }}>Lead Time</span>
+                    <span className="font-semibold" style={{ color: s.lead_time === fastest ? '#4CAF50' : '#1E1B4B' }}>{s.lead_time} hari</span>
                   </div>
                   <div className="flex justify-between text-xs">
-                    <span style={{ color: '#A5A3AE' }}>Min. Order</span>
-                    <span className="font-semibold" style={{ color: '#433C50' }}>{s.min_qty} {COMPARISON_DATA.uom}</span>
+                    <span style={{ color: '#9CA3AF' }}>Min. Order</span>
+                    <span className="font-semibold" style={{ color: '#1E1B4B' }}>{s.min_qty} {COMPARISON_DATA.uom}</span>
                   </div>
                   <div className="flex justify-between text-xs">
-                    <span style={{ color: '#A5A3AE' }}>Payment</span>
-                    <span className="font-semibold" style={{ color: '#433C50' }}>{s.payment_term}</span>
+                    <span style={{ color: '#9CA3AF' }}>Payment</span>
+                    <span className="font-semibold" style={{ color: '#1E1B4B' }}>{s.payment_term}</span>
                   </div>
                   <div className="flex justify-between text-xs">
-                    <span style={{ color: '#A5A3AE' }}>Rating Mutu</span>
+                    <span style={{ color: '#9CA3AF' }}>Rating Mutu</span>
                     <span className="font-semibold" style={{ color: '#FF9800' }}>★ {s.quality_rating}</span>
                   </div>
                 </div>
 
                 <div className="mt-3 pt-3" style={{ borderTop: '1px solid #EDE8F5' }}>
                   <div className="flex justify-between items-center">
-                    <span className="text-xs" style={{ color: '#A5A3AE' }}>Skor</span>
+                    <span className="text-xs" style={{ color: '#9CA3AF' }}>Skor</span>
                     <span className="text-lg font-bold" style={{ color: isBest ? '#4CAF50' : C }}>{s.score}</span>
                   </div>
                   <div className="h-1.5 rounded-full mt-1 overflow-hidden" style={{ backgroundColor: '#EDE8F5' }}>
@@ -138,7 +138,7 @@ export default function PriceComparisonPage() {
                     <Check className="h-3.5 w-3.5" /> Dipilih
                   </div>
                 )}
-                {s.notes && <p className="text-xs mt-2 italic" style={{ color: '#A5A3AE' }}>{s.notes}</p>}
+                {s.notes && <p className="text-xs mt-2 italic" style={{ color: '#9CA3AF' }}>{s.notes}</p>}
               </div>
             );
           })}
@@ -148,8 +148,8 @@ export default function PriceComparisonPage() {
           <div className="bg-white rounded-2xl p-5" style={{ border: `2px solid ${C}`, boxShadow: `0 4px 16px ${C}20` }}>
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-bold" style={{ color: '#433C50' }}>Supplier Terpilih: {suppliers[selectedIdx].name}</h3>
-                <p className="text-sm mt-0.5" style={{ color: '#A5A3AE' }}>Total: {fmt(suppliers[selectedIdx].price * COMPARISON_DATA.qty)} • Lead Time: {suppliers[selectedIdx].lead_time} hari</p>
+                <h3 className="font-bold" style={{ color: '#1E1B4B' }}>Supplier Terpilih: {suppliers[selectedIdx].name}</h3>
+                <p className="text-sm mt-0.5" style={{ color: '#9CA3AF' }}>Total: {fmt(suppliers[selectedIdx].price * COMPARISON_DATA.qty)} • Lead Time: {suppliers[selectedIdx].lead_time} hari</p>
               </div>
               <button className="px-5 py-2.5 rounded-lg text-sm font-semibold text-white" style={{ backgroundColor: C }}>
                 Buat Purchase Order

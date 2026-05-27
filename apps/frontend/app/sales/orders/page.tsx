@@ -127,10 +127,10 @@ function CreateOrderModal({ onClose, onSuccess }: { onClose: () => void; onSucce
         <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom: '1px solid #EDE8F5' }}>
           <div className="flex items-center gap-2">
             <ShoppingCart className="h-5 w-5" style={{ color: COLOR }} />
-            <h2 className="text-base font-bold" style={{ color: '#433C50' }}>Buat Order Baru</h2>
+            <h2 className="text-base font-bold" style={{ color: '#1E1B4B' }}>Buat Order Baru</h2>
           </div>
           <button onClick={onClose} className="p-1.5 rounded-lg transition hover:bg-gray-100">
-            <X className="h-4 w-4" style={{ color: '#A5A3AE' }} />
+            <X className="h-4 w-4" style={{ color: '#9CA3AF' }} />
           </button>
         </div>
 
@@ -139,13 +139,13 @@ function CreateOrderModal({ onClose, onSuccess }: { onClose: () => void; onSucce
 
           {/* Info Customer */}
           <div className="space-y-3">
-            <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#A5A3AE' }}>Info Customer</p>
+            <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#9CA3AF' }}>Info Customer</p>
             <div className="grid grid-cols-2 gap-3">
               <div className="col-span-2">
-                <label className="block text-xs font-medium mb-1" style={{ color: '#433C50' }}>Nama Customer <span style={{ color: '#EA5455' }}>*</span></label>
+                <label className="block text-xs font-medium mb-1" style={{ color: '#1E1B4B' }}>Nama Customer <span style={{ color: '#EA5455' }}>*</span></label>
                 <input
                   className="w-full rounded-lg px-3 py-2 text-sm"
-                  style={{ border: '1px solid #EDE8F5', color: '#433C50', outline: 'none' }}
+                  style={{ border: '1px solid #EDE8F5', color: '#1E1B4B', outline: 'none' }}
                   placeholder="cth: PT Maju Jaya"
                   value={namaCustomer}
                   onChange={e => setNamaCustomer(e.target.value)}
@@ -154,10 +154,10 @@ function CreateOrderModal({ onClose, onSuccess }: { onClose: () => void; onSucce
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium mb-1" style={{ color: '#433C50' }}>No. HP</label>
+                <label className="block text-xs font-medium mb-1" style={{ color: '#1E1B4B' }}>No. HP</label>
                 <input
                   className="w-full rounded-lg px-3 py-2 text-sm"
-                  style={{ border: '1px solid #EDE8F5', color: '#433C50', outline: 'none' }}
+                  style={{ border: '1px solid #EDE8F5', color: '#1E1B4B', outline: 'none' }}
                   placeholder="cth: 081234567890"
                   value={noHp}
                   onChange={e => setNoHp(e.target.value)}
@@ -166,10 +166,10 @@ function CreateOrderModal({ onClose, onSuccess }: { onClose: () => void; onSucce
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium mb-1" style={{ color: '#433C50' }}>Nama Sales</label>
+                <label className="block text-xs font-medium mb-1" style={{ color: '#1E1B4B' }}>Nama Sales</label>
                 <input
                   className="w-full rounded-lg px-3 py-2 text-sm"
-                  style={{ border: '1px solid #EDE8F5', color: '#433C50', outline: 'none' }}
+                  style={{ border: '1px solid #EDE8F5', color: '#1E1B4B', outline: 'none' }}
                   placeholder="Nama sales"
                   value={salesName}
                   onChange={e => setSalesName(e.target.value)}
@@ -178,10 +178,10 @@ function CreateOrderModal({ onClose, onSuccess }: { onClose: () => void; onSucce
                 />
               </div>
               <div className="col-span-2">
-                <label className="block text-xs font-medium mb-1" style={{ color: '#433C50' }}>Alamat</label>
+                <label className="block text-xs font-medium mb-1" style={{ color: '#1E1B4B' }}>Alamat</label>
                 <input
                   className="w-full rounded-lg px-3 py-2 text-sm"
-                  style={{ border: '1px solid #EDE8F5', color: '#433C50', outline: 'none' }}
+                  style={{ border: '1px solid #EDE8F5', color: '#1E1B4B', outline: 'none' }}
                   placeholder="Alamat pengiriman"
                   value={alamat}
                   onChange={e => setAlamat(e.target.value)}
@@ -190,11 +190,11 @@ function CreateOrderModal({ onClose, onSuccess }: { onClose: () => void; onSucce
                 />
               </div>
               <div className="col-span-2">
-                <label className="block text-xs font-medium mb-1" style={{ color: '#433C50' }}>Catatan</label>
+                <label className="block text-xs font-medium mb-1" style={{ color: '#1E1B4B' }}>Catatan</label>
                 <textarea
                   rows={2}
                   className="w-full rounded-lg px-3 py-2 text-sm resize-none"
-                  style={{ border: '1px solid #EDE8F5', color: '#433C50', outline: 'none' }}
+                  style={{ border: '1px solid #EDE8F5', color: '#1E1B4B', outline: 'none' }}
                   placeholder="Catatan tambahan (opsional)"
                   value={catatan}
                   onChange={e => setCatatan(e.target.value)}
@@ -208,7 +208,7 @@ function CreateOrderModal({ onClose, onSuccess }: { onClose: () => void; onSucce
           {/* Item-item Produk */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#A5A3AE' }}>Produk</p>
+              <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#9CA3AF' }}>Produk</p>
               <button onClick={addItem} className="flex items-center gap-1 text-xs font-semibold px-2.5 py-1.5 rounded-lg transition" style={{ color: COLOR, backgroundColor: 'rgba(0,172,193,.08)' }}>
                 <Plus className="h-3.5 w-3.5" /> Tambah Item
               </button>
@@ -216,10 +216,10 @@ function CreateOrderModal({ onClose, onSuccess }: { onClose: () => void; onSucce
 
             {/* Header tabel */}
             <div className="grid grid-cols-12 gap-2 px-2">
-              <div className="col-span-5 text-xs font-medium" style={{ color: '#A5A3AE' }}>Produk</div>
-              <div className="col-span-2 text-xs font-medium text-center" style={{ color: '#A5A3AE' }}>Qty</div>
-              <div className="col-span-3 text-xs font-medium text-right" style={{ color: '#A5A3AE' }}>Harga</div>
-              <div className="col-span-2 text-xs font-medium text-right" style={{ color: '#A5A3AE' }}>Subtotal</div>
+              <div className="col-span-5 text-xs font-medium" style={{ color: '#9CA3AF' }}>Produk</div>
+              <div className="col-span-2 text-xs font-medium text-center" style={{ color: '#9CA3AF' }}>Qty</div>
+              <div className="col-span-3 text-xs font-medium text-right" style={{ color: '#9CA3AF' }}>Harga</div>
+              <div className="col-span-2 text-xs font-medium text-right" style={{ color: '#9CA3AF' }}>Subtotal</div>
             </div>
 
             <div className="space-y-2">
@@ -229,7 +229,7 @@ function CreateOrderModal({ onClose, onSuccess }: { onClose: () => void; onSucce
                   <div className="col-span-5 relative">
                     <input
                       className="w-full rounded-lg px-3 py-2 text-sm"
-                      style={{ border: '1px solid #EDE8F5', color: '#433C50', outline: 'none' }}
+                      style={{ border: '1px solid #EDE8F5', color: '#1E1B4B', outline: 'none' }}
                       placeholder="Nama produk"
                       value={item.nama}
                       onChange={e => {
@@ -249,8 +249,8 @@ function CreateOrderModal({ onClose, onSuccess }: { onClose: () => void; onSucce
                             className="w-full flex items-center justify-between px-3 py-2 text-left hover:bg-gray-50 transition"
                           >
                             <div>
-                              <p className="text-xs font-medium" style={{ color: '#433C50' }}>{p.name}</p>
-                              <p className="text-xs" style={{ color: '#A5A3AE' }}>{p.sku}</p>
+                              <p className="text-xs font-medium" style={{ color: '#1E1B4B' }}>{p.name}</p>
+                              <p className="text-xs" style={{ color: '#9CA3AF' }}>{p.sku}</p>
                             </div>
                             <span className="text-xs font-semibold" style={{ color: COLOR }}>
                               {Number(p.hargaJual).toLocaleString('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 })}
@@ -267,7 +267,7 @@ function CreateOrderModal({ onClose, onSuccess }: { onClose: () => void; onSucce
                       type="number"
                       min={1}
                       className="w-full rounded-lg px-2 py-2 text-sm text-center"
-                      style={{ border: '1px solid #EDE8F5', color: '#433C50', outline: 'none' }}
+                      style={{ border: '1px solid #EDE8F5', color: '#1E1B4B', outline: 'none' }}
                       value={item.qty}
                       onChange={e => updateItem(item.id, 'qty', Number(e.target.value) || 1)}
                       onFocus={e => { e.target.style.borderColor = COLOR; }}
@@ -281,7 +281,7 @@ function CreateOrderModal({ onClose, onSuccess }: { onClose: () => void; onSucce
                       type="number"
                       min={0}
                       className="w-full rounded-lg px-2 py-2 text-sm text-right"
-                      style={{ border: '1px solid #EDE8F5', color: '#433C50', outline: 'none' }}
+                      style={{ border: '1px solid #EDE8F5', color: '#1E1B4B', outline: 'none' }}
                       value={item.harga}
                       onChange={e => updateItem(item.id, 'harga', Number(e.target.value) || 0)}
                       onFocus={e => { e.target.style.borderColor = COLOR; }}
@@ -291,7 +291,7 @@ function CreateOrderModal({ onClose, onSuccess }: { onClose: () => void; onSucce
 
                   {/* Subtotal + hapus */}
                   <div className="col-span-2 flex items-center justify-end gap-1">
-                    <span className="text-xs font-semibold" style={{ color: '#433C50' }}>
+                    <span className="text-xs font-semibold" style={{ color: '#1E1B4B' }}>
                       {item.subtotal.toLocaleString('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 })}
                     </span>
                     {items.length > 1 && (
@@ -308,7 +308,7 @@ function CreateOrderModal({ onClose, onSuccess }: { onClose: () => void; onSucce
           {/* Total */}
           <div className="flex justify-end pt-1">
             <div className="rounded-xl px-5 py-3 text-right" style={{ backgroundColor: 'rgba(0,172,193,.07)', border: '1px solid rgba(0,172,193,.2)' }}>
-              <p className="text-xs font-medium" style={{ color: '#A5A3AE' }}>Total Order</p>
+              <p className="text-xs font-medium" style={{ color: '#9CA3AF' }}>Total Order</p>
               <p className="text-xl font-bold mt-0.5" style={{ color: COLOR }}>
                 {totalHarga.toLocaleString('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 })}
               </p>
@@ -324,7 +324,7 @@ function CreateOrderModal({ onClose, onSuccess }: { onClose: () => void; onSucce
 
         {/* Footer */}
         <div className="flex items-center justify-end gap-3 px-6 py-4" style={{ borderTop: '1px solid #EDE8F5' }}>
-          <button onClick={onClose} className="px-4 py-2 rounded-lg text-sm font-medium transition hover:bg-gray-50" style={{ color: '#433C50', border: '1px solid #EDE8F5' }}>
+          <button onClick={onClose} className="px-4 py-2 rounded-lg text-sm font-medium transition hover:bg-gray-50" style={{ color: '#1E1B4B', border: '1px solid #EDE8F5' }}>
             Batal
           </button>
           <button
@@ -376,8 +376,8 @@ export default function SalesOrdersPage() {
       <div className="p-6 space-y-6 max-w-6xl mx-auto">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold" style={{ color: '#433C50' }}>Order Penjualan</h1>
-            <p className="text-sm mt-0.5" style={{ color: '#A5A3AE' }}>Kelola semua order dari pelanggan</p>
+            <h1 className="text-xl font-bold" style={{ color: '#1E1B4B' }}>Order Penjualan</h1>
+            <p className="text-sm mt-0.5" style={{ color: '#9CA3AF' }}>Kelola semua order dari pelanggan</p>
           </div>
           <div className="flex items-center gap-2">
             <button
@@ -405,8 +405,8 @@ export default function SalesOrdersPage() {
               { label: 'Pending',       value: summary.pendingOrders, color: '#FF9800', bg: 'rgba(255,152,0,.1)' },
             ].map((s) => (
               <div key={s.label} className="bg-white rounded-2xl p-5" style={{ border: '1.5px solid #EDE8F5', boxShadow: '0 1px 4px rgba(47,43,61,.06)' }}>
-                <p className="text-xs font-medium" style={{ color: '#A5A3AE' }}>{s.label}</p>
-                <p className="text-2xl font-bold mt-1" style={{ color: '#433C50' }}>{s.value}</p>
+                <p className="text-xs font-medium" style={{ color: '#9CA3AF' }}>{s.label}</p>
+                <p className="text-2xl font-bold mt-1" style={{ color: '#1E1B4B' }}>{s.value}</p>
               </div>
             ))}
           </div>
@@ -418,7 +418,7 @@ export default function SalesOrdersPage() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5" style={{ color: '#B0AAB9' }} />
               <input
                 className="w-full rounded-lg pl-9 pr-4 py-2 text-sm"
-                style={{ border: '1px solid #EDE8F5', color: '#433C50', outline: 'none' }}
+                style={{ border: '1px solid #EDE8F5', color: '#1E1B4B', outline: 'none' }}
                 placeholder="Cari customer..."
                 value={search}
                 onChange={e => { setSearch(e.target.value); setPage(1); }}
@@ -426,7 +426,7 @@ export default function SalesOrdersPage() {
             </div>
             <select
               className="rounded-lg px-3 py-2 text-sm"
-              style={{ border: '1px solid #EDE8F5', color: '#433C50', outline: 'none' }}
+              style={{ border: '1px solid #EDE8F5', color: '#1E1B4B', outline: 'none' }}
               value={status}
               onChange={e => { setStatus(e.target.value); setPage(1); }}
             >
@@ -436,7 +436,7 @@ export default function SalesOrdersPage() {
               <option value="delivered">Terkirim</option>
               <option value="cancelled">Dibatalkan</option>
             </select>
-            <button onClick={load} className="p-2 rounded-lg transition" style={{ border: '1px solid #EDE8F5', color: '#A5A3AE' }}>
+            <button onClick={load} className="p-2 rounded-lg transition" style={{ border: '1px solid #EDE8F5', color: '#9CA3AF' }}>
               <RefreshCw className="h-4 w-4" />
             </button>
           </div>
@@ -446,23 +446,23 @@ export default function SalesOrdersPage() {
               <thead>
                 <tr style={{ borderBottom: '1px solid #EDE8F5' }}>
                   {['ID', 'Customer', 'Sales', 'Total', 'Status', 'Tanggal'].map((h) => (
-                    <th key={h} className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide" style={{ color: '#A5A3AE' }}>{h}</th>
+                    <th key={h} className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide" style={{ color: '#9CA3AF' }}>{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {loading ? (
-                  <tr><td colSpan={6} className="px-6 py-12 text-center text-sm" style={{ color: '#A5A3AE' }}>Memuat data...</td></tr>
+                  <tr><td colSpan={6} className="px-6 py-12 text-center text-sm" style={{ color: '#9CA3AF' }}>Memuat data...</td></tr>
                 ) : orders.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="px-6 py-16 text-center">
                       <ShoppingCart className="h-10 w-10 mx-auto mb-3" style={{ color: '#D4D0E1' }} />
-                      <p className="text-sm font-medium" style={{ color: '#A5A3AE' }}>Belum ada order</p>
+                      <p className="text-sm font-medium" style={{ color: '#9CA3AF' }}>Belum ada order</p>
                       <p className="text-xs mt-1" style={{ color: '#C4C0D0' }}>Klik "Buat Order" untuk mulai</p>
                     </td>
                   </tr>
                 ) : orders.map((o, i) => {
-                  const st = STATUS_MAP[o.status] ?? { label: o.status, color: '#A5A3AE', bg: 'rgba(165,163,174,.12)' };
+                  const st = STATUS_MAP[o.status] ?? { label: o.status, color: '#9CA3AF', bg: 'rgba(165,163,174,.12)' };
                   return (
                     <tr
                       key={o.id}
@@ -470,19 +470,19 @@ export default function SalesOrdersPage() {
                       onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#FDFCFF'; }}
                       onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; }}
                     >
-                      <td className="px-6 py-3.5 text-xs font-mono" style={{ color: '#A5A3AE' }}>#{o.id}</td>
+                      <td className="px-6 py-3.5 text-xs font-mono" style={{ color: '#9CA3AF' }}>#{o.id}</td>
                       <td className="px-6 py-3.5">
-                        <p className="text-sm font-medium" style={{ color: '#433C50' }}>{extractName(o.namaCustomer)}</p>
-                        <p className="text-xs" style={{ color: '#A5A3AE' }}>{o.noHp || '–'}</p>
+                        <p className="text-sm font-medium" style={{ color: '#1E1B4B' }}>{extractName(o.namaCustomer)}</p>
+                        <p className="text-xs" style={{ color: '#9CA3AF' }}>{o.noHp || '–'}</p>
                       </td>
-                      <td className="px-6 py-3.5 text-sm" style={{ color: '#A5A3AE' }}>{o.salesName || '–'}</td>
-                      <td className="px-6 py-3.5 text-sm font-semibold" style={{ color: '#433C50' }}>
+                      <td className="px-6 py-3.5 text-sm" style={{ color: '#9CA3AF' }}>{o.salesName || '–'}</td>
+                      <td className="px-6 py-3.5 text-sm font-semibold" style={{ color: '#1E1B4B' }}>
                         {Number(o.totalHarga || 0).toLocaleString('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 })}
                       </td>
                       <td className="px-6 py-3.5">
                         <span className="inline-flex px-2.5 py-1 rounded-full text-xs font-semibold" style={{ color: st.color, backgroundColor: st.bg }}>{st.label}</span>
                       </td>
-                      <td className="px-6 py-3.5 text-xs" style={{ color: '#A5A3AE' }}>{new Date(o.createdAt).toLocaleDateString('id-ID')}</td>
+                      <td className="px-6 py-3.5 text-xs" style={{ color: '#9CA3AF' }}>{new Date(o.createdAt).toLocaleDateString('id-ID')}</td>
                     </tr>
                   );
                 })}
@@ -491,11 +491,11 @@ export default function SalesOrdersPage() {
           </div>
 
           <div className="flex items-center justify-between px-6 py-3" style={{ borderTop: '1px solid #EDE8F5' }}>
-            <span className="text-xs" style={{ color: '#A5A3AE' }}>Total: {total}</span>
+            <span className="text-xs" style={{ color: '#9CA3AF' }}>Total: {total}</span>
             <div className="flex gap-2">
-              <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="px-3 py-1 rounded-lg text-xs disabled:opacity-40" style={{ border: '1px solid #EDE8F5', color: '#433C50' }}>← Prev</button>
-              <span className="px-3 py-1 text-xs" style={{ color: '#433C50' }}>Hal {page}</span>
-              <button onClick={() => setPage(p => p + 1)} disabled={orders.length < 20} className="px-3 py-1 rounded-lg text-xs disabled:opacity-40" style={{ border: '1px solid #EDE8F5', color: '#433C50' }}>Next →</button>
+              <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="px-3 py-1 rounded-lg text-xs disabled:opacity-40" style={{ border: '1px solid #EDE8F5', color: '#1E1B4B' }}>← Prev</button>
+              <span className="px-3 py-1 text-xs" style={{ color: '#1E1B4B' }}>Hal {page}</span>
+              <button onClick={() => setPage(p => p + 1)} disabled={orders.length < 20} className="px-3 py-1 rounded-lg text-xs disabled:opacity-40" style={{ border: '1px solid #EDE8F5', color: '#1E1B4B' }}>Next →</button>
             </div>
           </div>
         </div>

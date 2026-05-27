@@ -70,10 +70,10 @@ export default function ApplicationsPage() {
       <div className="p-6 space-y-6 max-w-6xl mx-auto">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold" style={{ color: '#433C50' }}>Data Pelamar</h1>
-            <p className="text-sm mt-0.5" style={{ color: '#A5A3AE' }}>Kelola dan pantau proses seleksi kandidat</p>
+            <h1 className="text-xl font-bold" style={{ color: '#1E1B4B' }}>Data Pelamar</h1>
+            <p className="text-sm mt-0.5" style={{ color: '#9CA3AF' }}>Kelola dan pantau proses seleksi kandidat</p>
           </div>
-          <button onClick={load} className="p-2 rounded-lg" style={{ border: '1px solid #EDE8F5', color: '#A5A3AE' }}><RefreshCw className="h-4 w-4" /></button>
+          <button onClick={load} className="p-2 rounded-lg" style={{ border: '1px solid #EDE8F5', color: '#9CA3AF' }}><RefreshCw className="h-4 w-4" /></button>
         </div>
 
         <div className="grid grid-cols-4 gap-4">
@@ -84,7 +84,7 @@ export default function ApplicationsPage() {
             { label: 'Ditolak', value: data.filter(a => a.stage === 'Ditolak').length, color: '#EA5455' },
           ].map(s => (
             <div key={s.label} className="bg-white rounded-2xl p-5" style={{ border: '1.5px solid #EDE8F5', boxShadow: '0 1px 4px rgba(47,43,61,.06)' }}>
-              <p className="text-xs font-medium" style={{ color: '#A5A3AE' }}>{s.label}</p>
+              <p className="text-xs font-medium" style={{ color: '#9CA3AF' }}>{s.label}</p>
               <p className="text-2xl font-bold mt-1" style={{ color: s.color }}>{s.value}</p>
             </div>
           ))}
@@ -94,9 +94,9 @@ export default function ApplicationsPage() {
           <div className="flex items-center gap-3 px-6 py-4" style={{ borderBottom: '1px solid #EDE8F5' }}>
             <div className="relative flex-1 max-w-sm">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5" style={{ color: '#B0AAB9' }} />
-              <input className="w-full rounded-lg pl-9 pr-4 py-2 text-sm" style={{ border: '1px solid #EDE8F5', color: '#433C50', outline: 'none' }} placeholder="Cari pelamar..." value={search} onChange={e => setSearch(e.target.value)} />
+              <input className="w-full rounded-lg pl-9 pr-4 py-2 text-sm" style={{ border: '1px solid #EDE8F5', color: '#1E1B4B', outline: 'none' }} placeholder="Cari pelamar..." value={search} onChange={e => setSearch(e.target.value)} />
             </div>
-            <select className="rounded-lg px-3 py-2 text-sm" style={{ border: '1px solid #EDE8F5', color: '#433C50', outline: 'none' }} value={stageFilter} onChange={e => setStageFilter(e.target.value)}>
+            <select className="rounded-lg px-3 py-2 text-sm" style={{ border: '1px solid #EDE8F5', color: '#1E1B4B', outline: 'none' }} value={stageFilter} onChange={e => setStageFilter(e.target.value)}>
               <option value="">Semua Stage</option>
               {STAGES.map(s => <option key={s} value={s}>{s}</option>)}
             </select>
@@ -105,9 +105,9 @@ export default function ApplicationsPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr style={{ borderBottom: '1px solid #EDE8F5', backgroundColor: '#F8F7FC' }}>
+                <tr style={{ borderBottom: '1px solid #EDE8F5', backgroundColor: '#F5F3FF' }}>
                   {['Pelamar', 'Posisi', 'Kontak', 'Tgl Melamar', 'Sumber', 'Skor', 'Stage', 'Aksi'].map(h => (
-                    <th key={h} className="px-4 py-3 text-left text-xs font-semibold whitespace-nowrap" style={{ color: '#A5A3AE' }}>{h}</th>
+                    <th key={h} className="px-4 py-3 text-left text-xs font-semibold whitespace-nowrap" style={{ color: '#9CA3AF' }}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -115,25 +115,25 @@ export default function ApplicationsPage() {
                 {filtered.map(app => {
                   const sc = STAGE_COLORS[app.stage] ?? STAGE_COLORS['Baru'];
                   return (
-                    <tr key={app.id} style={{ borderBottom: '1px solid #F5F5F9' }} className="hover:bg-gray-50">
+                    <tr key={app.id} style={{ borderBottom: '1px solid #F5F3FF' }} className="hover:bg-gray-50">
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
                           <div className="h-7 w-7 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0" style={{ backgroundColor: C }}>{app.name?.charAt(0)}</div>
-                          <span className="font-medium" style={{ color: '#433C50' }}>{app.name}</span>
+                          <span className="font-medium" style={{ color: '#1E1B4B' }}>{app.name}</span>
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-xs" style={{ color: '#6D6777' }}>{app.position}</td>
+                      <td className="px-4 py-3 text-xs" style={{ color: '#6B7280' }}>{app.position}</td>
                       <td className="px-4 py-3">
                         <div className="flex flex-col gap-0.5">
-                          <div className="flex items-center gap-1 text-xs" style={{ color: '#6D6777' }}><Mail className="h-3 w-3" />{app.email}</div>
-                          <div className="flex items-center gap-1 text-xs" style={{ color: '#6D6777' }}><Phone className="h-3 w-3" />{app.phone}</div>
+                          <div className="flex items-center gap-1 text-xs" style={{ color: '#6B7280' }}><Mail className="h-3 w-3" />{app.email}</div>
+                          <div className="flex items-center gap-1 text-xs" style={{ color: '#6B7280' }}><Phone className="h-3 w-3" />{app.phone}</div>
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-xs" style={{ color: '#6D6777' }}>{new Date(app.applied_date).toLocaleDateString('id-ID')}</td>
-                      <td className="px-4 py-3 text-xs" style={{ color: '#6D6777' }}>{app.source}</td>
+                      <td className="px-4 py-3 text-xs" style={{ color: '#6B7280' }}>{new Date(app.applied_date).toLocaleDateString('id-ID')}</td>
+                      <td className="px-4 py-3 text-xs" style={{ color: '#6B7280' }}>{app.source}</td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-1.5">
-                          <Star className="h-3 w-3" style={{ color: app.score >= 80 ? '#FF9800' : '#A5A3AE' }} />
+                          <Star className="h-3 w-3" style={{ color: app.score >= 80 ? '#FF9800' : '#9CA3AF' }} />
                           <span className="font-bold text-sm" style={{ color: app.score >= 80 ? '#FF9800' : app.score >= 60 ? '#2196F3' : '#EA5455' }}>{app.score}</span>
                         </div>
                       </td>

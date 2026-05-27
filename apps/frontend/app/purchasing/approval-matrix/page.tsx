@@ -45,8 +45,8 @@ export default function ApprovalMatrixPage() {
       <div className="p-6 space-y-6 max-w-5xl mx-auto">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold" style={{ color: '#433C50' }}>Approval Matrix Pembelian</h1>
-            <p className="text-sm mt-0.5" style={{ color: '#A5A3AE' }}>Atur rantai persetujuan purchase order berdasarkan nominal</p>
+            <h1 className="text-xl font-bold" style={{ color: '#1E1B4B' }}>Approval Matrix Pembelian</h1>
+            <p className="text-sm mt-0.5" style={{ color: '#9CA3AF' }}>Atur rantai persetujuan purchase order berdasarkan nominal</p>
           </div>
           <button onClick={() => setShowForm(true)} className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-semibold text-white" style={{ backgroundColor: C }}>
             <Plus className="h-4 w-4" /> Tambah Level
@@ -60,8 +60,8 @@ export default function ApprovalMatrixPage() {
             <div key={level.id} className="bg-white rounded-2xl p-5" style={{ border: '1.5px solid #EDE8F5', boxShadow: '0 1px 4px rgba(47,43,61,.06)', opacity: level.active ? 1 : 0.6 }}>
               <div className="flex items-start justify-between mb-4">
                 <div>
-                  <h3 className="font-bold" style={{ color: '#433C50' }}>{level.name}</h3>
-                  <p className="text-sm mt-0.5" style={{ color: '#A5A3AE' }}>
+                  <h3 className="font-bold" style={{ color: '#1E1B4B' }}>{level.name}</h3>
+                  <p className="text-sm mt-0.5" style={{ color: '#9CA3AF' }}>
                     {fmt(level.min_amount)} — {level.max_amount > 999999999 ? '∞ (tidak terbatas)' : fmt(level.max_amount)}
                   </p>
                 </div>
@@ -83,7 +83,7 @@ export default function ApprovalMatrixPage() {
                     )}
                     <div className="rounded-xl p-3 text-center min-w-[120px]" style={{ backgroundColor: `${C}08`, border: `1.5px solid ${C}30` }}>
                       <p className="text-xs font-bold" style={{ color: C }}>Level {i + 1}</p>
-                      <p className="text-xs mt-1 font-semibold" style={{ color: '#433C50' }}>{approver}</p>
+                      <p className="text-xs mt-1 font-semibold" style={{ color: '#1E1B4B' }}>{approver}</p>
                     </div>
                   </div>
                 ))}
@@ -96,13 +96,13 @@ export default function ApprovalMatrixPage() {
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
             <div className="bg-white rounded-2xl w-full max-w-md mx-4" style={{ boxShadow: '0 20px 60px rgba(0,0,0,.15)' }}>
               <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom: '1px solid #EDE8F5' }}>
-                <h2 className="font-bold" style={{ color: '#433C50' }}>Tambah Level Approval</h2>
-                <button onClick={() => setShowForm(false)} style={{ color: '#A5A3AE' }}><X className="h-5 w-5" /></button>
+                <h2 className="font-bold" style={{ color: '#1E1B4B' }}>Tambah Level Approval</h2>
+                <button onClick={() => setShowForm(false)} style={{ color: '#9CA3AF' }}><X className="h-5 w-5" /></button>
               </div>
               <div className="p-6 space-y-4">
                 <div>
-                  <label className="block text-xs font-semibold mb-1.5" style={{ color: '#433C50' }}>Nama Level *</label>
-                  <input className="w-full rounded-lg px-4 py-2.5 text-sm" style={{ border: '1.5px solid #EDE8F5', color: '#433C50', outline: 'none' }} placeholder="Pembelian Besar..." value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} onFocus={e => e.target.style.borderColor = C} onBlur={e => e.target.style.borderColor = '#EDE8F5'} />
+                  <label className="block text-xs font-semibold mb-1.5" style={{ color: '#1E1B4B' }}>Nama Level *</label>
+                  <input className="w-full rounded-lg px-4 py-2.5 text-sm" style={{ border: '1.5px solid #EDE8F5', color: '#1E1B4B', outline: 'none' }} placeholder="Pembelian Besar..." value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} onFocus={e => e.target.style.borderColor = C} onBlur={e => e.target.style.borderColor = '#EDE8F5'} />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   {[
@@ -110,22 +110,22 @@ export default function ApprovalMatrixPage() {
                     { key: 'max_amount', label: 'Nilai Maksimum (Rp)', placeholder: '50000000' },
                   ].map(f => (
                     <div key={f.key}>
-                      <label className="block text-xs font-semibold mb-1.5" style={{ color: '#433C50' }}>{f.label}</label>
-                      <input type="number" className="w-full rounded-lg px-4 py-2.5 text-sm" style={{ border: '1.5px solid #EDE8F5', color: '#433C50', outline: 'none' }} placeholder={f.placeholder} value={(form as any)[f.key]} onChange={e => setForm(f2 => ({ ...f2, [f.key]: e.target.value }))} onFocus={e => e.target.style.borderColor = C} onBlur={e => e.target.style.borderColor = '#EDE8F5'} />
+                      <label className="block text-xs font-semibold mb-1.5" style={{ color: '#1E1B4B' }}>{f.label}</label>
+                      <input type="number" className="w-full rounded-lg px-4 py-2.5 text-sm" style={{ border: '1.5px solid #EDE8F5', color: '#1E1B4B', outline: 'none' }} placeholder={f.placeholder} value={(form as any)[f.key]} onChange={e => setForm(f2 => ({ ...f2, [f.key]: e.target.value }))} onFocus={e => e.target.style.borderColor = C} onBlur={e => e.target.style.borderColor = '#EDE8F5'} />
                     </div>
                   ))}
                 </div>
                 {['approver_1', 'approver_2', 'approver_3'].map((key, i) => (
                   <div key={key}>
-                    <label className="block text-xs font-semibold mb-1.5" style={{ color: '#433C50' }}>Approver Level {i + 1} {i === 0 ? '*' : '(Opsional)'}</label>
-                    <select className="w-full rounded-lg px-4 py-2.5 text-sm" style={{ border: '1.5px solid #EDE8F5', color: '#433C50', outline: 'none' }} value={(form as any)[key]} onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))}>
+                    <label className="block text-xs font-semibold mb-1.5" style={{ color: '#1E1B4B' }}>Approver Level {i + 1} {i === 0 ? '*' : '(Opsional)'}</label>
+                    <select className="w-full rounded-lg px-4 py-2.5 text-sm" style={{ border: '1.5px solid #EDE8F5', color: '#1E1B4B', outline: 'none' }} value={(form as any)[key]} onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))}>
                       <option value="">— Tidak ada —</option>
                       {APPROVERS.map(a => <option key={a} value={a}>{a}</option>)}
                     </select>
                   </div>
                 ))}
                 <div className="flex justify-end gap-3 pt-2" style={{ borderTop: '1px solid #EDE8F5' }}>
-                  <button onClick={() => setShowForm(false)} className="px-5 py-2.5 rounded-lg text-sm font-semibold" style={{ border: '1.5px solid #EDE8F5', color: '#6D6777' }}>Batal</button>
+                  <button onClick={() => setShowForm(false)} className="px-5 py-2.5 rounded-lg text-sm font-semibold" style={{ border: '1.5px solid #EDE8F5', color: '#6B7280' }}>Batal</button>
                   <button onClick={save} className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold text-white" style={{ backgroundColor: C }}>
                     <Save className="h-4 w-4" /> Simpan
                   </button>

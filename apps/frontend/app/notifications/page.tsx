@@ -22,8 +22,8 @@ export default function NotificationsPage() {
     <AppShell {...SETTINGS_CONFIG} navItems={SETTINGS_NAV} activeHref="/notifications">
       <div className="p-6 lg:p-8 space-y-6 max-w-4xl mx-auto">
         <div>
-          <h1 className="text-xl font-bold" style={{ color: '#433C50' }}>Notifikasi</h1>
-          <p className="text-sm mt-0.5" style={{ color: '#A5A3AE' }}>Semua notifikasi penting sistem dan event ERP realtime</p>
+          <h1 className="text-xl font-bold" style={{ color: '#1E1B4B' }}>Notifikasi</h1>
+          <p className="text-sm mt-0.5" style={{ color: '#9CA3AF' }}>Semua notifikasi penting sistem dan event ERP realtime</p>
         </div>
         <NotificationList />
       </div>

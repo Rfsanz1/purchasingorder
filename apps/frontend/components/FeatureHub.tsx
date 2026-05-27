@@ -158,7 +158,7 @@ export default function FeatureHub({ moduleId, color, bgColor, gradient }: Props
             <span className="text-xl flex-shrink-0 mt-0.5 group-hover:scale-110 transition-transform inline-block">{f.emoji}</span>
             <div className="min-w-0">
               <p className="text-xs font-bold leading-tight" style={{ color: '#2F2B3D' }}>{f.label}</p>
-              <p className="text-[10px] mt-0.5 leading-tight" style={{ color: '#A5A3AE' }}>{f.desc}</p>
+              <p className="text-[10px] mt-0.5 leading-tight" style={{ color: '#9CA3AF' }}>{f.desc}</p>
             </div>
           </Link>
         ))}

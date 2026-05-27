@@ -32,7 +32,7 @@ const QUICK_ACTIONS = [
   { label: 'Terima Pembayaran', href: '/invoice/payments', icon: DollarSign, color: '#22C55E' },
   { label: 'Transfer Stok', href: '/inventory/transfers', icon: Package, color: '#8B5CF6' },
   { label: 'Buat Purchase Order', href: '/purchasing/purchase-orders', icon: Truck, color: '#F59E0B' },
-  { label: 'AI Assistant', href: '/ai/chatbot', icon: Brain, color: '#714B67' },
+  { label: 'AI Assistant', href: '/ai/chatbot', icon: Brain, color: '#5B52D1' },
   { label: 'Laporan Harian', href: '/reports/sales', icon: BarChart2, color: '#14B8A6' },
 ];
 
@@ -53,14 +53,14 @@ function MiniBarChart({ data }: { data: { month: string; revenue: number; order:
           <div className="w-full flex gap-0.5 items-end" style={{ height: '72px' }}>
             <div
               className="flex-1 rounded-t transition-all"
-              style={{ height: `${(d.revenue / maxRev) * 100}%`, backgroundColor: '#714B67', opacity: i === data.length - 1 ? 1 : 0.55 }}
+              style={{ height: `${(d.revenue / maxRev) * 100}%`, backgroundColor: '#5B52D1', opacity: i === data.length - 1 ? 1 : 0.55 }}
             />
             <div
               className="flex-1 rounded-t transition-all"
-              style={{ height: `${(d.order / maxRev) * 100}%`, backgroundColor: '#E9E0F8' }}
+              style={{ height: `${(d.order / maxRev) * 100}%`, backgroundColor: '#EDE9FE' }}
             />
           </div>
-          <span className="text-[9px]" style={{ color: '#A5A3AE' }}>{d.month}</span>
+          <span className="text-[9px]" style={{ color: '#9CA3AF' }}>{d.month}</span>
         </div>
       ))}
     </div>
@@ -69,7 +69,7 @@ function MiniBarChart({ data }: { data: { month: string; revenue: number; order:
 
 function SkeletonCard() {
   return (
-    <div className="rounded-2xl p-4 flex flex-col gap-3 animate-pulse" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #E9E0F8' }}>
+    <div className="rounded-2xl p-4 flex flex-col gap-3 animate-pulse" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE' }}>
       <div className="flex items-center justify-between">
         <div className="h-9 w-9 rounded-xl bg-gray-100" />
         <div className="h-4 w-12 rounded bg-gray-100" />
@@ -211,10 +211,10 @@ export default function DashboardPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold" style={{ color: '#433C50' }}>
+            <h1 className="text-xl font-bold" style={{ color: '#1E1B4B' }}>
               Selamat datang, {displayName} 👋
             </h1>
-            <p className="text-sm mt-0.5 flex items-center gap-2" style={{ color: '#A5A3AE' }}>
+            <p className="text-sm mt-0.5 flex items-center gap-2" style={{ color: '#9CA3AF' }}>
               {new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
               {apiOnline !== null && (
                 <span className="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full font-semibold" style={{
@@ -231,7 +231,7 @@ export default function DashboardPage() {
             onClick={fetchData}
             disabled={loading}
             className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition hover:bg-gray-100 disabled:opacity-60"
-            style={{ border: '1.5px solid #E9E0F8', color: '#6D6777' }}
+            style={{ border: '1.5px solid #EDE9FE', color: '#6B7280' }}
           >
             <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
             {loading ? 'Memuat...' : `Refresh · ${lastRefresh.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}`}
@@ -246,7 +246,7 @@ export default function DashboardPage() {
                 <div
                   key={i}
                   className="rounded-2xl p-4 flex flex-col gap-3"
-                  style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #E9E0F8', boxShadow: '0 1px 4px rgba(47,43,61,.04)' }}
+                  style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE', boxShadow: '0 1px 4px rgba(91,82,209,0.05)' }}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex h-9 w-9 items-center justify-center rounded-xl" style={{ backgroundColor: k.bg }}>
@@ -258,8 +258,8 @@ export default function DashboardPage() {
                     </span>
                   </div>
                   <div>
-                    <p className="text-lg font-bold leading-tight" style={{ color: '#433C50' }}>{k.value}</p>
-                    <p className="text-[11px] mt-0.5" style={{ color: '#A5A3AE' }}>{k.label}</p>
+                    <p className="text-lg font-bold leading-tight" style={{ color: '#1E1B4B' }}>{k.value}</p>
+                    <p className="text-[11px] mt-0.5" style={{ color: '#9CA3AF' }}>{k.label}</p>
                   </div>
                 </div>
               ))}
@@ -270,49 +270,49 @@ export default function DashboardPage() {
           {/* Chart + Orders */}
           <div className="lg:col-span-2 space-y-6">
             {/* Chart */}
-            <div className="rounded-2xl p-5" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #E9E0F8', boxShadow: '0 1px 4px rgba(47,43,61,.04)' }}>
+            <div className="rounded-2xl p-5" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE', boxShadow: '0 1px 4px rgba(91,82,209,0.05)' }}>
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h3 className="font-bold text-sm" style={{ color: '#433C50' }}>Tren Revenue & Order</h3>
-                  <p className="text-xs mt-0.5" style={{ color: '#A5A3AE' }}>6 bulan terakhir</p>
+                  <h3 className="font-bold text-sm" style={{ color: '#1E1B4B' }}>Tren Revenue & Order</h3>
+                  <p className="text-xs mt-0.5" style={{ color: '#9CA3AF' }}>6 bulan terakhir</p>
                 </div>
-                <div className="flex items-center gap-3 text-[11px]" style={{ color: '#6D6777' }}>
-                  <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-sm inline-block" style={{ backgroundColor: '#714B67' }} /> Revenue</span>
-                  <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-sm inline-block" style={{ backgroundColor: '#E9E0F8' }} /> Order</span>
+                <div className="flex items-center gap-3 text-[11px]" style={{ color: '#6B7280' }}>
+                  <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-sm inline-block" style={{ backgroundColor: '#5B52D1' }} /> Revenue</span>
+                  <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-sm inline-block" style={{ backgroundColor: '#EDE9FE' }} /> Order</span>
                 </div>
               </div>
               <MiniBarChart data={chartData} />
               <div className="mt-4 grid grid-cols-3 gap-3">
-                <div className="text-center p-3 rounded-xl" style={{ backgroundColor: '#F8F7FC' }}>
-                  <p className="text-base font-bold" style={{ color: '#433C50' }}>
+                <div className="text-center p-3 rounded-xl" style={{ backgroundColor: '#F5F3FF' }}>
+                  <p className="text-base font-bold" style={{ color: '#1E1B4B' }}>
                     {summary ? formatRp(summary.revenue_today * 30) : 'Rp 460 M'}
                   </p>
-                  <p className="text-[10px]" style={{ color: '#A5A3AE' }}>Total Revenue YTD</p>
+                  <p className="text-[10px]" style={{ color: '#9CA3AF' }}>Total Revenue YTD</p>
                 </div>
-                <div className="text-center p-3 rounded-xl" style={{ backgroundColor: '#F8F7FC' }}>
-                  <p className="text-base font-bold" style={{ color: '#433C50' }}>
+                <div className="text-center p-3 rounded-xl" style={{ backgroundColor: '#F5F3FF' }}>
+                  <p className="text-base font-bold" style={{ color: '#1E1B4B' }}>
                     {summary ? (summary.total_orders ?? 0).toLocaleString('id') : '3,821'}
                   </p>
-                  <p className="text-[10px]" style={{ color: '#A5A3AE' }}>Total Order YTD</p>
+                  <p className="text-[10px]" style={{ color: '#9CA3AF' }}>Total Order YTD</p>
                 </div>
-                <div className="text-center p-3 rounded-xl" style={{ backgroundColor: '#F8F7FC' }}>
+                <div className="text-center p-3 rounded-xl" style={{ backgroundColor: '#F5F3FF' }}>
                   <p className="text-base font-bold" style={{ color: '#22C55E' }}>
                     {summary ? `${(summary.revenue_growth ?? 0) >= 0 ? '+' : ''}${(summary.revenue_growth ?? 0).toFixed(1)}%` : '+18.4%'}
                   </p>
-                  <p className="text-[10px]" style={{ color: '#A5A3AE' }}>Growth vs Tahun Lalu</p>
+                  <p className="text-[10px]" style={{ color: '#9CA3AF' }}>Growth vs Tahun Lalu</p>
                 </div>
               </div>
             </div>
 
             {/* Recent Orders */}
-            <div className="rounded-2xl" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #E9E0F8', boxShadow: '0 1px 4px rgba(47,43,61,.04)' }}>
-              <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid #E9E0F8' }}>
-                <h3 className="font-bold text-sm" style={{ color: '#433C50' }}>Order Terbaru</h3>
-                <Link href="/sales/orders" className="text-xs font-semibold flex items-center gap-1" style={{ color: '#714B67' }}>
+            <div className="rounded-2xl" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE', boxShadow: '0 1px 4px rgba(91,82,209,0.05)' }}>
+              <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid #EDE9FE' }}>
+                <h3 className="font-bold text-sm" style={{ color: '#1E1B4B' }}>Order Terbaru</h3>
+                <Link href="/sales/orders" className="text-xs font-semibold flex items-center gap-1" style={{ color: '#5B52D1' }}>
                   Lihat Semua <ArrowUpRight className="h-3.5 w-3.5" />
                 </Link>
               </div>
-              <div className="divide-y" style={{ borderColor: '#E9E0F8' }}>
+              <div className="divide-y" style={{ borderColor: '#EDE9FE' }}>
                 {loading
                   ? Array.from({ length: 5 }).map((_, i) => (
                       <div key={i} className="flex items-center px-5 py-3 gap-3 animate-pulse">
@@ -328,12 +328,12 @@ export default function DashboardPage() {
                       return (
                         <div key={i} className="flex items-center px-5 py-3 hover:bg-gray-50 transition-colors">
                           <div className="flex-1 min-w-0">
-                            <p className="text-xs font-bold" style={{ color: '#433C50' }}>{(o as any).order_number ?? o.id}</p>
-                            <p className="text-[11px] mt-0.5 truncate" style={{ color: '#A5A3AE' }}>{extractName((o as any).customer ?? (o as any).namaCustomer)}</p>
+                            <p className="text-xs font-bold" style={{ color: '#1E1B4B' }}>{(o as any).order_number ?? o.id}</p>
+                            <p className="text-[11px] mt-0.5 truncate" style={{ color: '#9CA3AF' }}>{extractName((o as any).customer ?? (o as any).namaCustomer)}</p>
                           </div>
                           <div className="text-right mr-4">
-                            <p className="text-xs font-semibold" style={{ color: '#433C50' }}>{amountDisplay}</p>
-                            <p className="text-[11px] mt-0.5" style={{ color: '#A5A3AE' }}>{o.date}</p>
+                            <p className="text-xs font-semibold" style={{ color: '#1E1B4B' }}>{amountDisplay}</p>
+                            <p className="text-[11px] mt-0.5" style={{ color: '#9CA3AF' }}>{o.date}</p>
                           </div>
                           <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold flex-shrink-0" style={{ backgroundColor: statusColor + '15', color: statusColor }}>
                             {statusLabel}
@@ -348,9 +348,9 @@ export default function DashboardPage() {
           {/* Right column */}
           <div className="space-y-6">
             {/* Alerts */}
-            <div className="rounded-2xl" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #E9E0F8', boxShadow: '0 1px 4px rgba(47,43,61,.04)' }}>
-              <div className="px-5 py-4" style={{ borderBottom: '1px solid #E9E0F8' }}>
-                <h3 className="font-bold text-sm flex items-center gap-2" style={{ color: '#433C50' }}>
+            <div className="rounded-2xl" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE', boxShadow: '0 1px 4px rgba(91,82,209,0.05)' }}>
+              <div className="px-5 py-4" style={{ borderBottom: '1px solid #EDE9FE' }}>
+                <h3 className="font-bold text-sm flex items-center gap-2" style={{ color: '#1E1B4B' }}>
                   <AlertTriangle className="h-4 w-4 text-amber-500" /> Perhatian
                 </h3>
               </div>
@@ -368,17 +368,17 @@ export default function DashboardPage() {
                         }}
                       >
                         <div className="h-1.5 w-1.5 rounded-full mt-1.5 flex-shrink-0" style={{ backgroundColor: a.type === 'danger' ? '#EF4444' : a.type === 'warning' ? '#F59E0B' : '#3B82F6' }} />
-                        <p className="text-xs leading-relaxed" style={{ color: '#433C50' }}>{a.message ?? (a as any).msg}</p>
+                        <p className="text-xs leading-relaxed" style={{ color: '#1E1B4B' }}>{a.message ?? (a as any).msg}</p>
                       </Link>
                     ))}
               </div>
             </div>
 
             {/* Quick Actions */}
-            <div className="rounded-2xl" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #E9E0F8', boxShadow: '0 1px 4px rgba(47,43,61,.04)' }}>
-              <div className="px-5 py-4" style={{ borderBottom: '1px solid #E9E0F8' }}>
-                <h3 className="font-bold text-sm flex items-center gap-2" style={{ color: '#433C50' }}>
-                  <Zap className="h-4 w-4" style={{ color: '#714B67' }} /> Aksi Cepat
+            <div className="rounded-2xl" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE', boxShadow: '0 1px 4px rgba(91,82,209,0.05)' }}>
+              <div className="px-5 py-4" style={{ borderBottom: '1px solid #EDE9FE' }}>
+                <h3 className="font-bold text-sm flex items-center gap-2" style={{ color: '#1E1B4B' }}>
+                  <Zap className="h-4 w-4" style={{ color: '#5B52D1' }} /> Aksi Cepat
                 </h3>
               </div>
               <div className="p-4 grid grid-cols-2 gap-2">
@@ -387,37 +387,37 @@ export default function DashboardPage() {
                     key={i}
                     href={q.href}
                     className="flex flex-col items-center gap-2 p-3 rounded-xl text-center hover:bg-gray-50 transition-colors"
-                    style={{ border: '1.5px solid #E9E0F8' }}
+                    style={{ border: '1.5px solid #EDE9FE' }}
                   >
                     <div className="flex h-9 w-9 items-center justify-center rounded-xl" style={{ backgroundColor: q.color + '15' }}>
                       <q.icon className="h-4 w-4" style={{ color: q.color }} />
                     </div>
-                    <p className="text-[10px] font-semibold leading-snug" style={{ color: '#433C50' }}>{q.label}</p>
+                    <p className="text-[10px] font-semibold leading-snug" style={{ color: '#1E1B4B' }}>{q.label}</p>
                   </Link>
                 ))}
               </div>
             </div>
 
             {/* Top Products */}
-            <div className="rounded-2xl" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #E9E0F8', boxShadow: '0 1px 4px rgba(47,43,61,.04)' }}>
-              <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid #E9E0F8' }}>
-                <h3 className="font-bold text-sm flex items-center gap-2" style={{ color: '#433C50' }}>
+            <div className="rounded-2xl" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE', boxShadow: '0 1px 4px rgba(91,82,209,0.05)' }}>
+              <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid #EDE9FE' }}>
+                <h3 className="font-bold text-sm flex items-center gap-2" style={{ color: '#1E1B4B' }}>
                   <Star className="h-4 w-4 text-amber-400" /> Produk Terlaris
                 </h3>
-                <Link href="/reports/sales?type=product" className="text-xs font-semibold" style={{ color: '#714B67' }}>Semua</Link>
+                <Link href="/reports/sales?type=product" className="text-xs font-semibold" style={{ color: '#5B52D1' }}>Semua</Link>
               </div>
               <div className="p-4 space-y-3">
                 {TOP_PRODUCTS.map((p, i) => (
                   <div key={i}>
                     <div className="flex items-center justify-between mb-1">
-                      <p className="text-xs font-medium truncate max-w-[160px]" style={{ color: '#433C50' }}>{p.name}</p>
-                      <p className="text-[10px] font-semibold" style={{ color: '#714B67' }}>{p.revenue}</p>
+                      <p className="text-xs font-medium truncate max-w-[160px]" style={{ color: '#1E1B4B' }}>{p.name}</p>
+                      <p className="text-[10px] font-semibold" style={{ color: '#5B52D1' }}>{p.revenue}</p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="flex-1 rounded-full h-1.5" style={{ backgroundColor: '#E9E0F8' }}>
-                        <div className="h-1.5 rounded-full transition-all" style={{ width: `${p.pct}%`, backgroundColor: '#714B67' }} />
+                      <div className="flex-1 rounded-full h-1.5" style={{ backgroundColor: '#EDE9FE' }}>
+                        <div className="h-1.5 rounded-full transition-all" style={{ width: `${p.pct}%`, backgroundColor: '#5B52D1' }} />
                       </div>
-                      <span className="text-[10px]" style={{ color: '#A5A3AE' }}>{p.sold} terjual</span>
+                      <span className="text-[10px]" style={{ color: '#9CA3AF' }}>{p.sold} terjual</span>
                     </div>
                   </div>
                 ))}
@@ -427,16 +427,16 @@ export default function DashboardPage() {
         </div>
 
         {/* Activity Feed */}
-        <div className="rounded-2xl" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #E9E0F8', boxShadow: '0 1px 4px rgba(47,43,61,.04)' }}>
-          <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid #E9E0F8' }}>
-            <h3 className="font-bold text-sm flex items-center gap-2" style={{ color: '#433C50' }}>
-              <Activity className="h-4 w-4" style={{ color: '#714B67' }} /> Aktivitas Terkini
+        <div className="rounded-2xl" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE', boxShadow: '0 1px 4px rgba(91,82,209,0.05)' }}>
+          <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid #EDE9FE' }}>
+            <h3 className="font-bold text-sm flex items-center gap-2" style={{ color: '#1E1B4B' }}>
+              <Activity className="h-4 w-4" style={{ color: '#5B52D1' }} /> Aktivitas Terkini
             </h3>
-            <Link href="/settings/audit-log" className="text-xs font-semibold" style={{ color: '#714B67' }}>Lihat Audit Log</Link>
+            <Link href="/settings/audit-log" className="text-xs font-semibold" style={{ color: '#5B52D1' }}>Lihat Audit Log</Link>
           </div>
           <div className="px-5 py-4">
             <div className="relative">
-              <div className="absolute left-3 top-0 bottom-0 w-px" style={{ backgroundColor: '#E9E0F8' }} />
+              <div className="absolute left-3 top-0 bottom-0 w-px" style={{ backgroundColor: '#EDE9FE' }} />
               <div className="space-y-4">
                 {[
                   { action: 'Sales Order SO-2026-1842 dibuat', user: 'Budi Santoso', time: '5 menit lalu', color: '#22C55E' },
@@ -449,10 +449,10 @@ export default function DashboardPage() {
                   <div key={i} className="flex items-start gap-4 pl-6 relative">
                     <div className="absolute left-0 top-1 h-3 w-3 rounded-full border-2 border-white" style={{ backgroundColor: a.color, boxShadow: `0 0 0 1px ${a.color}` }} />
                     <div className="flex-1">
-                      <p className="text-xs" style={{ color: '#433C50' }}>{a.action}</p>
+                      <p className="text-xs" style={{ color: '#1E1B4B' }}>{a.action}</p>
                       <div className="flex items-center gap-2 mt-0.5">
-                        <span className="text-[10px] font-semibold" style={{ color: '#714B67' }}>{a.user}</span>
-                        <span className="text-[10px]" style={{ color: '#A5A3AE' }}>· {a.time}</span>
+                        <span className="text-[10px] font-semibold" style={{ color: '#5B52D1' }}>{a.user}</span>
+                        <span className="text-[10px]" style={{ color: '#9CA3AF' }}>· {a.time}</span>
                       </div>
                     </div>
                   </div>

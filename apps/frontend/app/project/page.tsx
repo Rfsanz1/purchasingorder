@@ -46,18 +46,18 @@ const STATUS_PROJECT: Record<string, { label: string; color: string; bg: string 
   on_track: { label: 'On Track', color: '#4CAF50', bg: 'rgba(76,175,80,.1)' },
   at_risk:  { label: 'At Risk',  color: '#FF9800', bg: 'rgba(255,152,0,.1)' },
   delayed:  { label: 'Terlambat', color: '#EA5455', bg: 'rgba(234,84,85,.1)' },
-  done:     { label: 'Selesai',  color: '#A5A3AE', bg: 'rgba(165,163,174,.12)' },
+  done:     { label: 'Selesai',  color: '#9CA3AF', bg: 'rgba(165,163,174,.12)' },
 };
 
 const PRIORITY_MAP: Record<string, { color: string; label: string }> = {
   urgent: { color: '#EA5455', label: '🔴 Kritis' },
   high:   { color: '#FF9800', label: '🟠 Tinggi' },
   normal: { color: '#2196F3', label: '🔵 Normal' },
-  low:    { color: '#A5A3AE', label: '⚪ Rendah' },
+  low:    { color: '#9CA3AF', label: '⚪ Rendah' },
 };
 
 const STAGE_MAP: Record<string, { label: string; color: string; bg: string }> = {
-  todo:        { label: 'To Do',      color: '#A5A3AE', bg: 'rgba(165,163,174,.12)' },
+  todo:        { label: 'To Do',      color: '#9CA3AF', bg: 'rgba(165,163,174,.12)' },
   in_progress: { label: 'In Progress', color: '#2196F3', bg: 'rgba(33,150,243,.1)' },
   review:      { label: 'Review',     color: '#FF9800', bg: 'rgba(255,152,0,.1)' },
   done:        { label: 'Selesai',    color: '#4CAF50', bg: 'rgba(76,175,80,.1)' },
@@ -85,13 +85,13 @@ export default function ProjectDashboard() {
             return (
               <div key={s.label} className="bg-white rounded-2xl p-5 border" style={{ borderColor: '#EDE8F5' }}>
                 <div className="flex items-center justify-between mb-3">
-                  <p className="text-xs font-medium" style={{ color: '#A5A3AE' }}>{s.label}</p>
+                  <p className="text-xs font-medium" style={{ color: '#9CA3AF' }}>{s.label}</p>
                   <div className="flex h-9 w-9 items-center justify-center rounded-xl" style={{ backgroundColor: s.bg }}>
                     <Icon className="h-5 w-5" style={{ color: s.color }} />
                   </div>
                 </div>
                 <p className="text-2xl font-bold" style={{ color: '#2F2B3D' }}>{s.value}</p>
-                <p className="text-xs mt-1" style={{ color: '#A5A3AE' }}>{s.sub}</p>
+                <p className="text-xs mt-1" style={{ color: '#9CA3AF' }}>{s.sub}</p>
               </div>
             );
           })}
@@ -114,7 +114,7 @@ export default function ProjectDashboard() {
                           <span className="text-[10px] font-bold px-1.5 py-0.5 rounded" style={{ backgroundColor: '#EDE8F5', color: '#5C6BC0' }}>{proj.code}</span>
                           <span className="text-xs font-bold truncate" style={{ color: '#2F2B3D' }}>{proj.name}</span>
                         </div>
-                        <p className="text-[11px] mt-0.5" style={{ color: '#A5A3AE' }}>
+                        <p className="text-[11px] mt-0.5" style={{ color: '#9CA3AF' }}>
                           {proj.owner} · Deadline: {proj.deadline} · {proj.done}/{proj.tasks} tugas
                         </p>
                       </div>
@@ -124,7 +124,7 @@ export default function ProjectDashboard() {
                       <div className="flex-1 h-1.5 rounded-full" style={{ backgroundColor: '#EDE8F5' }}>
                         <div className="h-1.5 rounded-full transition-all" style={{ width: `${proj.progress}%`, backgroundColor: st.color }} />
                       </div>
-                      <span className="text-[10px] font-bold flex-shrink-0" style={{ color: '#A5A3AE' }}>{proj.progress}%</span>
+                      <span className="text-[10px] font-bold flex-shrink-0" style={{ color: '#9CA3AF' }}>{proj.progress}%</span>
                     </div>
                   </div>
                 );
@@ -147,7 +147,7 @@ export default function ProjectDashboard() {
                     <div className="flex items-center gap-2 mt-1.5 flex-wrap">
                       <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded" style={{ backgroundColor: '#EDE8F5', color: '#5C6BC0' }}>{task.project}</span>
                       <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ backgroundColor: st.bg, color: st.color }}>{st.label}</span>
-                      <span className="text-[10px] flex items-center gap-0.5" style={{ color: '#A5A3AE' }}>
+                      <span className="text-[10px] flex items-center gap-0.5" style={{ color: '#9CA3AF' }}>
                         <Calendar className="h-2.5 w-2.5" />{task.due}
                       </span>
                     </div>

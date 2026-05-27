@@ -47,11 +47,11 @@ export default function BankExportPage() {
       <div className="p-6 space-y-6 max-w-5xl mx-auto">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold" style={{ color: '#433C50' }}>Export ke Bank</h1>
-            <p className="text-sm mt-0.5" style={{ color: '#A5A3AE' }}>Generate file transfer bank untuk pembayaran gaji karyawan</p>
+            <h1 className="text-xl font-bold" style={{ color: '#1E1B4B' }}>Export ke Bank</h1>
+            <p className="text-sm mt-0.5" style={{ color: '#9CA3AF' }}>Generate file transfer bank untuk pembayaran gaji karyawan</p>
           </div>
           <div className="flex gap-2">
-            <select className="rounded-lg px-3 py-2 text-sm" style={{ border: '1.5px solid #EDE8F5', color: '#433C50', outline: 'none' }} value={period} onChange={e => setPeriod(e.target.value)}>
+            <select className="rounded-lg px-3 py-2 text-sm" style={{ border: '1.5px solid #EDE8F5', color: '#1E1B4B', outline: 'none' }} value={period} onChange={e => setPeriod(e.target.value)}>
               {['Juni 2025', 'Mei 2025', 'April 2025'].map(p => <option key={p} value={p}>{p}</option>)}
             </select>
             <button onClick={() => setExported(true)} disabled={selected.length === 0} className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold text-white disabled:opacity-50" style={{ backgroundColor: C }}>
@@ -81,9 +81,9 @@ export default function BankExportPage() {
             <div key={b.bank} className="bg-white rounded-2xl p-5" style={{ border: '1.5px solid #EDE8F5', boxShadow: '0 1px 4px rgba(47,43,61,.06)' }}>
               <div className="flex items-center gap-2 mb-2">
                 <Landmark className="h-4 w-4" style={{ color: C }} />
-                <p className="font-bold" style={{ color: '#433C50' }}>{b.bank}</p>
+                <p className="font-bold" style={{ color: '#1E1B4B' }}>{b.bank}</p>
               </div>
-              <p className="text-xs" style={{ color: '#A5A3AE' }}>{b.count} karyawan</p>
+              <p className="text-xs" style={{ color: '#9CA3AF' }}>{b.count} karyawan</p>
               <p className="font-bold mt-1" style={{ color: C }}>{fmt(b.total)}</p>
             </div>
           ))}
@@ -91,9 +91,9 @@ export default function BankExportPage() {
 
         <div className="bg-white rounded-2xl" style={{ border: '1.5px solid #EDE8F5', boxShadow: '0 1px 4px rgba(47,43,61,.06)' }}>
           <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom: '1px solid #EDE8F5' }}>
-            <h3 className="font-semibold text-sm" style={{ color: '#433C50' }}>Daftar Transfer — {period}</h3>
+            <h3 className="font-semibold text-sm" style={{ color: '#1E1B4B' }}>Daftar Transfer — {period}</h3>
             <div className="flex gap-2 items-center">
-              <select className="rounded-lg px-3 py-2 text-sm" style={{ border: '1px solid #EDE8F5', color: '#433C50', outline: 'none' }} value={selectedBank} onChange={e => setSelectedBank(e.target.value)}>
+              <select className="rounded-lg px-3 py-2 text-sm" style={{ border: '1px solid #EDE8F5', color: '#1E1B4B', outline: 'none' }} value={selectedBank} onChange={e => setSelectedBank(e.target.value)}>
                 <option value="Semua Bank">Semua Bank</option>
                 {BANK_LIST.map(b => <option key={b} value={b}>{b}</option>)}
               </select>
@@ -102,32 +102,32 @@ export default function BankExportPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr style={{ borderBottom: '1px solid #EDE8F5', backgroundColor: '#F8F7FC' }}>
+                <tr style={{ borderBottom: '1px solid #EDE8F5', backgroundColor: '#F5F3FF' }}>
                   {['', 'Karyawan', 'Departemen', 'Bank', 'No. Rekening', 'Nama Rekening', 'Jumlah Transfer'].map(h => (
-                    <th key={h} className="px-4 py-3 text-left text-xs font-semibold" style={{ color: '#A5A3AE' }}>{h}</th>
+                    <th key={h} className="px-4 py-3 text-left text-xs font-semibold" style={{ color: '#9CA3AF' }}>{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {filtered.map(emp => (
-                  <tr key={emp.id} style={{ borderBottom: '1px solid #F5F5F9' }} className="hover:bg-gray-50">
+                  <tr key={emp.id} style={{ borderBottom: '1px solid #F5F3FF' }} className="hover:bg-gray-50">
                     <td className="px-4 py-3">
                       <input type="checkbox" checked={emp.selected} onChange={() => toggleSelect(emp.id)} style={{ accentColor: C }} />
                     </td>
-                    <td className="px-4 py-3 font-medium" style={{ color: emp.selected ? '#433C50' : '#A5A3AE' }}>{emp.name}</td>
-                    <td className="px-4 py-3 text-xs" style={{ color: '#6D6777' }}>{emp.dept}</td>
+                    <td className="px-4 py-3 font-medium" style={{ color: emp.selected ? '#1E1B4B' : '#9CA3AF' }}>{emp.name}</td>
+                    <td className="px-4 py-3 text-xs" style={{ color: '#6B7280' }}>{emp.dept}</td>
                     <td className="px-4 py-3">
                       <span className="px-2 py-1 rounded-full text-xs font-semibold" style={{ backgroundColor: `${C}15`, color: C }}>{emp.bank}</span>
                     </td>
-                    <td className="px-4 py-3 font-mono text-xs" style={{ color: '#433C50' }}>{emp.account}</td>
-                    <td className="px-4 py-3 text-xs" style={{ color: '#433C50' }}>{emp.account_name}</td>
-                    <td className="px-4 py-3 font-bold text-sm" style={{ color: emp.selected ? C : '#A5A3AE' }}>{fmt(emp.amount)}</td>
+                    <td className="px-4 py-3 font-mono text-xs" style={{ color: '#1E1B4B' }}>{emp.account}</td>
+                    <td className="px-4 py-3 text-xs" style={{ color: '#1E1B4B' }}>{emp.account_name}</td>
+                    <td className="px-4 py-3 font-bold text-sm" style={{ color: emp.selected ? C : '#9CA3AF' }}>{fmt(emp.amount)}</td>
                   </tr>
                 ))}
               </tbody>
               <tfoot>
-                <tr style={{ borderTop: '2px solid #EDE8F5', backgroundColor: '#F8F7FC' }}>
-                  <td colSpan={6} className="px-4 py-3 font-bold text-sm" style={{ color: '#433C50' }}>TOTAL ({selected.filter(e => selectedBank === 'Semua Bank' || e.bank === selectedBank).length} karyawan)</td>
+                <tr style={{ borderTop: '2px solid #EDE8F5', backgroundColor: '#F5F3FF' }}>
+                  <td colSpan={6} className="px-4 py-3 font-bold text-sm" style={{ color: '#1E1B4B' }}>TOTAL ({selected.filter(e => selectedBank === 'Semua Bank' || e.bank === selectedBank).length} karyawan)</td>
                   <td className="px-4 py-3 font-bold text-sm" style={{ color: C }}>{fmt(totalAmount)}</td>
                 </tr>
               </tfoot>

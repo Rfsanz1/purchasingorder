@@ -33,8 +33,8 @@ export default function WhatsappLogPage() {
             <MessageSquare className="h-5 w-5" style={{ color: '#25D366' }} />
           </div>
           <div>
-            <h1 className="text-xl font-bold" style={{ color: '#433C50' }}>WhatsApp Log</h1>
-            <p className="text-sm" style={{ color: '#A5A3AE' }}>Riwayat notifikasi WhatsApp ke pelanggan</p>
+            <h1 className="text-xl font-bold" style={{ color: '#1E1B4B' }}>WhatsApp Log</h1>
+            <p className="text-sm" style={{ color: '#9CA3AF' }}>Riwayat notifikasi WhatsApp ke pelanggan</p>
           </div>
         </div>
         <div className="bg-white rounded-2xl" style={{ border: '1.5px solid #EDE8F5', boxShadow: '0 1px 4px rgba(47,43,61,.06)' }}>
@@ -42,7 +42,7 @@ export default function WhatsappLogPage() {
             <table className="w-full">
               <thead><tr style={{ borderBottom: '1px solid #EDE8F5' }}>
                 {['Penerima', 'Nomor', 'Pesan', 'Status', 'Waktu'].map(h => (
-                  <th key={h} className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide" style={{ color: '#A5A3AE' }}>{h}</th>
+                  <th key={h} className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide" style={{ color: '#9CA3AF' }}>{h}</th>
                 ))}
               </tr></thead>
               <tbody>
@@ -52,11 +52,11 @@ export default function WhatsappLogPage() {
                     <tr key={i} style={{ borderBottom: i < LOGS.length - 1 ? '1px solid #F5F2FB' : 'none' }}
                       onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#FDFCFF'; }}
                       onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; }}>
-                      <td className="px-6 py-3.5 text-sm font-medium" style={{ color: '#433C50' }}>{l.recipient}</td>
-                      <td className="px-6 py-3.5 text-xs font-mono" style={{ color: '#A5A3AE' }}>{l.phone}</td>
-                      <td className="px-6 py-3.5 text-xs max-w-xs" style={{ color: '#433C50' }}>{l.message}</td>
+                      <td className="px-6 py-3.5 text-sm font-medium" style={{ color: '#1E1B4B' }}>{l.recipient}</td>
+                      <td className="px-6 py-3.5 text-xs font-mono" style={{ color: '#9CA3AF' }}>{l.phone}</td>
+                      <td className="px-6 py-3.5 text-xs max-w-xs" style={{ color: '#1E1B4B' }}>{l.message}</td>
                       <td className="px-6 py-3.5"><span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold" style={{ color: st.color, backgroundColor: st.bg }}><st.icon className="h-3 w-3" />{st.label}</span></td>
-                      <td className="px-6 py-3.5 text-xs" style={{ color: '#A5A3AE' }}>{l.time}</td>
+                      <td className="px-6 py-3.5 text-xs" style={{ color: '#9CA3AF' }}>{l.time}</td>
                     </tr>
                   );
                 })}

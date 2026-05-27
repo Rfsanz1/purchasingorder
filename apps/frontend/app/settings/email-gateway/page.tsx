@@ -91,12 +91,12 @@ export default function EmailGatewayPage() {
         )}
 
         {/* SMTP Form */}
-        <div className="rounded-2xl p-6" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #E9E0F8' }}>
-          <h3 className="font-bold mb-4" style={{ color: '#433C50' }}>Konfigurasi SMTP</h3>
+        <div className="rounded-2xl p-6" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE' }}>
+          <h3 className="font-bold mb-4" style={{ color: '#1E1B4B' }}>Konfigurasi SMTP</h3>
           <div className="space-y-4">
             {/* Encryption type */}
             <div>
-              <label className="block text-xs font-semibold mb-1.5" style={{ color: '#433C50' }}>Enkripsi</label>
+              <label className="block text-xs font-semibold mb-1.5" style={{ color: '#1E1B4B' }}>Enkripsi</label>
               <div className="flex gap-2">
                 {['tls', 'ssl', 'none'].map(enc => (
                   <button
@@ -104,9 +104,9 @@ export default function EmailGatewayPage() {
                     onClick={() => setSettings(s => ({ ...s, smtp_encryption: enc }))}
                     className="flex-1 py-2 rounded-xl text-xs font-semibold uppercase transition"
                     style={{
-                      backgroundColor: settings.smtp_encryption === enc ? '#3B82F6' : '#F8F7FC',
-                      color: settings.smtp_encryption === enc ? 'white' : '#6D6777',
-                      border: `1.5px solid ${settings.smtp_encryption === enc ? '#3B82F6' : '#E9E0F8'}`,
+                      backgroundColor: settings.smtp_encryption === enc ? '#3B82F6' : '#F5F3FF',
+                      color: settings.smtp_encryption === enc ? 'white' : '#6B7280',
+                      border: `1.5px solid ${settings.smtp_encryption === enc ? '#3B82F6' : '#EDE9FE'}`,
                     }}
                   >
                     {enc === 'tls' ? 'TLS/STARTTLS' : enc === 'ssl' ? 'SSL' : 'None'}
@@ -117,16 +117,16 @@ export default function EmailGatewayPage() {
 
             {fields.map(f => (
               <div key={f.key}>
-                <label className="block text-xs font-semibold mb-1.5" style={{ color: '#433C50' }}>{f.label}</label>
+                <label className="block text-xs font-semibold mb-1.5" style={{ color: '#1E1B4B' }}>{f.label}</label>
                 <input
                   type={f.type}
                   value={settings[f.key as keyof typeof settings]}
                   onChange={e => setSettings(s => ({ ...s, [f.key]: e.target.value }))}
                   placeholder={f.placeholder}
                   className="w-full rounded-xl px-4 py-2.5 text-sm transition"
-                  style={{ border: '1.5px solid #E9E0F8', color: '#433C50', outline: 'none', backgroundColor: '#FAFAFA' }}
+                  style={{ border: '1.5px solid #EDE9FE', color: '#1E1B4B', outline: 'none', backgroundColor: '#FAFAFA' }}
                   onFocus={e => { e.target.style.borderColor = '#3B82F6'; e.target.style.backgroundColor = '#FFFFFF'; }}
-                  onBlur={e => { e.target.style.borderColor = '#E9E0F8'; e.target.style.backgroundColor = '#FAFAFA'; }}
+                  onBlur={e => { e.target.style.borderColor = '#EDE9FE'; e.target.style.backgroundColor = '#FAFAFA'; }}
                 />
               </div>
             ))}

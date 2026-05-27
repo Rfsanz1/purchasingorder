@@ -50,9 +50,9 @@ export default function AiAnalyticsPage() {
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {PERFORMANCE.map((p, i) => (
-            <div key={i} className="rounded-2xl p-4" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #E9E0F8' }}>
-              <p className="text-xs font-semibold mb-2" style={{ color: '#6D6777' }}>{p.label}</p>
-              <p className="text-xl font-bold" style={{ color: '#433C50' }}>{p.value}</p>
+            <div key={i} className="rounded-2xl p-4" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE' }}>
+              <p className="text-xs font-semibold mb-2" style={{ color: '#6B7280' }}>{p.label}</p>
+              <p className="text-xl font-bold" style={{ color: '#1E1B4B' }}>{p.value}</p>
               <span className="text-xs font-semibold flex items-center gap-0.5 mt-1" style={{ color: p.up ? '#22C55E' : '#EF4444' }}>
                 {p.up ? <TrendingUp className="h-3 w-3" /> : null}
                 {p.change} vs tahun lalu
@@ -61,16 +61,16 @@ export default function AiAnalyticsPage() {
           ))}
         </div>
         <div>
-          <h3 className="font-bold mb-4" style={{ color: '#433C50' }}>AI-Generated Insights</h3>
+          <h3 className="font-bold mb-4" style={{ color: '#1E1B4B' }}>AI-Generated Insights</h3>
           <div className="space-y-4">
             {INSIGHTS.map((ins, i) => (
-              <div key={i} className="rounded-2xl p-5 flex items-start gap-4" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #E9E0F8' }}>
+              <div key={i} className="rounded-2xl p-5 flex items-start gap-4" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE' }}>
                 <div className="flex h-11 w-11 items-center justify-center rounded-xl flex-shrink-0" style={{ backgroundColor: ins.color + '15' }}>
                   <ins.icon className="h-5 w-5" style={{ color: ins.color }} />
                 </div>
                 <div className="flex-1">
-                  <h4 className="font-bold text-sm mb-1" style={{ color: '#433C50' }}>{ins.title}</h4>
-                  <p className="text-xs" style={{ color: '#6D6777' }}>{ins.desc}</p>
+                  <h4 className="font-bold text-sm mb-1" style={{ color: '#1E1B4B' }}>{ins.title}</h4>
+                  <p className="text-xs" style={{ color: '#6B7280' }}>{ins.desc}</p>
                 </div>
                 <a href={ins.href} className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-semibold flex-shrink-0" style={{ backgroundColor: ins.color + '15', color: ins.color }}>
                   {ins.action} <ArrowUpRight className="h-3 w-3" />

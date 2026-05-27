@@ -23,7 +23,7 @@ const AI_INSIGHTS = [
 ];
 
 const EXPENSE_BREAKDOWN = [
-  { category: 'HPP / COGS', pct: 70.3, amount: 'Rp 178,4 jt', color: '#714B67' },
+  { category: 'HPP / COGS', pct: 70.3, amount: 'Rp 178,4 jt', color: '#5B52D1' },
   { category: 'Biaya Karyawan', pct: 11.2, amount: 'Rp 28,4 jt', color: '#3B82F6' },
   { category: 'Biaya Operasional', pct: 5.8, amount: 'Rp 14,7 jt', color: '#F59E0B' },
   { category: 'Biaya Marketing', pct: 2.4, amount: 'Rp 6,1 jt', color: '#22C55E' },
@@ -64,41 +64,41 @@ export default function AiFinancialAnalysisPage() {
         {/* Key Metrics */}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {FINANCIAL_METRICS.map((m, i) => (
-            <div key={i} className="rounded-2xl p-4" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #E9E0F8' }}>
+            <div key={i} className="rounded-2xl p-4" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE' }}>
               <div className="flex items-center justify-between mb-2">
-                <p className="text-xs font-semibold" style={{ color: '#6D6777' }}>{m.label}</p>
+                <p className="text-xs font-semibold" style={{ color: '#6B7280' }}>{m.label}</p>
                 <span className="flex items-center gap-0.5 text-xs font-semibold" style={{ color: m.up ? '#22C55E' : '#EF4444' }}>
                   {m.up ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
                   {m.prev}
                 </span>
               </div>
-              <p className="text-2xl font-bold mb-1" style={{ color: '#433C50' }}>{m.value}</p>
-              <p className="text-[10px]" style={{ color: '#A5A3AE' }}>{m.desc}</p>
+              <p className="text-2xl font-bold mb-1" style={{ color: '#1E1B4B' }}>{m.value}</p>
+              <p className="text-[10px]" style={{ color: '#9CA3AF' }}>{m.desc}</p>
             </div>
           ))}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* AI Insights */}
-          <div className="rounded-2xl" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #E9E0F8' }}>
-            <div className="px-5 py-4" style={{ borderBottom: '1px solid #E9E0F8' }}>
-              <h3 className="font-bold text-sm" style={{ color: '#433C50' }}>AI Financial Insights</h3>
+          <div className="rounded-2xl" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE' }}>
+            <div className="px-5 py-4" style={{ borderBottom: '1px solid #EDE9FE' }}>
+              <h3 className="font-bold text-sm" style={{ color: '#1E1B4B' }}>AI Financial Insights</h3>
             </div>
             <div className="p-5 space-y-3">
               {AI_INSIGHTS.map((ins, i) => (
                 <div key={i} className="flex items-start gap-3 p-3 rounded-xl" style={{ backgroundColor: ins.color + '08', border: `1px solid ${ins.color}30` }}>
                   <div className="h-1.5 w-1.5 rounded-full mt-1.5 flex-shrink-0" style={{ backgroundColor: ins.color }} />
-                  <p className="text-xs" style={{ color: '#433C50' }}>{ins.msg}</p>
+                  <p className="text-xs" style={{ color: '#1E1B4B' }}>{ins.msg}</p>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Expense Breakdown */}
-          <div className="rounded-2xl" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #E9E0F8' }}>
-            <div className="px-5 py-4" style={{ borderBottom: '1px solid #E9E0F8' }}>
-              <h3 className="font-bold text-sm" style={{ color: '#433C50' }}>Breakdown Revenue Mei 2026</h3>
-              <p className="text-xs mt-0.5" style={{ color: '#A5A3AE' }}>Total: Rp 253.800.000</p>
+          <div className="rounded-2xl" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE' }}>
+            <div className="px-5 py-4" style={{ borderBottom: '1px solid #EDE9FE' }}>
+              <h3 className="font-bold text-sm" style={{ color: '#1E1B4B' }}>Breakdown Revenue Mei 2026</h3>
+              <p className="text-xs mt-0.5" style={{ color: '#9CA3AF' }}>Total: Rp 253.800.000</p>
             </div>
             <div className="p-5 space-y-3">
               {EXPENSE_BREAKDOWN.map((e, i) => (
@@ -106,14 +106,14 @@ export default function AiFinancialAnalysisPage() {
                   <div className="flex items-center justify-between mb-1">
                     <div className="flex items-center gap-2">
                       <div className="h-3 w-3 rounded-sm" style={{ backgroundColor: e.color }} />
-                      <p className="text-xs font-medium" style={{ color: '#433C50' }}>{e.category}</p>
+                      <p className="text-xs font-medium" style={{ color: '#1E1B4B' }}>{e.category}</p>
                     </div>
                     <div className="text-right">
-                      <span className="text-xs font-bold" style={{ color: '#433C50' }}>{e.pct}%</span>
-                      <span className="text-[10px] ml-2" style={{ color: '#A5A3AE' }}>{e.amount}</span>
+                      <span className="text-xs font-bold" style={{ color: '#1E1B4B' }}>{e.pct}%</span>
+                      <span className="text-[10px] ml-2" style={{ color: '#9CA3AF' }}>{e.amount}</span>
                     </div>
                   </div>
-                  <div className="h-2 rounded-full" style={{ backgroundColor: '#E9E0F8' }}>
+                  <div className="h-2 rounded-full" style={{ backgroundColor: '#EDE9FE' }}>
                     <div className="h-2 rounded-full transition-all" style={{ width: `${e.pct}%`, backgroundColor: e.color }} />
                   </div>
                 </div>

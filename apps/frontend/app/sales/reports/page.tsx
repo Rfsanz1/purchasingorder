@@ -24,8 +24,8 @@ export default function SalesReportsPage() {
     <AppShell {...SALES_CONFIG} navItems={SALES_NAV} activeHref="/sales/reports">
       <div className="p-6 space-y-6 max-w-6xl mx-auto">
         <div>
-          <h1 className="text-xl font-bold" style={{ color: '#433C50' }}>Laporan Penjualan</h1>
-          <p className="text-sm mt-0.5" style={{ color: '#A5A3AE' }}>Rekap performa penjualan per bulan</p>
+          <h1 className="text-xl font-bold" style={{ color: '#1E1B4B' }}>Laporan Penjualan</h1>
+          <p className="text-sm mt-0.5" style={{ color: '#9CA3AF' }}>Rekap performa penjualan per bulan</p>
         </div>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {[
@@ -37,8 +37,8 @@ export default function SalesReportsPage() {
             <div key={s.label} className="bg-white rounded-2xl p-5" style={{ border: '1.5px solid #EDE8F5', boxShadow: '0 1px 4px rgba(47,43,61,.06)' }}>
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-xs font-medium" style={{ color: '#A5A3AE' }}>{s.label}</p>
-                  <p className="text-xl font-bold mt-1" style={{ color: '#433C50' }}>{s.value}</p>
+                  <p className="text-xs font-medium" style={{ color: '#9CA3AF' }}>{s.label}</p>
+                  <p className="text-xl font-bold mt-1" style={{ color: '#1E1B4B' }}>{s.value}</p>
                 </div>
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl" style={{ backgroundColor: s.bg }}>
                   <s.icon className="h-5 w-5" style={{ color: s.color }} />
@@ -49,14 +49,14 @@ export default function SalesReportsPage() {
         </div>
         <div className="bg-white rounded-2xl" style={{ border: '1.5px solid #EDE8F5', boxShadow: '0 1px 4px rgba(47,43,61,.06)' }}>
           <div className="px-6 py-4" style={{ borderBottom: '1px solid #EDE8F5' }}>
-            <h2 className="text-sm font-bold" style={{ color: '#433C50' }}>Rekap per Bulan (2026)</h2>
+            <h2 className="text-sm font-bold" style={{ color: '#1E1B4B' }}>Rekap per Bulan (2026)</h2>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr style={{ borderBottom: '1px solid #EDE8F5' }}>
                   {['Bulan', 'Jumlah Order', 'Revenue', 'Pelanggan', 'Avg / Order'].map(h => (
-                    <th key={h} className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide" style={{ color: '#A5A3AE' }}>{h}</th>
+                    <th key={h} className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide" style={{ color: '#9CA3AF' }}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -65,11 +65,11 @@ export default function SalesReportsPage() {
                   <tr key={m.bulan} style={{ borderBottom: i < MOCK.length - 1 ? '1px solid #F5F2FB' : 'none' }}
                     onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#FDFCFF'; }}
                     onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; }}>
-                    <td className="px-6 py-3.5 text-sm font-semibold" style={{ color: '#433C50' }}>{m.bulan}</td>
-                    <td className="px-6 py-3.5 text-sm" style={{ color: '#433C50' }}>{m.order}</td>
+                    <td className="px-6 py-3.5 text-sm font-semibold" style={{ color: '#1E1B4B' }}>{m.bulan}</td>
+                    <td className="px-6 py-3.5 text-sm" style={{ color: '#1E1B4B' }}>{m.order}</td>
                     <td className="px-6 py-3.5 text-sm font-semibold" style={{ color: '#4CAF50' }}>{m.revenue}</td>
-                    <td className="px-6 py-3.5 text-sm" style={{ color: '#433C50' }}>{m.pelanggan}</td>
-                    <td className="px-6 py-3.5 text-sm" style={{ color: '#A5A3AE' }}>{m.avg}</td>
+                    <td className="px-6 py-3.5 text-sm" style={{ color: '#1E1B4B' }}>{m.pelanggan}</td>
+                    <td className="px-6 py-3.5 text-sm" style={{ color: '#9CA3AF' }}>{m.avg}</td>
                   </tr>
                 ))}
               </tbody>

@@ -52,8 +52,8 @@ export default function PayrollComponentsPage() {
       <div className="p-6 space-y-6 max-w-5xl mx-auto">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold" style={{ color: '#433C50' }}>Komponen Gaji</h1>
-            <p className="text-sm mt-0.5" style={{ color: '#A5A3AE' }}>Atur tunjangan, potongan, dan struktur penggajian</p>
+            <h1 className="text-xl font-bold" style={{ color: '#1E1B4B' }}>Komponen Gaji</h1>
+            <p className="text-sm mt-0.5" style={{ color: '#9CA3AF' }}>Atur tunjangan, potongan, dan struktur penggajian</p>
           </div>
           <button onClick={() => setShowForm(true)} className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-semibold text-white" style={{ backgroundColor: C }}>
             <Plus className="h-4 w-4" /> Tambah Komponen
@@ -67,7 +67,7 @@ export default function PayrollComponentsPage() {
               <div key={t.key} className="bg-white rounded-2xl p-5" style={{ border: '1.5px solid #EDE8F5', boxShadow: '0 1px 4px rgba(47,43,61,.06)' }}>
                 <span className="px-2 py-1 rounded-full text-xs font-semibold" style={{ color: t.color, backgroundColor: t.bg }}>{t.label}</span>
                 <p className="text-2xl font-bold mt-2" style={{ color: t.color }}>{count}</p>
-                <p className="text-xs" style={{ color: '#A5A3AE' }}>komponen</p>
+                <p className="text-xs" style={{ color: '#9CA3AF' }}>komponen</p>
               </div>
             );
           })}
@@ -75,14 +75,14 @@ export default function PayrollComponentsPage() {
 
         <div className="bg-white rounded-2xl" style={{ border: '1.5px solid #EDE8F5', boxShadow: '0 1px 4px rgba(47,43,61,.06)' }}>
           <div className="px-6 py-4" style={{ borderBottom: '1px solid #EDE8F5' }}>
-            <h3 className="font-semibold text-sm" style={{ color: '#433C50' }}>Daftar Komponen Gaji</h3>
+            <h3 className="font-semibold text-sm" style={{ color: '#1E1B4B' }}>Daftar Komponen Gaji</h3>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr style={{ borderBottom: '1px solid #EDE8F5', backgroundColor: '#F8F7FC' }}>
+                <tr style={{ borderBottom: '1px solid #EDE8F5', backgroundColor: '#F5F3FF' }}>
                   {['Nama Komponen', 'Tipe', 'Metode Hitung', 'Nilai', 'Kena Pajak', 'BPJS', 'Aksi'].map(h => (
-                    <th key={h} className="px-6 py-3 text-left text-xs font-semibold" style={{ color: '#A5A3AE' }}>{h}</th>
+                    <th key={h} className="px-6 py-3 text-left text-xs font-semibold" style={{ color: '#9CA3AF' }}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -90,12 +90,12 @@ export default function PayrollComponentsPage() {
                 {items.map(item => {
                   const t = TYPES.find(t => t.key === item.type) ?? TYPES[0];
                   return (
-                    <tr key={item.id} style={{ borderBottom: '1px solid #F5F5F9' }} className="hover:bg-gray-50">
-                      <td className="px-6 py-3 font-semibold" style={{ color: '#433C50' }}>{item.name}</td>
+                    <tr key={item.id} style={{ borderBottom: '1px solid #F5F3FF' }} className="hover:bg-gray-50">
+                      <td className="px-6 py-3 font-semibold" style={{ color: '#1E1B4B' }}>{item.name}</td>
                       <td className="px-6 py-3">
                         <span className="px-2 py-1 rounded-full text-xs font-semibold" style={{ color: t.color, backgroundColor: t.bg }}>{t.label}</span>
                       </td>
-                      <td className="px-6 py-3 text-xs" style={{ color: '#6D6777' }}>{item.calc}</td>
+                      <td className="px-6 py-3 text-xs" style={{ color: '#6B7280' }}>{item.calc}</td>
                       <td className="px-6 py-3 font-semibold" style={{ color: C }}>
                         {item.amount === 0 ? 'Dinamis' : item.calc.includes('Persentase') ? `${item.amount}%` : item.amount.toLocaleString('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 })}
                       </td>
@@ -127,44 +127,44 @@ export default function PayrollComponentsPage() {
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
             <div className="bg-white rounded-2xl w-full max-w-md mx-4" style={{ boxShadow: '0 20px 60px rgba(0,0,0,.15)' }}>
               <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom: '1px solid #EDE8F5' }}>
-                <h2 className="font-bold" style={{ color: '#433C50' }}>Tambah Komponen Gaji</h2>
-                <button onClick={() => setShowForm(false)} style={{ color: '#A5A3AE' }}><X className="h-5 w-5" /></button>
+                <h2 className="font-bold" style={{ color: '#1E1B4B' }}>Tambah Komponen Gaji</h2>
+                <button onClick={() => setShowForm(false)} style={{ color: '#9CA3AF' }}><X className="h-5 w-5" /></button>
               </div>
               <div className="p-6 space-y-4">
                 <div>
-                  <label className="block text-xs font-semibold mb-1.5" style={{ color: '#433C50' }}>Nama Komponen *</label>
-                  <input className="w-full rounded-lg px-4 py-2.5 text-sm" style={{ border: '1.5px solid #EDE8F5', color: '#433C50', outline: 'none' }} placeholder="Tunjangan Makan..." value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} onFocus={e => e.target.style.borderColor = C} onBlur={e => e.target.style.borderColor = '#EDE8F5'} />
+                  <label className="block text-xs font-semibold mb-1.5" style={{ color: '#1E1B4B' }}>Nama Komponen *</label>
+                  <input className="w-full rounded-lg px-4 py-2.5 text-sm" style={{ border: '1.5px solid #EDE8F5', color: '#1E1B4B', outline: 'none' }} placeholder="Tunjangan Makan..." value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} onFocus={e => e.target.style.borderColor = C} onBlur={e => e.target.style.borderColor = '#EDE8F5'} />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-semibold mb-1.5" style={{ color: '#433C50' }}>Tipe</label>
-                    <select className="w-full rounded-lg px-4 py-2.5 text-sm" style={{ border: '1.5px solid #EDE8F5', color: '#433C50', outline: 'none' }} value={form.type} onChange={e => setForm(f => ({ ...f, type: e.target.value }))}>
+                    <label className="block text-xs font-semibold mb-1.5" style={{ color: '#1E1B4B' }}>Tipe</label>
+                    <select className="w-full rounded-lg px-4 py-2.5 text-sm" style={{ border: '1.5px solid #EDE8F5', color: '#1E1B4B', outline: 'none' }} value={form.type} onChange={e => setForm(f => ({ ...f, type: e.target.value }))}>
                       {TYPES.map(t => <option key={t.key} value={t.key}>{t.label}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold mb-1.5" style={{ color: '#433C50' }}>Metode Hitung</label>
-                    <select className="w-full rounded-lg px-4 py-2.5 text-sm" style={{ border: '1.5px solid #EDE8F5', color: '#433C50', outline: 'none' }} value={form.calc} onChange={e => setForm(f => ({ ...f, calc: e.target.value }))}>
+                    <label className="block text-xs font-semibold mb-1.5" style={{ color: '#1E1B4B' }}>Metode Hitung</label>
+                    <select className="w-full rounded-lg px-4 py-2.5 text-sm" style={{ border: '1.5px solid #EDE8F5', color: '#1E1B4B', outline: 'none' }} value={form.calc} onChange={e => setForm(f => ({ ...f, calc: e.target.value }))}>
                       {CALC_TYPES.map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
                   </div>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold mb-1.5" style={{ color: '#433C50' }}>Nilai (Rp atau %)</label>
-                  <input type="number" className="w-full rounded-lg px-4 py-2.5 text-sm" style={{ border: '1.5px solid #EDE8F5', color: '#433C50', outline: 'none' }} placeholder="0" value={form.amount} onChange={e => setForm(f => ({ ...f, amount: e.target.value }))} onFocus={e => e.target.style.borderColor = C} onBlur={e => e.target.style.borderColor = '#EDE8F5'} />
+                  <label className="block text-xs font-semibold mb-1.5" style={{ color: '#1E1B4B' }}>Nilai (Rp atau %)</label>
+                  <input type="number" className="w-full rounded-lg px-4 py-2.5 text-sm" style={{ border: '1.5px solid #EDE8F5', color: '#1E1B4B', outline: 'none' }} placeholder="0" value={form.amount} onChange={e => setForm(f => ({ ...f, amount: e.target.value }))} onFocus={e => e.target.style.borderColor = C} onBlur={e => e.target.style.borderColor = '#EDE8F5'} />
                 </div>
                 <div className="flex items-center gap-6">
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input type="checkbox" checked={form.taxable} onChange={e => setForm(f => ({ ...f, taxable: e.target.checked }))} className="rounded" style={{ accentColor: C }} />
-                    <span className="text-xs font-semibold" style={{ color: '#433C50' }}>Kena Pajak</span>
+                    <span className="text-xs font-semibold" style={{ color: '#1E1B4B' }}>Kena Pajak</span>
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input type="checkbox" checked={form.bpjs} onChange={e => setForm(f => ({ ...f, bpjs: e.target.checked }))} className="rounded" style={{ accentColor: C }} />
-                    <span className="text-xs font-semibold" style={{ color: '#433C50' }}>Dasar BPJS</span>
+                    <span className="text-xs font-semibold" style={{ color: '#1E1B4B' }}>Dasar BPJS</span>
                   </label>
                 </div>
                 <div className="flex justify-end gap-3 pt-2" style={{ borderTop: '1px solid #EDE8F5' }}>
-                  <button onClick={() => setShowForm(false)} className="px-5 py-2.5 rounded-lg text-sm font-semibold" style={{ border: '1.5px solid #EDE8F5', color: '#6D6777' }}>Batal</button>
+                  <button onClick={() => setShowForm(false)} className="px-5 py-2.5 rounded-lg text-sm font-semibold" style={{ border: '1.5px solid #EDE8F5', color: '#6B7280' }}>Batal</button>
                   <button onClick={save} className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold text-white" style={{ backgroundColor: C }}>
                     <Save className="h-4 w-4" /> Simpan
                   </button>

@@ -42,8 +42,8 @@ export default function BudgetPage() {
       <div className="p-6 space-y-6 max-w-6xl mx-auto">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold" style={{ color: '#433C50' }}>Budget Management</h1>
-            <p className="text-sm mt-0.5" style={{ color: '#A5A3AE' }}>Kelola anggaran per departemen dan periode</p>
+            <h1 className="text-xl font-bold" style={{ color: '#1E1B4B' }}>Budget Management</h1>
+            <p className="text-sm mt-0.5" style={{ color: '#9CA3AF' }}>Kelola anggaran per departemen dan periode</p>
           </div>
           <button onClick={() => setShowForm(true)} className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-semibold text-white" style={{ backgroundColor: C }}>
             <Plus className="h-4 w-4" /> Buat Budget
@@ -57,7 +57,7 @@ export default function BudgetPage() {
             { label: 'Sisa Anggaran', value: (totalBudget - totalUsed).toLocaleString('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }), color: '#4CAF50' },
           ].map(s => (
             <div key={s.label} className="bg-white rounded-2xl p-5" style={{ border: '1.5px solid #EDE8F5', boxShadow: '0 1px 4px rgba(47,43,61,.06)' }}>
-              <p className="text-xs font-medium" style={{ color: '#A5A3AE' }}>{s.label}</p>
+              <p className="text-xs font-medium" style={{ color: '#9CA3AF' }}>{s.label}</p>
               <p className="text-lg font-bold mt-1" style={{ color: s.color }}>{s.value}</p>
             </div>
           ))}
@@ -66,7 +66,7 @@ export default function BudgetPage() {
         <div className="grid grid-cols-2 gap-6">
           <div className="bg-white rounded-2xl" style={{ border: '1.5px solid #EDE8F5', boxShadow: '0 1px 4px rgba(47,43,61,.06)' }}>
             <div className="px-6 py-4" style={{ borderBottom: '1px solid #EDE8F5' }}>
-              <h3 className="font-semibold text-sm" style={{ color: '#433C50' }}>Daftar Budget</h3>
+              <h3 className="font-semibold text-sm" style={{ color: '#1E1B4B' }}>Daftar Budget</h3>
             </div>
             <div className="p-4 space-y-3">
               {SAMPLE_BUDGETS.map(b => {
@@ -76,20 +76,20 @@ export default function BudgetPage() {
                   <div key={b.id} onClick={() => setSelected(b)} className="p-4 rounded-xl cursor-pointer transition-colors" style={{ border: `1.5px solid ${selected?.id === b.id ? C : '#EDE8F5'}`, backgroundColor: selected?.id === b.id ? `rgba(56,142,60,.04)` : 'transparent' }}>
                     <div className="flex items-start justify-between mb-2">
                       <div>
-                        <p className="text-sm font-semibold" style={{ color: '#433C50' }}>{b.name}</p>
-                        <p className="text-xs mt-0.5" style={{ color: '#A5A3AE' }}>{b.department} • {b.period}</p>
+                        <p className="text-sm font-semibold" style={{ color: '#1E1B4B' }}>{b.name}</p>
+                        <p className="text-xs mt-0.5" style={{ color: '#9CA3AF' }}>{b.department} • {b.period}</p>
                       </div>
                       {isWarning && <AlertTriangle className="h-4 w-4 flex-shrink-0" style={{ color: '#FF9800' }} />}
                     </div>
                     <div className="space-y-1">
-                      <div className="flex justify-between text-xs" style={{ color: '#6D6777' }}>
+                      <div className="flex justify-between text-xs" style={{ color: '#6B7280' }}>
                         <span>{b.used.toLocaleString('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 })}</span>
                         <span className="font-semibold" style={{ color: isWarning ? '#FF9800' : C }}>{pct}%</span>
                       </div>
                       <div className="h-2 rounded-full overflow-hidden" style={{ backgroundColor: '#EDE8F5' }}>
                         <div className="h-full rounded-full transition-all" style={{ width: `${Math.min(pct, 100)}%`, backgroundColor: isWarning ? '#FF9800' : C }} />
                       </div>
-                      <p className="text-xs text-right" style={{ color: '#A5A3AE' }}>dari {b.total_budget.toLocaleString('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 })}</p>
+                      <p className="text-xs text-right" style={{ color: '#9CA3AF' }}>dari {b.total_budget.toLocaleString('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 })}</p>
                     </div>
                   </div>
                 );
@@ -99,14 +99,14 @@ export default function BudgetPage() {
 
           <div className="bg-white rounded-2xl" style={{ border: '1.5px solid #EDE8F5', boxShadow: '0 1px 4px rgba(47,43,61,.06)' }}>
             <div className="px-6 py-4" style={{ borderBottom: '1px solid #EDE8F5' }}>
-              <h3 className="font-semibold text-sm" style={{ color: '#433C50' }}>Detail Baris Anggaran</h3>
+              <h3 className="font-semibold text-sm" style={{ color: '#1E1B4B' }}>Detail Baris Anggaran</h3>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-xs">
                 <thead>
                   <tr style={{ borderBottom: '1px solid #EDE8F5' }}>
                     {['Akun', 'Nama', 'Anggaran', 'Realisasi', '%'].map(h => (
-                      <th key={h} className="px-4 py-3 text-left font-semibold" style={{ color: '#A5A3AE' }}>{h}</th>
+                      <th key={h} className="px-4 py-3 text-left font-semibold" style={{ color: '#9CA3AF' }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -114,11 +114,11 @@ export default function BudgetPage() {
                   {BUDGET_LINES.map(line => {
                     const pct = Math.round(line.actual / line.budget * 100);
                     return (
-                      <tr key={line.account} style={{ borderBottom: '1px solid #F5F5F9' }}>
+                      <tr key={line.account} style={{ borderBottom: '1px solid #F5F3FF' }}>
                         <td className="px-4 py-2.5 font-mono" style={{ color: C }}>{line.account}</td>
-                        <td className="px-4 py-2.5" style={{ color: '#433C50' }}>{line.name}</td>
-                        <td className="px-4 py-2.5" style={{ color: '#433C50' }}>{line.budget.toLocaleString('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 })}</td>
-                        <td className="px-4 py-2.5" style={{ color: pct > 95 ? '#EA5455' : '#433C50' }}>{line.actual.toLocaleString('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 })}</td>
+                        <td className="px-4 py-2.5" style={{ color: '#1E1B4B' }}>{line.name}</td>
+                        <td className="px-4 py-2.5" style={{ color: '#1E1B4B' }}>{line.budget.toLocaleString('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 })}</td>
+                        <td className="px-4 py-2.5" style={{ color: pct > 95 ? '#EA5455' : '#1E1B4B' }}>{line.actual.toLocaleString('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 })}</td>
                         <td className="px-4 py-2.5">
                           <span className="font-semibold" style={{ color: pct > 95 ? '#EA5455' : pct > 80 ? '#FF9800' : '#4CAF50' }}>{pct}%</span>
                         </td>
@@ -135,8 +135,8 @@ export default function BudgetPage() {
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
             <div className="bg-white rounded-2xl w-full max-w-md mx-4" style={{ boxShadow: '0 20px 60px rgba(0,0,0,.15)' }}>
               <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom: '1px solid #EDE8F5' }}>
-                <h2 className="font-bold" style={{ color: '#433C50' }}>Buat Budget Baru</h2>
-                <button onClick={() => setShowForm(false)} style={{ color: '#A5A3AE' }}><X className="h-5 w-5" /></button>
+                <h2 className="font-bold" style={{ color: '#1E1B4B' }}>Buat Budget Baru</h2>
+                <button onClick={() => setShowForm(false)} style={{ color: '#9CA3AF' }}><X className="h-5 w-5" /></button>
               </div>
               <div className="p-6 space-y-4">
                 {[
@@ -146,12 +146,12 @@ export default function BudgetPage() {
                   { key: 'total_budget', label: 'Total Anggaran (Rp)', placeholder: '0', type: 'number' },
                 ].map(f => (
                   <div key={f.key}>
-                    <label className="block text-xs font-semibold mb-1.5" style={{ color: '#433C50' }}>{f.label}</label>
-                    <input type={f.type ?? 'text'} className="w-full rounded-lg px-4 py-2.5 text-sm" style={{ border: '1.5px solid #EDE8F5', color: '#433C50', outline: 'none' }} placeholder={f.placeholder} value={(form as any)[f.key]} onChange={e => setForm(f2 => ({ ...f2, [f.key]: e.target.value }))} onFocus={e => e.target.style.borderColor = C} onBlur={e => e.target.style.borderColor = '#EDE8F5'} />
+                    <label className="block text-xs font-semibold mb-1.5" style={{ color: '#1E1B4B' }}>{f.label}</label>
+                    <input type={f.type ?? 'text'} className="w-full rounded-lg px-4 py-2.5 text-sm" style={{ border: '1.5px solid #EDE8F5', color: '#1E1B4B', outline: 'none' }} placeholder={f.placeholder} value={(form as any)[f.key]} onChange={e => setForm(f2 => ({ ...f2, [f.key]: e.target.value }))} onFocus={e => e.target.style.borderColor = C} onBlur={e => e.target.style.borderColor = '#EDE8F5'} />
                   </div>
                 ))}
                 <div className="flex justify-end gap-3 pt-2" style={{ borderTop: '1px solid #EDE8F5' }}>
-                  <button onClick={() => setShowForm(false)} className="px-5 py-2.5 rounded-lg text-sm font-semibold" style={{ border: '1.5px solid #EDE8F5', color: '#6D6777' }}>Batal</button>
+                  <button onClick={() => setShowForm(false)} className="px-5 py-2.5 rounded-lg text-sm font-semibold" style={{ border: '1.5px solid #EDE8F5', color: '#6B7280' }}>Batal</button>
                   <button className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold text-white" style={{ backgroundColor: C }}>
                     <Plus className="h-4 w-4" /> Simpan Budget
                   </button>

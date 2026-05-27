@@ -27,7 +27,7 @@ export default function InventoryDeliveriesPage() {
     <AppShell {...INVENTORY_CONFIG} navItems={INVENTORY_NAV} activeHref="/inventory/deliveries">
       <div className="p-6 space-y-6 max-w-6xl mx-auto">
         <div className="flex items-center justify-between">
-          <div><h1 className="text-xl font-bold" style={{ color: '#433C50' }}>Pengiriman Keluar</h1><p className="text-sm mt-0.5" style={{ color: '#A5A3AE' }}>Delivery order ke pelanggan</p></div>
+          <div><h1 className="text-xl font-bold" style={{ color: '#1E1B4B' }}>Pengiriman Keluar</h1><p className="text-sm mt-0.5" style={{ color: '#9CA3AF' }}>Delivery order ke pelanggan</p></div>
           <button className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold text-white" style={{ backgroundColor: INVENTORY_CONFIG.appColor }}><Plus className="h-4 w-4" /> DO Baru</button>
         </div>
         <div className="bg-white rounded-2xl" style={{ border: '1.5px solid #EDE8F5', boxShadow: '0 1px 4px rgba(47,43,61,.06)' }}>
@@ -35,7 +35,7 @@ export default function InventoryDeliveriesPage() {
             <table className="w-full">
               <thead><tr style={{ borderBottom: '1px solid #EDE8F5' }}>
                 {['No. DO', 'Ref SO', 'Pelanggan', 'Driver', 'Item', 'Tanggal', 'Status'].map(h => (
-                  <th key={h} className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide" style={{ color: '#A5A3AE' }}>{h}</th>
+                  <th key={h} className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide" style={{ color: '#9CA3AF' }}>{h}</th>
                 ))}
               </tr></thead>
               <tbody>
@@ -46,11 +46,11 @@ export default function InventoryDeliveriesPage() {
                       onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#FDFCFF'; }}
                       onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; }}>
                       <td className="px-6 py-3.5 text-sm font-semibold" style={{ color: INVENTORY_CONFIG.appColor }}>{d.no}</td>
-                      <td className="px-6 py-3.5 text-xs font-mono" style={{ color: '#A5A3AE' }}>{d.so}</td>
-                      <td className="px-6 py-3.5 text-sm" style={{ color: '#433C50' }}>{d.customer}</td>
-                      <td className="px-6 py-3.5 text-sm" style={{ color: '#A5A3AE' }}>{d.driver}</td>
-                      <td className="px-6 py-3.5 text-sm text-center" style={{ color: '#433C50' }}>{d.items}</td>
-                      <td className="px-6 py-3.5 text-xs" style={{ color: '#A5A3AE' }}>{d.date}</td>
+                      <td className="px-6 py-3.5 text-xs font-mono" style={{ color: '#9CA3AF' }}>{d.so}</td>
+                      <td className="px-6 py-3.5 text-sm" style={{ color: '#1E1B4B' }}>{d.customer}</td>
+                      <td className="px-6 py-3.5 text-sm" style={{ color: '#9CA3AF' }}>{d.driver}</td>
+                      <td className="px-6 py-3.5 text-sm text-center" style={{ color: '#1E1B4B' }}>{d.items}</td>
+                      <td className="px-6 py-3.5 text-xs" style={{ color: '#9CA3AF' }}>{d.date}</td>
                       <td className="px-6 py-3.5"><span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold" style={{ color: st.color, backgroundColor: st.bg }}><st.icon className="h-3 w-3" />{st.label}</span></td>
                     </tr>
                   );

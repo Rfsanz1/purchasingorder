@@ -52,8 +52,8 @@ export default function FixedAssetsPage() {
       <div className="p-6 space-y-6 max-w-6xl mx-auto">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold" style={{ color: '#433C50' }}>Aset Tetap</h1>
-            <p className="text-sm mt-0.5" style={{ color: '#A5A3AE' }}>Kelola aset tetap, depresiasi, dan nilai buku</p>
+            <h1 className="text-xl font-bold" style={{ color: '#1E1B4B' }}>Aset Tetap</h1>
+            <p className="text-sm mt-0.5" style={{ color: '#9CA3AF' }}>Kelola aset tetap, depresiasi, dan nilai buku</p>
           </div>
           <button onClick={() => setShowForm(true)} className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-semibold text-white" style={{ backgroundColor: C }}>
             <Plus className="h-4 w-4" /> Tambah Aset
@@ -67,7 +67,7 @@ export default function FixedAssetsPage() {
             { label: 'Total Nilai Buku', value: totalBookValue.toLocaleString('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }), color: '#4CAF50' },
           ].map(s => (
             <div key={s.label} className="bg-white rounded-2xl p-5" style={{ border: '1.5px solid #EDE8F5', boxShadow: '0 1px 4px rgba(47,43,61,.06)' }}>
-              <p className="text-xs font-medium" style={{ color: '#A5A3AE' }}>{s.label}</p>
+              <p className="text-xs font-medium" style={{ color: '#9CA3AF' }}>{s.label}</p>
               <p className="text-lg font-bold mt-1 truncate" style={{ color: s.color }}>{s.value}</p>
             </div>
           ))}
@@ -77,9 +77,9 @@ export default function FixedAssetsPage() {
           <div className="flex items-center gap-3 px-6 py-4" style={{ borderBottom: '1px solid #EDE8F5' }}>
             <div className="relative flex-1 max-w-sm">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5" style={{ color: '#B0AAB9' }} />
-              <input className="w-full rounded-lg pl-9 pr-4 py-2 text-sm" style={{ border: '1px solid #EDE8F5', color: '#433C50', outline: 'none' }} placeholder="Cari aset..." value={search} onChange={e => setSearch(e.target.value)} />
+              <input className="w-full rounded-lg pl-9 pr-4 py-2 text-sm" style={{ border: '1px solid #EDE8F5', color: '#1E1B4B', outline: 'none' }} placeholder="Cari aset..." value={search} onChange={e => setSearch(e.target.value)} />
             </div>
-            <select className="rounded-lg px-3 py-2 text-sm" style={{ border: '1px solid #EDE8F5', color: '#433C50', outline: 'none' }} value={category} onChange={e => setCategory(e.target.value)}>
+            <select className="rounded-lg px-3 py-2 text-sm" style={{ border: '1px solid #EDE8F5', color: '#1E1B4B', outline: 'none' }} value={category} onChange={e => setCategory(e.target.value)}>
               <option value="">Semua Kategori</option>
               {ASSET_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
@@ -90,7 +90,7 @@ export default function FixedAssetsPage() {
               <thead>
                 <tr style={{ borderBottom: '1px solid #EDE8F5' }}>
                   {['Kode', 'Nama Aset', 'Kategori', 'Tgl Perolehan', 'Nilai Perolehan', 'Metode Depresiasi', 'Umur (Th)', 'Akum. Depresiasi', 'Nilai Buku', 'Status'].map(h => (
-                    <th key={h} className="px-4 py-3 text-left text-xs font-semibold whitespace-nowrap" style={{ color: '#A5A3AE' }}>{h}</th>
+                    <th key={h} className="px-4 py-3 text-left text-xs font-semibold whitespace-nowrap" style={{ color: '#9CA3AF' }}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -99,14 +99,14 @@ export default function FixedAssetsPage() {
                   const s = STATUS_MAP[a.status] ?? STATUS_MAP.active;
                   const depPct = Math.round(a.accumulated_depreciation / a.acquisition_value * 100);
                   return (
-                    <tr key={a.id} style={{ borderBottom: '1px solid #F5F5F9' }} className="hover:bg-gray-50">
+                    <tr key={a.id} style={{ borderBottom: '1px solid #F5F3FF' }} className="hover:bg-gray-50">
                       <td className="px-4 py-3 font-semibold text-xs" style={{ color: C }}>{a.code}</td>
-                      <td className="px-4 py-3 font-medium" style={{ color: '#433C50' }}>{a.name}</td>
-                      <td className="px-4 py-3 text-xs" style={{ color: '#6D6777' }}>{a.category}</td>
-                      <td className="px-4 py-3 text-xs" style={{ color: '#6D6777' }}>{new Date(a.acquisition_date).toLocaleDateString('id-ID')}</td>
-                      <td className="px-4 py-3 font-semibold text-xs" style={{ color: '#433C50' }}>{a.acquisition_value.toLocaleString('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 })}</td>
-                      <td className="px-4 py-3 text-xs" style={{ color: '#6D6777' }}>{a.method}</td>
-                      <td className="px-4 py-3 text-xs text-center" style={{ color: '#6D6777' }}>{a.useful_life}</td>
+                      <td className="px-4 py-3 font-medium" style={{ color: '#1E1B4B' }}>{a.name}</td>
+                      <td className="px-4 py-3 text-xs" style={{ color: '#6B7280' }}>{a.category}</td>
+                      <td className="px-4 py-3 text-xs" style={{ color: '#6B7280' }}>{new Date(a.acquisition_date).toLocaleDateString('id-ID')}</td>
+                      <td className="px-4 py-3 font-semibold text-xs" style={{ color: '#1E1B4B' }}>{a.acquisition_value.toLocaleString('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 })}</td>
+                      <td className="px-4 py-3 text-xs" style={{ color: '#6B7280' }}>{a.method}</td>
+                      <td className="px-4 py-3 text-xs text-center" style={{ color: '#6B7280' }}>{a.useful_life}</td>
                       <td className="px-4 py-3">
                         <div>
                           <p className="text-xs font-semibold" style={{ color: '#FF9800' }}>{a.accumulated_depreciation.toLocaleString('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 })}</p>
@@ -131,8 +131,8 @@ export default function FixedAssetsPage() {
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
             <div className="bg-white rounded-2xl w-full max-w-lg mx-4 overflow-y-auto" style={{ maxHeight: '90vh', boxShadow: '0 20px 60px rgba(0,0,0,.15)' }}>
               <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom: '1px solid #EDE8F5' }}>
-                <h2 className="font-bold" style={{ color: '#433C50' }}>Tambah Aset Tetap</h2>
-                <button onClick={() => setShowForm(false)} style={{ color: '#A5A3AE' }}><X className="h-5 w-5" /></button>
+                <h2 className="font-bold" style={{ color: '#1E1B4B' }}>Tambah Aset Tetap</h2>
+                <button onClick={() => setShowForm(false)} style={{ color: '#9CA3AF' }}><X className="h-5 w-5" /></button>
               </div>
               <div className="p-6 space-y-4">
                 {[
@@ -145,27 +145,27 @@ export default function FixedAssetsPage() {
                   { key: 'notes', label: 'Keterangan', placeholder: 'Keterangan tambahan...' },
                 ].map(f => (
                   <div key={f.key}>
-                    <label className="block text-xs font-semibold mb-1.5" style={{ color: '#433C50' }}>{f.label}</label>
-                    <input type={f.type ?? 'text'} className="w-full rounded-lg px-4 py-2.5 text-sm" style={{ border: '1.5px solid #EDE8F5', color: '#433C50', outline: 'none' }} placeholder={f.placeholder} value={(form as any)[f.key]} onChange={e => setForm(f2 => ({ ...f2, [f.key]: e.target.value }))} onFocus={e => e.target.style.borderColor = C} onBlur={e => e.target.style.borderColor = '#EDE8F5'} />
+                    <label className="block text-xs font-semibold mb-1.5" style={{ color: '#1E1B4B' }}>{f.label}</label>
+                    <input type={f.type ?? 'text'} className="w-full rounded-lg px-4 py-2.5 text-sm" style={{ border: '1.5px solid #EDE8F5', color: '#1E1B4B', outline: 'none' }} placeholder={f.placeholder} value={(form as any)[f.key]} onChange={e => setForm(f2 => ({ ...f2, [f.key]: e.target.value }))} onFocus={e => e.target.style.borderColor = C} onBlur={e => e.target.style.borderColor = '#EDE8F5'} />
                   </div>
                 ))}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-semibold mb-1.5" style={{ color: '#433C50' }}>Kategori</label>
-                    <select className="w-full rounded-lg px-4 py-2.5 text-sm" style={{ border: '1.5px solid #EDE8F5', color: '#433C50', outline: 'none' }} value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))}>
+                    <label className="block text-xs font-semibold mb-1.5" style={{ color: '#1E1B4B' }}>Kategori</label>
+                    <select className="w-full rounded-lg px-4 py-2.5 text-sm" style={{ border: '1.5px solid #EDE8F5', color: '#1E1B4B', outline: 'none' }} value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))}>
                       <option value="">Pilih kategori...</option>
                       {ASSET_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold mb-1.5" style={{ color: '#433C50' }}>Metode Depresiasi</label>
-                    <select className="w-full rounded-lg px-4 py-2.5 text-sm" style={{ border: '1.5px solid #EDE8F5', color: '#433C50', outline: 'none' }} value={form.method} onChange={e => setForm(f => ({ ...f, method: e.target.value }))}>
+                    <label className="block text-xs font-semibold mb-1.5" style={{ color: '#1E1B4B' }}>Metode Depresiasi</label>
+                    <select className="w-full rounded-lg px-4 py-2.5 text-sm" style={{ border: '1.5px solid #EDE8F5', color: '#1E1B4B', outline: 'none' }} value={form.method} onChange={e => setForm(f => ({ ...f, method: e.target.value }))}>
                       {DEPRECIATION_METHODS.map(m => <option key={m} value={m}>{m}</option>)}
                     </select>
                   </div>
                 </div>
                 <div className="flex justify-end gap-3 pt-2" style={{ borderTop: '1px solid #EDE8F5' }}>
-                  <button onClick={() => setShowForm(false)} className="px-5 py-2.5 rounded-lg text-sm font-semibold" style={{ border: '1.5px solid #EDE8F5', color: '#6D6777' }}>Batal</button>
+                  <button onClick={() => setShowForm(false)} className="px-5 py-2.5 rounded-lg text-sm font-semibold" style={{ border: '1.5px solid #EDE8F5', color: '#6B7280' }}>Batal</button>
                   <button className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold text-white" style={{ backgroundColor: C }}>
                     <Plus className="h-4 w-4" /> Simpan Aset
                   </button>

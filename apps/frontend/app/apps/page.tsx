@@ -64,7 +64,7 @@ export default function AppStorePage() {
 
       {/* Top Bar */}
       <div className="sticky top-0 z-50 bg-white border-b px-4 md:px-6 py-3.5 flex items-center gap-3" style={{ borderColor: '#EDE8F5' }}>
-        <Link href="/" className="flex items-center gap-1.5 text-xs font-semibold flex-shrink-0" style={{ color: '#A5A3AE' }}>
+        <Link href="/" className="flex items-center gap-1.5 text-xs font-semibold flex-shrink-0" style={{ color: '#9CA3AF' }}>
           <ArrowLeft className="h-4 w-4" />
           <span className="hidden sm:inline">Dashboard</span>
         </Link>
@@ -75,13 +75,13 @@ export default function AppStorePage() {
           </div>
           <div className="hidden sm:block">
             <p className="text-sm font-bold leading-none" style={{ color: '#2F2B3D' }}>App Store</p>
-            <p className="text-[10px] mt-0.5" style={{ color: '#A5A3AE' }}>Gentong Mas ERP</p>
+            <p className="text-[10px] mt-0.5" style={{ color: '#9CA3AF' }}>Gentong Mas ERP</p>
           </div>
         </div>
 
         {/* Search */}
         <div className="flex-1 max-w-sm ml-auto relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5" style={{ color: '#A5A3AE' }} />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5" style={{ color: '#9CA3AF' }} />
           <input
             value={query}
             onChange={e => setQuery(e.target.value)}
@@ -91,12 +91,12 @@ export default function AppStorePage() {
           />
           {query && (
             <button onClick={() => setQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2">
-              <X className="h-3.5 w-3.5" style={{ color: '#A5A3AE' }} />
+              <X className="h-3.5 w-3.5" style={{ color: '#9CA3AF' }} />
             </button>
           )}
         </div>
 
-        <div className="hidden sm:flex items-center gap-1.5 text-xs font-semibold flex-shrink-0" style={{ color: '#6D6777' }}>
+        <div className="hidden sm:flex items-center gap-1.5 text-xs font-semibold flex-shrink-0" style={{ color: '#6B7280' }}>
           <CheckCircle className="h-4 w-4" style={{ color: '#059669' }} />
           {installedCount} / {MODULES.length} aktif
         </div>
@@ -156,7 +156,7 @@ export default function AppStorePage() {
 
         {/* Search result header */}
         {query && (
-          <p className="text-xs font-semibold" style={{ color: '#A5A3AE' }}>
+          <p className="text-xs font-semibold" style={{ color: '#9CA3AF' }}>
             {filtered.length} modul ditemukan untuk &ldquo;{query}&rdquo;
           </p>
         )}
@@ -167,8 +167,8 @@ export default function AppStorePage() {
             <div className="flex h-16 w-16 mx-auto items-center justify-center rounded-2xl mb-4" style={{ backgroundColor: '#F5F4F9' }}>
               <Search className="h-8 w-8" style={{ color: '#C0BBCA' }} />
             </div>
-            <p className="font-semibold" style={{ color: '#6D6777' }}>Modul tidak ditemukan</p>
-            <p className="text-sm mt-1" style={{ color: '#A5A3AE' }}>Coba kata kunci lain</p>
+            <p className="font-semibold" style={{ color: '#6B7280' }}>Modul tidak ditemukan</p>
+            <p className="text-sm mt-1" style={{ color: '#9CA3AF' }}>Coba kata kunci lain</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -213,7 +213,7 @@ export default function AppStorePage() {
 
                     {/* Name & desc */}
                     <h3 className="text-sm font-bold mb-1 leading-tight" style={{ color: '#2F2B3D' }}>{mod.name}</h3>
-                    <p className="text-[11px] leading-relaxed line-clamp-2 mb-4" style={{ color: '#A5A3AE' }}>{mod.desc}</p>
+                    <p className="text-[11px] leading-relaxed line-clamp-2 mb-4" style={{ color: '#9CA3AF' }}>{mod.desc}</p>
 
                     {/* Feature count */}
                     <div className="flex items-center gap-1.5 mb-4">
@@ -223,7 +223,7 @@ export default function AppStorePage() {
                     </div>
 
                     {/* Rating & installs */}
-                    <div className="flex items-center justify-between text-[10px] mb-4" style={{ color: '#A5A3AE' }}>
+                    <div className="flex items-center justify-between text-[10px] mb-4" style={{ color: '#9CA3AF' }}>
                       <span className="flex items-center gap-1">
                         <Star className="h-3 w-3" style={{ color: '#F9A825', fill: '#F9A825' }} />
                         {mod.rating}
@@ -302,7 +302,7 @@ export default function AppStorePage() {
 
             {/* Body */}
             <div className="p-6 space-y-4">
-              <p className="text-sm leading-relaxed" style={{ color: '#6D6777' }}>{detail.longDesc}</p>
+              <p className="text-sm leading-relaxed" style={{ color: '#6B7280' }}>{detail.longDesc}</p>
 
               {/* Features list */}
               <div>
@@ -322,13 +322,13 @@ export default function AppStorePage() {
               {/* Deps */}
               {detail.deps.length > 0 && (
                 <div>
-                  <p className="text-xs font-semibold mb-2" style={{ color: '#A5A3AE' }}>Memerlukan modul:</p>
+                  <p className="text-xs font-semibold mb-2" style={{ color: '#9CA3AF' }}>Memerlukan modul:</p>
                   <div className="flex flex-wrap gap-2">
                     {detail.deps.map(dep => {
                       const depMod = MODULES.find(m => m.id === dep);
                       const depInst = isInstalled(dep);
                       return (
-                        <span key={dep} className="flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 rounded-full" style={{ backgroundColor: '#F5F4F9', color: '#6D6777' }}>
+                        <span key={dep} className="flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 rounded-full" style={{ backgroundColor: '#F5F4F9', color: '#6B7280' }}>
                           {depMod?.emoji} {depMod?.name ?? dep}
                           {depInst && <CheckCircle className="h-3 w-3 ml-0.5" style={{ color: '#059669' }} />}
                         </span>

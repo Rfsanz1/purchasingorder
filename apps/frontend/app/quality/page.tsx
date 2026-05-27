@@ -67,13 +67,13 @@ export default function QualityDashboard() {
             return (
               <div key={s.label} className="bg-white rounded-2xl p-5 border" style={{ borderColor: '#EDE8F5' }}>
                 <div className="flex items-center justify-between mb-3">
-                  <p className="text-xs font-medium" style={{ color: '#A5A3AE' }}>{s.label}</p>
+                  <p className="text-xs font-medium" style={{ color: '#9CA3AF' }}>{s.label}</p>
                   <div className="flex h-9 w-9 items-center justify-center rounded-xl" style={{ backgroundColor: s.bg }}>
                     <Icon className="h-5 w-5" style={{ color: s.color }} />
                   </div>
                 </div>
                 <p className="text-2xl font-bold" style={{ color: '#2F2B3D' }}>{s.value}</p>
-                <p className="text-xs mt-1" style={{ color: '#A5A3AE' }}>{s.sub}</p>
+                <p className="text-xs mt-1" style={{ color: '#9CA3AF' }}>{s.sub}</p>
               </div>
             );
           })}
@@ -96,7 +96,7 @@ export default function QualityDashboard() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-semibold truncate" style={{ color: '#2F2B3D' }}>{insp.product}</p>
-                      <p className="text-[11px] mt-0.5" style={{ color: '#A5A3AE' }}>{insp.lot} · {insp.inspector} · {insp.date}</p>
+                      <p className="text-[11px] mt-0.5" style={{ color: '#9CA3AF' }}>{insp.lot} · {insp.inspector} · {insp.date}</p>
                     </div>
                     <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0" style={{ backgroundColor: r.bg, color: r.color }}>{r.label}</span>
                   </div>
@@ -117,7 +117,7 @@ export default function QualityDashboard() {
                     <AlertTriangle className="h-3.5 w-3.5 flex-shrink-0 mt-0.5" style={{ color: alt.severity === 'critical' ? '#EA5455' : '#FF9800' }} />
                     <p className="text-xs font-semibold leading-snug" style={{ color: '#2F2B3D' }}>{alt.title}</p>
                   </div>
-                  <p className="text-[10px]" style={{ color: '#A5A3AE' }}>{alt.product} · {alt.date}</p>
+                  <p className="text-[10px]" style={{ color: '#9CA3AF' }}>{alt.product} · {alt.date}</p>
                   <span className="inline-block mt-1.5 text-[10px] font-semibold px-2 py-0.5 rounded-full"
                     style={{ backgroundColor: alt.severity === 'critical' ? 'rgba(234,84,85,.1)' : 'rgba(255,152,0,.1)', color: alt.severity === 'critical' ? '#EA5455' : '#FF9800' }}>
                     {alt.severity === 'critical' ? 'Kritis' : 'Minor'}

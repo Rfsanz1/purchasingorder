@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 
 const AI_MODULES = [
-  { href: '/ai/chatbot', label: 'AI Chat Assistant', desc: 'Tanya bisnis Anda dalam bahasa natural', icon: MessageSquare, color: '#714B67', bg: 'rgba(113,75,103,.1)' },
+  { href: '/ai/chatbot', label: 'AI Chat Assistant', desc: 'Tanya bisnis Anda dalam bahasa natural', icon: MessageSquare, color: '#5B52D1', bg: 'rgba(91,82,209,.1)' },
   { href: '/ai/forecast', label: 'AI Forecast', desc: 'Prediksi penjualan & demand planning', icon: TrendingUp, color: '#3B82F6', bg: '#EFF6FF' },
   { href: '/ai/recommendation', label: 'AI Rekomendasi', desc: 'Rekomendasi produk & strategi cerdas', icon: Lightbulb, color: '#F59E0B', bg: '#FFFBEB' },
   { href: '/ai/automation', label: 'AI Automation', desc: 'Otomasi workflow berbasis kondisi', icon: Zap, color: '#22C55E', bg: '#F0FDF4' },
@@ -28,7 +28,7 @@ const AI_MODULES = [
 ];
 
 const AI_STATS = [
-  { label: 'Query Hari Ini', value: '1,284', icon: MessageSquare, color: '#714B67' },
+  { label: 'Query Hari Ini', value: '1,284', icon: MessageSquare, color: '#5B52D1' },
   { label: 'Automasi Aktif', value: '8', icon: Zap, color: '#22C55E' },
   { label: 'Prediksi Akurasi', value: '92.4%', icon: TrendingUp, color: '#3B82F6' },
   { label: 'Laporan Dibuat', value: '34', icon: FileBarChart, color: '#8B5CF6' },
@@ -57,7 +57,7 @@ export default function AiDashboardPage() {
     <OdooLayout title="AI Center" subtitle="Kecerdasan buatan terintegrasi untuk bisnis Anda">
       <div className="space-y-6">
         {/* Header Banner */}
-        <div className="rounded-2xl p-6 relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #714B67 0%, #9C6B8E 60%, #C4A8D0 100%)' }}>
+        <div className="rounded-2xl p-6 relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #5B52D1 0%, #8B80F9 60%, #C4A8D0 100%)' }}>
           <div className="absolute inset-0 opacity-10">
             <div className="absolute top-6 right-32 h-24 w-24 rounded-full border-2 border-white" />
             <div className="absolute -bottom-4 right-64 h-16 w-16 rounded-full border border-white" />
@@ -90,8 +90,8 @@ export default function AiDashboardPage() {
         {/* AI Modules Grid */}
         <div>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-bold" style={{ color: '#433C50' }}>Modul AI</h2>
-            <span className="text-xs px-2.5 py-1 rounded-full font-semibold" style={{ backgroundColor: 'rgba(113,75,103,.1)', color: '#714B67' }}>
+            <h2 className="font-bold" style={{ color: '#1E1B4B' }}>Modul AI</h2>
+            <span className="text-xs px-2.5 py-1 rounded-full font-semibold" style={{ backgroundColor: 'rgba(91,82,209,.1)', color: '#5B52D1' }}>
               <Sparkles className="h-3 w-3 inline mr-1" />12 Aktif
             </span>
           </div>
@@ -101,14 +101,14 @@ export default function AiDashboardPage() {
                 key={i}
                 href={m.href}
                 className="group rounded-2xl p-4 flex flex-col gap-3 hover:shadow-md hover:-translate-y-0.5 transition-all"
-                style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #E9E0F8' }}
+                style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE' }}
               >
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl transition-transform group-hover:scale-110" style={{ backgroundColor: m.bg }}>
                   <m.icon className="h-5 w-5" style={{ color: m.color }} />
                 </div>
                 <div>
-                  <p className="text-sm font-bold leading-snug" style={{ color: '#433C50' }}>{m.label}</p>
-                  <p className="text-[11px] mt-0.5 leading-relaxed" style={{ color: '#A5A3AE' }}>{m.desc}</p>
+                  <p className="text-sm font-bold leading-snug" style={{ color: '#1E1B4B' }}>{m.label}</p>
+                  <p className="text-[11px] mt-0.5 leading-relaxed" style={{ color: '#9CA3AF' }}>{m.desc}</p>
                 </div>
                 <div className="flex items-center gap-1 text-[11px] font-semibold" style={{ color: m.color }}>
                   Buka <ArrowUpRight className="h-3 w-3" />
@@ -119,24 +119,24 @@ export default function AiDashboardPage() {
         </div>
 
         {/* Recent Insights */}
-        <div className="rounded-2xl" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #E9E0F8' }}>
-          <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid #E9E0F8' }}>
-            <h3 className="font-bold text-sm flex items-center gap-2" style={{ color: '#433C50' }}>
-              <Activity className="h-4 w-4" style={{ color: '#714B67' }} /> AI Insights Terkini
+        <div className="rounded-2xl" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE' }}>
+          <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid #EDE9FE' }}>
+            <h3 className="font-bold text-sm flex items-center gap-2" style={{ color: '#1E1B4B' }}>
+              <Activity className="h-4 w-4" style={{ color: '#5B52D1' }} /> AI Insights Terkini
             </h3>
-            <Link href="/ai/logs" className="text-xs font-semibold" style={{ color: '#714B67' }}>Lihat Semua Log</Link>
+            <Link href="/ai/logs" className="text-xs font-semibold" style={{ color: '#5B52D1' }}>Lihat Semua Log</Link>
           </div>
-          <div className="divide-y" style={{ borderColor: '#E9E0F8' }}>
+          <div className="divide-y" style={{ borderColor: '#EDE9FE' }}>
             {RECENT_AI_INSIGHTS.map((ins, i) => (
               <div key={i} className="flex items-start gap-3 px-5 py-3 hover:bg-gray-50 transition-colors">
-                <div className="flex h-8 w-8 items-center justify-center rounded-xl flex-shrink-0 mt-0.5" style={{ backgroundColor: 'rgba(113,75,103,.08)' }}>
-                  <Brain className="h-4 w-4" style={{ color: '#714B67' }} />
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl flex-shrink-0 mt-0.5" style={{ backgroundColor: 'rgba(91,82,209,.08)' }}>
+                  <Brain className="h-4 w-4" style={{ color: '#5B52D1' }} />
                 </div>
                 <div className="flex-1">
-                  <p className="text-xs" style={{ color: '#433C50' }}>{ins.msg}</p>
+                  <p className="text-xs" style={{ color: '#1E1B4B' }}>{ins.msg}</p>
                   <div className="flex items-center gap-2 mt-1">
-                    <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold capitalize" style={{ backgroundColor: 'rgba(113,75,103,.1)', color: '#714B67' }}>{ins.type}</span>
-                    <span className="text-[10px]" style={{ color: '#A5A3AE' }}>· {ins.time}</span>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold capitalize" style={{ backgroundColor: 'rgba(91,82,209,.1)', color: '#5B52D1' }}>{ins.type}</span>
+                    <span className="text-[10px]" style={{ color: '#9CA3AF' }}>· {ins.time}</span>
                   </div>
                 </div>
                 <CheckCircle className="h-4 w-4 flex-shrink-0 mt-1" style={{ color: '#22C55E' }} />
@@ -146,10 +146,10 @@ export default function AiDashboardPage() {
         </div>
 
         {/* Quick Chat */}
-        <div className="rounded-2xl p-5" style={{ backgroundColor: '#F8F7FC', border: '1.5px solid #E9E0F8' }}>
+        <div className="rounded-2xl p-5" style={{ backgroundColor: '#F5F3FF', border: '1.5px solid #EDE9FE' }}>
           <div className="flex items-center gap-3 mb-3">
-            <Brain className="h-5 w-5" style={{ color: '#714B67' }} />
-            <p className="font-bold text-sm" style={{ color: '#433C50' }}>Tanyakan AI sesuatu...</p>
+            <Brain className="h-5 w-5" style={{ color: '#5B52D1' }} />
+            <p className="font-bold text-sm" style={{ color: '#1E1B4B' }}>Tanyakan AI sesuatu...</p>
           </div>
           <div className="flex flex-wrap gap-2">
             {[
@@ -164,7 +164,7 @@ export default function AiDashboardPage() {
                 key={q}
                 href={`/ai/chatbot?q=${encodeURIComponent(q)}`}
                 className="px-3 py-2 rounded-xl text-xs font-medium transition hover:shadow-sm"
-                style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #E9E0F8', color: '#714B67' }}
+                style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE', color: '#5B52D1' }}
               >
                 {q}
               </Link>

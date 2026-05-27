@@ -402,8 +402,8 @@ export default function SmartOrderPage() {
               <Zap className="h-5 w-5" style={{ color: COLOR }} />
             </div>
             <div>
-              <h1 className="text-xl font-bold" style={{ color: '#433C50' }}>Smart Order Input</h1>
-              <p className="text-sm mt-0.5" style={{ color: '#A5A3AE' }}>
+              <h1 className="text-xl font-bold" style={{ color: '#1E1B4B' }}>Smart Order Input</h1>
+              <p className="text-sm mt-0.5" style={{ color: '#9CA3AF' }}>
                 Ketik pesanan seperti chat — sistem otomatis membuat draft order
               </p>
             </div>
@@ -427,10 +427,10 @@ export default function SmartOrderPage() {
 
             {/* Customer Name */}
             <div className="bg-white rounded-2xl p-4 space-y-3" style={{ border: '1.5px solid #EDE8F5' }}>
-              <label className="text-xs font-semibold uppercase tracking-wide" style={{ color: '#A5A3AE' }}>Nama Customer</label>
+              <label className="text-xs font-semibold uppercase tracking-wide" style={{ color: '#9CA3AF' }}>Nama Customer</label>
               <input
                 className="w-full rounded-lg px-3 py-2 text-sm"
-                style={{ border: '1px solid #EDE8F5', color: '#433C50', outline: 'none' }}
+                style={{ border: '1px solid #EDE8F5', color: '#1E1B4B', outline: 'none' }}
                 placeholder="Nama pelanggan atau proyek..."
                 value={customerName}
                 onChange={e => setCustomerName(e.target.value)}
@@ -440,7 +440,7 @@ export default function SmartOrderPage() {
             {/* Text Input Area */}
             <div className="bg-white rounded-2xl p-4 space-y-3" style={{ border: '1.5px solid #EDE8F5' }}>
               <div className="flex items-center justify-between">
-                <label className="text-xs font-semibold uppercase tracking-wide" style={{ color: '#A5A3AE' }}>Input Pesanan</label>
+                <label className="text-xs font-semibold uppercase tracking-wide" style={{ color: '#9CA3AF' }}>Input Pesanan</label>
                 <div className="flex items-center gap-1.5">
                   <button
                     onClick={handleVoice}
@@ -486,7 +486,7 @@ export default function SmartOrderPage() {
                 className="w-full rounded-xl px-4 py-3 text-sm resize-none font-mono"
                 style={{
                   border: '1.5px solid #EDE8F5',
-                  color: '#433C50',
+                  color: '#1E1B4B',
                   outline: 'none',
                   minHeight: '220px',
                   lineHeight: '1.7',
@@ -513,14 +513,14 @@ export default function SmartOrderPage() {
                 <button
                   onClick={handleReset}
                   className="px-3 py-2.5 rounded-xl text-sm"
-                  style={{ border: '1px solid #EDE8F5', color: '#A5A3AE' }}
+                  style={{ border: '1px solid #EDE8F5', color: '#9CA3AF' }}
                   title="Reset"
                 >
                   <RotateCcw className="h-4 w-4" />
                 </button>
               </div>
 
-              <div className="text-xs p-3 rounded-lg" style={{ backgroundColor: '#F9F8FC', color: '#A5A3AE' }}>
+              <div className="text-xs p-3 rounded-lg" style={{ backgroundColor: '#F9F8FC', color: '#9CA3AF' }}>
                 <p className="font-semibold mb-1" style={{ color: '#8F89A5' }}>Format yang didukung:</p>
                 <p>• <code>semen 50 sak</code> &nbsp;→ produk + qty + satuan</p>
                 <p>• <code>pasir 2</code> &nbsp;→ produk + qty</p>
@@ -531,10 +531,10 @@ export default function SmartOrderPage() {
             {/* Notes */}
             {items.length > 0 && (
               <div className="bg-white rounded-2xl p-4 space-y-2" style={{ border: '1.5px solid #EDE8F5' }}>
-                <label className="text-xs font-semibold uppercase tracking-wide" style={{ color: '#A5A3AE' }}>Catatan</label>
+                <label className="text-xs font-semibold uppercase tracking-wide" style={{ color: '#9CA3AF' }}>Catatan</label>
                 <textarea
                   className="w-full rounded-lg px-3 py-2 text-sm resize-none"
-                  style={{ border: '1px solid #EDE8F5', color: '#433C50', outline: 'none', minHeight: '70px' }}
+                  style={{ border: '1px solid #EDE8F5', color: '#1E1B4B', outline: 'none', minHeight: '70px' }}
                   placeholder="Catatan tambahan untuk order ini..."
                   value={notes}
                   onChange={e => setNotes(e.target.value)}
@@ -558,8 +558,8 @@ export default function SmartOrderPage() {
                     >
                       <Package className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" style={{ color: '#7C3AED' }} />
                       <div>
-                        <p className="text-xs font-semibold capitalize" style={{ color: '#433C50' }}>{r.name}</p>
-                        <p className="text-xs" style={{ color: '#A5A3AE' }}>{r.reason}</p>
+                        <p className="text-xs font-semibold capitalize" style={{ color: '#1E1B4B' }}>{r.name}</p>
+                        <p className="text-xs" style={{ color: '#9CA3AF' }}>{r.reason}</p>
                       </div>
                     </div>
                   ))}
@@ -576,8 +576,8 @@ export default function SmartOrderPage() {
                 <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ backgroundColor: BG }}>
                   <ShoppingCart className="h-8 w-8" style={{ color: COLOR }} />
                 </div>
-                <h3 className="font-semibold text-base mb-1" style={{ color: '#433C50' }}>Draft Order Kosong</h3>
-                <p className="text-sm max-w-xs" style={{ color: '#A5A3AE' }}>
+                <h3 className="font-semibold text-base mb-1" style={{ color: '#1E1B4B' }}>Draft Order Kosong</h3>
+                <p className="text-sm max-w-xs" style={{ color: '#9CA3AF' }}>
                   Ketik pesanan di sebelah kiri, lalu klik <strong>"Baca &amp; Parse Pesanan"</strong> untuk membuat draft otomatis.
                 </p>
               </div>
@@ -586,7 +586,7 @@ export default function SmartOrderPage() {
                 {/* Status bar */}
                 <div className="flex items-center justify-between px-5 py-3.5" style={{ borderBottom: '1px solid #EDE8F5' }}>
                   <div className="flex items-center gap-3">
-                    <span className="text-sm font-semibold" style={{ color: '#433C50' }}>
+                    <span className="text-sm font-semibold" style={{ color: '#1E1B4B' }}>
                       {items.length} Item
                     </span>
                     {unresolvedCount > 0 && (
@@ -631,7 +631,7 @@ export default function SmartOrderPage() {
                                 style={{
                                   border: `1.5px solid ${item.resolved ? '#4CAF50' : '#FF9800'}`,
                                   backgroundColor: item.resolved ? 'rgba(76,175,80,.04)' : 'rgba(255,152,0,.04)',
-                                  color: '#433C50',
+                                  color: '#1E1B4B',
                                 }}
                               >
                                 <span className="truncate">
@@ -641,7 +641,7 @@ export default function SmartOrderPage() {
                                     </span>
                                   )}
                                 </span>
-                                <ChevronDown className="h-3.5 w-3.5 flex-shrink-0" style={{ color: '#A5A3AE' }} />
+                                <ChevronDown className="h-3.5 w-3.5 flex-shrink-0" style={{ color: '#9CA3AF' }} />
                               </button>
                               {item.showDropdown && item.candidates.length > 0 && (
                                 <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-xl shadow-lg z-20 overflow-hidden" style={{ border: '1.5px solid #EDE8F5' }}>
@@ -653,8 +653,8 @@ export default function SmartOrderPage() {
                                     >
                                       <Package className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" style={{ color: COLOR }} />
                                       <div>
-                                        <p className="font-medium" style={{ color: '#433C50' }}>{p.nama}</p>
-                                        <p style={{ color: '#A5A3AE' }}>
+                                        <p className="font-medium" style={{ color: '#1E1B4B' }}>{p.nama}</p>
+                                        <p style={{ color: '#9CA3AF' }}>
                                           {p.sku ? `SKU: ${p.sku} · ` : ''}
                                           {p.satuan || '–'} · Stok: {p.stok ?? '–'} · {p.harga ? p.harga.toLocaleString('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }) : '–'}
                                         </p>
@@ -662,7 +662,7 @@ export default function SmartOrderPage() {
                                     </button>
                                   ))}
                                   {item.candidates.length === 0 && (
-                                    <p className="px-3 py-2.5 text-xs" style={{ color: '#A5A3AE' }}>Tidak ada produk cocok</p>
+                                    <p className="px-3 py-2.5 text-xs" style={{ color: '#9CA3AF' }}>Tidak ada produk cocok</p>
                                   )}
                                 </div>
                               )}
@@ -675,7 +675,7 @@ export default function SmartOrderPage() {
                               value={item.qty}
                               onChange={e => updateQty(item.id, parseFloat(e.target.value) || 0)}
                               className="w-20 px-2.5 py-2 rounded-lg text-sm text-center"
-                              style={{ border: '1.5px solid #EDE8F5', color: '#433C50', outline: 'none' }}
+                              style={{ border: '1.5px solid #EDE8F5', color: '#1E1B4B', outline: 'none' }}
                             />
 
                             {/* Unit */}
@@ -690,17 +690,17 @@ export default function SmartOrderPage() {
                               value={item.harga}
                               onChange={e => updatePrice(item.id, parseFloat(e.target.value) || 0)}
                               className="w-28 px-2.5 py-2 rounded-lg text-sm"
-                              style={{ border: '1.5px solid #EDE8F5', color: '#433C50', outline: 'none' }}
+                              style={{ border: '1.5px solid #EDE8F5', color: '#1E1B4B', outline: 'none' }}
                               placeholder="Harga"
                             />
 
                             {/* Total */}
-                            <span className="text-sm font-semibold min-w-[90px] text-right" style={{ color: '#433C50' }}>
+                            <span className="text-sm font-semibold min-w-[90px] text-right" style={{ color: '#1E1B4B' }}>
                               {item.total.toLocaleString('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 })}
                             </span>
 
                             <button onClick={() => removeItem(item.id)} className="p-1.5 rounded-lg transition hover:opacity-70">
-                              <X className="h-3.5 w-3.5" style={{ color: '#A5A3AE' }} />
+                              <X className="h-3.5 w-3.5" style={{ color: '#9CA3AF' }} />
                             </button>
                           </div>
 
@@ -746,8 +746,8 @@ export default function SmartOrderPage() {
                 <div className="px-5 py-4" style={{ borderTop: '1.5px solid #EDE8F5', backgroundColor: '#FDFCFF' }}>
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
-                      <p className="text-xs" style={{ color: '#A5A3AE' }}>Total {items.length} item</p>
-                      <p className="text-xl font-bold" style={{ color: '#433C50' }}>
+                      <p className="text-xs" style={{ color: '#9CA3AF' }}>Total {items.length} item</p>
+                      <p className="text-xl font-bold" style={{ color: '#1E1B4B' }}>
                         {grandTotal.toLocaleString('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 })}
                       </p>
                     </div>
@@ -793,7 +793,7 @@ export default function SmartOrderPage() {
               <div className="bg-white rounded-2xl p-5 space-y-4" style={{ border: '1.5px solid #EDE8F5' }}>
                 <div className="flex items-center gap-2">
                   <Info className="h-4 w-4" style={{ color: COLOR }} />
-                  <span className="text-sm font-semibold" style={{ color: '#433C50' }}>Cara Pakai Smart Order Input</span>
+                  <span className="text-sm font-semibold" style={{ color: '#1E1B4B' }}>Cara Pakai Smart Order Input</span>
                 </div>
                 <div className="space-y-3">
                   {[
@@ -807,8 +807,8 @@ export default function SmartOrderPage() {
                         {s.step}
                       </span>
                       <div>
-                        <p className="text-sm font-medium" style={{ color: '#433C50' }}>{s.title}</p>
-                        <p className="text-xs mt-0.5" style={{ color: '#A5A3AE' }}>{s.desc}</p>
+                        <p className="text-sm font-medium" style={{ color: '#1E1B4B' }}>{s.title}</p>
+                        <p className="text-xs mt-0.5" style={{ color: '#9CA3AF' }}>{s.desc}</p>
                       </div>
                     </div>
                   ))}

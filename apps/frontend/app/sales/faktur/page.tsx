@@ -42,17 +42,17 @@ export default function FakturPage() {
       <div className="p-6 space-y-6 max-w-6xl mx-auto">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold" style={{ color: '#433C50' }}>Invoice Penjualan</h1>
-            <p className="text-sm mt-0.5" style={{ color: '#A5A3AE' }}>Daftar faktur dari Kledo ERP</p>
+            <h1 className="text-xl font-bold" style={{ color: '#1E1B4B' }}>Invoice Penjualan</h1>
+            <p className="text-sm mt-0.5" style={{ color: '#9CA3AF' }}>Daftar faktur dari Kledo ERP</p>
           </div>
         </div>
         <div className="bg-white rounded-2xl" style={{ border: '1.5px solid #EDE8F5', boxShadow: '0 1px 4px rgba(47,43,61,.06)' }}>
           <div className="flex items-center gap-3 px-6 py-4" style={{ borderBottom: '1px solid #EDE8F5' }}>
             <div className="relative flex-1 max-w-sm">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5" style={{ color: '#B0AAB9' }} />
-              <input className="w-full rounded-lg pl-9 pr-4 py-2 text-sm" style={{ border: '1px solid #EDE8F5', color: '#433C50', outline: 'none' }} placeholder="Cari faktur..." value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} />
+              <input className="w-full rounded-lg pl-9 pr-4 py-2 text-sm" style={{ border: '1px solid #EDE8F5', color: '#1E1B4B', outline: 'none' }} placeholder="Cari faktur..." value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} />
             </div>
-            <button onClick={load} className="p-2 rounded-lg" style={{ border: '1px solid #EDE8F5', color: '#A5A3AE' }}>
+            <button onClick={load} className="p-2 rounded-lg" style={{ border: '1px solid #EDE8F5', color: '#9CA3AF' }}>
               <RefreshCw className="h-4 w-4" />
             </button>
           </div>
@@ -61,36 +61,36 @@ export default function FakturPage() {
               <thead>
                 <tr style={{ borderBottom: '1px solid #EDE8F5' }}>
                   {['No. Faktur', 'Customer', 'Total', 'Status', 'Tanggal'].map((h) => (
-                    <th key={h} className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide" style={{ color: '#A5A3AE' }}>{h}</th>
+                    <th key={h} className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide" style={{ color: '#9CA3AF' }}>{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {loading ? (
-                  <tr><td colSpan={5} className="px-6 py-12 text-center text-sm" style={{ color: '#A5A3AE' }}>Memuat data...</td></tr>
+                  <tr><td colSpan={5} className="px-6 py-12 text-center text-sm" style={{ color: '#9CA3AF' }}>Memuat data...</td></tr>
                 ) : data.length === 0 ? (
-                  <tr><td colSpan={5} className="px-6 py-12 text-center text-sm" style={{ color: '#A5A3AE' }}>Belum ada faktur</td></tr>
+                  <tr><td colSpan={5} className="px-6 py-12 text-center text-sm" style={{ color: '#9CA3AF' }}>Belum ada faktur</td></tr>
                 ) : data.map((f, i) => (
                   <tr key={i} style={{ borderBottom: i < data.length - 1 ? '1px solid #F5F2FB' : 'none' }}
                     onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#FDFCFF'; }}
                     onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; }}>
                     <td className="px-6 py-3.5 text-sm font-semibold" style={{ color: '#00ACC1' }}>{f.number || f.id}</td>
-                    <td className="px-6 py-3.5 text-sm" style={{ color: '#433C50' }}>{extractName(f.customer)}</td>
-                    <td className="px-6 py-3.5 text-sm font-semibold" style={{ color: '#433C50' }}>{Number(f.total || 0).toLocaleString('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 })}</td>
+                    <td className="px-6 py-3.5 text-sm" style={{ color: '#1E1B4B' }}>{extractName(f.customer)}</td>
+                    <td className="px-6 py-3.5 text-sm font-semibold" style={{ color: '#1E1B4B' }}>{Number(f.total || 0).toLocaleString('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 })}</td>
                     <td className="px-6 py-3.5">
-                      <span className="px-2.5 py-1 rounded-full text-xs font-semibold" style={{ backgroundColor: 'rgba(165,163,174,.12)', color: '#A5A3AE' }}>{f.status || '–'}</span>
+                      <span className="px-2.5 py-1 rounded-full text-xs font-semibold" style={{ backgroundColor: 'rgba(165,163,174,.12)', color: '#9CA3AF' }}>{f.status || '–'}</span>
                     </td>
-                    <td className="px-6 py-3.5 text-xs" style={{ color: '#A5A3AE' }}>{f.date ? new Date(f.date).toLocaleDateString('id-ID') : '–'}</td>
+                    <td className="px-6 py-3.5 text-xs" style={{ color: '#9CA3AF' }}>{f.date ? new Date(f.date).toLocaleDateString('id-ID') : '–'}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
           <div className="flex items-center justify-between px-6 py-3" style={{ borderTop: '1px solid #EDE8F5' }}>
-            <span className="text-xs" style={{ color: '#A5A3AE' }}>Total: {total}</span>
+            <span className="text-xs" style={{ color: '#9CA3AF' }}>Total: {total}</span>
             <div className="flex gap-2">
-              <button disabled={page <= 1} onClick={() => setPage(p => p - 1)} className="px-3 py-1 rounded-lg text-xs disabled:opacity-40" style={{ border: '1px solid #EDE8F5', color: '#433C50' }}>← Prev</button>
-              <button disabled={page * 20 >= total} onClick={() => setPage(p => p + 1)} className="px-3 py-1 rounded-lg text-xs disabled:opacity-40" style={{ border: '1px solid #EDE8F5', color: '#433C50' }}>Next →</button>
+              <button disabled={page <= 1} onClick={() => setPage(p => p - 1)} className="px-3 py-1 rounded-lg text-xs disabled:opacity-40" style={{ border: '1px solid #EDE8F5', color: '#1E1B4B' }}>← Prev</button>
+              <button disabled={page * 20 >= total} onClick={() => setPage(p => p + 1)} className="px-3 py-1 rounded-lg text-xs disabled:opacity-40" style={{ border: '1px solid #EDE8F5', color: '#1E1B4B' }}>Next →</button>
             </div>
           </div>
         </div>

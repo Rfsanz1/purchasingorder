@@ -53,50 +53,50 @@ export default function WaGatewayPage() {
         )}
 
         {/* Fonnte Config */}
-        <div className="rounded-2xl p-6" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #E9E0F8' }}>
-          <h3 className="font-bold mb-4 flex items-center gap-2" style={{ color: '#433C50' }}>
+        <div className="rounded-2xl p-6" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE' }}>
+          <h3 className="font-bold mb-4 flex items-center gap-2" style={{ color: '#1E1B4B' }}>
             <Smartphone className="h-4 w-4" style={{ color: '#22C55E' }} /> Konfigurasi Fonnte API
           </h3>
           <div className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold mb-1.5" style={{ color: '#433C50' }}>Fonnte API Token</label>
+              <label className="block text-xs font-semibold mb-1.5" style={{ color: '#1E1B4B' }}>Fonnte API Token</label>
               <input
                 type="password"
                 value={settings.fonnte_token}
                 onChange={e => setSettings(s => ({ ...s, fonnte_token: e.target.value }))}
                 placeholder="Token dari dashboard.fonnte.com"
                 className="w-full rounded-xl px-4 py-2.5 text-sm"
-                style={{ border: '1.5px solid #E9E0F8', color: '#433C50', outline: 'none', backgroundColor: '#FAFAFA' }}
+                style={{ border: '1.5px solid #EDE9FE', color: '#1E1B4B', outline: 'none', backgroundColor: '#FAFAFA' }}
                 onFocus={e => { e.target.style.borderColor = '#22C55E'; }}
-                onBlur={e => { e.target.style.borderColor = '#E9E0F8'; }}
+                onBlur={e => { e.target.style.borderColor = '#EDE9FE'; }}
               />
-              <p className="text-[10px] mt-1" style={{ color: '#A5A3AE' }}>Dapatkan token di dashboard.fonnte.com → Settings → Token</p>
+              <p className="text-[10px] mt-1" style={{ color: '#9CA3AF' }}>Dapatkan token di dashboard.fonnte.com → Settings → Token</p>
             </div>
             <div>
-              <label className="block text-xs font-semibold mb-1.5" style={{ color: '#433C50' }}>Nomor WhatsApp Pengirim</label>
+              <label className="block text-xs font-semibold mb-1.5" style={{ color: '#1E1B4B' }}>Nomor WhatsApp Pengirim</label>
               <input
                 type="text"
                 value={settings.wa_sender}
                 onChange={e => setSettings(s => ({ ...s, wa_sender: e.target.value }))}
                 placeholder="628xxxxxxxxxx"
                 className="w-full rounded-xl px-4 py-2.5 text-sm"
-                style={{ border: '1.5px solid #E9E0F8', color: '#433C50', outline: 'none', backgroundColor: '#FAFAFA' }}
+                style={{ border: '1.5px solid #EDE9FE', color: '#1E1B4B', outline: 'none', backgroundColor: '#FAFAFA' }}
                 onFocus={e => { e.target.style.borderColor = '#22C55E'; }}
-                onBlur={e => { e.target.style.borderColor = '#E9E0F8'; }}
+                onBlur={e => { e.target.style.borderColor = '#EDE9FE'; }}
               />
-              <p className="text-[10px] mt-1" style={{ color: '#A5A3AE' }}>Format: 628xxxxxxxxxx (tanpa +)</p>
+              <p className="text-[10px] mt-1" style={{ color: '#9CA3AF' }}>Format: 628xxxxxxxxxx (tanpa +)</p>
             </div>
           </div>
 
           {/* Test */}
-          <div className="mt-4 pt-4 flex items-center gap-2" style={{ borderTop: '1px solid #E9E0F8' }}>
+          <div className="mt-4 pt-4 flex items-center gap-2" style={{ borderTop: '1px solid #EDE9FE' }}>
             <input
               type="text"
               value={testPhone}
               onChange={e => setTestPhone(e.target.value)}
               placeholder="Nomor tujuan test (628xxx)"
               className="flex-1 rounded-xl px-4 py-2.5 text-sm"
-              style={{ border: '1.5px solid #E9E0F8', color: '#433C50', outline: 'none' }}
+              style={{ border: '1.5px solid #EDE9FE', color: '#1E1B4B', outline: 'none' }}
             />
             <button
               onClick={() => {
@@ -118,23 +118,23 @@ export default function WaGatewayPage() {
         </div>
 
         {/* Message Templates */}
-        <div className="rounded-2xl p-6" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #E9E0F8' }}>
-          <h3 className="font-bold mb-1 flex items-center gap-2" style={{ color: '#433C50' }}>
+        <div className="rounded-2xl p-6" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE' }}>
+          <h3 className="font-bold mb-1 flex items-center gap-2" style={{ color: '#1E1B4B' }}>
             <MessageSquare className="h-4 w-4" style={{ color: '#22C55E' }} /> Template Pesan
           </h3>
-          <p className="text-xs mb-4" style={{ color: '#A5A3AE' }}>Variable: {'{customer_name}'}, {'{invoice_no}'}, {'{amount}'}, {'{due_date}'}, {'{order_no}'}, {'{company_name}'}</p>
+          <p className="text-xs mb-4" style={{ color: '#9CA3AF' }}>Variable: {'{customer_name}'}, {'{invoice_no}'}, {'{amount}'}, {'{due_date}'}, {'{order_no}'}, {'{company_name}'}</p>
           <div className="space-y-4">
             {WA_TEMPLATES.map(t => (
               <div key={t.key}>
-                <label className="block text-xs font-semibold mb-1.5" style={{ color: '#433C50' }}>{t.label}</label>
+                <label className="block text-xs font-semibold mb-1.5" style={{ color: '#1E1B4B' }}>{t.label}</label>
                 <textarea
                   value={settings[t.key as keyof typeof settings]}
                   onChange={e => setSettings(s => ({ ...s, [t.key]: e.target.value }))}
                   rows={3}
                   className="w-full rounded-xl px-4 py-3 text-sm resize-none"
-                  style={{ border: '1.5px solid #E9E0F8', color: '#433C50', outline: 'none', backgroundColor: '#FAFAFA' }}
+                  style={{ border: '1.5px solid #EDE9FE', color: '#1E1B4B', outline: 'none', backgroundColor: '#FAFAFA' }}
                   onFocus={e => { e.target.style.borderColor = '#22C55E'; }}
-                  onBlur={e => { e.target.style.borderColor = '#E9E0F8'; }}
+                  onBlur={e => { e.target.style.borderColor = '#EDE9FE'; }}
                 />
               </div>
             ))}
@@ -142,11 +142,11 @@ export default function WaGatewayPage() {
         </div>
 
         {/* AI Automation Note */}
-        <div className="rounded-xl p-4 flex items-start gap-3" style={{ backgroundColor: 'rgba(113,75,103,.06)', border: '1.5px solid rgba(113,75,103,.15)' }}>
-          <Zap className="h-4 w-4 flex-shrink-0 mt-0.5" style={{ color: '#714B67' }} />
+        <div className="rounded-xl p-4 flex items-start gap-3" style={{ backgroundColor: 'rgba(91,82,209,.06)', border: '1.5px solid rgba(91,82,209,.15)' }}>
+          <Zap className="h-4 w-4 flex-shrink-0 mt-0.5" style={{ color: '#5B52D1' }} />
           <div>
-            <p className="text-xs font-semibold" style={{ color: '#433C50' }}>Terhubung ke AI Automation</p>
-            <p className="text-xs mt-0.5" style={{ color: '#6D6777' }}>WhatsApp Gateway digunakan oleh AI Automation untuk kirim reminder invoice, notifikasi stok, dan alert bisnis secara otomatis.</p>
+            <p className="text-xs font-semibold" style={{ color: '#1E1B4B' }}>Terhubung ke AI Automation</p>
+            <p className="text-xs mt-0.5" style={{ color: '#6B7280' }}>WhatsApp Gateway digunakan oleh AI Automation untuk kirim reminder invoice, notifikasi stok, dan alert bisnis secara otomatis.</p>
           </div>
         </div>
 

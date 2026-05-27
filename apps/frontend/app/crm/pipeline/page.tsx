@@ -7,7 +7,7 @@ import { CRM_CONFIG, CRM_NAV } from '../../../lib/nav-configs';
 import { Plus } from 'lucide-react';
 
 const STAGES = [
-  { label: 'Baru',        color: '#A5A3AE', bg: 'rgba(165,163,174,.08)', leads: [
+  { label: 'Baru',        color: '#9CA3AF', bg: 'rgba(165,163,174,.08)', leads: [
     { name: 'Hari P.',   company: 'CV Sentosa',    value: 'Rp 12 Jt' },
     { name: 'Lestari W.', company: 'PT Nusantara', value: 'Rp 45 Jt' },
   ]},
@@ -41,8 +41,8 @@ export default function CrmPipelinePage() {
       <div className="p-6 space-y-6 max-w-full">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold" style={{ color: '#433C50' }}>Pipeline Penjualan</h1>
-            <p className="text-sm mt-0.5" style={{ color: '#A5A3AE' }}>Kanban view pipeline CRM</p>
+            <h1 className="text-xl font-bold" style={{ color: '#1E1B4B' }}>Pipeline Penjualan</h1>
+            <p className="text-sm mt-0.5" style={{ color: '#9CA3AF' }}>Kanban view pipeline CRM</p>
           </div>
           <button className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold text-white" style={{ backgroundColor: CRM_CONFIG.appColor }}>
             <Plus className="h-4 w-4" /> Tambah
@@ -53,15 +53,15 @@ export default function CrmPipelinePage() {
             <div key={stage.label} className="flex-shrink-0 w-60">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-xs font-bold px-2.5 py-1 rounded-full" style={{ color: stage.color, backgroundColor: stage.bg }}>{stage.label}</span>
-                <span className="text-xs font-semibold" style={{ color: '#A5A3AE' }}>{stage.leads.length}</span>
+                <span className="text-xs font-semibold" style={{ color: '#9CA3AF' }}>{stage.leads.length}</span>
               </div>
               <div className="space-y-2">
                 {stage.leads.map((l) => (
                   <div key={l.name} className="bg-white rounded-xl p-3.5 cursor-pointer transition" style={{ border: '1.5px solid #EDE8F5', boxShadow: '0 1px 4px rgba(47,43,61,.06)' }}
                     onMouseEnter={e => { e.currentTarget.style.borderColor = stage.color; }}
                     onMouseLeave={e => { e.currentTarget.style.borderColor = '#EDE8F5'; }}>
-                    <p className="text-xs font-semibold" style={{ color: '#433C50' }}>{l.name}</p>
-                    <p className="text-[10px] mt-0.5" style={{ color: '#A5A3AE' }}>{l.company}</p>
+                    <p className="text-xs font-semibold" style={{ color: '#1E1B4B' }}>{l.name}</p>
+                    <p className="text-[10px] mt-0.5" style={{ color: '#9CA3AF' }}>{l.company}</p>
                     <p className="text-xs font-bold mt-2" style={{ color: stage.color }}>{l.value}</p>
                   </div>
                 ))}

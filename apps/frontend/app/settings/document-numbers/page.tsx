@@ -57,7 +57,7 @@ export default function DocumentNumbersPage() {
     <OdooLayout title="Format Nomor Dokumen" subtitle="Konfigurasi penomoran otomatis untuk semua dokumen ERP">
       <div className="space-y-6 max-w-4xl mx-auto">
         {/* Banner */}
-        <div className="rounded-2xl p-4 flex items-center gap-3" style={{ background: 'linear-gradient(135deg, #714B67, #9C6B8E)', color: 'white' }}>
+        <div className="rounded-2xl p-4 flex items-center gap-3" style={{ background: 'linear-gradient(135deg, #5B52D1, #8B80F9)', color: 'white' }}>
           <Hash className="h-6 w-6 flex-shrink-0" />
           <div>
             <p className="font-bold">Konfigurasi Nomor Dokumen Otomatis</p>
@@ -66,16 +66,16 @@ export default function DocumentNumbersPage() {
         </div>
 
         {/* Global Settings */}
-        <div className="rounded-2xl p-5" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #E9E0F8' }}>
-          <h3 className="font-bold mb-4" style={{ color: '#433C50' }}>Pengaturan Global</h3>
+        <div className="rounded-2xl p-5" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE' }}>
+          <h3 className="font-bold mb-4" style={{ color: '#1E1B4B' }}>Pengaturan Global</h3>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold mb-1.5" style={{ color: '#433C50' }}>Jumlah Digit Nomor</label>
+              <label className="block text-xs font-semibold mb-1.5" style={{ color: '#1E1B4B' }}>Jumlah Digit Nomor</label>
               <select
                 value={padding}
                 onChange={e => setPadding(e.target.value)}
                 className="w-full rounded-xl px-4 py-2.5 text-sm"
-                style={{ border: '1.5px solid #E9E0F8', color: '#433C50', outline: 'none' }}
+                style={{ border: '1.5px solid #EDE9FE', color: '#1E1B4B', outline: 'none' }}
               >
                 <option value="3">3 digit (001)</option>
                 <option value="4">4 digit (0001)</option>
@@ -84,12 +84,12 @@ export default function DocumentNumbersPage() {
               </select>
             </div>
             <div>
-              <label className="block text-xs font-semibold mb-1.5" style={{ color: '#433C50' }}>Format Tahun</label>
+              <label className="block text-xs font-semibold mb-1.5" style={{ color: '#1E1B4B' }}>Format Tahun</label>
               <select
                 value={yearFormat}
                 onChange={e => setYearFormat(e.target.value)}
                 className="w-full rounded-xl px-4 py-2.5 text-sm"
-                style={{ border: '1.5px solid #E9E0F8', color: '#433C50', outline: 'none' }}
+                style={{ border: '1.5px solid #EDE9FE', color: '#1E1B4B', outline: 'none' }}
               >
                 <option value="YYYY">4 digit (2026)</option>
                 <option value="YY">2 digit (26)</option>
@@ -99,28 +99,28 @@ export default function DocumentNumbersPage() {
         </div>
 
         {/* Document Types */}
-        <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #E9E0F8' }}>
-          <div className="px-5 py-4" style={{ borderBottom: '1px solid #E9E0F8' }}>
-            <h3 className="font-bold" style={{ color: '#433C50' }}>Prefix per Jenis Dokumen</h3>
+        <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE' }}>
+          <div className="px-5 py-4" style={{ borderBottom: '1px solid #EDE9FE' }}>
+            <h3 className="font-bold" style={{ color: '#1E1B4B' }}>Prefix per Jenis Dokumen</h3>
           </div>
-          <div className="divide-y" style={{ borderColor: '#E9E0F8' }}>
+          <div className="divide-y" style={{ borderColor: '#EDE9FE' }}>
             {DOC_TYPES.map((d) => {
-              const color = MODULE_COLORS[d.module] ?? '#714B67';
+              const color = MODULE_COLORS[d.module] ?? '#5B52D1';
               return (
                 <div key={d.key} className="flex items-center gap-4 px-5 py-3.5 hover:bg-gray-50 transition-colors">
                   <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold w-20 text-center flex-shrink-0" style={{ backgroundColor: color + '15', color }}>
                     {d.module}
                   </span>
-                  <p className="text-xs font-semibold w-40 flex-shrink-0" style={{ color: '#433C50' }}>{d.label}</p>
+                  <p className="text-xs font-semibold w-40 flex-shrink-0" style={{ color: '#1E1B4B' }}>{d.label}</p>
                   <div className="flex items-center gap-2 flex-1">
                     <input
                       value={config[d.key + '_prefix'] ?? d.prefix}
                       onChange={e => setConfig(c => ({ ...c, [d.key + '_prefix']: e.target.value.toUpperCase() }))}
                       className="w-28 rounded-xl px-3 py-2 text-sm font-mono font-bold text-center"
-                      style={{ border: '1.5px solid #E9E0F8', color: '#433C50', outline: 'none', backgroundColor: '#F8F7FC' }}
+                      style={{ border: '1.5px solid #EDE9FE', color: '#1E1B4B', outline: 'none', backgroundColor: '#F5F3FF' }}
                       maxLength={8}
-                      onFocus={e => { e.target.style.borderColor = '#714B67'; }}
-                      onBlur={e => { e.target.style.borderColor = '#E9E0F8'; }}
+                      onFocus={e => { e.target.style.borderColor = '#5B52D1'; }}
+                      onBlur={e => { e.target.style.borderColor = '#EDE9FE'; }}
                     />
                     <div className="flex items-center gap-1.5 px-3 py-2 rounded-xl" style={{ backgroundColor: '#F0FDF4', border: '1px solid rgba(34,197,94,.2)' }}>
                       <Eye className="h-3.5 w-3.5" style={{ color: '#22C55E' }} />
@@ -142,7 +142,7 @@ export default function DocumentNumbersPage() {
             }}
             disabled={saving}
             className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold text-white transition"
-            style={{ background: 'linear-gradient(135deg, #714B67, #9C6B8E)' }}
+            style={{ background: 'linear-gradient(135deg, #5B52D1, #8B80F9)' }}
           >
             {saving ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             Simpan Konfigurasi

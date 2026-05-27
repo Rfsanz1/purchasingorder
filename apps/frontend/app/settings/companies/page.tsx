@@ -30,20 +30,20 @@ export default function CompaniesPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="font-bold text-lg" style={{ color: '#433C50' }}>Manajemen Perusahaan</h2>
-            <p className="text-sm" style={{ color: '#A5A3AE' }}>Kelola multi perusahaan dan cabang dalam satu platform ERP</p>
+            <h2 className="font-bold text-lg" style={{ color: '#1E1B4B' }}>Manajemen Perusahaan</h2>
+            <p className="text-sm" style={{ color: '#9CA3AF' }}>Kelola multi perusahaan dan cabang dalam satu platform ERP</p>
           </div>
-          <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white" style={{ background: 'linear-gradient(135deg, #714B67, #9C6B8E)' }}>
+          <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white" style={{ background: 'linear-gradient(135deg, #5B52D1, #8B80F9)' }}>
             <Plus className="h-4 w-4" /> Tambah Perusahaan
           </button>
         </div>
 
         {/* Feature Info */}
-        <div className="rounded-2xl p-4 flex items-center gap-3" style={{ backgroundColor: 'rgba(113,75,103,.06)', border: '1.5px solid rgba(113,75,103,.15)' }}>
-          <Building2 className="h-5 w-5 flex-shrink-0" style={{ color: '#714B67' }} />
+        <div className="rounded-2xl p-4 flex items-center gap-3" style={{ backgroundColor: 'rgba(91,82,209,.06)', border: '1.5px solid rgba(91,82,209,.15)' }}>
+          <Building2 className="h-5 w-5 flex-shrink-0" style={{ color: '#5B52D1' }} />
           <div>
-            <p className="text-sm font-semibold" style={{ color: '#433C50' }}>Mode Multi-Company Aktif</p>
-            <p className="text-xs mt-0.5" style={{ color: '#6D6777' }}>Data setiap perusahaan terisolasi. Anda dapat berpindah perusahaan dari topbar. Laporan konsolidasi tersedia di modul Laporan Keuangan.</p>
+            <p className="text-sm font-semibold" style={{ color: '#1E1B4B' }}>Mode Multi-Company Aktif</p>
+            <p className="text-xs mt-0.5" style={{ color: '#6B7280' }}>Data setiap perusahaan terisolasi. Anda dapat berpindah perusahaan dari topbar. Laporan konsolidasi tersedia di modul Laporan Keuangan.</p>
           </div>
         </div>
 
@@ -53,18 +53,18 @@ export default function CompaniesPage() {
             <div
               key={c.id}
               className="rounded-2xl p-5"
-              style={{ backgroundColor: '#FFFFFF', border: `1.5px solid ${c.isMain ? '#714B67' : '#E9E0F8'}` }}
+              style={{ backgroundColor: '#FFFFFF', border: `1.5px solid ${c.isMain ? '#5B52D1' : '#EDE9FE'}` }}
             >
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl font-bold text-white text-lg" style={{ background: 'linear-gradient(135deg, #714B67, #9C6B8E)' }}>
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl font-bold text-white text-lg" style={{ background: 'linear-gradient(135deg, #5B52D1, #8B80F9)' }}>
                     {c.name.charAt(0)}
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <p className="font-bold" style={{ color: '#433C50' }}>{c.name}</p>
+                      <p className="font-bold" style={{ color: '#1E1B4B' }}>{c.name}</p>
                       {c.isMain && (
-                        <span className="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full font-semibold" style={{ backgroundColor: 'rgba(113,75,103,.1)', color: '#714B67' }}>
+                        <span className="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full font-semibold" style={{ backgroundColor: 'rgba(91,82,209,.1)', color: '#5B52D1' }}>
                           <CheckCircle className="h-3 w-3" /> Utama
                         </span>
                       )}
@@ -75,7 +75,7 @@ export default function CompaniesPage() {
                         {c.status === 'active' ? 'Aktif' : 'Nonaktif'}
                       </span>
                     </div>
-                    <p className="text-xs mt-0.5 font-mono" style={{ color: '#A5A3AE' }}>Kode: {c.code}</p>
+                    <p className="text-xs mt-0.5 font-mono" style={{ color: '#9CA3AF' }}>Kode: {c.code}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -92,31 +92,31 @@ export default function CompaniesPage() {
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="flex items-center gap-2">
-                  <Globe className="h-3.5 w-3.5 flex-shrink-0" style={{ color: '#A5A3AE' }} />
+                  <Globe className="h-3.5 w-3.5 flex-shrink-0" style={{ color: '#9CA3AF' }} />
                   <div>
-                    <p className="text-[10px]" style={{ color: '#A5A3AE' }}>Alamat</p>
-                    <p className="text-xs font-medium" style={{ color: '#433C50' }}>{c.address}</p>
+                    <p className="text-[10px]" style={{ color: '#9CA3AF' }}>Alamat</p>
+                    <p className="text-xs font-medium" style={{ color: '#1E1B4B' }}>{c.address}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Phone className="h-3.5 w-3.5 flex-shrink-0" style={{ color: '#A5A3AE' }} />
+                  <Phone className="h-3.5 w-3.5 flex-shrink-0" style={{ color: '#9CA3AF' }} />
                   <div>
-                    <p className="text-[10px]" style={{ color: '#A5A3AE' }}>Telepon</p>
-                    <p className="text-xs font-medium" style={{ color: '#433C50' }}>{c.phone}</p>
+                    <p className="text-[10px]" style={{ color: '#9CA3AF' }}>Telepon</p>
+                    <p className="text-xs font-medium" style={{ color: '#1E1B4B' }}>{c.phone}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Mail className="h-3.5 w-3.5 flex-shrink-0" style={{ color: '#A5A3AE' }} />
+                  <Mail className="h-3.5 w-3.5 flex-shrink-0" style={{ color: '#9CA3AF' }} />
                   <div>
-                    <p className="text-[10px]" style={{ color: '#A5A3AE' }}>Email</p>
-                    <p className="text-xs font-medium" style={{ color: '#433C50' }}>{c.email}</p>
+                    <p className="text-[10px]" style={{ color: '#9CA3AF' }}>Email</p>
+                    <p className="text-xs font-medium" style={{ color: '#1E1B4B' }}>{c.email}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Hash className="h-3.5 w-3.5 flex-shrink-0" style={{ color: '#A5A3AE' }} />
+                  <Hash className="h-3.5 w-3.5 flex-shrink-0" style={{ color: '#9CA3AF' }} />
                   <div>
-                    <p className="text-[10px]" style={{ color: '#A5A3AE' }}>Mata Uang</p>
-                    <p className="text-xs font-medium" style={{ color: '#433C50' }}>{c.currency}</p>
+                    <p className="text-[10px]" style={{ color: '#9CA3AF' }}>Mata Uang</p>
+                    <p className="text-xs font-medium" style={{ color: '#1E1B4B' }}>{c.currency}</p>
                   </div>
                 </div>
               </div>

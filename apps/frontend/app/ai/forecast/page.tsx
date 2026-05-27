@@ -60,8 +60,8 @@ export default function AiForecastPage() {
         </div>
 
         {/* Forecast Chart */}
-        <div className="rounded-2xl p-6" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #E9E0F8' }}>
-          <h3 className="font-bold text-sm mb-5" style={{ color: '#433C50' }}>Proyeksi Revenue (Juta Rupiah)</h3>
+        <div className="rounded-2xl p-6" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE' }}>
+          <h3 className="font-bold text-sm mb-5" style={{ color: '#1E1B4B' }}>Proyeksi Revenue (Juta Rupiah)</h3>
           <div className="flex items-end gap-3 h-48 mb-4">
             {FORECAST_DATA.map((d, i) => (
               <div key={i} className="flex-1 flex flex-col items-center gap-2">
@@ -83,14 +83,14 @@ export default function AiForecastPage() {
                   </div>
                 </div>
                 <div className="text-center">
-                  <p className="text-[10px] font-semibold" style={{ color: '#433C50' }}>Rp {d.revenue}jt</p>
-                  <p className="text-[9px]" style={{ color: '#A5A3AE' }}>{d.month}</p>
+                  <p className="text-[10px] font-semibold" style={{ color: '#1E1B4B' }}>Rp {d.revenue}jt</p>
+                  <p className="text-[9px]" style={{ color: '#9CA3AF' }}>{d.month}</p>
                 </div>
               </div>
             ))}
           </div>
-          <div className="flex items-center justify-between pt-4" style={{ borderTop: '1px solid #E9E0F8' }}>
-            <div className="flex items-center gap-2 text-xs" style={{ color: '#A5A3AE' }}>
+          <div className="flex items-center justify-between pt-4" style={{ borderTop: '1px solid #EDE9FE' }}>
+            <div className="flex items-center gap-2 text-xs" style={{ color: '#9CA3AF' }}>
               <AlertCircle className="h-3.5 w-3.5" />
               Confidence level menurun seiring waktu proyeksi. Data aktual dapat berbeda.
             </div>
@@ -101,37 +101,37 @@ export default function AiForecastPage() {
         </div>
 
         {/* Forecast Table */}
-        <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #E9E0F8' }}>
-          <div className="px-5 py-4" style={{ borderBottom: '1px solid #E9E0F8' }}>
-            <h3 className="font-bold text-sm" style={{ color: '#433C50' }}>Detail Proyeksi Bulanan</h3>
+        <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE' }}>
+          <div className="px-5 py-4" style={{ borderBottom: '1px solid #EDE9FE' }}>
+            <h3 className="font-bold text-sm" style={{ color: '#1E1B4B' }}>Detail Proyeksi Bulanan</h3>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr style={{ backgroundColor: '#F8F7FC' }}>
+                <tr style={{ backgroundColor: '#F5F3FF' }}>
                   {['Bulan', 'Revenue Proyeksi', 'Growth', 'Est. Order', 'Confidence', 'Status'].map(h => (
-                    <th key={h} className="px-5 py-3 text-left text-xs font-semibold" style={{ color: '#6D6777' }}>{h}</th>
+                    <th key={h} className="px-5 py-3 text-left text-xs font-semibold" style={{ color: '#6B7280' }}>{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {FORECAST_DATA.map((d, i) => (
                   <tr key={i} className="hover:bg-gray-50 transition-colors" style={{ borderTop: '1px solid #F0EDF8' }}>
-                    <td className="px-5 py-3 font-semibold text-xs" style={{ color: '#433C50' }}>{d.month}</td>
-                    <td className="px-5 py-3 font-bold text-xs" style={{ color: '#433C50' }}>Rp {d.revenue} jt</td>
+                    <td className="px-5 py-3 font-semibold text-xs" style={{ color: '#1E1B4B' }}>{d.month}</td>
+                    <td className="px-5 py-3 font-bold text-xs" style={{ color: '#1E1B4B' }}>Rp {d.revenue} jt</td>
                     <td className="px-5 py-3">
                       <span className="flex items-center gap-1 text-xs font-semibold" style={{ color: d.growth >= 0 ? '#22C55E' : '#EF4444' }}>
                         {d.growth >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
                         {d.growth >= 0 ? '+' : ''}{d.growth}%
                       </span>
                     </td>
-                    <td className="px-5 py-3 text-xs" style={{ color: '#433C50' }}>{d.orders.toLocaleString()} order</td>
+                    <td className="px-5 py-3 text-xs" style={{ color: '#1E1B4B' }}>{d.orders.toLocaleString()} order</td>
                     <td className="px-5 py-3">
                       <div className="flex items-center gap-2">
-                        <div className="flex-1 max-w-20 rounded-full h-1.5" style={{ backgroundColor: '#E9E0F8' }}>
+                        <div className="flex-1 max-w-20 rounded-full h-1.5" style={{ backgroundColor: '#EDE9FE' }}>
                           <div className="h-1.5 rounded-full" style={{ width: `${d.confidence}%`, backgroundColor: d.confidence > 80 ? '#22C55E' : d.confidence > 70 ? '#F59E0B' : '#EF4444' }} />
                         </div>
-                        <span className="text-xs font-semibold" style={{ color: '#433C50' }}>{d.confidence}%</span>
+                        <span className="text-xs font-semibold" style={{ color: '#1E1B4B' }}>{d.confidence}%</span>
                       </div>
                     </td>
                     <td className="px-5 py-3">
@@ -150,10 +150,10 @@ export default function AiForecastPage() {
         </div>
 
         {/* Product Demand Forecast */}
-        <div className="rounded-2xl" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #E9E0F8' }}>
-          <div className="px-5 py-4" style={{ borderBottom: '1px solid #E9E0F8' }}>
-            <h3 className="font-bold text-sm flex items-center gap-2" style={{ color: '#433C50' }}>
-              <Package className="h-4 w-4" style={{ color: '#714B67' }} /> Demand Forecast per Produk (Bulan Depan)
+        <div className="rounded-2xl" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE' }}>
+          <div className="px-5 py-4" style={{ borderBottom: '1px solid #EDE9FE' }}>
+            <h3 className="font-bold text-sm flex items-center gap-2" style={{ color: '#1E1B4B' }}>
+              <Package className="h-4 w-4" style={{ color: '#5B52D1' }} /> Demand Forecast per Produk (Bulan Depan)
             </h3>
           </div>
           <div className="p-5 space-y-4">
@@ -161,17 +161,17 @@ export default function AiForecastPage() {
               <div key={i} className="flex items-center gap-4">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between mb-1">
-                    <p className="text-xs font-semibold" style={{ color: '#433C50' }}>{p.name}</p>
+                    <p className="text-xs font-semibold" style={{ color: '#1E1B4B' }}>{p.name}</p>
                     <span className="flex items-center gap-1 text-xs font-semibold ml-2" style={{ color: p.change >= 0 ? '#22C55E' : '#EF4444' }}>
                       {p.change >= 0 ? '+' : ''}{p.change}%
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="flex-1 rounded-full h-2" style={{ backgroundColor: '#E9E0F8' }}>
+                    <div className="flex-1 rounded-full h-2" style={{ backgroundColor: '#EDE9FE' }}>
                       <div className="h-2 rounded-full" style={{ width: `${(p.forecastDemand / 1000) * 100}%`, backgroundColor: p.change >= 0 ? '#3B82F6' : '#EF4444' }} />
                     </div>
-                    <span className="text-[11px] w-24 text-right" style={{ color: '#A5A3AE' }}>
-                      {p.currentDemand} → <strong style={{ color: '#433C50' }}>{p.forecastDemand}</strong>
+                    <span className="text-[11px] w-24 text-right" style={{ color: '#9CA3AF' }}>
+                      {p.currentDemand} → <strong style={{ color: '#1E1B4B' }}>{p.forecastDemand}</strong>
                     </span>
                   </div>
                 </div>

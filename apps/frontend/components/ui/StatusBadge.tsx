@@ -12,7 +12,7 @@ const variantClasses: Record<BadgeVariant, string> = {
   warning: 'bg-[#FF9F43]/12 text-[#FF9F43] border-[#FF9F43]/20',
   danger: 'bg-[#EA5455]/12 text-[#EA5455] border-[#EA5455]/20',
   info: 'bg-[#00CFE8]/12 text-[#00CFE8] border-[#00CFE8]/20',
-  default: 'bg-[#A5A3AE]/12 text-[#A5A3AE] border-[#A5A3AE]/20',
+  default: 'bg-[#9CA3AF]/12 text-[#9CA3AF] border-[#9CA3AF]/20',
 };
 
 export function StatusBadge({ label, variant = 'default' }: StatusBadgeProps) {

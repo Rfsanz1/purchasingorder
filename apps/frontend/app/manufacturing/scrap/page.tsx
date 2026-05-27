@@ -39,8 +39,8 @@ export default function ScrapPage() {
       <div className="p-6 space-y-6 max-w-5xl mx-auto">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold" style={{ color: '#433C50' }}>Scrap Management</h1>
-            <p className="text-sm mt-0.5" style={{ color: '#A5A3AE' }}>Catat dan kelola barang hasil reject dan scrap produksi</p>
+            <h1 className="text-xl font-bold" style={{ color: '#1E1B4B' }}>Scrap Management</h1>
+            <p className="text-sm mt-0.5" style={{ color: '#9CA3AF' }}>Catat dan kelola barang hasil reject dan scrap produksi</p>
           </div>
           <button onClick={() => setShowForm(true)} className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-semibold text-white" style={{ backgroundColor: C }}>
             <Plus className="h-4 w-4" /> Input Scrap
@@ -54,7 +54,7 @@ export default function ScrapPage() {
             { label: 'Total Kerugian', value: fmt(totalCost), color: '#EA5455' },
           ].map(s => (
             <div key={s.label} className="bg-white rounded-2xl p-5" style={{ border: '1.5px solid #EDE8F5', boxShadow: '0 1px 4px rgba(47,43,61,.06)' }}>
-              <p className="text-xs font-medium" style={{ color: '#A5A3AE' }}>{s.label}</p>
+              <p className="text-xs font-medium" style={{ color: '#9CA3AF' }}>{s.label}</p>
               <p className="text-xl font-bold mt-1" style={{ color: s.color }}>{s.value}</p>
             </div>
           ))}
@@ -64,23 +64,23 @@ export default function ScrapPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr style={{ borderBottom: '1px solid #EDE8F5', backgroundColor: '#F8F7FC' }}>
+                <tr style={{ borderBottom: '1px solid #EDE8F5', backgroundColor: '#F5F3FF' }}>
                   {['Tanggal', 'Produk', 'Lot', 'Qty', 'Alasan Scrap', 'Work Order', 'Lokasi', 'Operator', 'Est. Kerugian'].map(h => (
-                    <th key={h} className="px-4 py-3 text-left text-xs font-semibold whitespace-nowrap" style={{ color: '#A5A3AE' }}>{h}</th>
+                    <th key={h} className="px-4 py-3 text-left text-xs font-semibold whitespace-nowrap" style={{ color: '#9CA3AF' }}>{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {items.map(item => (
-                  <tr key={item.id} style={{ borderBottom: '1px solid #F5F5F9' }} className="hover:bg-gray-50">
-                    <td className="px-4 py-3 text-xs" style={{ color: '#6D6777' }}>{new Date(item.date).toLocaleDateString('id-ID')}</td>
-                    <td className="px-4 py-3 font-medium" style={{ color: '#433C50' }}>{item.product}</td>
-                    <td className="px-4 py-3 text-xs font-mono" style={{ color: '#6D6777' }}>{item.lot ?? '-'}</td>
+                  <tr key={item.id} style={{ borderBottom: '1px solid #F5F3FF' }} className="hover:bg-gray-50">
+                    <td className="px-4 py-3 text-xs" style={{ color: '#6B7280' }}>{new Date(item.date).toLocaleDateString('id-ID')}</td>
+                    <td className="px-4 py-3 font-medium" style={{ color: '#1E1B4B' }}>{item.product}</td>
+                    <td className="px-4 py-3 text-xs font-mono" style={{ color: '#6B7280' }}>{item.lot ?? '-'}</td>
                     <td className="px-4 py-3 font-bold" style={{ color: '#EA5455' }}>{item.qty} {item.uom}</td>
-                    <td className="px-4 py-3 text-xs max-w-xs truncate" style={{ color: '#6D6777' }}>{item.reason}</td>
+                    <td className="px-4 py-3 text-xs max-w-xs truncate" style={{ color: '#6B7280' }}>{item.reason}</td>
                     <td className="px-4 py-3 text-xs font-semibold" style={{ color: C }}>{item.mo}</td>
-                    <td className="px-4 py-3 text-xs" style={{ color: '#6D6777' }}>{item.location}</td>
-                    <td className="px-4 py-3 text-xs" style={{ color: '#433C50' }}>{item.operator}</td>
+                    <td className="px-4 py-3 text-xs" style={{ color: '#6B7280' }}>{item.location}</td>
+                    <td className="px-4 py-3 text-xs" style={{ color: '#1E1B4B' }}>{item.operator}</td>
                     <td className="px-4 py-3 font-semibold text-xs" style={{ color: '#EA5455' }}>{fmt(item.cost)}</td>
                   </tr>
                 ))}
@@ -93,8 +93,8 @@ export default function ScrapPage() {
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
             <div className="bg-white rounded-2xl w-full max-w-lg mx-4 overflow-y-auto" style={{ maxHeight: '90vh', boxShadow: '0 20px 60px rgba(0,0,0,.15)' }}>
               <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom: '1px solid #EDE8F5' }}>
-                <h2 className="font-bold" style={{ color: '#433C50' }}>Input Scrap</h2>
-                <button onClick={() => setShowForm(false)} style={{ color: '#A5A3AE' }}><X className="h-5 w-5" /></button>
+                <h2 className="font-bold" style={{ color: '#1E1B4B' }}>Input Scrap</h2>
+                <button onClick={() => setShowForm(false)} style={{ color: '#9CA3AF' }}><X className="h-5 w-5" /></button>
               </div>
               <div className="p-6 space-y-4">
                 <div className="grid grid-cols-2 gap-4">
@@ -109,17 +109,17 @@ export default function ScrapPage() {
                     { key: 'operator', label: 'Operator / PIC', placeholder: 'Nama operator...' },
                   ].map(f => (
                     <div key={f.key}>
-                      <label className="block text-xs font-semibold mb-1.5" style={{ color: '#433C50' }}>{f.label}</label>
-                      <input type={f.type ?? 'text'} className="w-full rounded-lg px-4 py-2.5 text-sm" style={{ border: '1.5px solid #EDE8F5', color: '#433C50', outline: 'none' }} placeholder={(f as any).placeholder ?? ''} value={(form as any)[f.key]} onChange={e => setForm(f2 => ({ ...f2, [f.key]: e.target.value }))} onFocus={e => e.target.style.borderColor = C} onBlur={e => e.target.style.borderColor = '#EDE8F5'} />
+                      <label className="block text-xs font-semibold mb-1.5" style={{ color: '#1E1B4B' }}>{f.label}</label>
+                      <input type={f.type ?? 'text'} className="w-full rounded-lg px-4 py-2.5 text-sm" style={{ border: '1.5px solid #EDE8F5', color: '#1E1B4B', outline: 'none' }} placeholder={(f as any).placeholder ?? ''} value={(form as any)[f.key]} onChange={e => setForm(f2 => ({ ...f2, [f.key]: e.target.value }))} onFocus={e => e.target.style.borderColor = C} onBlur={e => e.target.style.borderColor = '#EDE8F5'} />
                     </div>
                   ))}
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold mb-1.5" style={{ color: '#433C50' }}>Alasan Scrap *</label>
-                  <textarea className="w-full rounded-lg px-4 py-2.5 text-sm resize-none" rows={3} style={{ border: '1.5px solid #EDE8F5', color: '#433C50', outline: 'none' }} placeholder="Deskripsikan alasan scrap..." value={form.reason} onChange={e => setForm(f => ({ ...f, reason: e.target.value }))} />
+                  <label className="block text-xs font-semibold mb-1.5" style={{ color: '#1E1B4B' }}>Alasan Scrap *</label>
+                  <textarea className="w-full rounded-lg px-4 py-2.5 text-sm resize-none" rows={3} style={{ border: '1.5px solid #EDE8F5', color: '#1E1B4B', outline: 'none' }} placeholder="Deskripsikan alasan scrap..." value={form.reason} onChange={e => setForm(f => ({ ...f, reason: e.target.value }))} />
                 </div>
                 <div className="flex justify-end gap-3 pt-2" style={{ borderTop: '1px solid #EDE8F5' }}>
-                  <button onClick={() => setShowForm(false)} className="px-5 py-2.5 rounded-lg text-sm font-semibold" style={{ border: '1.5px solid #EDE8F5', color: '#6D6777' }}>Batal</button>
+                  <button onClick={() => setShowForm(false)} className="px-5 py-2.5 rounded-lg text-sm font-semibold" style={{ border: '1.5px solid #EDE8F5', color: '#6B7280' }}>Batal</button>
                   <button onClick={save} className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold text-white" style={{ backgroundColor: C }}>
                     <AlertTriangle className="h-4 w-4" /> Simpan Scrap
                   </button>

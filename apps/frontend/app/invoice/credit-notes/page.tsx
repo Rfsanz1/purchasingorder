@@ -21,7 +21,7 @@ export default function CreditNotesPage() {
     <AppShell {...INVOICE_CONFIG} navItems={INVOICE_NAV} activeHref="/invoice/credit-notes">
       <div className="p-6 space-y-6 max-w-5xl mx-auto">
         <div className="flex items-center justify-between">
-          <div><h1 className="text-xl font-bold" style={{ color: '#433C50' }}>Kredit Nota</h1><p className="text-sm mt-0.5" style={{ color: '#A5A3AE' }}>Nota kredit untuk retur dan koreksi invoice</p></div>
+          <div><h1 className="text-xl font-bold" style={{ color: '#1E1B4B' }}>Kredit Nota</h1><p className="text-sm mt-0.5" style={{ color: '#9CA3AF' }}>Nota kredit untuk retur dan koreksi invoice</p></div>
           <button className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold text-white" style={{ backgroundColor: INVOICE_CONFIG.appColor }}><Plus className="h-4 w-4" /> Kredit Nota Baru</button>
         </div>
         <div className="bg-white rounded-2xl" style={{ border: '1.5px solid #EDE8F5', boxShadow: '0 1px 4px rgba(47,43,61,.06)' }}>
@@ -29,7 +29,7 @@ export default function CreditNotesPage() {
             <table className="w-full">
               <thead><tr style={{ borderBottom: '1px solid #EDE8F5' }}>
                 {['No. CN', 'Invoice Ref.', 'Pelanggan', 'Jumlah', 'Alasan', 'Tanggal'].map(h => (
-                  <th key={h} className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide" style={{ color: '#A5A3AE' }}>{h}</th>
+                  <th key={h} className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide" style={{ color: '#9CA3AF' }}>{h}</th>
                 ))}
               </tr></thead>
               <tbody>
@@ -38,11 +38,11 @@ export default function CreditNotesPage() {
                     onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#FDFCFF'; }}
                     onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; }}>
                     <td className="px-6 py-3.5 text-sm font-semibold" style={{ color: INVOICE_CONFIG.appColor }}>{d.no}</td>
-                    <td className="px-6 py-3.5 text-xs font-mono" style={{ color: '#A5A3AE' }}>{d.invoice}</td>
-                    <td className="px-6 py-3.5 text-sm" style={{ color: '#433C50' }}>{d.customer}</td>
+                    <td className="px-6 py-3.5 text-xs font-mono" style={{ color: '#9CA3AF' }}>{d.invoice}</td>
+                    <td className="px-6 py-3.5 text-sm" style={{ color: '#1E1B4B' }}>{d.customer}</td>
                     <td className="px-6 py-3.5 text-sm font-semibold" style={{ color: '#EA5455' }}>-{d.amount}</td>
-                    <td className="px-6 py-3.5 text-xs" style={{ color: '#A5A3AE' }}>{d.reason}</td>
-                    <td className="px-6 py-3.5 text-xs" style={{ color: '#A5A3AE' }}>{d.date}</td>
+                    <td className="px-6 py-3.5 text-xs" style={{ color: '#9CA3AF' }}>{d.reason}</td>
+                    <td className="px-6 py-3.5 text-xs" style={{ color: '#9CA3AF' }}>{d.date}</td>
                   </tr>
                 ))}
               </tbody>

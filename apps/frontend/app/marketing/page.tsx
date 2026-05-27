@@ -62,7 +62,7 @@ const VOUCHERS = [
 const STATUS_MAP: Record<string, { label: string; color: string; bg: string }> = {
   active:    { label: 'Aktif',      color: '#4CAF50', bg: 'rgba(76,175,80,.1)' },
   scheduled: { label: 'Terjadwal',  color: '#2196F3', bg: 'rgba(33,150,243,.1)' },
-  done:      { label: 'Selesai',    color: '#A5A3AE', bg: 'rgba(165,163,174,.12)' },
+  done:      { label: 'Selesai',    color: '#9CA3AF', bg: 'rgba(165,163,174,.12)' },
   running:   { label: 'Berjalan',   color: '#9C27B0', bg: 'rgba(156,39,176,.1)' },
   full:      { label: 'Habis',      color: '#EA5455', bg: 'rgba(234,84,85,.1)' },
 };
@@ -91,13 +91,13 @@ export default function MarketingDashboard() {
             return (
               <div key={s.label} className="bg-white rounded-2xl p-5 border" style={{ borderColor: '#EDE8F5' }}>
                 <div className="flex items-center justify-between mb-3">
-                  <p className="text-xs font-medium" style={{ color: '#A5A3AE' }}>{s.label}</p>
+                  <p className="text-xs font-medium" style={{ color: '#9CA3AF' }}>{s.label}</p>
                   <div className="flex h-9 w-9 items-center justify-center rounded-xl" style={{ backgroundColor: s.bg }}>
                     <Icon className="h-5 w-5" style={{ color: s.color }} />
                   </div>
                 </div>
                 <p className="text-2xl font-bold" style={{ color: '#2F2B3D' }}>{s.value}</p>
-                <p className="text-xs mt-1" style={{ color: '#A5A3AE' }}>{s.sub}</p>
+                <p className="text-xs mt-1" style={{ color: '#9CA3AF' }}>{s.sub}</p>
               </div>
             );
           })}
@@ -128,7 +128,7 @@ export default function MarketingDashboard() {
                     { label: 'Revenue', val: ch.revenue },
                   ].map(row => (
                     <div key={row.label} className="flex justify-between text-[11px] py-1 border-b" style={{ borderColor: '#F5F4F9' }}>
-                      <span style={{ color: '#A5A3AE' }}>{row.label}</span>
+                      <span style={{ color: '#9CA3AF' }}>{row.label}</span>
                       <span className="font-semibold" style={{ color: '#2F2B3D' }}>{row.val}</span>
                     </div>
                   ))}
@@ -148,7 +148,7 @@ export default function MarketingDashboard() {
             ].map(t => (
               <button key={t.key} onClick={() => setActiveTab(t.key as any)}
                 className="px-5 py-3.5 text-sm font-semibold border-b-2 transition-all"
-                style={{ borderBottomColor: activeTab === t.key ? '#E53935' : 'transparent', color: activeTab === t.key ? '#E53935' : '#A5A3AE' }}
+                style={{ borderBottomColor: activeTab === t.key ? '#E53935' : 'transparent', color: activeTab === t.key ? '#E53935' : '#9CA3AF' }}
               >{t.label}</button>
             ))}
             <div className="ml-auto px-5">
@@ -163,7 +163,7 @@ export default function MarketingDashboard() {
               <table className="w-full text-xs">
                 <thead><tr style={{ borderBottom: '1px solid #EDE8F5' }}>
                   {['Campaign', 'Channel', 'Audience', 'Terkirim', 'Dibuka', 'Diklik', 'Revenue', 'Status'].map(h => (
-                    <th key={h} className="px-4 py-3 text-left font-semibold" style={{ color: '#A5A3AE' }}>{h}</th>
+                    <th key={h} className="px-4 py-3 text-left font-semibold" style={{ color: '#9CA3AF' }}>{h}</th>
                   ))}
                 </tr></thead>
                 <tbody>
@@ -174,15 +174,15 @@ export default function MarketingDashboard() {
                       <tr key={c.name} className="border-b hover:bg-gray-50" style={{ borderColor: '#F5F4F9' }}>
                         <td className="px-4 py-3">
                           <p className="font-semibold" style={{ color: '#2F2B3D' }}>{c.name}</p>
-                          <p className="text-[10px] mt-0.5" style={{ color: '#A5A3AE' }}>{c.startDate} – {c.endDate}</p>
+                          <p className="text-[10px] mt-0.5" style={{ color: '#9CA3AF' }}>{c.startDate} – {c.endDate}</p>
                         </td>
-                        <td className="px-4 py-3" style={{ color: '#6D6777' }}>{c.channel}</td>
+                        <td className="px-4 py-3" style={{ color: '#6B7280' }}>{c.channel}</td>
                         <td className="px-4 py-3 font-semibold" style={{ color: '#2F2B3D' }}>{c.audience.toLocaleString()}</td>
-                        <td className="px-4 py-3" style={{ color: '#6D6777' }}>{c.sent > 0 ? c.sent.toLocaleString() : '–'}</td>
+                        <td className="px-4 py-3" style={{ color: '#6B7280' }}>{c.sent > 0 ? c.sent.toLocaleString() : '–'}</td>
                         <td className="px-4 py-3">
-                          {c.opened > 0 ? <><span className="font-semibold" style={{ color: '#2F2B3D' }}>{c.opened.toLocaleString()}</span><span className="text-[10px] ml-1" style={{ color: '#A5A3AE' }}>({openRate}%)</span></> : '–'}
+                          {c.opened > 0 ? <><span className="font-semibold" style={{ color: '#2F2B3D' }}>{c.opened.toLocaleString()}</span><span className="text-[10px] ml-1" style={{ color: '#9CA3AF' }}>({openRate}%)</span></> : '–'}
                         </td>
-                        <td className="px-4 py-3" style={{ color: '#6D6777' }}>{c.clicked > 0 ? c.clicked.toLocaleString() : '–'}</td>
+                        <td className="px-4 py-3" style={{ color: '#6B7280' }}>{c.clicked > 0 ? c.clicked.toLocaleString() : '–'}</td>
                         <td className="px-4 py-3 font-bold" style={{ color: '#4CAF50' }}>{c.revenue}</td>
                         <td className="px-4 py-3">
                           <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold" style={{ backgroundColor: st.bg, color: st.color }}>{st.label}</span>
@@ -210,7 +210,7 @@ export default function MarketingDashboard() {
                         <p className="text-xs font-bold" style={{ color: '#2F2B3D' }}>{m.template}</p>
                         <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ backgroundColor: st.bg, color: st.color }}>{st.label}</span>
                       </div>
-                      <div className="flex gap-4 text-[11px]" style={{ color: '#A5A3AE' }}>
+                      <div className="flex gap-4 text-[11px]" style={{ color: '#9CA3AF' }}>
                         <span>Terkirim: <b style={{ color: '#2F2B3D' }}>{m.sent.toLocaleString()}</b></span>
                         <span>Diterima: <b style={{ color: '#2F2B3D' }}>{m.delivered.toLocaleString()}</b></span>
                         <span>Dibaca: <b style={{ color: '#2E7D32' }}>{m.read.toLocaleString()}</b></span>
@@ -218,7 +218,7 @@ export default function MarketingDashboard() {
                     </div>
                     <div className="text-right flex-shrink-0">
                       <p className="text-lg font-bold" style={{ color: '#2E7D32' }}>{m.rate}</p>
-                      <p className="text-[10px]" style={{ color: '#A5A3AE' }}>Read rate</p>
+                      <p className="text-[10px]" style={{ color: '#9CA3AF' }}>Read rate</p>
                     </div>
                   </div>
                 );
@@ -246,7 +246,7 @@ export default function MarketingDashboard() {
                         <div className="flex-1 h-1.5 rounded-full" style={{ backgroundColor: '#EDE8F5' }}>
                           <div className="h-1.5 rounded-full" style={{ width: `${usedPct}%`, backgroundColor: '#AD1457' }} />
                         </div>
-                        <span className="text-[10px]" style={{ color: '#A5A3AE' }}>{v.used}/{v.limit} · {usedPct}%</span>
+                        <span className="text-[10px]" style={{ color: '#9CA3AF' }}>{v.used}/{v.limit} · {usedPct}%</span>
                       </div>
                       <p className="text-[10px] mt-1" style={{ color: '#B0AAB9' }}>Berlaku s.d. {v.exp}</p>
                     </div>

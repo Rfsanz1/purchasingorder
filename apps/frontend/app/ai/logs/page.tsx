@@ -20,7 +20,7 @@ const AI_LOGS = [
 ];
 
 const MODULE_COLORS: Record<string, string> = {
-  'AI Chat': '#714B67', 'AI Automation': '#22C55E', 'AI Forecast': '#3B82F6',
+  'AI Chat': '#5B52D1', 'AI Automation': '#22C55E', 'AI Forecast': '#3B82F6',
   'AI Notification': '#F59E0B', 'AI Report': '#8B5CF6', 'AI Marketplace': '#F97316',
   'AI Inventory': '#14B8A6', 'AI HR': '#6366F1',
 };
@@ -55,14 +55,14 @@ export default function AiLogsPage() {
         {/* Stats */}
         <div className="grid grid-cols-4 gap-4">
           {[
-            { label: 'Total Hari Ini', value: AI_LOGS.length, color: '#714B67' },
+            { label: 'Total Hari Ini', value: AI_LOGS.length, color: '#5B52D1' },
             { label: 'Berhasil', value: successCount, color: '#22C55E' },
             { label: 'Gagal', value: errorCount, color: '#EF4444' },
             { label: 'Avg. Duration', value: '8.4s', color: '#3B82F6' },
           ].map((s, i) => (
-            <div key={i} className="rounded-2xl p-4" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #E9E0F8' }}>
+            <div key={i} className="rounded-2xl p-4" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE' }}>
               <p className="text-2xl font-bold" style={{ color: s.color }}>{s.value}</p>
-              <p className="text-xs mt-1" style={{ color: '#A5A3AE' }}>{s.label}</p>
+              <p className="text-xs mt-1" style={{ color: '#9CA3AF' }}>{s.label}</p>
             </div>
           ))}
         </div>
@@ -70,13 +70,13 @@ export default function AiLogsPage() {
         {/* Filters */}
         <div className="flex items-center gap-3 flex-wrap">
           <div className="flex-1 max-w-sm relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: '#A5A3AE' }} />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: '#9CA3AF' }} />
             <input
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Cari log..."
               className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm"
-              style={{ border: '1.5px solid #E9E0F8', color: '#433C50', outline: 'none' }}
+              style={{ border: '1.5px solid #EDE9FE', color: '#1E1B4B', outline: 'none' }}
             />
           </div>
           <div className="flex gap-2 flex-wrap">
@@ -86,45 +86,45 @@ export default function AiLogsPage() {
                 onClick={() => setModuleFilter(m)}
                 className="px-3 py-2 rounded-xl text-xs font-semibold transition"
                 style={{
-                  backgroundColor: moduleFilter === m ? '#714B67' : '#FFFFFF',
-                  color: moduleFilter === m ? '#FFFFFF' : '#6D6777',
-                  border: `1.5px solid ${moduleFilter === m ? '#714B67' : '#E9E0F8'}`,
+                  backgroundColor: moduleFilter === m ? '#5B52D1' : '#FFFFFF',
+                  color: moduleFilter === m ? '#FFFFFF' : '#6B7280',
+                  border: `1.5px solid ${moduleFilter === m ? '#5B52D1' : '#EDE9FE'}`,
                 }}
               >
                 {m === 'all' ? 'Semua' : m}
               </button>
             ))}
           </div>
-          <button className="ml-auto flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold" style={{ border: '1.5px solid #E9E0F8', color: '#6D6777' }}>
+          <button className="ml-auto flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold" style={{ border: '1.5px solid #EDE9FE', color: '#6B7280' }}>
             <Download className="h-3.5 w-3.5" /> Export
           </button>
         </div>
 
         {/* Logs Table */}
-        <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #E9E0F8' }}>
+        <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE' }}>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr style={{ backgroundColor: '#F8F7FC' }}>
+                <tr style={{ backgroundColor: '#F5F3FF' }}>
                   {['ID', 'Modul', 'Aksi', 'User', 'Durasi', 'Status', 'Waktu'].map(h => (
-                    <th key={h} className="px-4 py-3 text-left text-xs font-semibold" style={{ color: '#6D6777' }}>{h}</th>
+                    <th key={h} className="px-4 py-3 text-left text-xs font-semibold" style={{ color: '#6B7280' }}>{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {filtered.map((l, i) => {
-                  const color = MODULE_COLORS[l.module] ?? '#714B67';
+                  const color = MODULE_COLORS[l.module] ?? '#5B52D1';
                   return (
                     <tr key={i} className="hover:bg-gray-50 transition-colors" style={{ borderTop: '1px solid #F0EDF8' }}>
-                      <td className="px-4 py-3 text-xs font-mono font-semibold" style={{ color: '#A5A3AE' }}>{l.id}</td>
+                      <td className="px-4 py-3 text-xs font-mono font-semibold" style={{ color: '#9CA3AF' }}>{l.id}</td>
                       <td className="px-4 py-3">
                         <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold" style={{ backgroundColor: color + '15', color }}>
                           {l.module}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-xs max-w-64 truncate" style={{ color: '#433C50' }}>{l.action}</td>
-                      <td className="px-4 py-3 text-xs" style={{ color: '#6D6777' }}>{l.user}</td>
-                      <td className="px-4 py-3 text-xs font-mono" style={{ color: '#A5A3AE' }}>{l.duration}</td>
+                      <td className="px-4 py-3 text-xs max-w-64 truncate" style={{ color: '#1E1B4B' }}>{l.action}</td>
+                      <td className="px-4 py-3 text-xs" style={{ color: '#6B7280' }}>{l.user}</td>
+                      <td className="px-4 py-3 text-xs font-mono" style={{ color: '#9CA3AF' }}>{l.duration}</td>
                       <td className="px-4 py-3">
                         <span className="flex items-center gap-1 text-[10px] font-semibold" style={{ color: l.status === 'success' ? '#22C55E' : '#EF4444' }}>
                           {l.status === 'success' ? <CheckCircle className="h-3 w-3" /> : <AlertTriangle className="h-3 w-3" />}
@@ -132,8 +132,8 @@ export default function AiLogsPage() {
                         </span>
                       </td>
                       <td className="px-4 py-3">
-                        <p className="text-xs" style={{ color: '#433C50' }}>{l.time}</p>
-                        <p className="text-[10px]" style={{ color: '#A5A3AE' }}>{l.date}</p>
+                        <p className="text-xs" style={{ color: '#1E1B4B' }}>{l.time}</p>
+                        <p className="text-[10px]" style={{ color: '#9CA3AF' }}>{l.date}</p>
                       </td>
                     </tr>
                   );
@@ -143,8 +143,8 @@ export default function AiLogsPage() {
           </div>
           {filtered.length === 0 && (
             <div className="p-12 text-center">
-              <ScrollText className="h-8 w-8 mx-auto mb-2" style={{ color: '#A5A3AE' }} />
-              <p className="text-sm" style={{ color: '#A5A3AE' }}>Tidak ada log ditemukan</p>
+              <ScrollText className="h-8 w-8 mx-auto mb-2" style={{ color: '#9CA3AF' }} />
+              <p className="text-sm" style={{ color: '#9CA3AF' }}>Tidak ada log ditemukan</p>
             </div>
           )}
         </div>

@@ -58,7 +58,7 @@ export default function GudangPage() {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.2em]" style={{ color: '#F57C00' }}>Gudang</p>
-            <h1 className="text-2xl font-bold" style={{ color: '#433C50' }}>Dashboard Gudang</h1>
+            <h1 className="text-2xl font-bold" style={{ color: '#1E1B4B' }}>Dashboard Gudang</h1>
             <p className="text-sm mt-1" style={{ color: '#7C7C8A' }}>Monitoring proses picking, penerimaan, dan pengiriman barang.</p>
           </div>
           <button
@@ -88,7 +88,7 @@ export default function GudangPage() {
 
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
           <div className="rounded-3xl bg-white p-6 border border-[#F3EBF7] shadow-sm">
-            <h2 className="text-lg font-semibold" style={{ color: '#433C50' }}>Workflow Gudang</h2>
+            <h2 className="text-lg font-semibold" style={{ color: '#1E1B4B' }}>Workflow Gudang</h2>
             <div className="mt-4 space-y-3 text-sm text-[#5B5B6D]">
               <p>1. Sales membuat order masuk.</p>
               <p>2. Gudang menerima dan melakukan picking barang.</p>
@@ -99,7 +99,7 @@ export default function GudangPage() {
           </div>
 
           <div className="rounded-3xl bg-white p-6 border border-[#F3EBF7] shadow-sm">
-            <h2 className="text-lg font-semibold" style={{ color: '#433C50' }}>Notifikasi Realtime</h2>
+            <h2 className="text-lg font-semibold" style={{ color: '#1E1B4B' }}>Notifikasi Realtime</h2>
             <p className="mt-3 text-sm text-[#5B5B6D]">Gudang akan menerima notifikasi setiap ada order baru dan pengingat stok menipis.</p>
             <div className="mt-5 grid gap-3">
               <div className="rounded-2xl border border-[#F5F1EE] bg-[#FFF8E9] p-4">

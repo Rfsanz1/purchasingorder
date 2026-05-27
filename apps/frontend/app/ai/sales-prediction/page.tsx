@@ -64,10 +64,10 @@ export default function AiSalesPredictionPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Salesman Prediction */}
-          <div className="rounded-2xl" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #E9E0F8' }}>
-            <div className="px-5 py-4" style={{ borderBottom: '1px solid #E9E0F8' }}>
-              <h3 className="font-bold text-sm flex items-center gap-2" style={{ color: '#433C50' }}>
-                <Users className="h-4 w-4" style={{ color: '#714B67' }} /> Prediksi per Salesman (Jun 2026)
+          <div className="rounded-2xl" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE' }}>
+            <div className="px-5 py-4" style={{ borderBottom: '1px solid #EDE9FE' }}>
+              <h3 className="font-bold text-sm flex items-center gap-2" style={{ color: '#1E1B4B' }}>
+                <Users className="h-4 w-4" style={{ color: '#5B52D1' }} /> Prediksi per Salesman (Jun 2026)
               </h3>
             </div>
             <div className="p-5 space-y-5">
@@ -78,7 +78,7 @@ export default function AiSalesPredictionPage() {
                       <div className="flex h-7 w-7 items-center justify-center rounded-full text-white text-xs font-bold" style={{ background: 'linear-gradient(135deg, #EC4899, #BE185D)' }}>
                         {s.name.charAt(0)}
                       </div>
-                      <p className="text-xs font-semibold" style={{ color: '#433C50' }}>{s.name}</p>
+                      <p className="text-xs font-semibold" style={{ color: '#1E1B4B' }}>{s.name}</p>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-xs font-bold" style={{ color: '#EC4899' }}>Rp {s.predictedRevenue}jt</span>
@@ -90,13 +90,13 @@ export default function AiSalesPredictionPage() {
                       </span>
                     </div>
                   </div>
-                  <div className="relative h-2 rounded-full" style={{ backgroundColor: '#E9E0F8' }}>
+                  <div className="relative h-2 rounded-full" style={{ backgroundColor: '#EDE9FE' }}>
                     <div className="absolute h-2 rounded-full" style={{ width: `${(s.predictedRevenue / s.target) * 100}%`, backgroundColor: '#EC4899' }} />
-                    <div className="absolute top-1/2 -translate-y-1/2 h-4 w-0.5 rounded" style={{ left: '100%', backgroundColor: '#433C50' }} />
+                    <div className="absolute top-1/2 -translate-y-1/2 h-4 w-0.5 rounded" style={{ left: '100%', backgroundColor: '#1E1B4B' }} />
                   </div>
                   <div className="flex items-center justify-between mt-1">
-                    <span className="text-[10px]" style={{ color: '#A5A3AE' }}>Saat ini: Rp {s.currentRevenue}jt</span>
-                    <span className="text-[10px]" style={{ color: '#A5A3AE' }}>Target: Rp {s.target}jt</span>
+                    <span className="text-[10px]" style={{ color: '#9CA3AF' }}>Saat ini: Rp {s.currentRevenue}jt</span>
+                    <span className="text-[10px]" style={{ color: '#9CA3AF' }}>Target: Rp {s.target}jt</span>
                   </div>
                 </div>
               ))}
@@ -104,18 +104,18 @@ export default function AiSalesPredictionPage() {
           </div>
 
           {/* Product Prediction */}
-          <div className="rounded-2xl" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #E9E0F8' }}>
-            <div className="px-5 py-4" style={{ borderBottom: '1px solid #E9E0F8' }}>
-              <h3 className="font-bold text-sm flex items-center gap-2" style={{ color: '#433C50' }}>
+          <div className="rounded-2xl" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE' }}>
+            <div className="px-5 py-4" style={{ borderBottom: '1px solid #EDE9FE' }}>
+              <h3 className="font-bold text-sm flex items-center gap-2" style={{ color: '#1E1B4B' }}>
                 <Star className="h-4 w-4 text-amber-400" /> Prediksi per Produk (Jun 2026)
               </h3>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr style={{ backgroundColor: '#F8F7FC' }}>
+                  <tr style={{ backgroundColor: '#F5F3FF' }}>
                     {['Produk', 'Lalu', 'Prediksi', 'Growth'].map(h => (
-                      <th key={h} className="px-4 py-3 text-left text-xs font-semibold" style={{ color: '#6D6777' }}>{h}</th>
+                      <th key={h} className="px-4 py-3 text-left text-xs font-semibold" style={{ color: '#6B7280' }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -123,11 +123,11 @@ export default function AiSalesPredictionPage() {
                   {PRODUCT_PREDICTION.map((p, i) => (
                     <tr key={i} className="hover:bg-gray-50" style={{ borderTop: '1px solid #F0EDF8' }}>
                       <td className="px-4 py-3">
-                        <p className="text-xs font-semibold" style={{ color: '#433C50' }}>{p.name}</p>
-                        <p className="text-[10px]" style={{ color: '#A5A3AE' }}>{p.category}</p>
+                        <p className="text-xs font-semibold" style={{ color: '#1E1B4B' }}>{p.name}</p>
+                        <p className="text-[10px]" style={{ color: '#9CA3AF' }}>{p.category}</p>
                       </td>
-                      <td className="px-4 py-3 text-xs" style={{ color: '#6D6777' }}>{p.lastMonth.toLocaleString()}</td>
-                      <td className="px-4 py-3 text-xs font-bold" style={{ color: '#433C50' }}>{p.predicted.toLocaleString()}</td>
+                      <td className="px-4 py-3 text-xs" style={{ color: '#6B7280' }}>{p.lastMonth.toLocaleString()}</td>
+                      <td className="px-4 py-3 text-xs font-bold" style={{ color: '#1E1B4B' }}>{p.predicted.toLocaleString()}</td>
                       <td className="px-4 py-3">
                         <span className="flex items-center gap-0.5 text-xs font-semibold" style={{ color: p.growth >= 0 ? '#22C55E' : '#EF4444' }}>
                           {p.growth >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}

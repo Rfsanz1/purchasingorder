@@ -109,13 +109,13 @@ export default function WebsiteDashboard() {
             return (
               <div key={s.label} className="bg-white rounded-2xl p-5 border" style={{ borderColor: '#EDE8F5' }}>
                 <div className="flex items-center justify-between mb-3">
-                  <p className="text-xs font-medium" style={{ color: '#A5A3AE' }}>{s.label}</p>
+                  <p className="text-xs font-medium" style={{ color: '#9CA3AF' }}>{s.label}</p>
                   <div className="flex h-9 w-9 items-center justify-center rounded-xl" style={{ backgroundColor: s.bg }}>
                     <Icon className="h-5 w-5" style={{ color: s.color }} />
                   </div>
                 </div>
                 <p className="text-2xl font-bold" style={{ color: '#2F2B3D' }}>{s.value}</p>
-                <p className="text-xs mt-1" style={{ color: '#A5A3AE' }}>{s.sub}</p>
+                <p className="text-xs mt-1" style={{ color: '#9CA3AF' }}>{s.sub}</p>
               </div>
             );
           })}
@@ -133,17 +133,17 @@ export default function WebsiteDashboard() {
                 <table className="w-full text-xs">
                   <thead><tr style={{ borderBottom: '1px solid #EDE8F5' }}>
                     {['Halaman', 'Path', 'Views', 'Bounce', 'Edit Terakhir', 'Status'].map(h => (
-                      <th key={h} className="px-4 py-3 text-left font-semibold" style={{ color: '#A5A3AE' }}>{h}</th>
+                      <th key={h} className="px-4 py-3 text-left font-semibold" style={{ color: '#9CA3AF' }}>{h}</th>
                     ))}
                   </tr></thead>
                   <tbody>
                     {PAGES.map(p => (
                       <tr key={p.path} className="border-b hover:bg-gray-50" style={{ borderColor: '#F5F4F9' }}>
                         <td className="px-4 py-3 font-semibold" style={{ color: '#2F2B3D' }}>{p.name}</td>
-                        <td className="px-4 py-3 font-mono text-[10px]" style={{ color: '#A5A3AE' }}>{p.path}</td>
+                        <td className="px-4 py-3 font-mono text-[10px]" style={{ color: '#9CA3AF' }}>{p.path}</td>
                         <td className="px-4 py-3 font-semibold" style={{ color: '#2F2B3D' }}>{p.views.toLocaleString()}</td>
-                        <td className="px-4 py-3" style={{ color: '#6D6777' }}>{p.bounce}</td>
-                        <td className="px-4 py-3" style={{ color: '#A5A3AE' }}>{p.lastEdit}</td>
+                        <td className="px-4 py-3" style={{ color: '#6B7280' }}>{p.bounce}</td>
+                        <td className="px-4 py-3" style={{ color: '#9CA3AF' }}>{p.lastEdit}</td>
                         <td className="px-4 py-3">
                           <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold" style={{ backgroundColor: p.status === 'published' ? 'rgba(76,175,80,.1)' : 'rgba(255,152,0,.1)', color: p.status === 'published' ? '#4CAF50' : '#FF9800' }}>
                             {p.status === 'published' ? 'Publish' : 'Draft'}
@@ -170,7 +170,7 @@ export default function WebsiteDashboard() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-semibold truncate" style={{ color: '#2F2B3D' }}>{b.title}</p>
-                      <p className="text-[11px] mt-0.5" style={{ color: '#A5A3AE' }}>{b.date} · {b.views.toLocaleString()} views · {b.comments} komentar</p>
+                      <p className="text-[11px] mt-0.5" style={{ color: '#9CA3AF' }}>{b.date} · {b.views.toLocaleString()} views · {b.comments} komentar</p>
                     </div>
                     <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0" style={{ backgroundColor: b.status === 'published' ? 'rgba(76,175,80,.1)' : 'rgba(255,152,0,.1)', color: b.status === 'published' ? '#4CAF50' : '#FF9800' }}>
                       {b.status === 'published' ? 'Publish' : 'Draft'}
@@ -224,7 +224,7 @@ export default function WebsiteDashboard() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-semibold" style={{ color: '#2F2B3D' }}>{c.customer}</p>
-                      <p className="text-[11px] truncate" style={{ color: '#A5A3AE' }}>{c.message}</p>
+                      <p className="text-[11px] truncate" style={{ color: '#9CA3AF' }}>{c.message}</p>
                       <p className="text-[10px] mt-0.5" style={{ color: '#B0AAB9' }}>{c.time}</p>
                     </div>
                     <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0 ${c.status === 'waiting' ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-blue-600'}`}>

@@ -67,22 +67,22 @@ export default function AiHrAssistantPage() {
         {/* HR Metrics */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {HR_INSIGHTS.map((h, i) => (
-            <div key={i} className="rounded-2xl p-4" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #E9E0F8' }}>
+            <div key={i} className="rounded-2xl p-4" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE' }}>
               <div className="flex h-9 w-9 items-center justify-center rounded-xl mb-3" style={{ backgroundColor: h.color + '15' }}>
                 <h.icon className="h-4.5 w-4.5" style={{ color: h.color }} />
               </div>
-              <p className="text-xl font-bold" style={{ color: '#433C50' }}>{h.value}</p>
-              <p className="text-xs font-semibold mt-0.5" style={{ color: '#6D6777' }}>{h.title}</p>
-              <p className="text-[10px] mt-0.5" style={{ color: '#A5A3AE' }}>{h.sub}</p>
+              <p className="text-xl font-bold" style={{ color: '#1E1B4B' }}>{h.value}</p>
+              <p className="text-xs font-semibold mt-0.5" style={{ color: '#6B7280' }}>{h.title}</p>
+              <p className="text-[10px] mt-0.5" style={{ color: '#9CA3AF' }}>{h.sub}</p>
             </div>
           ))}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* AI Recommendations */}
-          <div className="rounded-2xl" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #E9E0F8' }}>
-            <div className="px-5 py-4" style={{ borderBottom: '1px solid #E9E0F8' }}>
-              <h3 className="font-bold text-sm flex items-center gap-2" style={{ color: '#433C50' }}>
+          <div className="rounded-2xl" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE' }}>
+            <div className="px-5 py-4" style={{ borderBottom: '1px solid #EDE9FE' }}>
+              <h3 className="font-bold text-sm flex items-center gap-2" style={{ color: '#1E1B4B' }}>
                 <AlertCircle className="h-4 w-4" style={{ color: '#6366F1' }} /> AI HR Recommendations
               </h3>
             </div>
@@ -93,7 +93,7 @@ export default function AiHrAssistantPage() {
                   <div key={i} className="flex items-start gap-3 p-3 rounded-xl" style={{ backgroundColor: cfg.bg, border: `1px solid ${cfg.color}25` }}>
                     <div className="h-1.5 w-1.5 rounded-full mt-1.5 flex-shrink-0" style={{ backgroundColor: cfg.color }} />
                     <div className="flex-1">
-                      <p className="text-xs" style={{ color: '#433C50' }}>{r.msg}</p>
+                      <p className="text-xs" style={{ color: '#1E1B4B' }}>{r.msg}</p>
                       <span className="text-[10px] font-semibold mt-1 inline-block" style={{ color: cfg.color }}>{cfg.label}</span>
                     </div>
                   </div>
@@ -103,18 +103,18 @@ export default function AiHrAssistantPage() {
           </div>
 
           {/* Attendance Today */}
-          <div className="rounded-2xl" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #E9E0F8' }}>
-            <div className="px-5 py-4" style={{ borderBottom: '1px solid #E9E0F8' }}>
-              <h3 className="font-bold text-sm flex items-center gap-2" style={{ color: '#433C50' }}>
+          <div className="rounded-2xl" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE' }}>
+            <div className="px-5 py-4" style={{ borderBottom: '1px solid #EDE9FE' }}>
+              <h3 className="font-bold text-sm flex items-center gap-2" style={{ color: '#1E1B4B' }}>
                 <CalendarCheck className="h-4 w-4" style={{ color: '#6366F1' }} /> Kehadiran Hari Ini per Departemen
               </h3>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr style={{ backgroundColor: '#F8F7FC' }}>
+                  <tr style={{ backgroundColor: '#F5F3FF' }}>
                     {['Departemen', 'Total', 'Hadir', 'Izin', 'Alpha', 'Sakit', '%'].map(h => (
-                      <th key={h} className="px-4 py-2.5 text-left text-xs font-semibold" style={{ color: '#6D6777' }}>{h}</th>
+                      <th key={h} className="px-4 py-2.5 text-left text-xs font-semibold" style={{ color: '#6B7280' }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -123,8 +123,8 @@ export default function AiHrAssistantPage() {
                     const pct = Math.round((d.hadir / d.total) * 100);
                     return (
                       <tr key={i} className="hover:bg-gray-50 transition-colors" style={{ borderTop: '1px solid #F0EDF8' }}>
-                        <td className="px-4 py-2.5 text-xs font-semibold" style={{ color: '#433C50' }}>{d.dept}</td>
-                        <td className="px-4 py-2.5 text-xs" style={{ color: '#6D6777' }}>{d.total}</td>
+                        <td className="px-4 py-2.5 text-xs font-semibold" style={{ color: '#1E1B4B' }}>{d.dept}</td>
+                        <td className="px-4 py-2.5 text-xs" style={{ color: '#6B7280' }}>{d.total}</td>
                         <td className="px-4 py-2.5 text-xs font-semibold" style={{ color: '#22C55E' }}>{d.hadir}</td>
                         <td className="px-4 py-2.5 text-xs" style={{ color: '#F59E0B' }}>{d.izin}</td>
                         <td className="px-4 py-2.5 text-xs" style={{ color: '#EF4444' }}>{d.alpha}</td>
@@ -147,13 +147,13 @@ export default function AiHrAssistantPage() {
             { label: 'Lihat Data Karyawan', href: '/hr/employees', icon: Users, color: '#6366F1' },
             { label: 'Rekap Absensi', href: '/hr/attendances', icon: CalendarCheck, color: '#22C55E' },
             { label: 'Proses Payroll', href: '/hr/payrolls/batch', icon: FileText, color: '#F59E0B' },
-            { label: 'Chat AI HR', href: '/ai/chatbot', icon: MessageSquare, color: '#714B67' },
+            { label: 'Chat AI HR', href: '/ai/chatbot', icon: MessageSquare, color: '#5B52D1' },
           ].map((q, i) => (
-            <a key={i} href={q.href} className="rounded-2xl p-4 flex items-center gap-3 hover:shadow-md transition-all" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #E9E0F8' }}>
+            <a key={i} href={q.href} className="rounded-2xl p-4 flex items-center gap-3 hover:shadow-md transition-all" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE' }}>
               <div className="flex h-9 w-9 items-center justify-center rounded-xl" style={{ backgroundColor: q.color + '15' }}>
                 <q.icon className="h-4.5 w-4.5" style={{ color: q.color }} />
               </div>
-              <p className="text-xs font-semibold" style={{ color: '#433C50' }}>{q.label}</p>
+              <p className="text-xs font-semibold" style={{ color: '#1E1B4B' }}>{q.label}</p>
             </a>
           ))}
         </div>

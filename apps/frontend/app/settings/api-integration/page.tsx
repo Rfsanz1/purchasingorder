@@ -41,32 +41,32 @@ export default function ApiIntegrationPage() {
         {/* Stats */}
         <div className="grid grid-cols-4 gap-4">
           {[
-            { label: 'Total Integrasi', value: INTEGRATIONS.length, color: '#714B67' },
+            { label: 'Total Integrasi', value: INTEGRATIONS.length, color: '#5B52D1' },
             { label: 'Terhubung', value: INTEGRATIONS.filter(i => i.status === 'connected').length, color: '#22C55E' },
             { label: 'Error', value: INTEGRATIONS.filter(i => i.status === 'error').length, color: '#EF4444' },
             { label: 'Belum Terhubung', value: INTEGRATIONS.filter(i => i.status === 'disconnected').length, color: '#6B7280' },
           ].map((s, i) => (
-            <div key={i} className="rounded-2xl p-4" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #E9E0F8' }}>
+            <div key={i} className="rounded-2xl p-4" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE' }}>
               <p className="text-2xl font-bold" style={{ color: s.color }}>{s.value}</p>
-              <p className="text-xs mt-1" style={{ color: '#A5A3AE' }}>{s.label}</p>
+              <p className="text-xs mt-1" style={{ color: '#9CA3AF' }}>{s.label}</p>
             </div>
           ))}
         </div>
 
         {/* Integrations Grid */}
         <div>
-          <h3 className="font-bold mb-4" style={{ color: '#433C50' }}>Integrasi Third-Party</h3>
+          <h3 className="font-bold mb-4" style={{ color: '#1E1B4B' }}>Integrasi Third-Party</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {INTEGRATIONS.map((int, i) => (
               <div
                 key={i}
                 className="rounded-2xl p-5 flex items-center gap-4"
-                style={{ backgroundColor: '#FFFFFF', border: `1.5px solid ${int.status === 'error' ? 'rgba(239,68,68,.3)' : '#E9E0F8'}` }}
+                style={{ backgroundColor: '#FFFFFF', border: `1.5px solid ${int.status === 'error' ? 'rgba(239,68,68,.3)' : '#EDE9FE'}` }}
               >
                 <div className="text-2xl flex-shrink-0">{int.icon}</div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <p className="font-bold text-sm" style={{ color: '#433C50' }}>{int.name}</p>
+                    <p className="font-bold text-sm" style={{ color: '#1E1B4B' }}>{int.name}</p>
                     <span className="flex items-center gap-0.5 text-[10px] font-semibold" style={{
                       color: int.status === 'connected' ? '#22C55E' : int.status === 'error' ? '#EF4444' : '#6B7280',
                     }}>
@@ -74,8 +74,8 @@ export default function ApiIntegrationPage() {
                       {int.status === 'connected' ? 'Terhubung' : int.status === 'error' ? 'Error' : 'Belum Terhubung'}
                     </span>
                   </div>
-                  <p className="text-xs mt-0.5 truncate" style={{ color: '#A5A3AE' }}>{int.desc}</p>
-                  <p className="text-[10px] mt-0.5" style={{ color: '#A5A3AE' }}>Sync: {int.lastSync}</p>
+                  <p className="text-xs mt-0.5 truncate" style={{ color: '#9CA3AF' }}>{int.desc}</p>
+                  <p className="text-[10px] mt-0.5" style={{ color: '#9CA3AF' }}>Sync: {int.lastSync}</p>
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
                   {int.status === 'error' && (
@@ -83,7 +83,7 @@ export default function ApiIntegrationPage() {
                       <RefreshCw className="h-3.5 w-3.5" />
                     </button>
                   )}
-                  <button className="p-1.5 rounded-lg hover:bg-gray-100 transition" style={{ color: '#A5A3AE' }}>
+                  <button className="p-1.5 rounded-lg hover:bg-gray-100 transition" style={{ color: '#9CA3AF' }}>
                     <Settings className="h-3.5 w-3.5" />
                   </button>
                 </div>
@@ -95,22 +95,22 @@ export default function ApiIntegrationPage() {
         {/* API Keys */}
         <div>
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-bold" style={{ color: '#433C50' }}>API Keys</h3>
-            <button className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold" style={{ backgroundColor: 'rgba(113,75,103,.1)', color: '#714B67' }}>
+            <h3 className="font-bold" style={{ color: '#1E1B4B' }}>API Keys</h3>
+            <button className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold" style={{ backgroundColor: 'rgba(91,82,209,.1)', color: '#5B52D1' }}>
               <Key className="h-3.5 w-3.5" /> Generate Key Baru
             </button>
           </div>
           <div className="space-y-3">
             {API_KEYS.map((k, i) => (
-              <div key={i} className="rounded-2xl p-4 flex items-center gap-4" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #E9E0F8' }}>
-                <Key className="h-5 w-5 flex-shrink-0" style={{ color: '#714B67' }} />
+              <div key={i} className="rounded-2xl p-4 flex items-center gap-4" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE' }}>
+                <Key className="h-5 w-5 flex-shrink-0" style={{ color: '#5B52D1' }} />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold" style={{ color: '#433C50' }}>{k.name}</p>
-                  <p className="text-xs font-mono mt-0.5" style={{ color: '#A5A3AE' }}>{k.key}</p>
-                  <p className="text-[10px] mt-0.5" style={{ color: '#A5A3AE' }}>Dibuat: {k.created} · Terakhir digunakan: {k.lastUsed}</p>
+                  <p className="text-sm font-semibold" style={{ color: '#1E1B4B' }}>{k.name}</p>
+                  <p className="text-xs font-mono mt-0.5" style={{ color: '#9CA3AF' }}>{k.key}</p>
+                  <p className="text-[10px] mt-0.5" style={{ color: '#9CA3AF' }}>Dibuat: {k.created} · Terakhir digunakan: {k.lastUsed}</p>
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
-                  <button className="text-xs font-semibold px-3 py-1.5 rounded-xl" style={{ backgroundColor: '#F8F7FC', color: '#433C50' }}>Salin</button>
+                  <button className="text-xs font-semibold px-3 py-1.5 rounded-xl" style={{ backgroundColor: '#F5F3FF', color: '#1E1B4B' }}>Salin</button>
                   <button className="text-xs font-semibold px-3 py-1.5 rounded-xl" style={{ backgroundColor: 'rgba(239,68,68,.1)', color: '#DC2626' }}>Revoke</button>
                 </div>
               </div>

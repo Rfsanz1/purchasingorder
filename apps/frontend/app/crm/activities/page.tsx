@@ -29,8 +29,8 @@ export default function CrmActivitiesPage() {
       <div className="p-6 space-y-6 max-w-4xl mx-auto">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold" style={{ color: '#433C50' }}>Aktivitas CRM</h1>
-            <p className="text-sm mt-0.5" style={{ color: '#A5A3AE' }}>Jadwal panggilan, email, dan meeting</p>
+            <h1 className="text-xl font-bold" style={{ color: '#1E1B4B' }}>Aktivitas CRM</h1>
+            <p className="text-sm mt-0.5" style={{ color: '#9CA3AF' }}>Jadwal panggilan, email, dan meeting</p>
           </div>
           <button className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold text-white" style={{ backgroundColor: CRM_CONFIG.appColor }}>
             <Plus className="h-4 w-4" /> Aktivitas Baru
@@ -39,20 +39,20 @@ export default function CrmActivitiesPage() {
         <div className="space-y-3">
           {ACTIVITIES.map((a, i) => {
             const Icon = TYPE_ICON[a.type as keyof typeof TYPE_ICON] ?? Calendar;
-            const color = TYPE_COLOR[a.type as keyof typeof TYPE_COLOR] ?? '#A5A3AE';
+            const color = TYPE_COLOR[a.type as keyof typeof TYPE_COLOR] ?? '#9CA3AF';
             return (
               <div key={i} className="bg-white rounded-2xl p-4 flex items-center gap-4" style={{ border: '1.5px solid #EDE8F5', boxShadow: '0 1px 4px rgba(47,43,61,.06)', opacity: a.done ? 0.55 : 1 }}>
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl flex-shrink-0" style={{ backgroundColor: `${color}1A` }}>
                   <Icon className="h-5 w-5" style={{ color }} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold" style={{ color: '#433C50', textDecoration: a.done ? 'line-through' : 'none' }}>{a.title}</p>
-                  <p className="text-xs mt-0.5" style={{ color: '#A5A3AE' }}>{a.lead}</p>
+                  <p className="text-sm font-semibold" style={{ color: '#1E1B4B', textDecoration: a.done ? 'line-through' : 'none' }}>{a.title}</p>
+                  <p className="text-xs mt-0.5" style={{ color: '#9CA3AF' }}>{a.lead}</p>
                 </div>
                 <div className="flex items-center gap-3 flex-shrink-0">
                   <div className="flex items-center gap-1">
-                    <Clock className="h-3 w-3" style={{ color: '#A5A3AE' }} />
-                    <span className="text-xs" style={{ color: '#A5A3AE' }}>{a.due}</span>
+                    <Clock className="h-3 w-3" style={{ color: '#9CA3AF' }} />
+                    <span className="text-xs" style={{ color: '#9CA3AF' }}>{a.due}</span>
                   </div>
                   {a.done
                     ? <CheckCircle className="h-5 w-5" style={{ color: '#4CAF50' }} />

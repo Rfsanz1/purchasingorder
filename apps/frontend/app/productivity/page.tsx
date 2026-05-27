@@ -84,13 +84,13 @@ export default function ProductivityDashboard() {
             return (
               <div key={s.label} className="bg-white rounded-2xl p-5 border" style={{ borderColor: '#EDE8F5' }}>
                 <div className="flex items-center justify-between mb-3">
-                  <p className="text-xs font-medium" style={{ color: '#A5A3AE' }}>{s.label}</p>
+                  <p className="text-xs font-medium" style={{ color: '#9CA3AF' }}>{s.label}</p>
                   <div className="flex h-9 w-9 items-center justify-center rounded-xl" style={{ backgroundColor: s.bg }}>
                     <Icon className="h-5 w-5" style={{ color: s.color }} />
                   </div>
                 </div>
                 <p className="text-2xl font-bold" style={{ color: '#2F2B3D' }}>{s.value}</p>
-                <p className="text-xs mt-1" style={{ color: '#A5A3AE' }}>{s.sub}</p>
+                <p className="text-xs mt-1" style={{ color: '#9CA3AF' }}>{s.sub}</p>
               </div>
             );
           })}
@@ -108,11 +108,11 @@ export default function ProductivityDashboard() {
                 ].map(t => (
                   <button key={t.key} onClick={() => setActiveTab(t.key as any)}
                     className="flex items-center gap-2 px-4 py-3.5 text-xs font-semibold border-b-2 transition-all"
-                    style={{ borderBottomColor: activeTab === t.key ? '#7C3AED' : 'transparent', color: activeTab === t.key ? '#7C3AED' : '#A5A3AE' }}
+                    style={{ borderBottomColor: activeTab === t.key ? '#7C3AED' : 'transparent', color: activeTab === t.key ? '#7C3AED' : '#9CA3AF' }}
                   >
                     {t.label}
                     {t.count !== null && (
-                      <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold" style={{ backgroundColor: activeTab === t.key ? 'rgba(124,58,237,.1)' : '#F5F4F9', color: activeTab === t.key ? '#7C3AED' : '#A5A3AE' }}>{t.count}</span>
+                      <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold" style={{ backgroundColor: activeTab === t.key ? 'rgba(124,58,237,.1)' : '#F5F4F9', color: activeTab === t.key ? '#7C3AED' : '#9CA3AF' }}>{t.count}</span>
                     )}
                   </button>
                 ))}
@@ -131,9 +131,9 @@ export default function ProductivityDashboard() {
                         <div className="flex items-center gap-2 mb-0.5">
                           <span className="font-bold text-xs" style={{ color: '#7C3AED' }}>{a.id}</span>
                           {a.priority === 'urgent' && <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full" style={{ backgroundColor: 'rgba(234,84,85,.1)', color: '#EA5455' }}>Urgent</span>}
-                          <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ backgroundColor: '#F5F4F9', color: '#A5A3AE' }}>{a.type}</span>
+                          <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ backgroundColor: '#F5F4F9', color: '#9CA3AF' }}>{a.type}</span>
                         </div>
-                        <p className="text-xs" style={{ color: '#6D6777' }}><span className="font-medium" style={{ color: '#2F2B3D' }}>{a.from}</span> · {a.dept} · {a.age}</p>
+                        <p className="text-xs" style={{ color: '#6B7280' }}><span className="font-medium" style={{ color: '#2F2B3D' }}>{a.from}</span> · {a.dept} · {a.age}</p>
                       </div>
                       <p className="font-bold text-xs flex-shrink-0" style={{ color: '#2F2B3D' }}>{a.amount}</p>
                       <div className="flex gap-2 flex-shrink-0">
@@ -154,10 +154,10 @@ export default function ProductivityDashboard() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-bold truncate" style={{ color: '#2F2B3D' }}>{d.name}</p>
-                        <p className="text-[11px] mt-0.5" style={{ color: '#A5A3AE' }}>{d.type} · {d.owner} · {d.updated}</p>
+                        <p className="text-[11px] mt-0.5" style={{ color: '#9CA3AF' }}>{d.type} · {d.owner} · {d.updated}</p>
                       </div>
                       <div className="text-right flex-shrink-0">
-                        <p className="text-[11px]" style={{ color: '#A5A3AE' }}>{d.shared} pengguna</p>
+                        <p className="text-[11px]" style={{ color: '#9CA3AF' }}>{d.shared} pengguna</p>
                       </div>
                       <ChevronRight className="h-4 w-4 flex-shrink-0" style={{ color: '#EDE8F5' }} />
                     </div>
@@ -173,10 +173,10 @@ export default function ProductivityDashboard() {
                         {a.user.charAt(0)}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs"><span className="font-bold" style={{ color: '#2F2B3D' }}>{a.user}</span> <span style={{ color: '#6D6777' }}>{a.action}</span></p>
+                        <p className="text-xs"><span className="font-bold" style={{ color: '#2F2B3D' }}>{a.user}</span> <span style={{ color: '#6B7280' }}>{a.action}</span></p>
                         <p className="text-[11px] mt-0.5 font-semibold" style={{ color: a.color }}>{a.ref}</p>
                       </div>
-                      <p className="text-[11px] flex-shrink-0" style={{ color: '#A5A3AE' }}>{a.time}</p>
+                      <p className="text-[11px] flex-shrink-0" style={{ color: '#9CA3AF' }}>{a.time}</p>
                     </div>
                   ))}
                 </div>
@@ -196,11 +196,11 @@ export default function ProductivityDashboard() {
                   <div key={e.title} className="flex items-start gap-3 px-5 py-3.5">
                     <div className="flex-shrink-0 text-center w-12">
                       <p className="text-xs font-bold" style={{ color: '#7C3AED' }}>{e.time}</p>
-                      <p className="text-[10px]" style={{ color: '#A5A3AE' }}>{e.duration}</p>
+                      <p className="text-[10px]" style={{ color: '#9CA3AF' }}>{e.duration}</p>
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-semibold truncate" style={{ color: '#2F2B3D' }}>{e.title}</p>
-                      <p className="text-[11px] mt-0.5" style={{ color: '#A5A3AE' }}>{e.attendees} peserta</p>
+                      <p className="text-[11px] mt-0.5" style={{ color: '#9CA3AF' }}>{e.attendees} peserta</p>
                     </div>
                   </div>
                 ))}
@@ -230,10 +230,10 @@ export default function ProductivityDashboard() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-bold" style={{ color: '#2F2B3D' }}>{c.ch}</p>
-                    <p className="text-[11px] truncate mt-0.5" style={{ color: '#A5A3AE' }}>{c.msg}</p>
+                    <p className="text-[11px] truncate mt-0.5" style={{ color: '#9CA3AF' }}>{c.msg}</p>
                   </div>
                   <div className="flex-shrink-0 text-right">
-                    <p className="text-[10px]" style={{ color: '#A5A3AE' }}>{c.time}</p>
+                    <p className="text-[10px]" style={{ color: '#9CA3AF' }}>{c.time}</p>
                     {c.unread > 0 && <span className="inline-block mt-1 h-4 w-4 rounded-full text-[9px] font-bold text-white text-center leading-4" style={{ backgroundColor: '#7C3AED' }}>{c.unread}</span>}
                   </div>
                 </div>

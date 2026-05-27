@@ -167,7 +167,7 @@ export default function KledoPage() {
         )}
 
         {/* Tabs */}
-        <div className="flex gap-1 rounded-xl p-1" style={{ backgroundColor: '#F8F7FC' }}>
+        <div className="flex gap-1 rounded-xl p-1" style={{ backgroundColor: '#F5F3FF' }}>
           {tabs.map((t) => (
             <button
               key={t.key}
@@ -175,7 +175,7 @@ export default function KledoPage() {
               className="flex items-center gap-1.5 flex-1 justify-center px-3 py-2 rounded-lg text-xs font-semibold transition"
               style={{
                 backgroundColor: tab === t.key ? '#FFFFFF' : 'transparent',
-                color: tab === t.key ? '#714B67' : '#6D6777',
+                color: tab === t.key ? '#5B52D1' : '#6B7280',
                 boxShadow: tab === t.key ? '0 1px 4px rgba(47,43,61,.08)' : 'none',
               }}
             >
@@ -195,10 +195,10 @@ export default function KledoPage() {
                 { label: 'Invoice', value: invoices.length || '-', color: '#F59E0B', icon: FileText },
                 { label: 'SPM Brands', value: spmBrands.length, color: '#8B5CF6', icon: BarChart2 },
               ].map((s, i) => (
-                <div key={i} className="rounded-2xl p-4" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #E9E0F8' }}>
+                <div key={i} className="rounded-2xl p-4" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE' }}>
                   <div className="flex items-center gap-2 mb-2">
                     <s.icon className="h-4 w-4" style={{ color: s.color }} />
-                    <p className="text-xs" style={{ color: '#A5A3AE' }}>{s.label}</p>
+                    <p className="text-xs" style={{ color: '#9CA3AF' }}>{s.label}</p>
                   </div>
                   <p className="text-2xl font-bold" style={{ color: s.color }}>{loading ? '...' : s.value}</p>
                 </div>
@@ -207,21 +207,21 @@ export default function KledoPage() {
 
             {/* SPM Brands */}
             {spmBrands.length > 0 && (
-              <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #E9E0F8' }}>
-                <div className="px-5 py-4" style={{ borderBottom: '1px solid #E9E0F8' }}>
-                  <h3 className="font-bold text-sm" style={{ color: '#433C50' }}>SPM Brand → PIC Mapping</h3>
-                  <p className="text-xs mt-0.5" style={{ color: '#A5A3AE' }}>Brand SPM dengan margin 15% otomatis dari Kledo</p>
+              <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE' }}>
+                <div className="px-5 py-4" style={{ borderBottom: '1px solid #EDE9FE' }}>
+                  <h3 className="font-bold text-sm" style={{ color: '#1E1B4B' }}>SPM Brand → PIC Mapping</h3>
+                  <p className="text-xs mt-0.5" style={{ color: '#9CA3AF' }}>Brand SPM dengan margin 15% otomatis dari Kledo</p>
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-0 divide-x divide-y" style={{ borderColor: '#E9E0F8' }}>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-0 divide-x divide-y" style={{ borderColor: '#EDE9FE' }}>
                   {spmBrands.map((b, i) => (
                     <div key={i} className="px-4 py-3 flex items-center gap-3">
                       <div className="flex h-9 w-9 items-center justify-center rounded-lg font-bold text-white text-sm flex-shrink-0"
-                        style={{ background: 'linear-gradient(135deg, #714B67, #9C6B8E)' }}>
+                        style={{ background: 'linear-gradient(135deg, #5B52D1, #8B80F9)' }}>
                         {b.brand.charAt(0)}
                       </div>
                       <div>
-                        <p className="text-xs font-bold" style={{ color: '#433C50' }}>{b.brand}</p>
-                        <p className="text-[10px]" style={{ color: '#A5A3AE' }}>{b.pic}</p>
+                        <p className="text-xs font-bold" style={{ color: '#1E1B4B' }}>{b.brand}</p>
+                        <p className="text-[10px]" style={{ color: '#9CA3AF' }}>{b.pic}</p>
                       </div>
                     </div>
                   ))}
@@ -230,23 +230,23 @@ export default function KledoPage() {
             )}
 
             {/* Margin Info */}
-            <div className="rounded-2xl p-5" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #E9E0F8' }}>
-              <h3 className="font-bold text-sm mb-3" style={{ color: '#433C50' }}>Logika Harga Kledo</h3>
+            <div className="rounded-2xl p-5" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE' }}>
+              <h3 className="font-bold text-sm mb-3" style={{ color: '#1E1B4B' }}>Logika Harga Kledo</h3>
               <div className="grid grid-cols-3 gap-4 text-center">
-                <div className="p-3 rounded-xl" style={{ backgroundColor: '#F8F7FC' }}>
-                  <p className="text-xs font-semibold mb-1" style={{ color: '#A5A3AE' }}>Harga Kledo</p>
-                  <p className="text-base font-bold" style={{ color: '#433C50' }}>Rp 100.000</p>
+                <div className="p-3 rounded-xl" style={{ backgroundColor: '#F5F3FF' }}>
+                  <p className="text-xs font-semibold mb-1" style={{ color: '#9CA3AF' }}>Harga Kledo</p>
+                  <p className="text-base font-bold" style={{ color: '#1E1B4B' }}>Rp 100.000</p>
                 </div>
                 <div className="flex items-center justify-center">
                   <div className="text-center">
-                    <p className="text-xs font-semibold" style={{ color: '#714B67' }}>× 1.15</p>
-                    <p className="text-[10px]" style={{ color: '#A5A3AE' }}>Margin 15%</p>
-                    <ChevronRight className="h-4 w-4 mx-auto mt-1" style={{ color: '#714B67' }} />
+                    <p className="text-xs font-semibold" style={{ color: '#5B52D1' }}>× 1.15</p>
+                    <p className="text-[10px]" style={{ color: '#9CA3AF' }}>Margin 15%</p>
+                    <ChevronRight className="h-4 w-4 mx-auto mt-1" style={{ color: '#5B52D1' }} />
                   </div>
                 </div>
-                <div className="p-3 rounded-xl" style={{ backgroundColor: 'rgba(113,75,103,.08)', border: '1.5px solid rgba(113,75,103,.2)' }}>
-                  <p className="text-xs font-semibold mb-1" style={{ color: '#714B67' }}>Harga Jual ERP</p>
-                  <p className="text-base font-bold" style={{ color: '#714B67' }}>Rp 115.000</p>
+                <div className="p-3 rounded-xl" style={{ backgroundColor: 'rgba(91,82,209,.08)', border: '1.5px solid rgba(91,82,209,.2)' }}>
+                  <p className="text-xs font-semibold mb-1" style={{ color: '#5B52D1' }}>Harga Jual ERP</p>
+                  <p className="text-base font-bold" style={{ color: '#5B52D1' }}>Rp 115.000</p>
                 </div>
               </div>
             </div>
@@ -257,28 +257,28 @@ export default function KledoPage() {
         {tab === 'products' && (
           <div className="space-y-4">
             <div className="relative max-w-sm">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: '#A5A3AE' }} />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: '#9CA3AF' }} />
               <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Cari produk..."
                 className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm"
-                style={{ border: '1.5px solid #E9E0F8', color: '#433C50', outline: 'none' }}
+                style={{ border: '1.5px solid #EDE9FE', color: '#1E1B4B', outline: 'none' }}
               />
             </div>
             {!status?.connected ? (
-              <div className="rounded-2xl p-12 text-center" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #E9E0F8' }}>
-                <XCircle className="h-10 w-10 mx-auto mb-3" style={{ color: '#A5A3AE' }} />
-                <p className="font-semibold" style={{ color: '#433C50' }}>Kledo tidak terhubung</p>
-                <p className="text-sm mt-1" style={{ color: '#A5A3AE' }}>Set KLEDO_TOKEN di environment secrets untuk melihat produk dari Kledo</p>
+              <div className="rounded-2xl p-12 text-center" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE' }}>
+                <XCircle className="h-10 w-10 mx-auto mb-3" style={{ color: '#9CA3AF' }} />
+                <p className="font-semibold" style={{ color: '#1E1B4B' }}>Kledo tidak terhubung</p>
+                <p className="text-sm mt-1" style={{ color: '#9CA3AF' }}>Set KLEDO_TOKEN di environment secrets untuk melihat produk dari Kledo</p>
               </div>
             ) : (
-              <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #E9E0F8' }}>
+              <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE' }}>
                 <table className="w-full text-sm">
                   <thead>
-                    <tr style={{ backgroundColor: '#F8F7FC' }}>
+                    <tr style={{ backgroundColor: '#F5F3FF' }}>
                       {['Kode', 'Nama Produk', 'Harga Kledo', 'Harga Jual (+15%)', 'Satuan'].map(h => (
-                        <th key={h} className="px-4 py-3 text-left text-xs font-semibold" style={{ color: '#6D6777' }}>{h}</th>
+                        <th key={h} className="px-4 py-3 text-left text-xs font-semibold" style={{ color: '#6B7280' }}>{h}</th>
                       ))}
                     </tr>
                   </thead>
@@ -293,18 +293,18 @@ export default function KledoPage() {
                         ))
                       : filteredProducts.map((p, i) => (
                           <tr key={i} className="hover:bg-gray-50 transition-colors" style={{ borderTop: '1px solid #F0EDF8' }}>
-                            <td className="px-4 py-3 text-xs font-mono" style={{ color: '#A5A3AE' }}>{p.code || '-'}</td>
-                            <td className="px-4 py-3 text-xs font-semibold" style={{ color: '#433C50' }}>{p.name}</td>
-                            <td className="px-4 py-3 text-xs" style={{ color: '#433C50' }}>{formatRp(p.price || 0)}</td>
-                            <td className="px-4 py-3 text-xs font-bold" style={{ color: '#714B67' }}>{formatRp(Math.ceil((p.price || 0) * 1.15))}</td>
-                            <td className="px-4 py-3 text-xs" style={{ color: '#6D6777' }}>{p.unit || '-'}</td>
+                            <td className="px-4 py-3 text-xs font-mono" style={{ color: '#9CA3AF' }}>{p.code || '-'}</td>
+                            <td className="px-4 py-3 text-xs font-semibold" style={{ color: '#1E1B4B' }}>{p.name}</td>
+                            <td className="px-4 py-3 text-xs" style={{ color: '#1E1B4B' }}>{formatRp(p.price || 0)}</td>
+                            <td className="px-4 py-3 text-xs font-bold" style={{ color: '#5B52D1' }}>{formatRp(Math.ceil((p.price || 0) * 1.15))}</td>
+                            <td className="px-4 py-3 text-xs" style={{ color: '#6B7280' }}>{p.unit || '-'}</td>
                           </tr>
                         ))}
                   </tbody>
                 </table>
                 {!loading && filteredProducts.length === 0 && (
                   <div className="p-8 text-center">
-                    <p className="text-sm" style={{ color: '#A5A3AE' }}>Tidak ada produk ditemukan</p>
+                    <p className="text-sm" style={{ color: '#9CA3AF' }}>Tidak ada produk ditemukan</p>
                   </div>
                 )}
               </div>
@@ -314,18 +314,18 @@ export default function KledoPage() {
 
         {/* Contacts Tab */}
         {tab === 'contacts' && (
-          <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #E9E0F8' }}>
+          <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE' }}>
             {!status?.connected ? (
               <div className="p-12 text-center">
-                <XCircle className="h-10 w-10 mx-auto mb-3" style={{ color: '#A5A3AE' }} />
-                <p className="font-semibold" style={{ color: '#433C50' }}>Kledo tidak terhubung</p>
+                <XCircle className="h-10 w-10 mx-auto mb-3" style={{ color: '#9CA3AF' }} />
+                <p className="font-semibold" style={{ color: '#1E1B4B' }}>Kledo tidak terhubung</p>
               </div>
             ) : (
               <table className="w-full text-sm">
                 <thead>
-                  <tr style={{ backgroundColor: '#F8F7FC' }}>
+                  <tr style={{ backgroundColor: '#F5F3FF' }}>
                     {['Nama', 'Email', 'Telepon', 'Tipe'].map(h => (
-                      <th key={h} className="px-5 py-3 text-left text-xs font-semibold" style={{ color: '#6D6777' }}>{h}</th>
+                      <th key={h} className="px-5 py-3 text-left text-xs font-semibold" style={{ color: '#6B7280' }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -340,11 +340,11 @@ export default function KledoPage() {
                       ))
                     : contacts.map((c, i) => (
                         <tr key={i} className="hover:bg-gray-50 transition-colors" style={{ borderTop: '1px solid #F0EDF8' }}>
-                          <td className="px-5 py-3 text-xs font-semibold" style={{ color: '#433C50' }}>{c.name}</td>
-                          <td className="px-5 py-3 text-xs" style={{ color: '#6D6777' }}>{c.email || '-'}</td>
-                          <td className="px-5 py-3 text-xs" style={{ color: '#6D6777' }}>{c.phone || '-'}</td>
+                          <td className="px-5 py-3 text-xs font-semibold" style={{ color: '#1E1B4B' }}>{c.name}</td>
+                          <td className="px-5 py-3 text-xs" style={{ color: '#6B7280' }}>{c.email || '-'}</td>
+                          <td className="px-5 py-3 text-xs" style={{ color: '#6B7280' }}>{c.phone || '-'}</td>
                           <td className="px-5 py-3">
-                            <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold" style={{ backgroundColor: 'rgba(113,75,103,.1)', color: '#714B67' }}>
+                            <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold" style={{ backgroundColor: 'rgba(91,82,209,.1)', color: '#5B52D1' }}>
                               {c.type || 'Kontak'}
                             </span>
                           </td>
@@ -358,18 +358,18 @@ export default function KledoPage() {
 
         {/* Invoices Tab */}
         {tab === 'invoices' && (
-          <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #E9E0F8' }}>
+          <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE' }}>
             {!status?.connected ? (
               <div className="p-12 text-center">
-                <XCircle className="h-10 w-10 mx-auto mb-3" style={{ color: '#A5A3AE' }} />
-                <p className="font-semibold" style={{ color: '#433C50' }}>Kledo tidak terhubung</p>
+                <XCircle className="h-10 w-10 mx-auto mb-3" style={{ color: '#9CA3AF' }} />
+                <p className="font-semibold" style={{ color: '#1E1B4B' }}>Kledo tidak terhubung</p>
               </div>
             ) : (
               <table className="w-full text-sm">
                 <thead>
-                  <tr style={{ backgroundColor: '#F8F7FC' }}>
+                  <tr style={{ backgroundColor: '#F5F3FF' }}>
                     {['No. Referensi', 'Pelanggan', 'Tgl Transaksi', 'Jatuh Tempo', 'Jumlah', 'Status'].map(h => (
-                      <th key={h} className="px-5 py-3 text-left text-xs font-semibold" style={{ color: '#6D6777' }}>{h}</th>
+                      <th key={h} className="px-5 py-3 text-left text-xs font-semibold" style={{ color: '#6B7280' }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -384,11 +384,11 @@ export default function KledoPage() {
                       ))
                     : invoices.map((inv, i) => (
                         <tr key={i} className="hover:bg-gray-50 transition-colors" style={{ borderTop: '1px solid #F0EDF8' }}>
-                          <td className="px-5 py-3 text-xs font-mono font-semibold" style={{ color: '#714B67' }}>{inv.ref_number}</td>
-                          <td className="px-5 py-3 text-xs" style={{ color: '#433C50' }}>{inv.contact?.name || '-'}</td>
-                          <td className="px-5 py-3 text-xs" style={{ color: '#6D6777' }}>{inv.trans_date}</td>
-                          <td className="px-5 py-3 text-xs" style={{ color: '#6D6777' }}>{inv.due_date}</td>
-                          <td className="px-5 py-3 text-xs font-semibold" style={{ color: '#433C50' }}>{formatRp(inv.amount || 0)}</td>
+                          <td className="px-5 py-3 text-xs font-mono font-semibold" style={{ color: '#5B52D1' }}>{inv.ref_number}</td>
+                          <td className="px-5 py-3 text-xs" style={{ color: '#1E1B4B' }}>{inv.contact?.name || '-'}</td>
+                          <td className="px-5 py-3 text-xs" style={{ color: '#6B7280' }}>{inv.trans_date}</td>
+                          <td className="px-5 py-3 text-xs" style={{ color: '#6B7280' }}>{inv.due_date}</td>
+                          <td className="px-5 py-3 text-xs font-semibold" style={{ color: '#1E1B4B' }}>{formatRp(inv.amount || 0)}</td>
                           <td className="px-5 py-3">
                             <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold" style={{
                               backgroundColor: inv.status === 'paid' ? 'rgba(34,197,94,.1)' : 'rgba(245,158,11,.1)',
@@ -409,13 +409,13 @@ export default function KledoPage() {
         {tab === 'sync-logs' && (
           <div className="space-y-3">
             {syncLogs.length === 0 && !loading && (
-              <div className="rounded-2xl p-12 text-center" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #E9E0F8' }}>
-                <Clock className="h-8 w-8 mx-auto mb-2" style={{ color: '#A5A3AE' }} />
-                <p className="text-sm" style={{ color: '#A5A3AE' }}>Belum ada riwayat sync. Klik "Sync Sekarang" untuk memulai.</p>
+              <div className="rounded-2xl p-12 text-center" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE' }}>
+                <Clock className="h-8 w-8 mx-auto mb-2" style={{ color: '#9CA3AF' }} />
+                <p className="text-sm" style={{ color: '#9CA3AF' }}>Belum ada riwayat sync. Klik "Sync Sekarang" untuk memulai.</p>
               </div>
             )}
             {syncLogs.map((log, i) => (
-              <div key={i} className="rounded-2xl p-4 flex items-start gap-4" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #E9E0F8' }}>
+              <div key={i} className="rounded-2xl p-4 flex items-start gap-4" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE' }}>
                 <div
                   className="flex h-9 w-9 items-center justify-center rounded-xl flex-shrink-0"
                   style={{
@@ -434,10 +434,10 @@ export default function KledoPage() {
                     }}>
                       {log.status}
                     </span>
-                    <span className="text-[10px] font-mono" style={{ color: '#A5A3AE' }}>{log.type}</span>
+                    <span className="text-[10px] font-mono" style={{ color: '#9CA3AF' }}>{log.type}</span>
                   </div>
-                  <p className="text-sm font-semibold mt-1" style={{ color: '#433C50' }}>{log.message}</p>
-                  <p className="text-[10px] mt-0.5" style={{ color: '#A5A3AE' }}>
+                  <p className="text-sm font-semibold mt-1" style={{ color: '#1E1B4B' }}>{log.message}</p>
+                  <p className="text-[10px] mt-0.5" style={{ color: '#9CA3AF' }}>
                     {new Date(log.createdAt).toLocaleString('id-ID')}
                   </p>
                 </div>
