@@ -65,8 +65,17 @@ export const useAuthStore = create<AuthState>((set) => {
       try {
         const response = await api.get('/auth/me');
         set({ user: response.data });
-      } catch (err) {
+      } catch (err: any) {
         console.error('Failed to load profile', err);
+        if (err?.response?.status === 401 || err?.response?.status === 403) {
+          if (typeof window !== 'undefined') {
+            window.localStorage.removeItem('erp_token');
+            window.localStorage.removeItem('erp_refresh_token');
+          }
+          setAuthToken(null);
+          set({ token: null, refreshToken: null, user: null });
+        }
+        throw err;
       }
     },
   };
