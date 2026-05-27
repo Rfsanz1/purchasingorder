@@ -31,53 +31,12 @@ export default function LoginPage() {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden"
-      style={{ background: 'linear-gradient(135deg, #EDE9FE 0%, #F5F3FF 40%, #E9E4FF 70%, #DDD6FE 100%)' }}
+      className="min-h-screen flex relative overflow-hidden"
+      style={{
+        opacity: mounted ? 1 : 0,
+        transition: 'opacity 0.45s ease',
+      }}
     >
-      {/* Ambient background glow blobs */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div
-          className="absolute rounded-full"
-          style={{
-            width: 600, height: 600,
-            top: '-10%', left: '-10%',
-            background: 'radial-gradient(circle, rgba(139,128,249,0.25) 0%, transparent 70%)',
-            filter: 'blur(60px)',
-          }}
-        />
-        <div
-          className="absolute rounded-full"
-          style={{
-            width: 500, height: 500,
-            bottom: '-10%', right: '-5%',
-            background: 'radial-gradient(circle, rgba(91,82,209,0.2) 0%, transparent 70%)',
-            filter: 'blur(60px)',
-          }}
-        />
-        <div
-          className="absolute rounded-full"
-          style={{
-            width: 300, height: 300,
-            top: '50%', left: '50%', transform: 'translate(-50%,-50%)',
-            background: 'radial-gradient(circle, rgba(196,181,253,0.3) 0%, transparent 70%)',
-            filter: 'blur(40px)',
-          }}
-        />
-      </div>
-
-      {/* Main centered card */}
-      <div
-        className="relative w-full flex overflow-hidden"
-        style={{
-          maxWidth: 1060,
-          minHeight: 620,
-          borderRadius: 40,
-          boxShadow: '0 32px 80px rgba(91,82,209,0.22), 0 4px 16px rgba(91,82,209,0.1), 0 0 0 1px rgba(255,255,255,0.6)',
-          opacity: mounted ? 1 : 0,
-          transform: mounted ? 'translateY(0)' : 'translateY(20px)',
-          transition: 'opacity 0.5s ease, transform 0.5s ease',
-        }}
-      >
 
         {/* ── LEFT SECTION ── */}
         <div
@@ -495,7 +454,7 @@ export default function LoginPage() {
             </div>
           </div>
         </div>
-      </div>
     </div>
   );
 }
+
