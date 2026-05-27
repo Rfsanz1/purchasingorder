@@ -4,6 +4,10 @@ import { AccountService } from './account.service.js';
 import { JournalService } from './journal.service.js';
 import { LedgerService } from './ledger.service.js';
 import { FinancialReportService } from './financial-report.service.js';
+import { ARAgingService } from './ar-aging.service.js';
+import { APAgingService } from './ap-aging.service.js';
+import { BudgetService } from './budget.service.js';
+import { CreditLimitService } from './credit-limit.service.js';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard.js';
 
 @Controller('finance')
@@ -15,6 +19,10 @@ export class FinanceController {
     @Inject(JournalService) private readonly journalSvc: JournalService,
     @Inject(LedgerService) private readonly ledgerSvc: LedgerService,
     @Inject(FinancialReportService) private readonly reportSvc: FinancialReportService,
+    @Inject(ARAgingService) private readonly arAgingSvc: ARAgingService,
+    @Inject(APAgingService) private readonly apAgingSvc: APAgingService,
+    @Inject(BudgetService) private readonly budgetSvc: BudgetService,
+    @Inject(CreditLimitService) private readonly creditSvc: CreditLimitService,
   ) {}
 
   // ─── Stats ────────────────────────────────────────────────────────────
@@ -54,23 +62,45 @@ export class FinanceController {
   @Post('journals/:id/reverse') reverseJournal(@Param('id') id: string) { return this.journalSvc.reverseJournal(id); }
 
   // ─── Ledger ───────────────────────────────────────────────────────────
-  @Get('ledger/:accountId') getGeneralLedger(
-    @Param('accountId') accountId: string,
-    @Query() q: any,
-  ) { return this.ledgerSvc.getGeneralLedger(accountId, q.dateFrom, q.dateTo); }
-
+  @Get('ledger/:accountId') getGeneralLedger(@Param('accountId') accountId: string, @Query() q: any) {
+    return this.ledgerSvc.getGeneralLedger(accountId, q.dateFrom, q.dateTo);
+  }
   @Get('trial-balance') getTrialBalance(@Query() q: any) {
     return this.ledgerSvc.getTrialBalance(q.dateFrom, q.dateTo);
   }
 
   // ─── Financial Reports ────────────────────────────────────────────────
-  @Get('reports/balance-sheet') getBalanceSheet(@Query() q: any) {
-    return this.reportSvc.getBalanceSheet(q.date);
+  @Get('reports/balance-sheet') getBalanceSheet(@Query() q: any) { return this.reportSvc.getBalanceSheet(q.date); }
+  @Get('reports/income-statement') getIncomeStatement(@Query() q: any) { return this.reportSvc.getIncomeStatement(q.dateFrom, q.dateTo); }
+  @Get('reports/cash-flow') getCashFlowReport(@Query() q: any) { return this.reportSvc.getCashFlow(q.dateFrom, q.dateTo); }
+
+  // ─── AR/AP Aging ─────────────────────────────────────────────────────
+  @Get('ar-aging') getARAgingReport(@Query() q: any) { return this.arAgingSvc.getARAgingReport(q.asOf ? new Date(q.asOf) : undefined, q.branchId); }
+  @Get('ap-aging') getAPAgingReport(@Query() q: any) { return this.apAgingSvc.getAPAgingReport(q.asOf ? new Date(q.asOf) : undefined, q.branchId); }
+
+  // ─── Credit Limit ─────────────────────────────────────────────────────
+  @Get('credit-limits') getCreditLimits(@Query() q: any) { return this.creditSvc.getCreditLimits(q); }
+  @Post('credit-limits/:customerId/set') setCreditLimit(@Param('customerId') id: string, @Body() dto: { creditLimit: number }) {
+    return this.creditSvc.setCreditLimit(id, dto.creditLimit);
   }
-  @Get('reports/income-statement') getIncomeStatement(@Query() q: any) {
-    return this.reportSvc.getIncomeStatement(q.dateFrom, q.dateTo);
+  @Post('credit-limits/:customerId/check') checkCredit(@Param('customerId') id: string, @Body() dto: { amount: number }) {
+    return this.creditSvc.checkCreditLimit(id, dto.amount);
   }
-  @Get('reports/cash-flow') getCashFlowReport(@Query() q: any) {
-    return this.reportSvc.getCashFlow(q.dateFrom, q.dateTo);
+  @Post('credit-limits/bulk') setBulkCreditLimit(@Body() dto: { items: { customerId: string; creditLimit: number }[] }) {
+    return this.creditSvc.setBulkCreditLimit(dto.items);
   }
+
+  // ─── Budget ───────────────────────────────────────────────────────────
+  @Get('budgets') getBudgets(@Query() q: any) { return this.budgetSvc.getBudgets(q); }
+  @Get('budgets/:id') getBudget(@Param('id') id: string) { return this.budgetSvc.getBudget(id); }
+  @Post('budgets') createBudget(@Body() dto: any) { return this.budgetSvc.createBudget(dto); }
+  @Put('budgets/:id') updateBudget(@Param('id') id: string, @Body() dto: any) { return this.budgetSvc.updateBudget(id, dto); }
+  @Post('budgets/:id/approve') approveBudget(@Param('id') id: string) { return this.budgetSvc.approveBudget(id); }
+  @Get('budgets/:id/vs-actual') getBudgetVsActual(@Param('id') id: string) { return this.budgetSvc.getBudgetVsActual(id); }
+  @Post('budgets/check-availability') checkBudget(@Body() dto: { accountId: string; amount: number; bulan: number; tahun: number }) {
+    return this.budgetSvc.checkBudgetAvailability(dto.accountId, dto.amount, dto.bulan, dto.tahun);
+  }
+
+  // ─── Fixed Assets ─────────────────────────────────────────────────────
+  @Get('fixed-assets') getAssets(@Query() q: any) { return { redirect: '/api/assets', q }; }
 }

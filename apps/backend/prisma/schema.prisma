@@ -46,13 +46,20 @@ model RolePermission {
 }
 
 model AuditLog {
-  id        String   @id @default(uuid())
-  actorId   String?
-  actor     User?    @relation(fields: [actorId], references: [id])
-  action    String
-  resource  String
-  metadata  Json?
-  createdAt DateTime @default(now())
+  id          String   @id @default(uuid())
+  actorId     String?
+  actor       User?    @relation(fields: [actorId], references: [id])
+  action      String
+  resource    String
+  metadata    Json?
+  tableName   String?
+  recordId    String?
+  oldData     Json?
+  newData     Json?
+  ipAddress   String?
+  userAgent   String?
+  branchId    String?
+  createdAt   DateTime @default(now())
 }
 
 // MASTER DATA
@@ -247,20 +254,22 @@ model StockOpnameItem {
 
 // CUSTOMERS & SUPPLIERS
 model Customer {
-  id        String   @id @default(uuid())
-  name      String
-  email     String?
-  phone     String?
-  address   String?
-  city      String?
-  province  String?
-  npwp      String?
-  kledoId   String?  @unique
-  active    Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  orders    Order[]
-  sales     Sale[]
+  id          String   @id @default(uuid())
+  name        String
+  email       String?
+  phone       String?
+  address     String?
+  city        String?
+  province    String?
+  npwp        String?
+  kledoId     String?  @unique
+  creditLimit Decimal  @default(0) @db.Decimal(15, 2)
+  creditUsed  Decimal  @default(0) @db.Decimal(15, 2)
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  orders      Order[]
+  sales       Sale[]
 }
 
 model Supplier {
@@ -503,6 +512,7 @@ model Employee {
   jabatan      String?
   tanggalMasuk DateTime?
   gapok        Decimal      @default(0) @db.Decimal(15, 2)
+  ptkpStatus   String       @default("TK/0")
   status       String       @default("aktif")
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
@@ -510,6 +520,8 @@ model Employee {
   attendances      Attendance[]
   leaveAllocations LeaveAllocation[]
   leaveRequests    LeaveRequest[]
+  payrollSlips     PayrollSlip[]
+  bpjsConfig       BPJSConfig?
 }
 
 model Payroll {
@@ -1323,4 +1335,201 @@ model FiscalPeriod {
   status       FiscalStatus @default(OPEN)
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
+}
+
+// ==================== PAYROLL TERINTEGRASI ====================
+
+enum PayrollComponentType {
+  BASIC
+  ALLOWANCE
+  DEDUCTION
+  OVERTIME
+}
+
+enum PayrollPeriodStatus {
+  DRAFT
+  CALCULATED
+  APPROVED
+  PAID
+}
+
+enum SlipStatus {
+  DRAFT
+  APPROVED
+  PAID
+}
+
+model PayrollComponent {
+  id        String               @id @default(uuid())
+  nama      String
+  tipe      PayrollComponentType
+  formula   String               @default("")
+  isActive  Boolean              @default(true)
+  createdAt DateTime             @default(now())
+  updatedAt DateTime             @updatedAt
+  lines     PayrollSlipLine[]
+}
+
+model PayrollPeriod {
+  id        String              @id @default(uuid())
+  bulan     Int
+  tahun     Int
+  status    PayrollPeriodStatus @default(DRAFT)
+  note      String?
+  createdAt DateTime            @default(now())
+  updatedAt DateTime            @updatedAt
+  slips     PayrollSlip[]
+  @@unique([bulan, tahun])
+}
+
+model PayrollSlip {
+  id               String        @id @default(uuid())
+  employeeId       String
+  employee         Employee      @relation(fields: [employeeId], references: [id])
+  periodId         String
+  period           PayrollPeriod @relation(fields: [periodId], references: [id])
+  gajiPokok        Decimal       @default(0) @db.Decimal(15, 2)
+  totalTunjangan   Decimal       @default(0) @db.Decimal(15, 2)
+  totalPotongan    Decimal       @default(0) @db.Decimal(15, 2)
+  bpjsKesEmployee  Decimal       @default(0) @db.Decimal(15, 2)
+  bpjsKesEmployer  Decimal       @default(0) @db.Decimal(15, 2)
+  bpjsTKEmployee   Decimal       @default(0) @db.Decimal(15, 2)
+  bpjsTKEmployer   Decimal       @default(0) @db.Decimal(15, 2)
+  totalPPh21       Decimal       @default(0) @db.Decimal(15, 2)
+  netSalary        Decimal       @default(0) @db.Decimal(15, 2)
+  status           SlipStatus    @default(DRAFT)
+  journalId        String?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  lines            PayrollSlipLine[]
+  @@unique([employeeId, periodId])
+}
+
+model PayrollSlipLine {
+  id          String           @id @default(uuid())
+  slipId      String
+  slip        PayrollSlip      @relation(fields: [slipId], references: [id], onDelete: Cascade)
+  componentId String?
+  component   PayrollComponent? @relation(fields: [componentId], references: [id])
+  amount      Decimal          @db.Decimal(15, 2)
+  deskripsi   String
+  createdAt   DateTime         @default(now())
+}
+
+model BPJSConfig {
+  id                 String   @id @default(uuid())
+  employeeId         String   @unique
+  employee           Employee @relation(fields: [employeeId], references: [id])
+  bpjsKesEmployee    Decimal  @default(1) @db.Decimal(5, 2)
+  bpjsKesEmployer    Decimal  @default(4) @db.Decimal(5, 2)
+  bpjsTKJHTEmployee  Decimal  @default(2) @db.Decimal(5, 2)
+  bpjsTKJHTEmployer  Decimal  @default(3.7) @db.Decimal(5, 2)
+  bpjsTKJKK          Decimal  @default(0.24) @db.Decimal(5, 2)
+  bpjsTKJKM          Decimal  @default(0.3) @db.Decimal(5, 2)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+// ==================== FIXED ASSET MANAGEMENT ====================
+
+enum DepreciasiMethod {
+  STRAIGHT_LINE
+  DECLINING_BALANCE
+}
+
+enum AssetStatus {
+  ACTIVE
+  DISPOSED
+  SOLD
+}
+
+model FixedAsset {
+  id                  String           @id @default(uuid())
+  kode                String           @unique
+  nama                String
+  kategori            String
+  tanggalPerolehan    DateTime
+  nilaiPerolehan      Decimal          @db.Decimal(15, 2)
+  nilaiResidu         Decimal          @default(0) @db.Decimal(15, 2)
+  umurEkonomi         Int
+  metodeDepresiasi    DepreciasiMethod @default(STRAIGHT_LINE)
+  accountAssetId      String?
+  accountDepreciasiId String?
+  accountAkumDepId    String?
+  branchId            String?
+  status              AssetStatus      @default(ACTIVE)
+  note                String?
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+  depreciations       AssetDepreciation[]
+}
+
+model AssetDepreciation {
+  id               String     @id @default(uuid())
+  assetId          String
+  asset            FixedAsset @relation(fields: [assetId], references: [id])
+  bulan            Int
+  tahun            Int
+  bebanDepresiasi  Decimal    @db.Decimal(15, 2)
+  akumDepresiasi   Decimal    @db.Decimal(15, 2)
+  nilaiBuku        Decimal    @db.Decimal(15, 2)
+  journalId        String?
+  createdAt        DateTime   @default(now())
+  @@unique([assetId, bulan, tahun])
+}
+
+// ==================== BUDGET ====================
+
+enum BudgetStatus {
+  DRAFT
+  APPROVED
+}
+
+model Budget {
+  id           String       @id @default(uuid())
+  nama         String
+  fiscalYearId String?
+  departemenId String?
+  status       BudgetStatus @default(DRAFT)
+  note         String?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  lines        BudgetLine[]
+}
+
+model BudgetLine {
+  id        String  @id @default(uuid())
+  budgetId  String
+  budget    Budget  @relation(fields: [budgetId], references: [id], onDelete: Cascade)
+  accountId String
+  bulan     Int
+  amount    Decimal @db.Decimal(15, 2)
+}
+
+// ==================== COMPANY & BRANCH ====================
+
+model Company {
+  id              String   @id @default(uuid())
+  nama            String
+  npwp            String?
+  alamat          String?
+  logo            String?
+  defaultCurrency String   @default("IDR")
+  timezone        String   @default("Asia/Jakarta")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  branches        Branch[]
+}
+
+model Branch {
+  id           String  @id @default(uuid())
+  companyId    String
+  company      Company @relation(fields: [companyId], references: [id])
+  kode         String  @unique
+  nama         String
+  alamat       String?
+  isHeadOffice Boolean @default(false)
+  isActive     Boolean @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }

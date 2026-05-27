@@ -1,70 +1,125 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '../../../lib/store/useAuthStore';
 import AppShell from '../../../components/layout/AppShell';
 import { ACCOUNTING_CONFIG, ACCOUNTING_NAV } from '../../../lib/nav-configs';
-import { Building2, Plus, Search, RefreshCw, X, TrendingDown } from 'lucide-react';
+import { Building2, Plus, Search, RefreshCw, X, TrendingDown, Play } from 'lucide-react';
+import { api } from '../../../lib/api';
 
 const C = ACCOUNTING_CONFIG.appColor;
+const fmt = (v: number) => Number(v).toLocaleString('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 });
 
-const DEPRECIATION_METHODS = ['Garis Lurus (Straight Line)', 'Saldo Menurun (Declining Balance)', 'Jumlah Angka Tahun'];
+const DEPRECIATION_METHODS = ['STRAIGHT_LINE', 'DECLINING_BALANCE', 'SUM_OF_YEARS'];
+const METHOD_LABELS: Record<string, string> = { STRAIGHT_LINE: 'Garis Lurus', DECLINING_BALANCE: 'Saldo Menurun', SUM_OF_YEARS: 'Angka Tahun' };
 const ASSET_CATEGORIES = ['Tanah & Bangunan', 'Mesin & Peralatan', 'Kendaraan', 'Inventaris Kantor', 'Peralatan IT', 'Aset Tidak Berwujud'];
 
 const STATUS_MAP: Record<string, { label: string; color: string; bg: string }> = {
-  active:    { label: 'Aktif',      color: '#4CAF50', bg: 'rgba(76,175,80,.1)' },
-  disposed:  { label: 'Dilepas',    color: '#9E9E9E', bg: 'rgba(158,158,158,.1)' },
-  in_repair: { label: 'Perbaikan',  color: '#FF9800', bg: 'rgba(255,152,0,.1)' },
+  ACTIVE:     { label: 'Aktif',     color: '#4CAF50', bg: 'rgba(76,175,80,.1)' },
+  DISPOSED:   { label: 'Dilepas',   color: '#9E9E9E', bg: 'rgba(158,158,158,.1)' },
+  IN_REPAIR:  { label: 'Perbaikan', color: '#FF9800', bg: 'rgba(255,152,0,.1)' },
+  active:     { label: 'Aktif',     color: '#4CAF50', bg: 'rgba(76,175,80,.1)' },
+  disposed:   { label: 'Dilepas',   color: '#9E9E9E', bg: 'rgba(158,158,158,.1)' },
 };
-
-const SAMPLE_ASSETS = [
-  { id: 1, code: 'FA-0001', name: 'Mesin Produksi A', category: 'Mesin & Peralatan', acquisition_value: 150000000, useful_life: 5, method: 'Garis Lurus', accumulated_depreciation: 30000000, book_value: 120000000, status: 'active', acquisition_date: '2024-01-15' },
-  { id: 2, code: 'FA-0002', name: 'Kendaraan Operasional', category: 'Kendaraan', acquisition_value: 350000000, useful_life: 8, method: 'Saldo Menurun', accumulated_depreciation: 43750000, book_value: 306250000, status: 'active', acquisition_date: '2024-03-01' },
-  { id: 3, code: 'FA-0003', name: 'Komputer & Server', category: 'Peralatan IT', acquisition_value: 75000000, useful_life: 4, method: 'Garis Lurus', accumulated_depreciation: 18750000, book_value: 56250000, status: 'active', acquisition_date: '2023-07-10' },
-];
 
 export default function FixedAssetsPage() {
   const { token } = useAuthStore();
   const router = useRouter();
-  const [assets, setAssets] = useState(SAMPLE_ASSETS);
+  const [assets, setAssets] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('');
   const [showForm, setShowForm] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [runningDep, setRunningDep] = useState(false);
+  const [msg, setMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [form, setForm] = useState({
-    name: '', category: '', acquisition_value: '', useful_life: '', method: 'Garis Lurus (Straight Line)',
-    acquisition_date: '', account_asset: '', account_depreciation: '', notes: '',
+    name: '', category: '', acquisitionValue: '', usefulLife: '', method: 'STRAIGHT_LINE',
+    acquisitionDate: '', assetAccountId: '', depAccountId: '', description: '',
   });
 
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const params: any = { limit: 200 };
+      if (search) params.search = search;
+      if (category) params.category = category;
+      const { data } = await api.get('/assets', { params });
+      setAssets(data.data ?? data ?? []);
+    } catch { setAssets([]); }
+    finally { setLoading(false); }
+  }, [search, category]);
+
   useEffect(() => { if (!token) router.push('/login'); }, [token]);
+  useEffect(() => { if (token) load(); }, [load, token]);
   if (!token) return null;
 
-  const filtered = assets.filter(a =>
-    (a.name.toLowerCase().includes(search.toLowerCase())) &&
-    (category === '' || a.category === category)
-  );
+  const totalValue       = assets.reduce((s, a) => s + Number(a.acquisitionValue ?? a.acquisition_value ?? 0), 0);
+  const totalDepreciation = assets.reduce((s, a) => s + Number(a.accumulatedDepreciation ?? a.accumulated_depreciation ?? 0), 0);
+  const totalBookValue   = assets.reduce((s, a) => s + Number(a.bookValue ?? a.book_value ?? 0), 0);
 
-  const totalValue = filtered.reduce((s, a) => s + a.acquisition_value, 0);
-  const totalDepreciation = filtered.reduce((s, a) => s + a.accumulated_depreciation, 0);
-  const totalBookValue = filtered.reduce((s, a) => s + a.book_value, 0);
+  const submitAsset = async () => {
+    setSubmitting(true);
+    try {
+      await api.post('/assets', {
+        name: form.name,
+        category: form.category,
+        acquisitionValue: Number(form.acquisitionValue),
+        usefulLife: Number(form.usefulLife),
+        method: form.method,
+        acquisitionDate: form.acquisitionDate,
+        assetAccountId: form.assetAccountId || undefined,
+        depAccountId: form.depAccountId || undefined,
+        description: form.description,
+      });
+      setMsg({ type: 'success', text: 'Aset berhasil ditambahkan' });
+      setShowForm(false);
+      load();
+    } catch (e: any) { setMsg({ type: 'error', text: e?.response?.data?.message || 'Gagal menambah aset' }); }
+    finally { setSubmitting(false); }
+  };
+
+  const runDepreciation = async () => {
+    setRunningDep(true);
+    try {
+      const now = new Date();
+      await api.post('/assets/depreciation/run', { month: now.getMonth() + 1, year: now.getFullYear() });
+      setMsg({ type: 'success', text: 'Depresiasi bulanan berhasil dijalankan' });
+      load();
+    } catch (e: any) { setMsg({ type: 'error', text: e?.response?.data?.message || 'Gagal menjalankan depresiasi' }); }
+    finally { setRunningDep(false); }
+  };
 
   return (
-    <AppShell {...ACCOUNTING_CONFIG} navItems={ACCOUNTING_NAV} activeHref="/finance/fixed-assets">
+    <AppShell {...ACCOUNTING_CONFIG} navItems={ACCOUNTING_NAV}>
       <div className="p-6 space-y-6 max-w-6xl mx-auto">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-xl font-bold" style={{ color: '#1E1B4B' }}>Aset Tetap</h1>
             <p className="text-sm mt-0.5" style={{ color: '#9CA3AF' }}>Kelola aset tetap, depresiasi, dan nilai buku</p>
           </div>
-          <button onClick={() => setShowForm(true)} className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-semibold text-white" style={{ backgroundColor: C }}>
-            <Plus className="h-4 w-4" /> Tambah Aset
-          </button>
+          <div className="flex gap-2">
+            <button onClick={runDepreciation} disabled={runningDep} className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-semibold" style={{ border: '1.5px solid #EDE8F5', color: '#6B7280', opacity: runningDep ? .6 : 1 }}>
+              {runningDep ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />} Run Depresiasi
+            </button>
+            <button onClick={() => setShowForm(true)} className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-semibold text-white" style={{ backgroundColor: C }}>
+              <Plus className="h-4 w-4" /> Tambah Aset
+            </button>
+          </div>
         </div>
+
+        {msg && (
+          <div className="flex items-center justify-between rounded-xl px-4 py-3 text-sm" style={{ background: msg.type === 'success' ? 'rgba(76,175,80,.1)' : 'rgba(244,67,54,.1)', border: `1px solid ${msg.type === 'success' ? '#4CAF50' : '#f44336'}`, color: msg.type === 'success' ? '#2e7d32' : '#c62828' }}>
+            <span>{msg.text}</span>
+            <button onClick={() => setMsg(null)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><X className="h-4 w-4" /></button>
+          </div>
+        )}
 
         <div className="grid grid-cols-3 gap-4">
           {[
-            { label: 'Total Nilai Perolehan', value: totalValue.toLocaleString('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }), color: C },
-            { label: 'Total Akumulasi Depresiasi', value: totalDepreciation.toLocaleString('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }), color: '#FF9800' },
-            { label: 'Total Nilai Buku', value: totalBookValue.toLocaleString('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }), color: '#4CAF50' },
+            { label: 'Total Nilai Perolehan',       value: fmt(totalValue),        color: C },
+            { label: 'Total Akumulasi Depresiasi',  value: fmt(totalDepreciation), color: '#FF9800' },
+            { label: 'Total Nilai Buku',             value: fmt(totalBookValue),    color: '#4CAF50' },
           ].map(s => (
             <div key={s.label} className="bg-white rounded-2xl p-5" style={{ border: '1.5px solid #EDE8F5', boxShadow: '0 1px 4px rgba(47,43,61,.06)' }}>
               <p className="text-xs font-medium" style={{ color: '#9CA3AF' }}>{s.label}</p>
@@ -83,47 +138,59 @@ export default function FixedAssetsPage() {
               <option value="">Semua Kategori</option>
               {ASSET_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
+            <button onClick={load} style={{ padding: '6px', border: 'none', background: 'none', cursor: 'pointer' }}>
+              <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} style={{ color: '#9CA3AF' }} />
+            </button>
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr style={{ borderBottom: '1px solid #EDE8F5' }}>
-                  {['Kode', 'Nama Aset', 'Kategori', 'Tgl Perolehan', 'Nilai Perolehan', 'Metode Depresiasi', 'Umur (Th)', 'Akum. Depresiasi', 'Nilai Buku', 'Status'].map(h => (
-                    <th key={h} className="px-4 py-3 text-left text-xs font-semibold whitespace-nowrap" style={{ color: '#9CA3AF' }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map(a => {
-                  const s = STATUS_MAP[a.status] ?? STATUS_MAP.active;
-                  const depPct = Math.round(a.accumulated_depreciation / a.acquisition_value * 100);
-                  return (
-                    <tr key={a.id} style={{ borderBottom: '1px solid #F5F3FF' }} className="hover:bg-gray-50">
-                      <td className="px-4 py-3 font-semibold text-xs" style={{ color: C }}>{a.code}</td>
-                      <td className="px-4 py-3 font-medium" style={{ color: '#1E1B4B' }}>{a.name}</td>
-                      <td className="px-4 py-3 text-xs" style={{ color: '#6B7280' }}>{a.category}</td>
-                      <td className="px-4 py-3 text-xs" style={{ color: '#6B7280' }}>{new Date(a.acquisition_date).toLocaleDateString('id-ID')}</td>
-                      <td className="px-4 py-3 font-semibold text-xs" style={{ color: '#1E1B4B' }}>{a.acquisition_value.toLocaleString('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 })}</td>
-                      <td className="px-4 py-3 text-xs" style={{ color: '#6B7280' }}>{a.method}</td>
-                      <td className="px-4 py-3 text-xs text-center" style={{ color: '#6B7280' }}>{a.useful_life}</td>
-                      <td className="px-4 py-3">
-                        <div>
-                          <p className="text-xs font-semibold" style={{ color: '#FF9800' }}>{a.accumulated_depreciation.toLocaleString('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 })}</p>
+            {loading ? (
+              <div className="text-center py-12 text-sm" style={{ color: '#9CA3AF' }}>Memuat data aset tetap...</div>
+            ) : (
+              <table className="w-full text-sm">
+                <thead>
+                  <tr style={{ borderBottom: '1px solid #EDE8F5' }}>
+                    {['Kode', 'Nama Aset', 'Kategori', 'Tgl Perolehan', 'Nilai Perolehan', 'Metode', 'Umur (Th)', 'Akum. Depresiasi', 'Nilai Buku', 'Status'].map(h => (
+                      <th key={h} className="px-4 py-3 text-left text-xs font-semibold whitespace-nowrap" style={{ color: '#9CA3AF' }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {assets.map(a => {
+                    const acqVal  = Number(a.acquisitionValue ?? a.acquisition_value ?? 0);
+                    const accDep  = Number(a.accumulatedDepreciation ?? a.accumulated_depreciation ?? 0);
+                    const bv      = Number(a.bookValue ?? a.book_value ?? acqVal - accDep);
+                    const depPct  = acqVal > 0 ? Math.round(accDep / acqVal * 100) : 0;
+                    const statusKey = a.status ?? 'ACTIVE';
+                    const s = STATUS_MAP[statusKey] ?? STATUS_MAP.ACTIVE;
+                    return (
+                      <tr key={a.id} style={{ borderBottom: '1px solid #F5F3FF' }} className="hover:bg-gray-50">
+                        <td className="px-4 py-3 font-semibold text-xs" style={{ color: C }}>{a.code}</td>
+                        <td className="px-4 py-3 font-medium" style={{ color: '#1E1B4B' }}>{a.name}</td>
+                        <td className="px-4 py-3 text-xs" style={{ color: '#6B7280' }}>{a.category}</td>
+                        <td className="px-4 py-3 text-xs" style={{ color: '#6B7280' }}>{a.acquisitionDate ? new Date(a.acquisitionDate).toLocaleDateString('id-ID') : '-'}</td>
+                        <td className="px-4 py-3 font-semibold text-xs" style={{ color: '#1E1B4B' }}>{fmt(acqVal)}</td>
+                        <td className="px-4 py-3 text-xs" style={{ color: '#6B7280' }}>{METHOD_LABELS[a.method ?? ''] ?? a.method}</td>
+                        <td className="px-4 py-3 text-xs text-center" style={{ color: '#6B7280' }}>{a.usefulLife ?? a.useful_life}</td>
+                        <td className="px-4 py-3">
+                          <p className="text-xs font-semibold" style={{ color: '#FF9800' }}>{fmt(accDep)}</p>
                           <div className="h-1.5 w-20 rounded-full mt-1 overflow-hidden" style={{ backgroundColor: '#EDE8F5' }}>
-                            <div className="h-full rounded-full" style={{ width: `${depPct}%`, backgroundColor: '#FF9800' }} />
+                            <div className="h-full rounded-full" style={{ width: `${Math.min(depPct, 100)}%`, backgroundColor: '#FF9800' }} />
                           </div>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 font-semibold text-xs" style={{ color: '#4CAF50' }}>{a.book_value.toLocaleString('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 })}</td>
-                      <td className="px-4 py-3">
-                        <span className="px-2 py-1 rounded-full text-xs font-semibold" style={{ color: s.color, backgroundColor: s.bg }}>{s.label}</span>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                        </td>
+                        <td className="px-4 py-3 font-semibold text-xs" style={{ color: '#4CAF50' }}>{fmt(bv)}</td>
+                        <td className="px-4 py-3">
+                          <span className="px-2 py-1 rounded-full text-xs font-semibold" style={{ color: s.color, backgroundColor: s.bg }}>{s.label}</span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                  {assets.length === 0 && (
+                    <tr><td colSpan={10} className="text-center py-12 text-sm" style={{ color: '#9CA3AF' }}>Belum ada data aset tetap</td></tr>
+                  )}
+                </tbody>
+              </table>
+            )}
           </div>
         </div>
 
@@ -137,16 +204,16 @@ export default function FixedAssetsPage() {
               <div className="p-6 space-y-4">
                 {[
                   { key: 'name', label: 'Nama Aset *', placeholder: 'Nama aset tetap...' },
-                  { key: 'acquisition_value', label: 'Nilai Perolehan (Rp)', placeholder: '0', type: 'number' },
-                  { key: 'acquisition_date', label: 'Tanggal Perolehan', placeholder: '', type: 'date' },
-                  { key: 'useful_life', label: 'Umur Ekonomis (Tahun)', placeholder: '5', type: 'number' },
-                  { key: 'account_asset', label: 'Akun Aset', placeholder: '1.2.1.001' },
-                  { key: 'account_depreciation', label: 'Akun Depresiasi', placeholder: '5.1.1.001' },
-                  { key: 'notes', label: 'Keterangan', placeholder: 'Keterangan tambahan...' },
+                  { key: 'acquisitionValue', label: 'Nilai Perolehan (Rp)', placeholder: '0', type: 'number' },
+                  { key: 'acquisitionDate', label: 'Tanggal Perolehan', placeholder: '', type: 'date' },
+                  { key: 'usefulLife', label: 'Umur Ekonomis (Tahun)', placeholder: '5', type: 'number' },
+                  { key: 'assetAccountId', label: 'Akun Aset (ID)', placeholder: 'ID Akun aset...' },
+                  { key: 'depAccountId', label: 'Akun Depresiasi (ID)', placeholder: 'ID Akun depresiasi...' },
+                  { key: 'description', label: 'Keterangan', placeholder: 'Keterangan tambahan...' },
                 ].map(f => (
                   <div key={f.key}>
                     <label className="block text-xs font-semibold mb-1.5" style={{ color: '#1E1B4B' }}>{f.label}</label>
-                    <input type={f.type ?? 'text'} className="w-full rounded-lg px-4 py-2.5 text-sm" style={{ border: '1.5px solid #EDE8F5', color: '#1E1B4B', outline: 'none' }} placeholder={f.placeholder} value={(form as any)[f.key]} onChange={e => setForm(f2 => ({ ...f2, [f.key]: e.target.value }))} onFocus={e => e.target.style.borderColor = C} onBlur={e => e.target.style.borderColor = '#EDE8F5'} />
+                    <input type={f.type ?? 'text'} className="w-full rounded-lg px-4 py-2.5 text-sm" style={{ border: '1.5px solid #EDE8F5', color: '#1E1B4B', outline: 'none' }} placeholder={f.placeholder} value={(form as any)[f.key]} onChange={e => setForm(f2 => ({ ...f2, [f.key]: e.target.value }))} />
                   </div>
                 ))}
                 <div className="grid grid-cols-2 gap-4">
@@ -160,14 +227,14 @@ export default function FixedAssetsPage() {
                   <div>
                     <label className="block text-xs font-semibold mb-1.5" style={{ color: '#1E1B4B' }}>Metode Depresiasi</label>
                     <select className="w-full rounded-lg px-4 py-2.5 text-sm" style={{ border: '1.5px solid #EDE8F5', color: '#1E1B4B', outline: 'none' }} value={form.method} onChange={e => setForm(f => ({ ...f, method: e.target.value }))}>
-                      {DEPRECIATION_METHODS.map(m => <option key={m} value={m}>{m}</option>)}
+                      {DEPRECIATION_METHODS.map(m => <option key={m} value={m}>{METHOD_LABELS[m]}</option>)}
                     </select>
                   </div>
                 </div>
                 <div className="flex justify-end gap-3 pt-2" style={{ borderTop: '1px solid #EDE8F5' }}>
                   <button onClick={() => setShowForm(false)} className="px-5 py-2.5 rounded-lg text-sm font-semibold" style={{ border: '1.5px solid #EDE8F5', color: '#6B7280' }}>Batal</button>
-                  <button className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold text-white" style={{ backgroundColor: C }}>
-                    <Plus className="h-4 w-4" /> Simpan Aset
+                  <button onClick={submitAsset} disabled={submitting} className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold text-white" style={{ backgroundColor: C, opacity: submitting ? .7 : 1 }}>
+                    <Plus className="h-4 w-4" /> {submitting ? 'Menyimpan...' : 'Simpan Aset'}
                   </button>
                 </div>
               </div>

@@ -27,6 +27,10 @@ import { QualityModule } from './modules/quality/quality.module.js';
 import { MaintenanceModule } from './modules/maintenance/maintenance.module.js';
 import { FleetModule } from './modules/fleet/fleet.module.js';
 import { TaxModule } from './modules/tax/tax.module.js';
+import { PayrollModule } from './modules/payroll/payroll.module.js';
+import { AssetModule } from './modules/asset/asset.module.js';
+import { AuditModule } from './modules/audit/audit.module.js';
+import { BranchModule } from './modules/branch/branch.module.js';
 import { CanAccessGuard } from './common/guards/can-access.guard.js';
 import { PrismaService } from './database/prisma.service.js';
 
@@ -60,6 +64,10 @@ import { PrismaService } from './database/prisma.service.js';
     MaintenanceModule,
     FleetModule,
     TaxModule,
+    PayrollModule,
+    AssetModule,
+    AuditModule,
+    BranchModule,
   ],
   providers: [PrismaService, CanAccessGuard],
 })

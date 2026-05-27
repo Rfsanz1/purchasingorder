@@ -130,6 +130,7 @@ export const ACCOUNTING_NAV: NavItem[] = [
   { label: 'Budget',             href: '/finance/budget',                 icon: Target },
   { label: 'Piutang Aging',      href: '/finance/aged-receivable',        icon: TrendingUp },
   { label: 'Hutang Aging',       href: '/finance/aged-payable',           icon: ArrowDownRight },
+  { label: 'Credit Limit',       href: '/finance/credit-limit',           icon: CreditCard },
   { label: 'Pengeluaran',        href: '/finance/expenses',               icon: Receipt },
   { label: 'Kas & Bank',         href: '/finance/bank-accounts',          icon: Landmark },
   { label: 'Konfigurasi Pajak',  href: '/finance/tax-config',             icon: Percent },
@@ -199,6 +200,7 @@ export const HR_NAV: NavItem[] = [
 
 export const PAYROLL_CONFIG = { appName: 'Penggajian', appColor: '#7B1FA2', appGradient: 'from-purple-600 to-violet-700', appIcon: DollarSign };
 export const PAYROLL_NAV: NavItem[] = [
+  { label: 'Periode Gaji',       href: '/hr/payrolls/periods',     icon: Calendar },
   { label: 'Slip Gaji',          href: '/hr/payrolls/slips',       icon: FileText,
     children: [
       { label: 'Semua Slip',      href: '/hr/payrolls/slips' },

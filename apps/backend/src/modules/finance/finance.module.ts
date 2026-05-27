@@ -6,6 +6,10 @@ import { JournalService } from './journal.service.js';
 import { LedgerService } from './ledger.service.js';
 import { FinancialReportService } from './financial-report.service.js';
 import { AutoJournalService } from './auto-journal.service.js';
+import { ARAgingService } from './ar-aging.service.js';
+import { APAgingService } from './ap-aging.service.js';
+import { BudgetService } from './budget.service.js';
+import { CreditLimitService } from './credit-limit.service.js';
 import { PrismaService } from '../../database/prisma.service.js';
 
 @Module({
@@ -17,6 +21,10 @@ import { PrismaService } from '../../database/prisma.service.js';
     LedgerService,
     FinancialReportService,
     AutoJournalService,
+    ARAgingService,
+    APAgingService,
+    BudgetService,
+    CreditLimitService,
     PrismaService,
   ],
   exports: [
@@ -26,6 +34,10 @@ import { PrismaService } from '../../database/prisma.service.js';
     LedgerService,
     FinancialReportService,
     AutoJournalService,
+    ARAgingService,
+    APAgingService,
+    BudgetService,
+    CreditLimitService,
   ],
 })
 export class FinanceModule {}
