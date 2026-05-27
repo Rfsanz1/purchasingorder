@@ -48,5 +48,6 @@ export const APPS: AppLaunchCard[] = [
 ];
 
 export function canAccessApp(userRoles: string[] = [], appRoles: string[]) {
-  return appRoles.some((role) => userRoles.includes(role));
+  const normalizedUserRoles = userRoles.map((r) => r.toLowerCase());
+  return appRoles.some((role) => normalizedUserRoles.includes(role.toLowerCase()));
 }
