@@ -1,8 +1,1 @@
-{
-  "/hr/appraisals/page": "app/hr/appraisals/page.js",
-  "/settings/users/page": "app/settings/users/page.js",
-  "/sales/orders/page": "app/sales/orders/page.js",
-  "/hr/payrolls/periods/page": "app/hr/payrolls/periods/page.js",
-  "/hr/payrolls/pph21-calc/page": "app/hr/payrolls/pph21-calc/page.js",
-  "/finance/credit-limit/page": "app/finance/credit-limit/page.js"
-}
+{}
