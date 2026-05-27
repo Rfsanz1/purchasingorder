@@ -1,123 +1,110 @@
-# 🏢 Gentong Mas ERP Ecosystem
+# 🏢 Gentong Mas ERP
 
-Gentong Mas kini bertransformasi menjadi sistem multi-aplikasi modern dengan satu database dan satu backend API bersama.
+Gentong Mas sekarang adalah sistem multi-aplikasi modern dengan satu backend dan database bersama.
 
-## 🌐 Arsitektur Sistem
+## Ringkasan
+
+Project ini terdiri dari:
+- `apps/backend` — API NestJS + Prisma
+- `apps/frontend` — frontend Next.js multi-aplikasi
+- `frontend/artifacts/pos-app` — POS app terpisah
 
 Semua aplikasi menggunakan:
-- **Single Database** (PostgreSQL)
-- **Single Backend API** (NestJS + Prisma)
-- **Role-Based Access Control** (RBAC)
+- **Single Database**
+- **Single Backend API**
+- **Role-Based Access Control (RBAC)**
 - **Responsive UI** untuk mobile dan desktop
-- **Realtime data sync** via Socket.IO
-- **Notifikasi real-time** untuk Sales, Gudang, Driver, Owner, Admin
+- **Realtime data sync**
 
-### Aplikasi dalam ekosistem
+> Catatan: `composer` tidak digunakan untuk menjalankan `apps/backend` atau `apps/frontend`. `composer` hanya relevan jika kamu menggunakan `laravel/` bagian legacy.
 
-- `ERP Core` - untuk **Owner** dan **Admin**
-- `Sales App` - aplikasi khusus penjualan mobile-first
-- `Gudang App` - aplikasi khusus operasional gudang mobile-first
-- `Driver App` - aplikasi khusus pengiriman mobile-first
+## Persyaratan
 
-## 👥 Role System
+- Node.js 20+ atau kompatibel
+- pnpm
+- PostgreSQL
 
-Role utama:
-- `Super Admin`
-- `Owner`
-- `Admin`
-- `Sales`
-- `Gudang`
-- `Driver`
+## Setup Lokal
 
-Setiap role akan mengakses tampilan dan fitur sesuai tugasnya.
+1. Install dependensi di root:
 
-## 🚀 Cara Menjalankan Lokal
-
-### 1. Install dependensi
-
-Pastikan sudah terpasang `pnpm`.
-
-```bash
-cd c:/Users/Asus/purchasingorder
+```powershell
+cd C:\Users\Asus\purchasingorder
 pnpm install
 ```
 
-### 2. Siapkan environment backend
+2. Siapkan environment backend:
 
-```bash
+```powershell
 cd apps/backend
-cp .env.example .env
+copy .env.example .env
 ```
 
-Edit `apps/backend/.env` jika perlu:
-- `DATABASE_PROVIDER` = postgresql
-- `DATABASE_URL` = `postgresql://user:password@localhost:5432/erp_modern`
-- `JWT_SECRET` = `replace-with-strong-secret`
-- `PORT` = `4000`
+3. Edit `apps/backend/.env` jika perlu:
+
+- `DATABASE_PROVIDER=postgresql`
+- `DATABASE_URL=postgresql://user:password@localhost:5432/erp_modern`
+- `JWT_SECRET=replace-with-strong-secret`
+- `PORT=4000`
 
 Opsional:
 - `JWT_REFRESH_SECRET`
 - `FONNTE_TOKEN`
 
-### 3. Jalankan database schema
+4. Jalankan Prisma:
 
-```bash
+```powershell
 cd apps/backend
 pnpm prisma generate
 pnpm prisma migrate dev --name init
 ```
 
-### 4. Jalankan backend API
+## Menjalankan Aplikasi
+
+### Backend
 
 Dari root workspace:
 
-```bash
+```powershell
 pnpm dev:backend
 ```
 
 Backend akan berjalan di:
 
-```bash
+```text
 http://localhost:4000
 ```
 
-API prefix default:
-
-```bash
-http://localhost:4000/api
-```
-
-### 5. Jalankan frontend
+### Frontend
 
 Dari root workspace:
 
-```bash
+```powershell
 pnpm dev:frontend
 ```
 
 Frontend akan berjalan di:
 
-```bash
+```text
 http://localhost:3000
 ```
 
-## 🧭 Cara Mengakses 3 Aplikasi
+## Aplikasi yang Tersedia
 
-Setelah login, gunakan halaman launcher utama di `http://localhost:3000`.
+Setelah login, gunakan launcher di `http://localhost:3000`.
 
-### ERP Core (Owner + Admin)
-
+### ERP Core
 - `http://localhost:3000/dashboard`
-- Menu untuk laporan, inventory, accounting, HR, settings, user management, dan audit log.
+- Untuk role: `Owner`, `Admin`, `Super Admin`
+- Fitur: laporan, inventory, purchasing, accounting, HR, payroll, user management, audit.
 
 ### Sales App
-
 - `http://localhost:3000/sales`
 - `http://localhost:3000/sales/smart-order`
-- Fitur utama: Smart Order Input, Customer, Quotation, Sales Order, CRM, Target, Riwayat.
+- Untuk role: `Sales`
+- Fitur: Smart Order Input, Customer, Quotation, Sales Order, CRM, Target, Riwayat.
 
 ### Gudang App
-
 - `http://localhost:3000/gudang`
 - `http://localhost:3000/gudang/picking`
 - `http://localhost:3000/gudang/inbound`
@@ -125,119 +112,52 @@ Setelah login, gunakan halaman launcher utama di `http://localhost:3000`.
 - `http://localhost:3000/gudang/transfer`
 - `http://localhost:3000/gudang/stock-opname`
 - `http://localhost:3000/gudang/history`
+- Untuk role: `Gudang`
 
 ### Driver App
-
 - `http://localhost:3000/driver`
+- Untuk role: `Driver`
 
-Driver akan melihat tugas pengiriman, maps, upload bukti, tanda tangan, dan riwayat.
-
-## ⚙️ Jalankan hanya bagian tertentu
+## Menjalankan Bagian Tertentu
 
 Jika hanya ingin menjalankan backend:
 
-```bash
+```powershell
 pnpm --filter @erp-modern/backend start:dev
 ```
 
 Jika hanya ingin menjalankan frontend:
 
-```bash
+```powershell
 pnpm --filter @erp-modern/frontend dev
 ```
 
-## 📌 Catatan penting
+## Troubleshooting
 
-- Backend dan frontend **menggunakan satu API dan database yang sama**.
-- Login adalah **role-based**, sehingga Sales/Gudang/Driver tidak akan melihat menu Admin/Accounting/Payroll yang tidak relevan.
-- Realtime notifikasi bekerja melalui koneksi Socket.IO ke backend.
+- Jika `pnpm dev:backend` gagal, periksa:
+  - file `apps/backend/.env`
+  - `DATABASE_URL`
+  - koneksi PostgreSQL
+  - apakah `pnpm install` sudah sukses
+- Jika frontend tidak bisa terhubung ke backend, pastikan API berjalan di `http://localhost:4000`.
+- Jika ada error token, periksa `JWT_SECRET` dan `JWT_REFRESH_SECRET`.
 
-## 📦 Struktur Project
+## Struktur Project
 
-- `apps/backend` — NestJS backend API + Prisma
-- `apps/frontend` — Next.js frontend multi-app
-- `frontend/artifacts/pos-app` — aplikasi POS terpisah
+- `apps/backend` — backend NestJS + Prisma
+- `apps/frontend` — frontend Next.js
+- `frontend/artifacts/pos-app` — POS app terpisah
+- `laravel/` — kode Laravel legacy, bukan jalur utama untuk `apps/backend` dan `apps/frontend`
 
-## 🔧 Environment Variables Backend
+## Catatan Penting
 
-- `DATABASE_PROVIDER`
-- `DATABASE_URL`
-- `JWT_SECRET`
-- `PORT`
-- `JWT_REFRESH_SECRET` (opsional)
-- `FONNTE_TOKEN` (opsional)
-
----
-
-Jika kamu ingin, saya bisa juga memperbarui README dengan petunjuk `pnpm` khusus untuk Windows PowerShell dan contoh login role-based. 
-### ERP Coming Soon Routes
-All ERP features are accessible via `/erp/*` routes with placeholder UI
-
-## 🔍 Troubleshooting
-
-### Kledo Connection Issues
-```bash
-# Check token status
-curl https://your-domain.railway.app/api/kledo/token-status
-```
-
-Expected response:
-```json
-{
-  "valid": true,
-  "status": "Token valid"
-}
-```
-
-### Common Issues
-- Ensure `KLEDO_TOKEN` is set in Railway environment
-- Check database connection in `.env`
-- Verify PHP 8.2+ compatibility
-
-## 📋 Development Roadmap
-
-### Phase 1 ✅ (Current)
-- Basic PO management
-- Kledo integration
-- WhatsApp notifications
-- Core dashboard
-
-### Phase 2 🚧 (Coming Soon)
-- Complete ERP modules implementation
-- Marketplace integrations
-- Advanced analytics
-- Mobile app development
-
-### Phase 3 📅 (Future)
-- AI-powered insights
-- Advanced automation
-- Multi-company support
-- Enterprise features
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to branch (`git push origin feature/AmazingFeature`)
-5. Open Pull Request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 📞 Support
-
-For support and questions:
-- Create an issue on GitHub
-- Check [DEPLOY-RAILWAY.md](DEPLOY-RAILWAY.md) for deployment guides
-- Review [menu-structure.txt](menu-structure.txt) for complete feature list
+- `composer` tidak diperlukan untuk menjalankan aplikasi utama di root repository.
+- Gunakan `pnpm` untuk development di `apps/backend` dan `apps/frontend`.
+- Semua aplikasi kini menggunakan satu backend dan database yang sama.
 
 ---
 
-**Built with ❤️ for Indonesian businesses**
-- Redeploy setelah set environment variables
-- Cek log Railway untuk error details
+Jika kamu ingin, saya bisa tambahkan contoh `pnpm` command untuk Windows PowerShell atau format penulisan environment di `.env`.
 
 ## 📝 License
 
