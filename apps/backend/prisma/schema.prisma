@@ -185,7 +185,7 @@ model Customer {
   city      String?
   province  String?
   npwp      String?
-  kledoId   String?
+  kledoId   String?  @unique
   active    Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -233,7 +233,7 @@ model Order {
   lokasiLat        String?
   lokasiLng        String?
   lokasiUpdatedAt  DateTime?
-  kledoInvoiceId   String?
+  kledoInvoiceId   String?  @unique
   kledoSynced      Boolean   @default(false)
   items            Json      @default("[]")
   createdAt        DateTime  @default(now())

@@ -75,7 +75,6 @@ export class KledoService {
     } catch (e) {
       this.logger.warn('Gagal cari contact Kledo: ' + e);
     }
-
     try {
       const createRes = await firstValueFrom(
         this.http.post(
@@ -89,149 +88,238 @@ export class KledoService {
     } catch (e) {
       this.logger.warn('Gagal buat contact Kledo: ' + e);
     }
-
     return 2806;
   }
 
   async createInvoice(dto: {
-    namaCustomer: string;
-    noHp?: string;
-    memo?: string;
-    orderId?: number | string;
-    items: Array<{
-      kledoProductId?: string | null;
-      nama: string;
-      qty: number;
-      harga: number;
-      unitId?: number;
-    }>;
+    namaCustomer: string; noHp?: string; memo?: string; orderId?: number | string;
+    items: Array<{ kledoProductId?: string | null; nama: string; qty: number; harga: number; unitId?: number }>;
     dueDays?: number;
   }) {
-    if (!this.token) {
-      return { success: false, message: 'KLEDO_TOKEN tidak dikonfigurasi' };
-    }
-
+    if (!this.token) return { success: false, message: 'KLEDO_TOKEN tidak dikonfigurasi' };
     try {
       const contactId = await this.findOrCreateContact(dto.namaCustomer, dto.noHp);
-
       const today = new Date();
       const transDate = today.toISOString().split('T')[0];
-      const dueDate = new Date(today.getTime() + (dto.dueDays ?? 30) * 86400000)
-        .toISOString()
-        .split('T')[0];
-
+      const dueDate = new Date(today.getTime() + (dto.dueDays ?? 30) * 86400000).toISOString().split('T')[0];
       const items = dto.items
         .filter((it) => it.kledoProductId)
-        .map((it) => {
-          const amount = it.qty * it.harga;
-          return {
-            finance_account_id: Number(it.kledoProductId),
-            qty: it.qty,
-            price: it.harga,
-            amount,
-            discount_percent: 0,
-            unit_id: it.unitId ?? 1,
-            desc: it.nama,
-          };
-        });
-
-      if (items.length === 0) {
-        return { success: false, message: 'Tidak ada produk dengan Kledo Product ID — invoice tidak dibuat' };
-      }
-
-      const memo = dto.memo ?? (dto.orderId ? `Order #${dto.orderId} - ${dto.namaCustomer}` : dto.namaCustomer);
-
+        .map((it) => ({
+          finance_account_id: Number(it.kledoProductId),
+          qty: it.qty, price: it.harga, amount: it.qty * it.harga,
+          discount_percent: 0, unit_id: it.unitId ?? 1, desc: it.nama,
+        }));
+      if (items.length === 0) return { success: false, message: 'Tidak ada produk dengan Kledo Product ID' };
       const payload = {
-        trans_date: transDate,
-        due_date: dueDate,
-        contact_id: contactId,
-        status_id: 3,
-        term_id: 1,
-        include_tax: 0,
-        memo,
+        trans_date: transDate, due_date: dueDate, contact_id: contactId,
+        status_id: 3, term_id: 1, include_tax: 0,
+        memo: dto.memo ?? (dto.orderId ? `Order #${dto.orderId} - ${dto.namaCustomer}` : dto.namaCustomer),
         items,
       };
-
-      const res = await firstValueFrom(
-        this.http.post(`${this.baseUrl}/finance/invoices`, payload, { headers: this.headers }),
-      );
-
+      const res = await firstValueFrom(this.http.post(`${this.baseUrl}/finance/invoices`, payload, { headers: this.headers }));
       const kledoId = res.data?.id ?? res.data?.data?.id;
-      this.logger.log(`Invoice Kledo berhasil: id=${kledoId} order=${dto.orderId}`);
       return { success: true, kledoInvoiceId: kledoId, message: res.data?.message ?? 'Tagihan berhasil dibuat' };
     } catch (e: any) {
-      const msg = e.response?.data?.message ?? e.message;
-      this.logger.error('Gagal buat invoice Kledo: ' + msg);
-      return { success: false, message: msg };
+      return { success: false, message: e.response?.data?.message ?? e.message };
     }
   }
 
-  getSpmBrands() {
-    return Object.entries(SPM_BRAND_PIC).map(([brand, pic]) => ({ brand, pic }));
-  }
+  getSpmBrands() { return Object.entries(SPM_BRAND_PIC).map(([brand, pic]) => ({ brand, pic })); }
+  isSpmBrand(brand: string) { return brand?.toUpperCase() in SPM_BRAND_PIC; }
+  withMargin(price: number, margin = 0.15) { return Math.ceil(price * (1 + margin)); }
 
-  isSpmBrand(brand: string) {
-    return brand?.toUpperCase() in SPM_BRAND_PIC;
-  }
+  /** ─── BACKGROUND SYNC HELPERS ─── */
 
-  withMargin(price: number, margin = 0.15) {
-    return Math.ceil(price * (1 + margin));
-  }
-
-  async syncProducts() {
-    const log = await this.prisma.kledoSyncLog.create({
-      data: { type: 'products', status: 'running', message: 'Sync produk dimulai' },
-    });
-    try {
-      const products = await this.getProducts({ per_page: 100 });
-      const list: any[] = products?.data ?? [];
-      for (const p of list) {
-        const sku = p.code ?? p.id?.toString() ?? '';
-        if (!sku) continue;
-        await this.prisma.product.upsert({
-          where: { sku },
-          update: { kledoProductId: p.id?.toString(), hargaKledo: p.price ?? 0 },
-          create: {
-            sku,
-            name: p.name ?? sku,
-            kledoProductId: p.id?.toString(),
-            hargaKledo: p.price ?? 0,
-          },
+  /** Jalankan fn di background, update log saat selesai */
+  private runBackground(logId: string, fn: () => Promise<{ synced: number }>) {
+    setImmediate(async () => {
+      try {
+        const result = await fn();
+        await this.prisma.kledoSyncLog.update({
+          where: { id: logId },
+          data: { status: 'success', message: `Selesai: ${result.synced} item disync` },
         });
+      } catch (err: any) {
+        await this.prisma.kledoSyncLog.update({
+          where: { id: logId },
+          data: { status: 'error', message: err.message ?? 'Error tidak diketahui' },
+        }).catch(() => null);
       }
-      await this.prisma.kledoSyncLog.update({
-        where: { id: log.id },
-        data: { status: 'success', message: `${list.length} produk disync` },
-      });
-      return { success: true, synced: list.length };
-    } catch (err: any) {
-      await this.prisma.kledoSyncLog.update({
-        where: { id: log.id },
-        data: { status: 'error', message: err.message },
-      });
-      throw err;
-    }
+    });
   }
 
-  async syncNow() {
-    const log = await this.prisma.kledoSyncLog.create({ data: { type: 'manual', status: 'running', message: 'Sync dimulai' } });
-    try {
-      const products = await this.getProducts({ per_page: 100 });
-      await this.prisma.kledoSyncLog.update({
-        where: { id: log.id },
-        data: { status: 'success', message: `Sync selesai: ${products?.data?.length ?? 0} produk`, response: products },
-      });
-      return { success: true, synced: products?.data?.length ?? 0 };
-    } catch (e: any) {
-      await this.prisma.kledoSyncLog.update({ where: { id: log.id }, data: { status: 'error', message: e.message } });
-      throw e;
-    }
+  /** Fetch satu halaman Kledo */
+  private async fetchPage(path: string, page: number, perPage = 100): Promise<{ items: any[]; lastPage: number; total: number }> {
+    const res = await firstValueFrom(
+      this.http.get(`${this.baseUrl}${path}`, {
+        headers: this.headers,
+        params: { page, per_page: perPage },
+      }),
+    );
+    const paged = res.data?.data;
+    return {
+      items: paged?.data ?? [],
+      lastPage: paged?.last_page ?? 1,
+      total: paged?.total ?? 0,
+    };
   }
 
-  async autoSync() {
-    await Promise.allSettled([this.syncProducts()]);
-    return { message: 'Auto sync selesai' };
+  /** ─── PRODUK SYNC ─── */
+  async syncProducts(): Promise<{ jobId: string; message: string; total?: number }> {
+    if (!this.token) return { jobId: '', message: 'KLEDO_TOKEN tidak dikonfigurasi' };
+
+    const PER_PAGE = 100;
+    // Cek total dulu dengan per_page=PER_PAGE supaya lastPage akurat
+    const { total, lastPage } = await this.fetchPage('/finance/products', 1, PER_PAGE);
+    const log = await this.prisma.kledoSyncLog.create({
+      data: { type: 'products', status: 'running', message: `Sync ${total} produk dimulai (${lastPage} halaman)` },
+    });
+
+    this.runBackground(log.id, async () => {
+      let synced = 0;
+      for (let page = 1; page <= lastPage; page++) {
+        const { items } = await this.fetchPage('/finance/products', page, PER_PAGE);
+        for (const p of items) {
+          const sku = p.code?.trim() || p.id?.toString();
+          if (!sku) continue;
+          await this.prisma.product.upsert({
+            where: { sku },
+            update: {
+              name: p.name ?? sku,
+              kledoProductId: p.id?.toString(),
+              hargaKledo: p.price ?? p.base_price ?? 0,
+              hargaJual: p.price ?? 0,
+              hargaBeli: p.base_price ?? 0,
+              stok: p.qty ?? 0,
+            },
+            create: {
+              sku, name: p.name ?? sku,
+              kledoProductId: p.id?.toString(),
+              hargaKledo: p.price ?? p.base_price ?? 0,
+              hargaJual: p.price ?? 0,
+              hargaBeli: p.base_price ?? 0,
+              stok: p.qty ?? 0,
+            },
+          });
+          synced++;
+        }
+        // Update progres setiap 10 halaman
+        if (page % 10 === 0) {
+          await this.prisma.kledoSyncLog.update({
+            where: { id: log.id },
+            data: { message: `Halaman ${page}/${lastPage} — ${synced} produk diproses` },
+          }).catch(() => null);
+        }
+      }
+      return { synced };
+    });
+
+    return { jobId: log.id, message: `Sync ${total} produk dimulai di background`, total };
   }
+
+  /** ─── KONTAK SYNC ─── */
+  async syncContacts(): Promise<{ jobId: string; message: string; total?: number }> {
+    if (!this.token) return { jobId: '', message: 'KLEDO_TOKEN tidak dikonfigurasi' };
+
+    const PER_PAGE = 100;
+    const { total, lastPage } = await this.fetchPage('/finance/contacts', 1, PER_PAGE);
+    const log = await this.prisma.kledoSyncLog.create({
+      data: { type: 'contacts', status: 'running', message: `Sync ${total} kontak dimulai (${lastPage} halaman)` },
+    });
+
+    this.runBackground(log.id, async () => {
+      let synced = 0;
+      for (let page = 1; page <= lastPage; page++) {
+        const { items } = await this.fetchPage('/finance/contacts', page, PER_PAGE);
+        for (const c of items) {
+          if (!c.name?.trim()) continue;
+          await this.prisma.customer.upsert({
+            where: { kledoId: c.id?.toString() },
+            update: { name: c.name, email: c.email || null, phone: c.phone || null, address: c.address || null },
+            create: {
+              name: c.name, email: c.email || null, phone: c.phone || null,
+              address: c.address || null, kledoId: c.id?.toString(),
+            },
+          }).catch(() => null);
+          synced++;
+        }
+        if (page % 20 === 0) {
+          await this.prisma.kledoSyncLog.update({
+            where: { id: log.id },
+            data: { message: `Halaman ${page}/${lastPage} — ${synced} kontak diproses` },
+          }).catch(() => null);
+        }
+      }
+      return { synced };
+    });
+
+    return { jobId: log.id, message: `Sync ${total} kontak dimulai di background`, total };
+  }
+
+  /** ─── INVOICE SYNC ─── */
+  async syncInvoices(limit = 500): Promise<{ jobId: string; message: string }> {
+    if (!this.token) return { jobId: '', message: 'KLEDO_TOKEN tidak dikonfigurasi' };
+
+    const log = await this.prisma.kledoSyncLog.create({
+      data: { type: 'invoices', status: 'running', message: `Sync ${limit} invoice terbaru dimulai` },
+    });
+
+    this.runBackground(log.id, async () => {
+      const perPage = 100;
+      const pages = Math.ceil(limit / perPage);
+      let synced = 0;
+      for (let page = 1; page <= pages; page++) {
+        const res = await firstValueFrom(
+          this.http.get(`${this.baseUrl}/finance/invoices`, {
+            headers: this.headers,
+            params: { page, per_page: perPage, sort: 'trans_date', order: 'desc' },
+          }),
+        );
+        const items: any[] = res.data?.data?.data ?? [];
+        if (items.length === 0) break;
+        for (const inv of items) {
+          if (!inv.ref_number) continue;
+          await this.prisma.order.upsert({
+            where: { kledoInvoiceId: inv.ref_number },
+            update: {
+              kledoSynced: true,
+              totalHarga: inv.amount ?? 0,
+              status: inv.status_id === 4 ? 'paid' : inv.status_id === 1 ? 'draft' : 'pending',
+            },
+            create: {
+              namaCustomer: inv.contact?.name ?? 'Kledo Customer',
+              totalHarga: inv.amount ?? 0,
+              kledoInvoiceId: inv.ref_number,
+              kledoSynced: true,
+              status: inv.status_id === 4 ? 'paid' : inv.status_id === 1 ? 'draft' : 'pending',
+            },
+          }).catch(() => null);
+          synced++;
+        }
+      }
+      return { synced };
+    });
+
+    return { jobId: log.id, message: `Sync ${limit} invoice terbaru dimulai di background` };
+  }
+
+  /** ─── SYNC ALL (background semua) ─── */
+  async syncAll(): Promise<{ jobs: { products: string; contacts: string; invoices: string }; message: string }> {
+    if (!this.token) throw new Error('KLEDO_TOKEN tidak dikonfigurasi');
+    const [p, c, i] = await Promise.all([
+      this.syncProducts(),
+      this.syncContacts(),
+      this.syncInvoices(500),
+    ]);
+    return {
+      jobs: { products: p.jobId, contacts: c.jobId, invoices: i.jobId },
+      message: `Sync berjalan di background. Produk: ${p.total}, Kontak: ${c.total}. Pantau via /kledo/sync-logs`,
+    };
+  }
+
+  /** ─── LEGACY ─── */
+  async syncNow() { return this.syncProducts(); }
+  async autoSync() { this.syncProducts().catch(() => null); return { message: 'Auto sync dimulai' }; }
 
   async getSyncLogs(query: any) {
     const { page = 1, limit = 20 } = query;
