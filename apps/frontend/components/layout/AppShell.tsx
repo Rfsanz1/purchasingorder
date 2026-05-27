@@ -23,21 +23,37 @@ interface AppShellProps {
   activeHref?: string;
 }
 
-export default function AppShell({
+interface SidebarProps {
+  appName: string;
+  appColor: string;
+  appIcon: React.ElementType;
+  navItems: NavItem[];
+  activeHref?: string;
+  expandedItem: string | null;
+  setExpandedItem: (v: string | null) => void;
+  onNavigate: (href: string) => void;
+  onClose?: () => void;
+  onHome: () => void;
+  onLogout: () => void;
+  userName: string;
+  userEmail: string;
+}
+
+function SidebarContent({
   appName,
-  appColor,
-  appGradient,
   appIcon: AppIcon,
   navItems,
-  children,
   activeHref,
-}: AppShellProps) {
-  const router = useRouter();
-  const { user, logout } = useAuthStore();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [expandedItem, setExpandedItem] = useState<string | null>(null);
-
-  const SidebarContent = () => (
+  expandedItem,
+  setExpandedItem,
+  onNavigate,
+  onClose,
+  onHome,
+  onLogout,
+  userName,
+  userEmail,
+}: SidebarProps) {
+  return (
     <div className="flex flex-col h-full">
       {/* App brand */}
       <div className="flex items-center gap-3 px-4 py-4" style={{ borderBottom: '1px solid rgba(255,255,255,.12)' }}>
@@ -67,8 +83,8 @@ export default function AppShell({
                   if (hasChildren) {
                     setExpandedItem(isExpanded ? null : item.href);
                   } else {
-                    router.push(item.href);
-                    setSidebarOpen(false);
+                    onNavigate(item.href);
+                    onClose?.();
                   }
                 }}
                 className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-all"
@@ -105,7 +121,7 @@ export default function AppShell({
                   {item.children!.map((child) => (
                     <button
                       key={child.href}
-                      onClick={() => { router.push(child.href); setSidebarOpen(false); }}
+                      onClick={() => { onNavigate(child.href); onClose?.(); }}
                       className="w-full text-left px-3 py-2 rounded-lg text-sm transition-all"
                       style={{ color: 'rgba(255,255,255,.65)' }}
                       onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,.1)'; e.currentTarget.style.color = '#fff'; }}
@@ -124,7 +140,7 @@ export default function AppShell({
       {/* Bottom: home + user */}
       <div className="p-3 space-y-1" style={{ borderTop: '1px solid rgba(255,255,255,.1)' }}>
         <button
-          onClick={() => router.push('/')}
+          onClick={onHome}
           className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-all"
           style={{ color: 'rgba(255,255,255,.7)' }}
           onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,.1)'; e.currentTarget.style.color = '#fff'; }}
@@ -134,7 +150,7 @@ export default function AppShell({
           <span className="text-sm font-medium">Beranda</span>
         </button>
         <button
-          onClick={() => { logout(); router.push('/login'); }}
+          onClick={onLogout}
           className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-all"
           style={{ color: 'rgba(255,255,255,.55)' }}
           onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgba(234,84,85,.18)'; e.currentTarget.style.color = '#fca5a5'; }}
@@ -150,16 +166,46 @@ export default function AppShell({
             className="flex h-7 w-7 items-center justify-center rounded-full text-white text-xs font-bold flex-shrink-0"
             style={{ backgroundColor: 'rgba(255,255,255,.25)' }}
           >
-            {(user?.name ?? user?.email ?? 'U').charAt(0).toUpperCase()}
+            {(userName || 'U').charAt(0).toUpperCase()}
           </div>
           <div className="min-w-0">
-            <p className="text-xs font-semibold text-white truncate">{user?.name ?? 'Admin'}</p>
-            <p className="text-[10px] truncate" style={{ color: 'rgba(255,255,255,.5)' }}>{user?.email ?? ''}</p>
+            <p className="text-xs font-semibold text-white truncate">{userName || 'Admin'}</p>
+            <p className="text-[10px] truncate" style={{ color: 'rgba(255,255,255,.5)' }}>{userEmail}</p>
           </div>
         </div>
       </div>
     </div>
   );
+}
+
+export default function AppShell({
+  appName,
+  appColor,
+  appGradient,
+  appIcon,
+  navItems,
+  children,
+  activeHref,
+}: AppShellProps) {
+  const router = useRouter();
+  const { user, logout } = useAuthStore();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [expandedItem, setExpandedItem] = useState<string | null>(null);
+
+  const sidebarProps: SidebarProps = {
+    appName,
+    appColor,
+    appIcon,
+    navItems,
+    activeHref,
+    expandedItem,
+    setExpandedItem,
+    onNavigate: (href) => router.push(href),
+    onHome: () => router.push('/'),
+    onLogout: () => { logout(); router.push('/login'); },
+    userName: user?.name ?? user?.email ?? '',
+    userEmail: user?.email ?? '',
+  };
 
   return (
     <div className="flex h-screen overflow-hidden" style={{ backgroundColor: '#F5F4F9' }}>
@@ -168,7 +214,7 @@ export default function AppShell({
         className="hidden lg:flex flex-col w-56 flex-shrink-0 h-full"
         style={{ background: `linear-gradient(180deg, ${appColor} 0%, ${appColor}dd 100%)` }}
       >
-        <SidebarContent />
+        <SidebarContent {...sidebarProps} />
       </aside>
 
       {/* ── Sidebar mobile overlay ── */}
@@ -186,7 +232,7 @@ export default function AppShell({
             >
               <X className="h-4 w-4" />
             </button>
-            <SidebarContent />
+            <SidebarContent {...sidebarProps} onClose={() => setSidebarOpen(false)} />
           </aside>
         </div>
       )}
@@ -206,7 +252,6 @@ export default function AppShell({
             >
               <Menu className="h-5 w-5" />
             </button>
-            {/* Breadcrumb */}
             <button
               onClick={() => router.push('/')}
               className="flex items-center gap-1.5 text-xs font-medium transition-colors"
