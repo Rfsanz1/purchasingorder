@@ -1,5 +1,6 @@
 packages:
   - 'apps/*'
+  - 'packages/*'
   - 'frontend/artifacts/pos-app'
   - 'frontend/artifacts/mockup-sandbox'
 
