@@ -575,6 +575,9 @@ video {
 .col-span-3{
   grid-column: span 3 / span 3;
 }
+.col-span-5{
+  grid-column: span 5 / span 5;
+}
 .mx-4{
   margin-left: 1rem;
   margin-right: 1rem;
@@ -783,6 +786,9 @@ video {
 }
 .max-h-64{
   max-height: 16rem;
+}
+.max-h-\[90vh\]{
+  max-height: 90vh;
 }
 .min-h-screen{
   min-height: 100vh;
@@ -1050,6 +1056,9 @@ video {
 }
 .grid-cols-5{
   grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+.grid-cols-12{
+  grid-template-columns: repeat(12, minmax(0, 1fr));
 }
 .flex-col{
   flex-direction: column;
@@ -1898,6 +1907,10 @@ video {
   padding-top: 2rem;
   padding-bottom: 2rem;
 }
+.py-5{
+  padding-top: 1.25rem;
+  padding-bottom: 1.25rem;
+}
 .pb-1{
   padding-bottom: 0.25rem;
 }
@@ -2540,6 +2553,10 @@ select:focus-visible {
 }
 .hover\:bg-white\/30:hover{
   background-color: rgb(255 255 255 / 0.3);
+}
+.hover\:bg-red-50:hover{
+  --tw-bg-opacity: 1;
+  background-color: rgb(254 242 242 / var(--tw-bg-opacity, 1));
 }
 .hover\:text-\[\#714B67\]:hover{
   --tw-text-opacity: 1;

@@ -8,6 +8,7 @@ export class CanAccessGuard implements CanActivate {
   constructor(private readonly reflector: Reflector) {}
 
   canActivate(context: ExecutionContext) {
+    if (!this.reflector) return true;
     const options = this.reflector.getAllAndOverride<CanAccessOptions>(CAN_ACCESS_KEY, [
       context.getHandler(),
       context.getClass(),

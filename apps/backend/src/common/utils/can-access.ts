@@ -8,14 +8,14 @@ export function canAccess(user: any, options?: CanAccessOptions) {
     return false;
   }
 
-  const roles: string[] = Array.isArray(user.roles) ? user.roles : [];
+  const roles: string[] = (Array.isArray(user.roles) ? user.roles : []).map((r: string) => r.toLowerCase());
   const permissions: string[] = Array.isArray(user.permissions) ? user.permissions : [];
 
-  if (roles.includes('Super Admin')) {
+  if (roles.includes('super admin') || roles.includes('admin')) {
     return true;
   }
 
-  if (options?.roles && options.roles.some((role) => roles.includes(role))) {
+  if (options?.roles && options.roles.some((role) => roles.includes(role.toLowerCase()))) {
     return true;
   }
 
