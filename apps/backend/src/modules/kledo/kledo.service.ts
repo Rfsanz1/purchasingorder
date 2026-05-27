@@ -18,7 +18,7 @@ export class KledoService {
     @Inject(HttpService) private readonly http: HttpService,
     @Inject(PrismaService) private readonly prisma: PrismaService,
   ) {
-    this.baseUrl = process.env.KLEDO_BASE_URL || 'https://app.kledo.com/api/v1';
+    this.baseUrl = process.env.KLEDO_BASE_URL || 'https://api.kledo.com/api/v1';
     this.token = process.env.KLEDO_TOKEN || '';
   }
 
@@ -29,7 +29,7 @@ export class KledoService {
   async getStatus() {
     if (!this.token) return { connected: false, message: 'KLEDO_TOKEN tidak dikonfigurasi' };
     try {
-      await firstValueFrom(this.http.get(`${this.baseUrl}/contacts?per_page=1`, { headers: this.headers }));
+      await firstValueFrom(this.http.get(`${this.baseUrl}/finance/products?per_page=1`, { headers: this.headers }));
       return { connected: true, message: 'Kledo terhubung' };
     } catch (e: any) {
       return { connected: false, message: e.message };
