@@ -581,6 +581,30 @@ video {
 .top-full{
   top: 100%;
 }
+.-bottom-32{
+  bottom: -8rem;
+}
+.-left-40{
+  left: -10rem;
+}
+.-right-10{
+  right: -2.5rem;
+}
+.-right-32{
+  right: -8rem;
+}
+.-top-10{
+  top: -2.5rem;
+}
+.-top-40{
+  top: -10rem;
+}
+.left-\[60\%\]{
+  left: 60%;
+}
+.top-\[40\%\]{
+  top: 40%;
+}
 .z-10{
   z-index: 10;
 }
@@ -706,6 +730,12 @@ video {
 }
 .mt-2\.5{
   margin-top: 0.625rem;
+}
+.mb-10{
+  margin-bottom: 2.5rem;
+}
+.mt-8{
+  margin-top: 2rem;
 }
 .line-clamp-2{
   overflow: hidden;
@@ -833,6 +863,18 @@ video {
 .h-screen{
   height: 100vh;
 }
+.h-36{
+  height: 9rem;
+}
+.h-\[360px\]{
+  height: 360px;
+}
+.h-\[500px\]{
+  height: 500px;
+}
+.h-\[560px\]{
+  height: 560px;
+}
 .max-h-52{
   max-height: 13rem;
 }
@@ -950,6 +992,18 @@ video {
 }
 .w-px{
   width: 1px;
+}
+.w-36{
+  width: 9rem;
+}
+.w-\[360px\]{
+  width: 360px;
+}
+.w-\[500px\]{
+  width: 500px;
+}
+.w-\[560px\]{
+  width: 560px;
 }
 .min-w-0{
   min-width: 0px;
@@ -1242,6 +1296,9 @@ video {
   --tw-divide-opacity: 1;
   border-color: rgb(30 41 59 / var(--tw-divide-opacity, 1));
 }
+.self-start{
+  align-self: flex-start;
+}
 .overflow-hidden{
   overflow: hidden;
 }
@@ -1297,6 +1354,9 @@ video {
 }
 .rounded-xl{
   border-radius: 12px;
+}
+.rounded-\[24px\]{
+  border-radius: 24px;
 }
 .rounded-t{
   border-top-left-radius: 8px;
@@ -2211,6 +2271,12 @@ video {
 .tracking-widest{
   letter-spacing: 0.1em;
 }
+.tracking-\[0\.15em\]{
+  letter-spacing: 0.15em;
+}
+.tracking-\[0\.18em\]{
+  letter-spacing: 0.18em;
+}
 .text-\[\#00CFE8\]{
   --tw-text-opacity: 1;
   color: rgb(0 207 232 / var(--tw-text-opacity, 1));
@@ -2803,13 +2869,28 @@ select:focus-visible {
   .sm\:justify-between{
     justify-content: space-between;
   }
+  .sm\:self-auto{
+    align-self: auto;
+  }
   .sm\:px-6{
     padding-left: 1.5rem;
     padding-right: 1.5rem;
   }
+  .sm\:px-10{
+    padding-left: 2.5rem;
+    padding-right: 2.5rem;
+  }
+  .sm\:px-8{
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
   .sm\:text-5xl{
     font-size: 3rem;
     line-height: 1;
+  }
+  .sm\:text-4xl{
+    font-size: 2.25rem;
+    line-height: 2.5rem;
   }
 }
 @media (min-width: 768px){
@@ -2902,6 +2983,10 @@ select:focus-visible {
   .lg\:px-8{
     padding-left: 2rem;
     padding-right: 2rem;
+  }
+  .lg\:px-10{
+    padding-left: 2.5rem;
+    padding-right: 2.5rem;
   }
   .lg\:pl-\[260px\]{
     padding-left: 260px;
