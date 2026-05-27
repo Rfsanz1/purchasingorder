@@ -30,6 +30,10 @@ args = "NestJS Backend"
 task = "workflow.run"
 args = "Start application"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "POS Backend"
+
 [[workflows.workflow]]
 name = "POS App"
 author = "agent"
@@ -39,7 +43,7 @@ outputType = "console"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "cd frontend/artifacts/pos-app && npm install && npx vite --port 5173 --host 0.0.0.0"
+args = "cd frontend/artifacts/pos-app && npm install --no-workspaces --legacy-peer-deps && npx vite --port 5173 --host 0.0.0.0"
 waitForPort = 5173
 
 [[workflows.workflow]]
@@ -65,6 +69,18 @@ outputType = "webview"
 task = "shell.exec"
 args = "cd apps/frontend && pnpm install && PORT=5000 npx next dev -p 5000"
 waitForPort = 5000
+
+[[workflows.workflow]]
+name = "POS Backend"
+author = "agent"
+
+[workflows.workflow.metadata]
+outputType = "console"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd frontend/artifacts/pos-backend && node server.js"
+waitForPort = 8000
 
 [agent]
 stack = "BEST_EFFORT_FALLBACK"
@@ -100,10 +116,6 @@ localPort = 5173
 externalPort = 5173
 
 [[ports]]
-localPort = 6000
-externalPort = 6000
-
-[[ports]]
 localPort = 8080
 externalPort = 8080
 
@@ -117,6 +129,10 @@ externalPort = 4200
 
 [[ports]]
 localPort = 23636
+externalPort = 8000
+
+[[ports]]
+localPort = 8000
 externalPort = 8000
 
 [nix]
