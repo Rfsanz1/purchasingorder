@@ -10,11 +10,12 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
 
   const rateLimitWindow = Number(process.env.RATE_LIMIT_WINDOW_MS || 60_000);
-  const rateLimitMax = Number(process.env.RATE_LIMIT_MAX || 120);
+  const rateLimitMax = Number(process.env.RATE_LIMIT_MAX || 1000);
   const requestCounters = new Map<string, { count: number; windowStart: number }>();
 
   app.use((req, res, next) => {
-    const key = req.ip || req.headers['x-forwarded-for']?.toString() || 'global';
+    const forwarded = req.headers['x-forwarded-for']?.toString().split(',')[0].trim();
+    const key = forwarded || req.ip || 'global';
     const now = Date.now();
     const counter = requestCounters.get(key);
 
