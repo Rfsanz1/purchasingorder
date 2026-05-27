@@ -106,6 +106,19 @@ model ProductUnit {
   updatedAt DateTime  @updatedAt
 }
 
+// ==================== INVENTORY COSTING ENUMS ====================
+enum CostingMethod {
+  FIFO
+  AVERAGE
+  STANDARD
+}
+
+enum LandedCostSplitMethod {
+  BY_QTY
+  BY_VALUE
+  BY_WEIGHT
+}
+
 // PRODUCT & INVENTORY
 model Product {
   id                 String              @id @default(uuid())
@@ -123,6 +136,9 @@ model Product {
   hargaKledo         Decimal             @default(0) @db.Decimal(15, 2)
   stok               Int                 @default(0)
   stokMinimum        Int                 @default(0)
+  costingMethod      CostingMethod       @default(AVERAGE)
+  standardCost       Decimal             @default(0) @db.Decimal(15, 4)
+  currentAvgCost     Decimal             @default(0) @db.Decimal(15, 4)
   kledoProductId     String?
   isSpmBrand         Boolean             @default(false)
   active             Boolean             @default(true)
@@ -137,6 +153,9 @@ model Product {
   purchaseOrderItems PurchaseOrderItem[]
   goodsReceiptItems  GoodsReceiptItem[]
   posProducts        PosProduct[]
+  stockValuations    StockValuation[]
+  stockLots          StockLot[]
+  landedCostItems    LandedCostItem[]
 }
 
 model StockMovement {
@@ -150,6 +169,57 @@ model StockMovement {
   note        String?
   referenceId String?
   createdAt   DateTime   @default(now())
+}
+
+model StockValuation {
+  id           String   @id @default(uuid())
+  productId    String
+  product      Product  @relation(fields: [productId], references: [id])
+  date         DateTime
+  qty          Decimal  @db.Decimal(15, 4)
+  unitCost     Decimal  @db.Decimal(15, 4)
+  totalValue   Decimal  @db.Decimal(15, 2)
+  movementType String
+  referenceId  String?
+  createdAt    DateTime @default(now())
+}
+
+model StockLot {
+  id          String    @id @default(uuid())
+  productId   String
+  product     Product   @relation(fields: [productId], references: [id])
+  nomorLot    String
+  expiryDate  DateTime?
+  qtyAwal     Decimal   @db.Decimal(15, 4)
+  qtySisa     Decimal   @db.Decimal(15, 4)
+  unitCost    Decimal   @db.Decimal(15, 4)
+  referenceId String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  @@unique([productId, nomorLot])
+}
+
+model LandedCost {
+  id          String                @id @default(uuid())
+  purchaseId  String
+  deskripsi   String
+  amount      Decimal               @db.Decimal(15, 2)
+  splitMethod LandedCostSplitMethod
+  status      String                @default("draft")
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
+  items       LandedCostItem[]
+}
+
+model LandedCostItem {
+  id           String     @id @default(uuid())
+  landedCostId String
+  landedCost   LandedCost @relation(fields: [landedCostId], references: [id])
+  productId    String
+  product      Product    @relation(fields: [productId], references: [id])
+  qty          Decimal    @db.Decimal(15, 4)
+  alokasiBiaya Decimal    @db.Decimal(15, 2)
+  createdAt    DateTime   @default(now())
 }
 
 model StockOpname {
