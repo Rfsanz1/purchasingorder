@@ -25,6 +25,16 @@
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/pos/orders/page.js"
+    ],
+    "/accounting/chart-of-accounts/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/accounting/chart-of-accounts/page.js"
+    ],
+    "/accounting/journal-entry/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/accounting/journal-entry/page.js"
     ]
   }
 }

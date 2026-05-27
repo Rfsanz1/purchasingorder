@@ -1104,3 +1104,90 @@ model Commission {
   periode       String
   createdAt     DateTime @default(now())
 }
+
+// ==================== DOUBLE-ENTRY ACCOUNTING ====================
+
+enum AccountType {
+  ASSET
+  LIABILITY
+  EQUITY
+  REVENUE
+  EXPENSE
+}
+
+enum JournalStatus {
+  DRAFT
+  POSTED
+  CANCELLED
+}
+
+enum FiscalStatus {
+  OPEN
+  CLOSED
+}
+
+model Account {
+  id            String      @id @default(uuid())
+  code          String      @unique
+  name          String
+  type          AccountType
+  parentId      String?
+  parent        Account?    @relation("AccountTree", fields: [parentId], references: [id])
+  children      Account[]   @relation("AccountTree")
+  description   String?
+  isActive      Boolean     @default(true)
+  normalBalance String      @default("DEBIT")
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  journalLines  JournalLine[]
+}
+
+model Journal {
+  id          String        @id @default(uuid())
+  nomor       String        @unique
+  tanggal     DateTime
+  referensi   String?
+  deskripsi   String?
+  status      JournalStatus @default(DRAFT)
+  createdById String?
+  reversalOf  String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  lines       JournalLine[]
+}
+
+model JournalLine {
+  id        String   @id @default(uuid())
+  journalId String
+  journal   Journal  @relation(fields: [journalId], references: [id], onDelete: Cascade)
+  accountId String
+  account   Account  @relation(fields: [accountId], references: [id])
+  debit     Decimal  @default(0) @db.Decimal(15, 2)
+  kredit    Decimal  @default(0) @db.Decimal(15, 2)
+  deskripsi String?
+  createdAt DateTime @default(now())
+}
+
+model FiscalYear {
+  id        String         @id @default(uuid())
+  nama      String
+  startDate DateTime
+  endDate   DateTime
+  status    FiscalStatus   @default(OPEN)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  periods   FiscalPeriod[]
+}
+
+model FiscalPeriod {
+  id           String       @id @default(uuid())
+  fiscalYearId String
+  fiscalYear   FiscalYear   @relation(fields: [fiscalYearId], references: [id])
+  bulan        Int
+  tahun        Int
+  startDate    DateTime
+  endDate      DateTime
+  status       FiscalStatus @default(OPEN)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+}

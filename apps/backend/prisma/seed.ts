@@ -209,8 +209,122 @@ async function main() {
     }
   }
 
-  console.log('✅ Seed selesai: admin, 10 produk, 6 pelanggan, 4 supplier, 6 karyawan, 10 COA, 5 area driver, settings, POS, notifikasi');
+  console.log('✅ Seed selesai: admin, produk, pelanggan, supplier, karyawan, 65+ Account COA Indonesia, FiscalYear/Period, driver areas, settings, POS, notifikasi');
 }
+
+
+  // ─── DEFAULT COA INDONESIA (Account model — double entry) ─────────────
+  const coaIndonesia: {code:string;name:string;type:string;parentCode?:string}[] = [
+    // 1xxx ASET
+    { code: '1000', name: 'ASET',                           type: 'ASSET' },
+    { code: '1100', name: 'Aset Lancar',                    type: 'ASSET', parentCode: '1000' },
+    { code: '1101', name: 'Kas',                            type: 'ASSET', parentCode: '1100' },
+    { code: '1102', name: 'Bank BCA',                       type: 'ASSET', parentCode: '1100' },
+    { code: '1103', name: 'Bank Mandiri',                   type: 'ASSET', parentCode: '1100' },
+    { code: '1110', name: 'Piutang Dagang',                 type: 'ASSET', parentCode: '1100' },
+    { code: '1111', name: 'Cad. Kerugian Piutang',          type: 'ASSET', parentCode: '1100' },
+    { code: '1120', name: 'Uang Muka Pembelian',            type: 'ASSET', parentCode: '1100' },
+    { code: '1130', name: 'PPN Masukan',                    type: 'ASSET', parentCode: '1100' },
+    { code: '1140', name: 'Biaya Dibayar Dimuka',           type: 'ASSET', parentCode: '1100' },
+    { code: '1150', name: 'Persediaan Barang Dagang',       type: 'ASSET', parentCode: '1100' },
+    { code: '1200', name: 'Aset Tidak Lancar',              type: 'ASSET', parentCode: '1000' },
+    { code: '1210', name: 'Tanah',                          type: 'ASSET', parentCode: '1200' },
+    { code: '1220', name: 'Bangunan',                       type: 'ASSET', parentCode: '1200' },
+    { code: '1221', name: 'Akum. Penyusutan Bangunan',      type: 'ASSET', parentCode: '1200' },
+    { code: '1230', name: 'Peralatan & Mesin',              type: 'ASSET', parentCode: '1200' },
+    { code: '1231', name: 'Akum. Penyusutan Peralatan',     type: 'ASSET', parentCode: '1200' },
+    { code: '1240', name: 'Kendaraan',                      type: 'ASSET', parentCode: '1200' },
+    { code: '1241', name: 'Akum. Penyusutan Kendaraan',     type: 'ASSET', parentCode: '1200' },
+    // 2xxx LIABILITAS
+    { code: '2000', name: 'LIABILITAS',                     type: 'LIABILITY' },
+    { code: '2100', name: 'Liabilitas Jangka Pendek',       type: 'LIABILITY', parentCode: '2000' },
+    { code: '2101', name: 'Hutang Dagang',                  type: 'LIABILITY', parentCode: '2100' },
+    { code: '2102', name: 'Hutang Gaji',                    type: 'LIABILITY', parentCode: '2100' },
+    { code: '2103', name: 'Uang Muka Penjualan',            type: 'LIABILITY', parentCode: '2100' },
+    { code: '2104', name: 'PPN Keluaran',                   type: 'LIABILITY', parentCode: '2100' },
+    { code: '2105', name: 'Hutang PPh 21',                  type: 'LIABILITY', parentCode: '2100' },
+    { code: '2106', name: 'Hutang PPh 23',                  type: 'LIABILITY', parentCode: '2100' },
+    { code: '2107', name: 'Biaya Masih Harus Dibayar',      type: 'LIABILITY', parentCode: '2100' },
+    { code: '2200', name: 'Liabilitas Jangka Panjang',      type: 'LIABILITY', parentCode: '2000' },
+    { code: '2201', name: 'Hutang Bank BCA',                type: 'LIABILITY', parentCode: '2200' },
+    { code: '2202', name: 'Hutang Bank Mandiri',            type: 'LIABILITY', parentCode: '2200' },
+    // 3xxx EKUITAS
+    { code: '3000', name: 'EKUITAS',                        type: 'EQUITY' },
+    { code: '3101', name: 'Modal Disetor',                  type: 'EQUITY',    parentCode: '3000' },
+    { code: '3102', name: 'Laba Ditahan',                   type: 'EQUITY',    parentCode: '3000' },
+    { code: '3103', name: 'Laba Tahun Berjalan',            type: 'EQUITY',    parentCode: '3000' },
+    // 4xxx PENDAPATAN
+    { code: '4000', name: 'PENDAPATAN',                     type: 'REVENUE' },
+    { code: '4101', name: 'Penjualan',                      type: 'REVENUE',   parentCode: '4000' },
+    { code: '4102', name: 'Retur Penjualan',                type: 'REVENUE',   parentCode: '4000' },
+    { code: '4103', name: 'Diskon Penjualan',               type: 'REVENUE',   parentCode: '4000' },
+    { code: '4201', name: 'Pendapatan Lain-lain',           type: 'REVENUE',   parentCode: '4000' },
+    { code: '4202', name: 'Pendapatan Bunga',               type: 'REVENUE',   parentCode: '4000' },
+    // 5xxx HPP
+    { code: '5000', name: 'HARGA POKOK PENJUALAN',          type: 'EXPENSE' },
+    { code: '5101', name: 'HPP Barang Dagang',              type: 'EXPENSE',   parentCode: '5000' },
+    { code: '5102', name: 'Retur Pembelian',                type: 'EXPENSE',   parentCode: '5000' },
+    { code: '5103', name: 'Diskon Pembelian',               type: 'EXPENSE',   parentCode: '5000' },
+    // 6xxx BEBAN OPERASIONAL
+    { code: '6000', name: 'BEBAN OPERASIONAL',              type: 'EXPENSE' },
+    { code: '6100', name: 'Beban Penjualan',                type: 'EXPENSE',   parentCode: '6000' },
+    { code: '6101', name: 'Beban Gaji Sales',               type: 'EXPENSE',   parentCode: '6100' },
+    { code: '6102', name: 'Beban Komisi',                   type: 'EXPENSE',   parentCode: '6100' },
+    { code: '6103', name: 'Beban Transportasi',             type: 'EXPENSE',   parentCode: '6100' },
+    { code: '6104', name: 'Beban Marketing & Promosi',      type: 'EXPENSE',   parentCode: '6100' },
+    { code: '6200', name: 'Beban Umum & Administrasi',      type: 'EXPENSE',   parentCode: '6000' },
+    { code: '6201', name: 'Beban Gaji Karyawan',            type: 'EXPENSE',   parentCode: '6200' },
+    { code: '6202', name: 'Beban Listrik & Air',            type: 'EXPENSE',   parentCode: '6200' },
+    { code: '6203', name: 'Beban Sewa',                     type: 'EXPENSE',   parentCode: '6200' },
+    { code: '6204', name: 'Beban Telepon & Internet',       type: 'EXPENSE',   parentCode: '6200' },
+    { code: '6205', name: 'Beban Perlengkapan Kantor',      type: 'EXPENSE',   parentCode: '6200' },
+    { code: '6206', name: 'Beban Penyusutan',               type: 'EXPENSE',   parentCode: '6200' },
+    { code: '6207', name: 'Beban Asuransi',                 type: 'EXPENSE',   parentCode: '6200' },
+    { code: '6208', name: 'Beban Pemeliharaan',             type: 'EXPENSE',   parentCode: '6200' },
+    // 7xxx BEBAN LAIN-LAIN
+    { code: '7000', name: 'BEBAN LAIN-LAIN',                type: 'EXPENSE' },
+    { code: '7101', name: 'Beban Bunga Bank',               type: 'EXPENSE',   parentCode: '7000' },
+    { code: '7102', name: 'Beban Administrasi Bank',        type: 'EXPENSE',   parentCode: '7000' },
+    { code: '7103', name: 'Beban Pajak',                    type: 'EXPENSE',   parentCode: '7000' },
+    { code: '7104', name: 'Kerugian Selisih Kurs',          type: 'EXPENSE',   parentCode: '7000' },
+  ];
+
+  const nb = (t: string) => ['ASSET','EXPENSE'].includes(t) ? 'DEBIT' : 'CREDIT';
+  const accMap = new Map<string, string>();
+  // roots first
+  for (const c of coaIndonesia.filter(x => !x.parentCode)) {
+    const a = await prisma.account.upsert({
+      where: { code: c.code }, update: { name: c.name },
+      create: { code: c.code, name: c.name, type: c.type as any, isActive: true, normalBalance: nb(c.type) },
+    });
+    accMap.set(c.code, a.id);
+  }
+  // children
+  for (const c of coaIndonesia.filter(x => !!x.parentCode)) {
+    const parentId = accMap.get(c.parentCode!);
+    const a = await prisma.account.upsert({
+      where: { code: c.code }, update: { name: c.name },
+      create: { code: c.code, name: c.name, type: c.type as any, parentId, isActive: true, normalBalance: nb(c.type) },
+    });
+    accMap.set(c.code, a.id);
+  }
+
+  // ─── FISCAL YEAR default ──────────────────────────────────────────────
+  const yr = new Date().getFullYear();
+  const fyName = `Tahun ${yr}`;
+  const existFY = await prisma.fiscalYear.findFirst({ where: { nama: fyName } });
+  if (!existFY) {
+    const fy = await prisma.fiscalYear.create({
+      data: { nama: fyName, startDate: new Date(`${yr}-01-01`), endDate: new Date(`${yr}-12-31`), status: 'OPEN' },
+    });
+    for (let m = 1; m <= 12; m++) {
+      const s = new Date(yr, m - 1, 1);
+      const e = new Date(yr, m, 0);
+      await prisma.fiscalPeriod.create({
+        data: { fiscalYearId: fy.id, bulan: m, tahun: yr, startDate: s, endDate: e, status: 'OPEN' },
+      });
+    }
+  }
 
 main()
   .catch((e) => { console.error(e); process.exit(1); })
