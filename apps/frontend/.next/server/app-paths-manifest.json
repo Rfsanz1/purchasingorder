@@ -1,7 +1,7 @@
 {
-  "/dashboard/page": "app/dashboard/page.js",
   "/page": "app/page.js",
-  "/kledo/page": "app/kledo/page.js",
+  "/notifications/page": "app/notifications/page.js",
+  "/settings/page": "app/settings/page.js",
   "/login/page": "app/login/page.js",
-  "/notifications/page": "app/notifications/page.js"
+  "/dashboard/page": "app/dashboard/page.js"
 }

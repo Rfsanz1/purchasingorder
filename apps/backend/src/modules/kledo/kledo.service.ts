@@ -148,20 +148,39 @@ export class KledoService {
     });
   }
 
-  /** Fetch satu halaman Kledo */
-  private async fetchPage(path: string, page: number, perPage = 100): Promise<{ items: any[]; lastPage: number; total: number }> {
-    const res = await firstValueFrom(
-      this.http.get(`${this.baseUrl}${path}`, {
-        headers: this.headers,
-        params: { page, per_page: perPage },
-      }),
-    );
-    const paged = res.data?.data;
-    return {
-      items: paged?.data ?? [],
-      lastPage: paged?.last_page ?? 1,
-      total: paged?.total ?? 0,
-    };
+  /** Delay helper */
+  private sleep(ms: number) { return new Promise((r) => setTimeout(r, ms)); }
+
+  /** Fetch satu halaman Kledo — dengan retry otomatis saat 429 */
+  private async fetchPage(path: string, page: number, perPage = 100, retries = 3): Promise<{ items: any[]; lastPage: number; total: number }> {
+    for (let attempt = 0; attempt <= retries; attempt++) {
+      try {
+        const res = await firstValueFrom(
+          this.http.get(`${this.baseUrl}${path}`, {
+            headers: this.headers,
+            params: { page, per_page: perPage },
+          }),
+        );
+        const paged = res.data?.data;
+        return {
+          items: paged?.data ?? [],
+          lastPage: paged?.last_page ?? 1,
+          total: paged?.total ?? 0,
+        };
+      } catch (err: any) {
+        const status = err?.response?.status ?? err?.status;
+        if (status === 429 && attempt < retries) {
+          // Rate limited — tunggu makin lama tiap percobaan
+          const waitMs = 2000 * (attempt + 1);
+          this.logger.warn(`[Kledo] 429 rate limit halaman ${page}. Tunggu ${waitMs}ms lalu coba lagi (percobaan ${attempt + 1}/${retries})...`);
+          await this.sleep(waitMs);
+          continue;
+        }
+        throw err;
+      }
+    }
+    // Seharusnya tidak pernah sampai sini
+    return { items: [], lastPage: 1, total: 0 };
   }
 
   /** ─── PRODUK SYNC ─── */
@@ -178,6 +197,8 @@ export class KledoService {
     this.runBackground(log.id, async () => {
       let synced = 0;
       for (let page = 1; page <= lastPage; page++) {
+        // Throttle: jeda 350ms antar halaman agar tidak kena rate limit
+        if (page > 1) await this.sleep(350);
         const { items } = await this.fetchPage('/finance/products', page, PER_PAGE);
         for (const p of items) {
           const sku = p.code?.trim() || p.id?.toString();
@@ -203,7 +224,6 @@ export class KledoService {
           });
           synced++;
         }
-        // Update progres setiap 10 halaman
         if (page % 10 === 0) {
           await this.prisma.kledoSyncLog.update({
             where: { id: log.id },
@@ -230,6 +250,7 @@ export class KledoService {
     this.runBackground(log.id, async () => {
       let synced = 0;
       for (let page = 1; page <= lastPage; page++) {
+        if (page > 1) await this.sleep(350);
         const { items } = await this.fetchPage('/finance/contacts', page, PER_PAGE);
         for (const c of items) {
           if (!c.name?.trim()) continue;

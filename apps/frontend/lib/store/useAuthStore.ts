@@ -62,11 +62,12 @@ export const useAuthStore = create<AuthState>((set) => {
       set({ token: null, refreshToken: null, user: null, error: null });
     },
     loadProfile: async () => {
+      const currentToken = typeof window !== 'undefined' ? window.localStorage.getItem('erp_token') : null;
+      if (!currentToken) return;
       try {
         const response = await api.get('/auth/me');
         set({ user: response.data });
       } catch (err: any) {
-        console.error('Failed to load profile', err);
         if (err?.response?.status === 401 || err?.response?.status === 403) {
           if (typeof window !== 'undefined') {
             window.localStorage.removeItem('erp_token');
@@ -75,7 +76,6 @@ export const useAuthStore = create<AuthState>((set) => {
           setAuthToken(null);
           set({ token: null, refreshToken: null, user: null });
         }
-        throw err;
       }
     },
   };
