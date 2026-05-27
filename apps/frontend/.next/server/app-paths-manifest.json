@@ -4,5 +4,6 @@
   "/dashboard/page": "app/dashboard/page.js",
   "/gudang/[section]/page": "app/gudang/[section]/page.js",
   "/sales/orders/page": "app/sales/orders/page.js",
-  "/sales/page": "app/sales/page.js"
+  "/sales/page": "app/sales/page.js",
+  "/sales/smart-order/page": "app/sales/smart-order/page.js"
 }
