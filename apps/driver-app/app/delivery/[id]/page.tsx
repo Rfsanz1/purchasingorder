@@ -48,7 +48,7 @@ export default function DeliveryDetailPage() {
 
   useEffect(() => {
     if (!token) { router.replace('/login'); return; }
-    api.get(`/delivery/tasks/${id}`).then(r => setDelivery(r.data)).catch(() => {
+    api.get(`/fleet/delivery/tasks/${id}`).then(r => setDelivery(r.data)).catch(() => {
       setDelivery({
         id: id as string, soNumber:'SO-2026-001', customerName:'PT Maju Sejahtera',
         phone:'0812-3456-7890', address:'Jl. Sudirman No.45, Blok B2, Jakarta Pusat 10220',
@@ -65,7 +65,7 @@ export default function DeliveryDetailPage() {
   const updateStatus = async (newStatus: Status, extra?: { notes?: string; failReason?: string; photo?: boolean }) => {
     setUpdating(true);
     try {
-      await api.patch(`/delivery/tasks/${id}/status`, {
+      await api.patch(`/fleet/delivery/tasks/${id}/status`, {
         status: newStatus, notes: extra?.notes, photo: extra?.photo,
       });
     } catch {}

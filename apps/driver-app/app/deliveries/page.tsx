@@ -51,7 +51,7 @@ export default function DeliveriesPage() {
 
   const fetchDeliveries = async () => {
     try {
-      const res = await api.get('/delivery/my-tasks');
+      const res = await api.get('/fleet/delivery/my-tasks');
       if (res.data?.length) setTodayList(res.data);
     } catch {}
   };

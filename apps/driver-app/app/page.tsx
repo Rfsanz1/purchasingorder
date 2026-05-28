@@ -42,7 +42,7 @@ export default function DriverHomePage() {
     const init = async () => {
       if (!user) await loadProfile().catch(() => { logout(); router.replace('/login'); });
       try {
-        const res = await api.get('/delivery/my-tasks');
+        const res = await api.get('/fleet/delivery/my-tasks');
         setDeliveries(res.data ?? []);
       } catch { setDeliveries(DEMO); }
       setLoading(false);

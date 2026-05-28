@@ -1,4 +1,4 @@
-export type UserRole = 'ADMIN' | 'OWNER' | 'SALES' | 'GUDANG' | 'DRIVER' | 'KASIR';
+export type UserRole = 'ADMIN' | 'OWNER' | 'SALES' | 'GUDANG' | 'DRIVER' | 'KASIR' | 'SUPERVISOR_KASIR' | 'SUPER_ADMIN';
 
 export interface AuthUser {
   id: string;
@@ -18,9 +18,9 @@ export interface LoginResponse extends AuthTokens {
 }
 
 export const ROLE_APP_MAP: Record<string, UserRole[]> = {
-  web:        ['ADMIN', 'OWNER'],
-  'sales-app':  ['SALES', 'ADMIN', 'OWNER'],
-  'gudang-app': ['GUDANG', 'ADMIN', 'OWNER'],
-  'driver-app': ['DRIVER', 'ADMIN', 'OWNER'],
-  'pos-app':    ['KASIR', 'ADMIN', 'OWNER'],
+  web:          ['ADMIN', 'OWNER', 'SUPER_ADMIN'],
+  'sales-app':  ['SALES', 'ADMIN', 'OWNER', 'SUPER_ADMIN'],
+  'gudang-app': ['GUDANG', 'ADMIN', 'OWNER', 'SUPER_ADMIN'],
+  'driver-app': ['DRIVER', 'ADMIN', 'OWNER', 'SUPER_ADMIN'],
+  'pos-app':    ['KASIR', 'SUPERVISOR_KASIR', 'ADMIN', 'OWNER', 'SUPER_ADMIN'],
 };

@@ -61,4 +61,132 @@ export class PosService {
   async getCategories() { return this.prisma.posCategory.findMany({ where: { active: true }, orderBy: { name: 'asc' } }); }
   async createProduct(dto: any) { return this.prisma.posProduct.create({ data: dto }); }
   async updateProduct(id: string, dto: any) { return this.prisma.posProduct.update({ where: { id }, data: dto }); }
+
+  // ─── Sessions ─────────────────────────────────────────────────────────────
+
+  async getSessions(query: any) {
+    const { page = 1, limit = 20 } = query;
+    const skip = (Number(page) - 1) * Number(limit);
+    const [data, total] = await Promise.all([
+      this.prisma.posCashierSession.findMany({
+        skip, take: Number(limit),
+        include: { posUser: { select: { id: true, name: true } }, _count: { select: { sales: true } } },
+        orderBy: { openedAt: 'desc' },
+      }),
+      this.prisma.posCashierSession.count(),
+    ]);
+    return {
+      data: data.map(s => ({
+        id: s.id,
+        openedAt: s.openedAt,
+        closedAt: s.closedAt,
+        cashierName: s.posUser?.name ?? 'Kasir',
+        openingCash: Number(s.modalAwal),
+        closingCash: s.modalAkhir ? Number(s.modalAkhir) : undefined,
+        totalTransactions: s._count.sales,
+        totalRevenue: 0,
+        status: s.status === 'open' ? 'active' : 'closed',
+      })),
+      total,
+    };
+  }
+
+  async getActiveSession(currentUser: any) {
+    const session = await this.prisma.posCashierSession.findFirst({
+      where: { status: 'open' },
+      include: { posUser: { select: { id: true, name: true } }, _count: { select: { sales: true } } },
+      orderBy: { openedAt: 'desc' },
+    });
+    if (!session) return null;
+    const revenue = await this.prisma.posSale.aggregate({
+      where: { sessionId: session.id },
+      _sum: { grandTotal: true },
+    });
+    return {
+      id: session.id,
+      openedAt: session.openedAt,
+      cashierName: session.posUser?.name ?? 'Kasir',
+      openingCash: Number(session.modalAwal),
+      totalTransactions: session._count.sales,
+      totalRevenue: Number(revenue._sum.grandTotal ?? 0),
+      status: 'active',
+    };
+  }
+
+  async openSession(dto: any, currentUser: any) {
+    const user = await this.prisma.posUser.findFirst({ where: { active: true } });
+    if (!user) throw new Error('Tidak ada POS user aktif');
+    return this.prisma.posCashierSession.create({
+      data: { posUserId: user.id, modalAwal: dto.openingCash ?? 0 },
+    });
+  }
+
+  async getSession(id: string) {
+    const session = await this.prisma.posCashierSession.findUnique({
+      where: { id },
+      include: {
+        posUser: { select: { id: true, name: true } },
+        _count: { select: { sales: true } },
+      },
+    });
+    if (!session) return null;
+    const revenue = await this.prisma.posSale.aggregate({
+      where: { sessionId: id },
+      _sum: { grandTotal: true },
+    });
+    const byMethod = await this.prisma.posSale.groupBy({
+      by: ['metodeBayar'],
+      where: { sessionId: id },
+      _sum: { grandTotal: true },
+    });
+    const breakdown: Record<string, number> = { cash: 0, transfer: 0, card: 0, qris: 0 };
+    for (const m of byMethod) {
+      const key = (m.metodeBayar ?? 'tunai').toLowerCase().replace('tunai', 'cash').replace('kartu', 'card');
+      breakdown[key] = (breakdown[key] ?? 0) + Number(m._sum.grandTotal ?? 0);
+    }
+    return {
+      id: session.id,
+      openedAt: session.openedAt,
+      closedAt: session.closedAt,
+      cashierName: session.posUser?.name ?? 'Kasir',
+      openingCash: Number(session.modalAwal),
+      closingCash: session.modalAkhir ? Number(session.modalAkhir) : undefined,
+      totalTransactions: session._count.sales,
+      totalRevenue: Number(revenue._sum.grandTotal ?? 0),
+      status: session.status === 'open' ? 'active' : 'closed',
+      breakdown,
+    };
+  }
+
+  async closeSession(id: string, dto: any) {
+    return this.prisma.posCashierSession.update({
+      where: { id },
+      data: { closedAt: new Date(), modalAkhir: dto.closingCash ?? 0, status: 'closed' },
+    });
+  }
+
+  // ─── Reports ──────────────────────────────────────────────────────────────
+
+  async getTodayReport() {
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const sales = await this.prisma.posSale.findMany({
+      where: { tanggal: { gte: today } },
+      select: { grandTotal: true, metodeBayar: true, tanggal: true },
+    });
+    const hourly = Array.from({ length: 24 }, (_, h) => {
+      const bucket = sales.filter(s => new Date(s.tanggal).getHours() === h);
+      return { hour: h, count: bucket.length, revenue: bucket.reduce((sum, s) => sum + Number(s.grandTotal), 0) };
+    }).filter(h => h.count > 0);
+    const byMethod: Record<string, number> = {};
+    for (const s of sales) {
+      const m = s.metodeBayar ?? 'tunai';
+      byMethod[m] = (byMethod[m] ?? 0) + Number(s.grandTotal);
+    }
+    return {
+      totalRevenue: sales.reduce((sum, s) => sum + Number(s.grandTotal), 0),
+      totalTransactions: sales.length,
+      hourly,
+      byMethod,
+    };
+  }
 }

@@ -34,7 +34,7 @@ export default function HistoryPage() {
 
   useEffect(() => {
     if (!token) { router.replace('/login'); return; }
-    api.get('/delivery/history').then(r => { if (r.data?.length) setHistory(r.data); }).catch(() => {}).finally(() => setLoading(false));
+    api.get('/fleet/delivery/history').then(r => { if (r.data?.length) setHistory(r.data); }).catch(() => {}).finally(() => setLoading(false));
   }, [token]);
 
   const totalDelivered = history.filter(h => h.status==='delivered').length;

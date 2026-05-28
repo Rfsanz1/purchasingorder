@@ -51,4 +51,121 @@ export class FleetService {
     const totalCost = await this.prisma.vehicleService.aggregate({ _sum: { cost: true } });
     return { total, active, needService: overdueServices.length, totalServiceCost: totalCost._sum.cost ?? 0 };
   }
+
+  // ─── Delivery Task Methods (Driver App) ────────────────────────────────────
+
+  async getMyDeliveryTasks(currentUser: any) {
+    const driverName = currentUser?.name ?? '';
+    try {
+      const orders = await (this.prisma as any).order.findMany({
+        where: {
+          OR: [
+            { driverName: { contains: driverName, mode: 'insensitive' } },
+            { status: { in: ['confirmed', 'picking', 'ready', 'shipping'] } },
+          ],
+          NOT: { statusPengiriman: { in: ['delivered', 'failed'] } },
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 50,
+      });
+      return orders.map((o: any) => ({
+        id: String(o.id),
+        soNumber: `SO-${o.id}`,
+        customerName: o.namaCustomer,
+        phone: o.noHp ?? '',
+        address: o.alamat ?? '',
+        items: Array.isArray(o.items) ? o.items : [],
+        status: this.mapDeliveryStatus(o.statusPengiriman),
+        time: new Date(o.createdAt).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+        notes: o.catatan ?? '',
+      }));
+    } catch {
+      return [];
+    }
+  }
+
+  async getDeliveryTask(id: string) {
+    try {
+      const o = await (this.prisma as any).order.findUnique({
+        where: { id: parseInt(id) },
+        include: { orderItems: true },
+      });
+      if (!o) return null;
+      return {
+        id: String(o.id),
+        soNumber: `SO-${o.id}`,
+        customerName: o.namaCustomer,
+        phone: o.noHp ?? '',
+        address: o.alamat ?? '',
+        notes: o.catatan ?? '',
+        status: this.mapDeliveryStatus(o.statusPengiriman),
+        items: (o.orderItems ?? []).map((item: any) => ({
+          name: item.namaBarang ?? item.productName ?? 'Item',
+          qty: item.qty ?? item.jumlah ?? 1,
+          unit: item.satuan ?? 'pcs',
+        })),
+      };
+    } catch {
+      return null;
+    }
+  }
+
+  async updateDeliveryStatus(id: string, dto: any, currentUser: any) {
+    const { status, notes, photo } = dto;
+    const statusMap: Record<string, string> = {
+      on_the_way: 'shipping',
+      arrived: 'arrived',
+      delivered: 'delivered',
+      failed: 'failed',
+    };
+    const newStatus = statusMap[status] ?? status;
+    try {
+      await (this.prisma as any).order.update({
+        where: { id: parseInt(id) },
+        data: {
+          statusPengiriman: newStatus,
+          ...(newStatus === 'delivered' && { fotoPengiriman: photo ? 'uploaded' : null }),
+          ...(notes && { catatan: notes }),
+        },
+      });
+    } catch {}
+    return { success: true, id, status: newStatus };
+  }
+
+  async getDeliveryHistory(query: any, currentUser: any) {
+    const driverName = currentUser?.name ?? '';
+    try {
+      const orders = await (this.prisma as any).order.findMany({
+        where: {
+          OR: [
+            { driverName: { contains: driverName, mode: 'insensitive' } },
+            { statusPengiriman: { in: ['delivered', 'failed'] } },
+          ],
+        },
+        orderBy: { updatedAt: 'desc' },
+        take: 100,
+      });
+      return orders.map((o: any) => ({
+        id: String(o.id),
+        soNumber: `SO-${o.id}`,
+        customerName: o.namaCustomer,
+        address: o.alamat ?? '',
+        items: Array.isArray(o.items) ? o.items.length : 0,
+        status: o.statusPengiriman === 'delivered' ? 'delivered' : 'failed',
+        date: o.updatedAt?.toISOString()?.split('T')[0] ?? new Date().toISOString().split('T')[0],
+      }));
+    } catch {
+      return [];
+    }
+  }
+
+  private mapDeliveryStatus(statusPengiriman: string | null): string {
+    const map: Record<string, string> = {
+      shipping: 'on_the_way',
+      arrived: 'arrived',
+      delivered: 'delivered',
+      failed: 'failed',
+    };
+    return map[statusPengiriman ?? ''] ?? 'assigned';
+  }
 }

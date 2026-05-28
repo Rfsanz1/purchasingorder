@@ -1,172 +1,221 @@
-# 🏢 Gentong Mas ERP
+# Gentong Mas ERP
 
-Gentong Mas sekarang adalah sistem multi-aplikasi modern dengan satu backend dan database bersama.
+Sistem ERP multi-aplikasi modern — satu backend NestJS, satu database PostgreSQL, 5 aplikasi Next.js terpisah per role.
 
-## Ringkasan
+## Arsitektur
 
-Project ini terdiri dari:
-- `apps/backend` — API NestJS + Prisma
-- `apps/frontend` — frontend Next.js multi-aplikasi
-- `frontend/artifacts/pos-app` — POS app terpisah
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                     PostgreSQL Database                          │
+└─────────────────────┬───────────────────────────────────────────┘
+                      │
+┌─────────────────────▼───────────────────────────────────────────┐
+│              NestJS Backend API  (port 6000)                     │
+│  Auth · Sales · Inventory · POS · Fleet · Finance · CRM · HR    │
+└──┬──────────┬──────────┬──────────┬──────────┬──────────────────┘
+   │          │          │          │          │
+┌──▼──┐  ┌───▼──┐  ┌────▼─┐  ┌────▼─┐  ┌────▼──┐
+│ Web │  │Sales │  │Gudang│  │ POS  │  │Driver │
+│5000 │  │ 3002 │  │ 3003 │  │ 3001 │  │ 3000  │
+│Admin│  │ App  │  │ App  │  │ App  │  │  App  │
+└─────┘  └──────┘  └──────┘  └──────┘  └───────┘
+```
 
-Semua aplikasi menggunakan:
-- **Single Database**
-- **Single Backend API**
-- **Role-Based Access Control (RBAC)**
-- **Responsive UI** untuk mobile dan desktop
-- **Realtime data sync**
+## Daftar Aplikasi
 
-> Catatan: `composer` tidak digunakan untuk menjalankan `apps/backend` atau `apps/frontend`. `composer` hanya relevan jika kamu menggunakan `laravel/` bagian legacy.
+| App | Port | Role | Warna | Deskripsi |
+|-----|------|------|-------|-----------|
+| `apps/web` | 5000 | ADMIN, OWNER | Blue | Dashboard admin & manajemen utama |
+| `apps/sales-app` | 3002 | SALES | Blue | Buat SO, pantau pipeline, customer |
+| `apps/gudang-app` | 3003 | GUDANG | Amber | Inbound PO, outbound picking, stok opname |
+| `apps/pos-app` | 3001 | KASIR | Emerald | Kasir POS, sesi kasir, laporan harian |
+| `apps/driver-app` | 3000 | DRIVER | Slate | Delivery tasks, update status, riwayat |
+| `apps/backend` | 6000 | — | — | NestJS + Prisma + PostgreSQL |
 
-## Persyaratan
+## Shared Packages
 
-- Node.js 20+ atau kompatibel
-- pnpm
-- PostgreSQL
+| Package | Isi |
+|---------|-----|
+| `packages/types` | `UserRole`, `AuthUser`, `LoginResponse`, `ROLE_APP_MAP` |
+| `packages/utils` | `api.ts` (axios instance), `auth.ts` (JWT helpers), `format.ts` |
+| `packages/ui` | `Button`, `Table`, `Modal`, `Card`, `Badge`, `AppShell` |
+
+## Flow Data Utama
+
+```
+Sales buat SO  →  Admin konfirmasi  →  Gudang picking  →  Driver antar  →  Selesai
+   /sales          /admin               /gudang             /driver
+  (3002)           (5000)               (3003)              (3000)
+```
+
+```
+Customer beli  →  Kasir scan  →  Bayar  →  Struk cetak
+   (walk-in)       /pos           (3001)
+```
 
 ## Setup Lokal
 
-1. Install dependensi di root:
+### Prasyarat
 
-```powershell
-cd C:\Users\Asus\purchasingorder
+- Node.js 20+
+- pnpm 9+
+- PostgreSQL 14+ (atau pakai docker-compose)
+
+### 1. Clone & Install
+
+```bash
 pnpm install
 ```
 
-2. Siapkan environment backend:
+### 2. Setup Backend
 
-```powershell
-cd apps/backend
-copy .env.example .env
-```
+```bash
+cp apps/backend/.env.example apps/backend/.env
+# Edit DATABASE_URL, JWT_SECRET di apps/backend/.env
 
-3. Edit `apps/backend/.env` jika perlu:
-
-- `DATABASE_PROVIDER=postgresql`
-- `DATABASE_URL=postgresql://user:password@localhost:5432/erp_modern`
-- `JWT_SECRET=replace-with-strong-secret`
-- `PORT=4000`
-
-Opsional:
-- `JWT_REFRESH_SECRET`
-- `FONNTE_TOKEN`
-
-4. Jalankan Prisma:
-
-```powershell
 cd apps/backend
 pnpm prisma generate
-pnpm prisma migrate dev --name init
+pnpm prisma db push
+pnpm prisma db seed   # opsional: isi data demo
 ```
 
-## Menjalankan Aplikasi
+### 3. Setup Frontend Apps
 
-### Backend
-
-Dari root workspace:
-
-```powershell
-pnpm dev:backend
+```bash
+cp apps/web/.env.example apps/web/.env.local
+cp apps/sales-app/.env.example apps/sales-app/.env.local
+cp apps/gudang-app/.env.example apps/gudang-app/.env.local
+cp apps/pos-app/.env.example apps/pos-app/.env.local
+cp apps/driver-app/.env.example apps/driver-app/.env.local
 ```
 
-Backend akan berjalan di:
+### 4. Jalankan Dev
 
-```text
-http://localhost:4000
+```bash
+# Backend
+cd apps/backend && pnpm start:dev
+
+# Setiap app (terminal terpisah)
+cd apps/web && pnpm dev          # http://localhost:5000
+cd apps/sales-app && pnpm dev    # http://localhost:3002
+cd apps/gudang-app && pnpm dev   # http://localhost:3003
+cd apps/pos-app && pnpm dev      # http://localhost:3001
+cd apps/driver-app && pnpm dev   # http://localhost:3000
 ```
 
-### Frontend
+### 5. Jalankan dengan Docker
 
-Dari root workspace:
-
-```powershell
-pnpm dev:frontend
+```bash
+cp .env.example .env  # isi JWT_SECRET
+docker compose up -d
 ```
 
-Frontend akan berjalan di:
+## Backend API Endpoints
 
-```text
-http://localhost:3000
+### Auth
+| Method | Path | Keterangan |
+|--------|------|------------|
+| POST | `/auth/login` | Login semua app (email + password) |
+| POST | `/auth/refresh` | Refresh token |
+| GET | `/auth/me` | Profil user saat ini |
+
+### POS
+| Method | Path | Keterangan |
+|--------|------|------------|
+| POST | `/pos/auth/login` | Login POS (username + password) |
+| GET | `/pos/products` | Daftar produk POS |
+| GET | `/pos/sessions` | Daftar sesi kasir |
+| GET | `/pos/sessions/active` | Sesi aktif saat ini |
+| POST | `/pos/sessions` | Buka sesi kasir |
+| POST | `/pos/sessions/:id/close` | Tutup sesi kasir |
+| GET | `/pos/transactions` | Riwayat transaksi |
+| POST | `/pos/transactions` | Buat transaksi baru |
+| GET | `/pos/reports/today` | Laporan hari ini |
+
+### Fleet / Driver
+| Method | Path | Keterangan |
+|--------|------|------------|
+| GET | `/fleet/delivery/my-tasks` | Delivery tasks driver saat ini |
+| GET | `/fleet/delivery/tasks/:id` | Detail satu delivery task |
+| PATCH | `/fleet/delivery/tasks/:id/status` | Update status pengiriman |
+| GET | `/fleet/delivery/history` | Riwayat pengiriman |
+| GET | `/fleet/vehicles` | Daftar kendaraan |
+| GET | `/fleet/stats` | Statistik armada |
+
+### Inventory / Gudang
+| Method | Path | Keterangan |
+|--------|------|------------|
+| GET | `/inventory/products` | Daftar produk + stok |
+| POST | `/inventory/products/:id/stok` | Update stok masuk/keluar |
+| GET | `/inventory/stock-movements` | Riwayat mutasi stok |
+| POST | `/inventory/stock-opnames` | Buat stok opname |
+| GET | `/inventory/purchase-orders` | (dari purchasing module) |
+
+### Sales
+| Method | Path | Keterangan |
+|--------|------|------------|
+| GET | `/sales/orders` | Daftar sales order |
+| POST | `/sales/orders` | Buat SO baru |
+| PATCH | `/sales/orders/:id/pengiriman` | Update status pengiriman |
+
+## Struktur Monorepo
+
+```
+.
+├── apps/
+│   ├── backend/           ← NestJS + Prisma (port 6000)
+│   │   ├── prisma/
+│   │   │   └── schema.prisma
+│   │   └── src/
+│   │       └── modules/   ← auth, sales, inventory, pos, fleet, finance, crm, hr...
+│   ├── web/               ← Admin dashboard (port 5000)
+│   ├── sales-app/         ← Sales App (port 3002)
+│   ├── gudang-app/        ← Gudang App (port 3003)
+│   ├── pos-app/           ← POS Kasir (port 3001, emerald)
+│   └── driver-app/        ← Driver App (port 3000, slate)
+├── packages/
+│   ├── types/             ← UserRole, AuthUser, ROLE_APP_MAP
+│   ├── utils/             ← api.ts, auth.ts, format.ts
+│   └── ui/                ← shared React components
+├── docker-compose.yml
+└── pnpm-workspace.yaml
 ```
 
-## Aplikasi yang Tersedia
+## Environment Variables
 
-Setelah login, gunakan launcher di `http://localhost:3000`.
-
-### ERP Core
-- `http://localhost:3000/dashboard`
-- Untuk role: `Owner`, `Admin`, `Super Admin`
-- Fitur: laporan, inventory, purchasing, accounting, HR, payroll, user management, audit.
-
-### Sales App
-- `http://localhost:3000/sales`
-- `http://localhost:3000/sales/smart-order`
-- Untuk role: `Sales`
-- Fitur: Smart Order Input, Customer, Quotation, Sales Order, CRM, Target, Riwayat.
-
-### Gudang App
-- `http://localhost:3000/gudang`
-- `http://localhost:3000/gudang/picking`
-- `http://localhost:3000/gudang/inbound`
-- `http://localhost:3000/gudang/outbound`
-- `http://localhost:3000/gudang/transfer`
-- `http://localhost:3000/gudang/stock-opname`
-- `http://localhost:3000/gudang/history`
-- Untuk role: `Gudang`
-
-### Driver App
-- `http://localhost:3000/driver`
-- Untuk role: `Driver`
-
-## Menjalankan Bagian Tertentu
-
-Jika hanya ingin menjalankan backend:
-
-```powershell
-pnpm --filter @erp-modern/backend start:dev
+### Backend (`apps/backend/.env`)
+```env
+DATABASE_URL=postgresql://user:pass@localhost:5432/erp_db
+JWT_SECRET=your-strong-secret
+JWT_REFRESH_SECRET=your-refresh-secret
+JWT_EXPIRES_IN=7d
+PORT=6000
+NODE_ENV=development
 ```
 
-Jika hanya ingin menjalankan frontend:
-
-```powershell
-pnpm --filter @erp-modern/frontend dev
+### Frontend Apps (semua sama)
+```env
+NEXT_PUBLIC_API_URL=http://localhost:6000
+BACKEND_URL=http://localhost:6000
+PORT=<lihat tabel di atas>
 ```
 
-## Troubleshooting
+## User Roles
 
-- Jika `pnpm dev:backend` gagal, periksa:
-  - file `apps/backend/.env`
-  - `DATABASE_URL`
-  - koneksi PostgreSQL
-  - apakah `pnpm install` sudah sukses
-- Jika frontend tidak bisa terhubung ke backend, pastikan API berjalan di `http://localhost:4000`.
-- Jika ada error token, periksa `JWT_SECRET` dan `JWT_REFRESH_SECRET`.
+| Role | App | Akses |
+|------|-----|-------|
+| `ADMIN` | Semua | Full akses semua modul |
+| `OWNER` | Semua | Read-only + approval |
+| `SUPER_ADMIN` | Semua | Superuser system |
+| `SALES` | sales-app | SO, customer, pipeline |
+| `GUDANG` | gudang-app | Inventory, picking, opname |
+| `KASIR` | pos-app | Transaksi POS, sesi kasir |
+| `SUPERVISOR_KASIR` | pos-app | Kasir + manajemen sesi |
+| `DRIVER` | driver-app | Delivery tasks, status update |
 
-## Struktur Project
+## Tech Stack
 
-- `apps/backend` — backend NestJS + Prisma
-- `apps/frontend` — frontend Next.js
-- `frontend/artifacts/pos-app` — POS app terpisah
-- `laravel/` — kode Laravel legacy, bukan jalur utama untuk `apps/backend` dan `apps/frontend`
-
-## Catatan Penting
-
-- `composer` tidak diperlukan untuk menjalankan aplikasi utama di root repository.
-- Gunakan `pnpm` untuk development di `apps/backend` dan `apps/frontend`.
-- Semua aplikasi kini menggunakan satu backend dan database yang sama.
-
----
-
-Jika kamu ingin, saya bisa tambahkan contoh `pnpm` command untuk Windows PowerShell atau format penulisan environment di `.env`.
-
-## 📝 License
-
-MIT License - bebas digunakan untuk keperluan komersial & personal.
-
-## 🤝 Contributing
-
-PR welcome! Pastikan test pass dan kode readable.
-
----
-
-**Dibuat dengan ❤️ untuk Gentong Mas**
+- **Backend**: NestJS 10, Prisma 5, PostgreSQL, JWT, bcrypt
+- **Frontend**: Next.js 15, React 19, Tailwind CSS v4, Zustand, Axios
+- **Shared**: TypeScript 5, pnpm workspaces
+- **Infra**: Docker Compose, Replit (dev)
