@@ -26,6 +26,10 @@ args = "NestJS Backend"
 task = "workflow.run"
 args = "Start application"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Sales App"
+
 [[workflows.workflow]]
 name = "NestJS Backend"
 author = "agent"
@@ -50,6 +54,18 @@ task = "shell.exec"
 args = "cd apps/web && pnpm install && pnpm dev"
 waitForPort = 5000
 
+[[workflows.workflow]]
+name = "Sales App"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd apps/sales-app && pnpm install && pnpm dev"
+waitForPort = 3002
+
+[workflows.workflow.metadata]
+outputType = "console"
+
 [agent]
 stack = "BEST_EFFORT_FALLBACK"
 expertMode = true
@@ -66,10 +82,6 @@ externalPort = 3000
 [[ports]]
 localPort = 3002
 externalPort = 3002
-
-[[ports]]
-localPort = 3003
-externalPort = 3003
 
 [[ports]]
 localPort = 5000

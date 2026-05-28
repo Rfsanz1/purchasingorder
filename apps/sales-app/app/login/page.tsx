@@ -4,14 +4,17 @@ import { useRouter } from 'next/navigation';
 import { useAuthStore } from '../../lib/useAuthStore';
 import { Eye, EyeOff, ArrowUpRight, Target, TrendingUp, ShoppingCart, Users, Zap } from 'lucide-react';
 
+const ALLOWED_ROLES = ['SALES', 'ADMIN', 'OWNER', 'SUPER_ADMIN'];
+
 export default function LoginPage() {
   const router = useRouter();
-  const { login, loadProfile, token, error, loading } = useAuthStore();
+  const { login, loadProfile, logout, token, error, loading } = useAuthStore();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPass, setShowPass] = useState(false);
   const [focused, setFocused] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [roleError, setRoleError] = useState('');
 
   useEffect(() => { setMounted(true); }, []);
   useEffect(() => { if (token) router.replace('/'); }, [token, router]);
@@ -19,8 +22,20 @@ export default function LoginPage() {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    setRoleError('');
     const ok = await login(email, password);
-    if (ok) { await loadProfile(); router.replace('/'); }
+    if (ok) {
+      const currentUser = useAuthStore.getState().user;
+      const roles: string[] = currentUser?.roles ?? [];
+      const hasAccess = roles.some(r => ALLOWED_ROLES.includes(r));
+      if (!hasAccess) {
+        logout();
+        setRoleError('Akun ini tidak memiliki akses Sales App');
+        return;
+      }
+      await loadProfile();
+      router.replace('/');
+    }
   }
 
   return (
@@ -76,7 +91,7 @@ export default function LoginPage() {
                 </button>
               </div>
             </div>
-            {error && <div style={{ borderRadius:12, padding:'10px 14px', backgroundColor:'#FEF2F2', color:'#DC2626', border:'1px solid #FECACA', fontSize:12.5 }}>⚠ {error}</div>}
+            {(error || roleError) && <div style={{ borderRadius:12, padding:'10px 14px', backgroundColor:'#FEF2F2', color:'#DC2626', border:'1px solid #FECACA', fontSize:12.5 }}>⚠ {roleError || error}</div>}
             <button type="submit" disabled={loading} style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:8, padding:'13px 20px', borderRadius:14, background:'linear-gradient(135deg,#0284C7,#22D3EE)', color:'#fff', fontSize:14, fontWeight:700, border:'none', cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? .75 : 1, boxShadow:'0 6px 24px rgba(8,145,178,.4)', marginTop:4 }}>
               {loading ? '⏳ Memproses…' : <><ArrowUpRight size={16} /> Masuk ke Sales App</>}
             </button>
