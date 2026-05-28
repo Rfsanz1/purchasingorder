@@ -20,47 +20,11 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "POS App"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
 args = "NestJS Backend"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
 args = "Start application"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "POS Backend"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "ERP Driver App"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "ERP POS App"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "ERP Gudang App"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "ERP Sales App"
-
-[[workflows.workflow]]
-name = "POS App"
-author = "agent"
-
-[workflows.workflow.metadata]
-outputType = "console"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "cd frontend/artifacts/pos-app && npm install --no-workspaces --legacy-peer-deps && npx vite --port 5173 --host 0.0.0.0"
-waitForPort = 5173
 
 [[workflows.workflow]]
 name = "NestJS Backend"
@@ -86,66 +50,6 @@ task = "shell.exec"
 args = "cd apps/web && pnpm install && pnpm dev"
 waitForPort = 5000
 
-[[workflows.workflow]]
-name = "POS Backend"
-author = "agent"
-
-[workflows.workflow.metadata]
-outputType = "console"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "cd frontend/artifacts/pos-backend && node server.js"
-waitForPort = 8000
-
-[[workflows.workflow]]
-name = "ERP Driver App"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "cd apps/driver-app && pnpm install && pnpm dev"
-waitForPort = 3000
-
-[workflows.workflow.metadata]
-outputType = "console"
-
-[[workflows.workflow]]
-name = "ERP POS App"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "cd apps/pos-app && pnpm install && pnpm dev"
-waitForPort = 3001
-
-[workflows.workflow.metadata]
-outputType = "console"
-
-[[workflows.workflow]]
-name = "ERP Gudang App"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "cd apps/gudang-app && pnpm install && pnpm dev"
-waitForPort = 3003
-
-[workflows.workflow.metadata]
-outputType = "console"
-
-[[workflows.workflow]]
-name = "ERP Sales App"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "cd apps/sales-app && pnpm install && pnpm dev"
-waitForPort = 3002
-
-[workflows.workflow.metadata]
-outputType = "console"
-
 [agent]
 stack = "BEST_EFFORT_FALLBACK"
 expertMode = true
@@ -162,6 +66,18 @@ externalPort = 3000
 [[ports]]
 localPort = 3002
 externalPort = 3002
+
+[[ports]]
+localPort = 3003
+externalPort = 3003
+
+[[ports]]
+localPort = 5000
+externalPort = 80
+
+[[ports]]
+localPort = 6000
+externalPort = 6000
 
 [[ports]]
 localPort = 8000
@@ -182,14 +98,6 @@ externalPort = 4200
 [[ports]]
 localPort = 23636
 externalPort = 8000
-
-[[ports]]
-localPort = 3003
-externalPort = 3003
-
-[[ports]]
-localPort = 3003
-externalPort = 3003
 
 [nix]
 channel = "stable-25_05"
@@ -212,6 +120,13 @@ QUEUE_CONNECTION = "sync"
 SESSION_SAME_SITE = "none"
 SESSION_SECURE_COOKIE = "true"
 APP_KEY = "base64:77bISlISnpVyiKgTWeA+WYUcrOa0KZSySnHqiVg+B3A="
+JWT_SECRET = "erp-gentong-mas-jwt-secret-y9stx3wyz6"
+JWT_EXPIRES_IN = "7d"
+JWT_REFRESH_EXPIRES_IN = "30d"
+BACKEND_URL = "http://localhost:6000"
+PORT = "6000"
+NODE_ENV = "development"
+JWT_REFRESH_SECRET = "erp-gm-refresh-secret-2024"
 
 [userenv.development]
 APP_ENV = "local"

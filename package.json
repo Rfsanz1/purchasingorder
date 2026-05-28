@@ -7,24 +7,22 @@
     ],
     "scripts": {
         "dev:backend": "pnpm --filter @erp-modern/backend start:dev",
-        "dev:frontend": "pnpm --filter @erp-modern/frontend dev",
-        "dev:web": "pnpm --filter @gm/web dev",
+        "dev:admin": "pnpm --filter @gm/web dev",
         "dev:sales": "pnpm --filter @gm/sales-app dev",
         "dev:gudang": "pnpm --filter @gm/gudang-app dev",
+        "dev:pos": "pnpm --filter @gm/pos-app dev",
         "dev:driver": "pnpm --filter @gm/driver-app dev",
-        "dev:pos-new": "pnpm --filter @gm/pos-app dev",
-        "dev:pos": "pnpm --filter @workspace/pos-app dev",
-        "dev:all": "concurrently \"pnpm dev:backend\" \"pnpm dev:web\" \"pnpm dev:sales\" \"pnpm dev:gudang\" \"pnpm dev:driver\" \"pnpm dev:pos-new\"",
+        "dev": "concurrently \"pnpm dev:backend\" \"pnpm dev:admin\" \"pnpm dev:sales\" \"pnpm dev:gudang\" \"pnpm dev:pos\" \"pnpm dev:driver\"",
         "build:backend": "pnpm --filter @erp-modern/backend build",
-        "build:frontend": "pnpm --filter @erp-modern/frontend build",
-        "build:web": "pnpm --filter @gm/web build",
+        "build:admin": "pnpm --filter @gm/web build",
         "build:sales": "pnpm --filter @gm/sales-app build",
         "build:gudang": "pnpm --filter @gm/gudang-app build",
+        "build:pos": "pnpm --filter @gm/pos-app build",
         "build:driver": "pnpm --filter @gm/driver-app build",
-        "build:pos-new": "pnpm --filter @gm/pos-app build",
-        "build:all": "pnpm build:backend && pnpm build:web && pnpm build:sales && pnpm build:gudang && pnpm build:driver && pnpm build:pos-new"
+        "build:all": "pnpm build:backend && pnpm build:admin && pnpm build:sales && pnpm build:gudang && pnpm build:pos && pnpm build:driver"
     },
     "dependencies": {
+        "concurrently": "^8.2.2",
         "eventemitter3": "^5.0.4"
     }
 }

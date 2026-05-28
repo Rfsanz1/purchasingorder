@@ -32,7 +32,9 @@ import { AssetModule } from './modules/asset/asset.module.js';
 import { AuditModule } from './modules/audit/audit.module.js';
 import { BranchModule } from './modules/branch/branch.module.js';
 import { CanAccessGuard } from './common/guards/can-access.guard.js';
+import { RouteRoleGuard } from './common/guards/route-role.guard.js';
 import { PrismaService } from './database/prisma.service.js';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -69,6 +71,10 @@ import { PrismaService } from './database/prisma.service.js';
     AuditModule,
     BranchModule,
   ],
-  providers: [PrismaService, CanAccessGuard],
+  providers: [
+    PrismaService,
+    CanAccessGuard,
+    { provide: APP_GUARD, useClass: RouteRoleGuard },
+  ],
 })
 export class AppModule {}

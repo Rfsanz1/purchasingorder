@@ -3,8 +3,24 @@ import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../../database/prisma.service.js';
 import * as bcrypt from 'bcrypt';
 
+const ROLE_APP_MAP: Record<string, string> = {
+  admin: 'http://localhost:3000',
+  owner: 'http://localhost:3000',
+  'super admin': 'http://localhost:3000',
+  sales: 'http://localhost:3002',
+  'sales manager': 'http://localhost:3002',
+  gudang: 'http://localhost:3003',
+  'staff gudang': 'http://localhost:3003',
+  kasir: 'http://localhost:3004',
+  driver: 'http://localhost:3005',
+};
+
 @Injectable()
 export class AuthService {
+  static resolveAppRedirect(role: string): string {
+    return ROLE_APP_MAP[role.toLowerCase()] ?? 'http://localhost:3000';
+  }
+
   constructor(
     @Inject(PrismaService) private readonly prisma: PrismaService,
     @Inject(JwtService) private readonly jwtService: JwtService,
@@ -42,16 +58,22 @@ export class AuthService {
       { secret: process.env.JWT_REFRESH_SECRET || secret, expiresIn: '7d' },
     );
 
+    const role = user.roles[0]?.toLowerCase() ?? '';
+    const appRedirect = AuthService.resolveAppRedirect(role);
+
     return {
+      token: accessToken,
       accessToken,
       refreshToken,
       user: {
         id: user.id,
         name: user.name,
         email: user.email,
+        role,
         roles: user.roles,
         permissions: user.permissions,
       },
+      appRedirect,
     };
   }
 
