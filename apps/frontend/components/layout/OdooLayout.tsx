@@ -15,6 +15,7 @@ import {
   HardHat, GraduationCap, HeartPulse, CalendarCheck, ClipboardCheck,
   Layers, GitBranch, Hash, HardDrive, Link2, Mail, Smartphone,
   Fuel, Navigation, Target, Percent, Tag, Clock,
+  LayoutGrid, ExternalLink,
 } from 'lucide-react';
 import { useAuthStore } from '../../lib/store/useAuthStore';
 import { useNotificationStore } from '../../lib/store/useNotificationStore';
@@ -262,6 +263,26 @@ const navGroups: NavGroup[] = [
     ],
   },
   {
+    label: 'MONITORING APPS',
+    items: [
+      {
+        href: '/monitoring',
+        label: 'Overview Semua App',
+        icon: LayoutGrid,
+      },
+      {
+        label: 'Detail per App',
+        icon: Monitor,
+        children: [
+          { href: '/monitoring/sales',  label: 'Sales App' },
+          { href: '/monitoring/gudang', label: 'Gudang App' },
+          { href: '/monitoring/pos',    label: 'POS App' },
+          { href: '/monitoring/driver', label: 'Driver App' },
+        ],
+      },
+    ],
+  },
+  {
     label: 'SISTEM',
     items: [
       {
@@ -392,6 +413,14 @@ interface OdooLayoutProps {
 export function OdooLayout({ children, title, subtitle }: OdooLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userDropdown, setUserDropdown] = useState(false);
+  const [appLauncher, setAppLauncher] = useState(false);
+
+  const APP_LAUNCHER_ITEMS = [
+    { label: 'Sales App',   url: 'http://localhost:3002', color: '#0891B2', icon: ShoppingCart },
+    { label: 'Gudang App',  url: 'http://localhost:3003', color: '#D97706', icon: Package },
+    { label: 'POS App',     url: 'http://localhost:3004', color: '#E64A19', icon: Monitor },
+    { label: 'Driver App',  url: 'http://localhost:3005', color: '#1D4ED8', icon: Truck },
+  ];
   const { user, logout } = useAuthStore();
   const { notifications } = useNotificationStore();
   const router = useRouter();
@@ -572,6 +601,72 @@ export function OdooLayout({ children, title, subtitle }: OdooLayoutProps) {
             >
               <Settings className="h-5 w-5" />
             </Link>
+
+            {/* App Launcher */}
+            <div className="relative">
+              <button
+                onClick={() => setAppLauncher(!appLauncher)}
+                className="p-2 rounded-xl transition-colors"
+                title="Buka App Lain"
+                style={{ color: appLauncher ? C.primary : C.textMid, backgroundColor: appLauncher ? C.activeBg : 'transparent' }}
+                onMouseEnter={e => { if (!appLauncher) e.currentTarget.style.backgroundColor = C.hoverBg; }}
+                onMouseLeave={e => { if (!appLauncher) e.currentTarget.style.backgroundColor = 'transparent'; }}
+              >
+                <LayoutGrid className="h-5 w-5" />
+              </button>
+
+              {appLauncher && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setAppLauncher(false)} />
+                  <div
+                    className="absolute right-0 top-full mt-2 z-50 rounded-2xl overflow-hidden shadow-2xl"
+                    style={{ width: 240, backgroundColor: '#FFFFFF', border: `1px solid ${C.border}`, boxShadow: '0 8px 32px rgba(91,82,209,0.18)' }}
+                  >
+                    <div className="px-4 py-3" style={{ borderBottom: `1px solid ${C.border}` }}>
+                      <p className="text-xs font-bold tracking-widest" style={{ color: C.primaryLight }}>APP LAUNCHER</p>
+                    </div>
+                    <div className="p-2 grid grid-cols-2 gap-2">
+                      {APP_LAUNCHER_ITEMS.map((app) => {
+                        const Icon = app.icon;
+                        return (
+                          <a
+                            key={app.label}
+                            href={app.url}
+                            target="_blank"
+                            rel="noreferrer"
+                            onClick={() => setAppLauncher(false)}
+                            className="flex flex-col items-center gap-2 p-3 rounded-xl transition-all text-center"
+                            style={{ border: `1.5px solid ${C.border}` }}
+                            onMouseEnter={e => { e.currentTarget.style.borderColor = app.color; e.currentTarget.style.backgroundColor = `${app.color}08`; }}
+                            onMouseLeave={e => { e.currentTarget.style.borderColor = C.border; e.currentTarget.style.backgroundColor = 'transparent'; }}
+                          >
+                            <div className="flex h-9 w-9 items-center justify-center rounded-xl" style={{ backgroundColor: `${app.color}15` }}>
+                              <Icon className="h-4.5 w-4.5" style={{ color: app.color, width: 18, height: 18 }} />
+                            </div>
+                            <div>
+                              <p className="text-xs font-semibold leading-tight" style={{ color: C.textDark }}>{app.label}</p>
+                              <ExternalLink className="h-2.5 w-2.5 inline mt-0.5" style={{ color: C.textLight }} />
+                            </div>
+                          </a>
+                        );
+                      })}
+                    </div>
+                    <div className="px-3 pb-3">
+                      <Link
+                        href="/monitoring"
+                        onClick={() => setAppLauncher(false)}
+                        className="flex items-center justify-center gap-1.5 w-full py-2 rounded-xl text-xs font-semibold transition-colors"
+                        style={{ backgroundColor: C.activeBg, color: C.primary }}
+                        onMouseEnter={e => (e.currentTarget.style.backgroundColor = C.primaryBg)}
+                        onMouseLeave={e => (e.currentTarget.style.backgroundColor = C.activeBg)}
+                      >
+                        <LayoutGrid className="h-3.5 w-3.5" /> Command Center
+                      </Link>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </header>
 
