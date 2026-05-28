@@ -6,17 +6,16 @@ import { ValidationPipe } from '@nestjs/common';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('api');
-  const allowedOrigins = [
-    'http://localhost:3000',
-    'http://localhost:3002',
-    'http://localhost:3003',
-    'http://localhost:3004',
-    'http://localhost:3005',
-    'http://localhost:5000',
-  ];
   app.enableCors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
+      if (!origin) { callback(null, true); return; }
+      const allowed =
+        origin.startsWith('http://localhost:') ||
+        origin.endsWith('.replit.dev') ||
+        origin.endsWith('.repl.co') ||
+        origin.endsWith('.replit.app') ||
+        origin.endsWith('.replit.com');
+      if (allowed) {
         callback(null, true);
       } else {
         callback(new Error(`Origin ${origin} not allowed by CORS`));

@@ -34,6 +34,14 @@ args = "Sales App"
 task = "workflow.run"
 args = "Gudang App"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "POS App"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Driver App"
+
 [[workflows.workflow]]
 name = "NestJS Backend"
 author = "agent"
@@ -43,7 +51,7 @@ outputType = "console"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "cd apps/backend && pnpm install && npx prisma generate && npx prisma db push --accept-data-loss && node --loader ts-node/esm prisma/seed.ts; PORT=6000 pnpm start:dev"
+args = "cd apps/backend && npx prisma generate && npx prisma db push --accept-data-loss 2>/dev/null; node --loader ts-node/esm prisma/seed.ts 2>/dev/null; PORT=6000 pnpm start:dev"
 waitForPort = 6000
 
 [[workflows.workflow]]
@@ -55,29 +63,53 @@ outputType = "webview"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "cd apps/web && pnpm install && pnpm dev"
+args = "cd apps/web && pnpm dev"
 waitForPort = 5000
 
 [[workflows.workflow]]
 name = "Sales App"
 author = "agent"
 
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "cd apps/sales-app && pnpm install && pnpm dev"
-waitForPort = 3002
-
 [workflows.workflow.metadata]
 outputType = "console"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd apps/sales-app && pnpm dev"
+waitForPort = 3002
 
 [[workflows.workflow]]
 name = "Gudang App"
 author = "agent"
 
+[workflows.workflow.metadata]
+outputType = "console"
+
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "cd apps/gudang-app && pnpm install && pnpm dev"
+args = "cd apps/gudang-app && pnpm dev"
 waitForPort = 3003
+
+[[workflows.workflow]]
+name = "POS App"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd apps/pos-app && pnpm dev"
+waitForPort = 3001
+
+[workflows.workflow.metadata]
+outputType = "console"
+
+[[workflows.workflow]]
+name = "Driver App"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd apps/driver-app && pnpm dev"
+waitForPort = 3000
 
 [workflows.workflow.metadata]
 outputType = "console"
@@ -96,20 +128,24 @@ localPort = 3000
 externalPort = 3000
 
 [[ports]]
+localPort = 3001
+externalPort = 3001
+
+[[ports]]
 localPort = 3002
-externalPort = 3002
+externalPort = 5000
 
 [[ports]]
 localPort = 3003
 externalPort = 3003
 
 [[ports]]
-localPort = 6000
-externalPort = 6000
+localPort = 5000
+externalPort = 80
 
 [[ports]]
-localPort = 8000
-externalPort = 8000
+localPort = 6000
+externalPort = 6000
 
 [[ports]]
 localPort = 8080

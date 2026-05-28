@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 const PUBLIC_PATHS = ['/login', '/unauthorized', '/_next', '/favicon', '/api/auth'];
-const ALLOWED_ROLES = ['KASIR', 'ADMIN', 'OWNER'];
+const ALLOWED_ROLES = ['KASIR', 'SUPERVISOR_KASIR', 'ADMIN', 'OWNER', 'SUPER_ADMIN'];
 
 function getRolesFromCookie(req: NextRequest): string[] {
   const raw = req.cookies.get('erp_roles')?.value;
