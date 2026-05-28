@@ -2,16 +2,19 @@
 import { useState, useEffect, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '../../lib/useAuthStore';
-import { Eye, EyeOff, ArrowUpRight, Package, ArrowDownRight, ArrowUpRight as ArrowUp, ClipboardCheck } from 'lucide-react';
+import { Eye, EyeOff, ArrowUpRight, Package, ArrowDownRight, ArrowUpRight as ArrowUp, ClipboardCheck, AlertCircle } from 'lucide-react';
+
+const GUDANG_ROLES = ['GUDANG', 'ADMIN', 'OWNER'];
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, loadProfile, token, error, loading } = useAuthStore();
+  const { login, loadProfile, token, error, loading, logout } = useAuthStore();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPass, setShowPass] = useState(false);
   const [focused, setFocused] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [roleError, setRoleError] = useState('');
 
   useEffect(() => { setMounted(true); }, []);
   useEffect(() => { if (token) router.replace('/'); }, [token, router]);
@@ -19,9 +22,23 @@ export default function LoginPage() {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    setRoleError('');
     const ok = await login(email, password);
-    if (ok) { await loadProfile(); router.replace('/'); }
+    if (ok) {
+      await loadProfile();
+      const rawRoles = document.cookie.split('; ').find(r => r.startsWith('erp_roles='))?.split('=')[1];
+      let roles: string[] = [];
+      try { roles = JSON.parse(decodeURIComponent(rawRoles ?? '[]')); } catch {}
+      if (roles.length > 0 && !roles.some(r => GUDANG_ROLES.includes(r))) {
+        logout();
+        setRoleError('Akun ini tidak memiliki akses Gudang App. Hubungi administrator.');
+        return;
+      }
+      router.replace('/');
+    }
   }
+
+  const displayError = roleError || error;
 
   return (
     <div style={{ minHeight:'100vh', display:'flex', opacity: mounted ? 1 : 0, transition:'opacity .4s' }}>
@@ -76,7 +93,11 @@ export default function LoginPage() {
                 </button>
               </div>
             </div>
-            {error && <div style={{ borderRadius:12, padding:'10px 14px', backgroundColor:'#FEF2F2', color:'#DC2626', border:'1px solid #FECACA', fontSize:12.5 }}>⚠ {error}</div>}
+            {displayError && (
+              <div style={{ borderRadius:12, padding:'12px 16px', backgroundColor:'#FEF2F2', color:'#DC2626', border:'1.5px solid #FECACA', fontSize:14, display:'flex', alignItems:'flex-start', gap:8 }}>
+                <AlertCircle size={15} style={{ flexShrink:0, marginTop:1 }} /><span>{displayError}</span>
+              </div>
+            )}
             <button type="submit" disabled={loading} style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:8, padding:'13px 20px', borderRadius:14, background:'linear-gradient(135deg,#B45309,#FBBF24)', color:'#fff', fontSize:14, fontWeight:700, border:'none', cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? .75 : 1, boxShadow:'0 6px 24px rgba(180,83,9,.35)', marginTop:4 }}>
               {loading ? '⏳ Memproses…' : <><ArrowUpRight size={16} /> Masuk ke Gudang App</>}
             </button>
