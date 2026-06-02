@@ -1,5 +1,4 @@
 node_modules
-dist
 build
 .cache
 .replit_cache
@@ -9,24 +8,13 @@ build
 .env.local
 .local
 
-# Android build artifacts
-frontend/artifacts/event-registration/android/.gradle/
-frontend/artifacts/event-registration/android/app/build/
-frontend/artifacts/event-registration/android/build/
-frontend/artifacts/event-registration/android/captures/
-frontend/artifacts/event-registration/android/local.properties
-frontend/artifacts/event-registration/android/.idea/
-frontend/artifacts/event-registration/android/app/release/
+# Active workspace artifacts
+apps/frontend/.next
+apps/frontend/node_modules
+apps/backend/node_modules
 
-# Capacitor
-frontend/artifacts/event-registration/android/app/src/main/assets/public/
-frontend/artifacts/event-registration/android/app/src/main/assets/capacitor.config.json
-frontend/artifacts/event-registration/android/app/src/main/assets/capacitor.plugins.json
-frontend/artifacts/event-registration/release/
-
-# Laravel
+# Laravel / legacy storage
 vendor/
-laravel/
 storage/framework/cache/data/
 storage/framework/sessions/
 storage/framework/views/

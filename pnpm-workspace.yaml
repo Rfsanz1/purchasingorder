@@ -1,8 +1,6 @@
 packages:
-  - 'apps/*'
-  - 'packages/*'
-  - 'frontend/artifacts/pos-app'
-  - 'frontend/artifacts/mockup-sandbox'
+  - 'apps/frontend'
+  - 'apps/backend'
 
 catalog:
   '@replit/vite-plugin-cartographer': ^0.2.0

@@ -1,4 +1,4 @@
-modules = ["nodejs-20", "web", "php-8.2"]
+modules = ["nodejs-20", "web"]
 
 [deployment]
 router = "application"
@@ -14,35 +14,6 @@ env = { "CI" = "true" }
 runButton = "Project"
 
 [[workflows.workflow]]
-name = "Project"
-mode = "parallel"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "NestJS Backend"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Start application"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Sales App"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Gudang App"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "POS App"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Driver App"
-
-[[workflows.workflow]]
 name = "NestJS Backend"
 author = "agent"
 
@@ -55,7 +26,7 @@ args = "cd apps/backend && npx prisma generate && npx prisma db push --accept-da
 waitForPort = 6000
 
 [[workflows.workflow]]
-name = "Start application"
+name = "Next.js Frontend"
 author = "agent"
 
 [workflows.workflow.metadata]
@@ -63,56 +34,8 @@ outputType = "webview"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "cd apps/web && pnpm dev"
-waitForPort = 5000
-
-[[workflows.workflow]]
-name = "Sales App"
-author = "agent"
-
-[workflows.workflow.metadata]
-outputType = "console"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "cd apps/sales-app && pnpm dev"
-waitForPort = 3002
-
-[[workflows.workflow]]
-name = "Gudang App"
-author = "agent"
-
-[workflows.workflow.metadata]
-outputType = "console"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "cd apps/gudang-app && pnpm dev"
-waitForPort = 3003
-
-[[workflows.workflow]]
-name = "POS App"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "cd apps/pos-app && pnpm dev"
-waitForPort = 3001
-
-[workflows.workflow.metadata]
-outputType = "console"
-
-[[workflows.workflow]]
-name = "Driver App"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "cd apps/driver-app && pnpm dev"
+args = "cd apps/frontend && pnpm dev"
 waitForPort = 3000
-
-[workflows.workflow.metadata]
-outputType = "console"
 
 [agent]
 stack = "BEST_EFFORT_FALLBACK"
@@ -128,44 +51,8 @@ localPort = 3000
 externalPort = 3000
 
 [[ports]]
-localPort = 3001
-externalPort = 3001
-
-[[ports]]
-localPort = 3002
-externalPort = 5000
-
-[[ports]]
-localPort = 3003
-externalPort = 3003
-
-[[ports]]
-localPort = 5000
-externalPort = 80
-
-[[ports]]
 localPort = 6000
 externalPort = 6000
-
-[[ports]]
-localPort = 8080
-externalPort = 8080
-
-[[ports]]
-localPort = 8081
-externalPort = 8081
-
-[[ports]]
-localPort = 23287
-externalPort = 5173
-
-[[ports]]
-localPort = 23289
-externalPort = 4200
-
-[[ports]]
-localPort = 23636
-externalPort = 8000
 
 [nix]
 channel = "stable-25_05"

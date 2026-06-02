@@ -2,24 +2,16 @@
     "private": true,
     "type": "module",
     "workspaces": [
-        "apps/*",
-        "frontend/artifacts/pos-app"
+        "apps/frontend",
+        "apps/backend"
     ],
     "scripts": {
         "dev:backend": "pnpm --filter @erp-modern/backend start:dev",
-        "dev:admin": "pnpm --filter @gm/web dev",
-        "dev:sales": "pnpm --filter @gm/sales-app dev",
-        "dev:gudang": "pnpm --filter @gm/gudang-app dev",
-        "dev:pos": "pnpm --filter @gm/pos-app dev",
-        "dev:driver": "pnpm --filter @gm/driver-app dev",
-        "dev": "concurrently \"pnpm dev:backend\" \"pnpm dev:admin\" \"pnpm dev:sales\" \"pnpm dev:gudang\" \"pnpm dev:pos\" \"pnpm dev:driver\"",
+        "dev:frontend": "pnpm --filter @erp-modern/frontend dev",
+        "dev": "concurrently \"pnpm dev:backend\" \"pnpm dev:frontend\"",
         "build:backend": "pnpm --filter @erp-modern/backend build",
-        "build:admin": "pnpm --filter @gm/web build",
-        "build:sales": "pnpm --filter @gm/sales-app build",
-        "build:gudang": "pnpm --filter @gm/gudang-app build",
-        "build:pos": "pnpm --filter @gm/pos-app build",
-        "build:driver": "pnpm --filter @gm/driver-app build",
-        "build:all": "pnpm build:backend && pnpm build:admin && pnpm build:sales && pnpm build:gudang && pnpm build:pos && pnpm build:driver"
+        "build:frontend": "pnpm --filter @erp-modern/frontend build",
+        "build:all": "pnpm build:backend && pnpm build:frontend"
     },
     "dependencies": {
         "concurrently": "^8.2.2",
