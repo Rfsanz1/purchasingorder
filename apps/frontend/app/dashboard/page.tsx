@@ -1,468 +1,448 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import Link from 'next/link';
-import { useAuthStore } from '../../lib/store/useAuthStore';
-import { OdooLayout } from '../../components/layout/OdooLayout';
-import { dashboardService, salesService, type DashboardSummary, type RecentOrder } from '../../lib/services';
 import {
   TrendingUp, TrendingDown, ShoppingCart, Package, DollarSign,
   Users, FileText, AlertTriangle, CheckCircle, Clock, BarChart2,
-  ArrowUpRight, Activity, Zap, RefreshCw,
-  ShoppingBag, Truck, Brain, Target, Star, Wifi, WifiOff,
+  RefreshCw, Truck, Target, MoreHorizontal, ChevronRight,
 } from 'lucide-react';
 
-const formatRp = (val: number) => {
-  if (val >= 1_000_000_000) return `Rp ${(val / 1_000_000_000).toFixed(1)} M`;
-  if (val >= 1_000_000) return `Rp ${(val / 1_000_000).toFixed(1)} Jt`;
-  if (val >= 1_000) return `Rp ${(val / 1_000).toFixed(0)} rb`;
-  return `Rp ${val}`;
-};
-
-const extractName = (val: any): string => {
-  if (!val) return '–';
-  if (typeof val === 'string') return val;
-  if (typeof val === 'object') return val.name ?? val.nama ?? val.email ?? '–';
-  return String(val);
-};
-
-const QUICK_ACTIONS = [
-  { label: 'Buat Quotation', href: '/sales/quotations', icon: FileText, color: '#3B82F6' },
-  { label: 'Terima Pembayaran', href: '/invoice/payments', icon: DollarSign, color: '#22C55E' },
-  { label: 'Transfer Stok', href: '/inventory/transfers', icon: Package, color: '#8B5CF6' },
-  { label: 'Buat Purchase Order', href: '/purchasing/purchase-orders', icon: Truck, color: '#F59E0B' },
-  { label: 'AI Assistant', href: '/ai/chatbot', icon: Brain, color: '#5B52D1' },
-  { label: 'Laporan Harian', href: '/reports/sales', icon: BarChart2, color: '#14B8A6' },
+const KPI_CARDS = [
+  {
+    title: 'Total Penjualan',
+    value: 'Rp 1,24 M',
+    sub: '+12.5% dari bulan lalu',
+    trend: 'up',
+    icon: DollarSign,
+    color: '#3B82F6',
+    bg: '#EFF6FF',
+  },
+  {
+    title: 'Sales Orders',
+    value: '284',
+    sub: '+8 hari ini',
+    trend: 'up',
+    icon: ShoppingCart,
+    color: '#8B5CF6',
+    bg: '#F5F3FF',
+  },
+  {
+    title: 'Total Pelanggan',
+    value: '1,892',
+    sub: '+24 bulan ini',
+    trend: 'up',
+    icon: Users,
+    color: '#10B981',
+    bg: '#ECFDF5',
+  },
+  {
+    title: 'Invoice Pending',
+    value: '47',
+    sub: '-3 dari kemarin',
+    trend: 'down',
+    icon: FileText,
+    color: '#F59E0B',
+    bg: '#FFFBEB',
+  },
 ];
+
+const RECENT_ORDERS = [
+  { id: 'SO-2024-0312', customer: 'PT Maju Jaya', amount: 'Rp 4,8 Jt', status: 'Confirmed', date: '2 jam lalu' },
+  { id: 'SO-2024-0311', customer: 'CV Berkah Abadi', amount: 'Rp 2,1 Jt', status: 'In Progress', date: '4 jam lalu' },
+  { id: 'SO-2024-0310', customer: 'Toko Sumber Rejeki', amount: 'Rp 870 rb', status: 'Done', date: '6 jam lalu' },
+  { id: 'SO-2024-0309', customer: 'PT Anugrah Setia', amount: 'Rp 3,5 Jt', status: 'Confirmed', date: 'Kemarin' },
+  { id: 'SO-2024-0308', customer: 'CV Sinar Mas', amount: 'Rp 1,2 Jt', status: 'Cancelled', date: 'Kemarin' },
+];
+
+const STATUS_STYLE: Record<string, { color: string; bg: string; label: string }> = {
+  Confirmed: { color: '#3B82F6', bg: '#EFF6FF', label: 'Dikonfirmasi' },
+  'In Progress': { color: '#F59E0B', bg: '#FFFBEB', label: 'Diproses' },
+  Done: { color: '#10B981', bg: '#ECFDF5', label: 'Selesai' },
+  Cancelled: { color: '#EA5455', bg: '#FFF5F5', label: 'Dibatalkan' },
+};
 
 const TOP_PRODUCTS = [
-  { name: 'Semen Portland 50kg', sold: 840, revenue: 'Rp 42 M', pct: 85 },
-  { name: 'Bata Merah (ikat)', sold: 520, revenue: 'Rp 18,2 M', pct: 65 },
-  { name: 'Pipa PVC 4 inch', sold: 380, revenue: 'Rp 9,5 M', pct: 48 },
-  { name: 'Cat Tembok Dulux 5L', sold: 290, revenue: 'Rp 7,8 M', pct: 38 },
-  { name: 'Besi Beton 10mm', sold: 210, revenue: 'Rp 6,3 M', pct: 28 },
+  { name: 'Semen Portland 50kg', sold: 840, pct: 85 },
+  { name: 'Bata Merah (ikat)', sold: 520, pct: 62 },
+  { name: 'Pipa PVC 4 inch', sold: 380, pct: 45 },
+  { name: 'Cat Tembok Dulux 5L', sold: 290, pct: 35 },
+  { name: 'Besi Beton 10mm', sold: 210, pct: 25 },
 ];
 
-function MiniBarChart({ data }: { data: { month: string; revenue: number; order: number }[] }) {
-  const maxRev = Math.max(...data.map((d) => d.revenue), 1);
+const PIPELINE_STAGES = [
+  { label: 'Leads', count: 142, color: '#94A3B8' },
+  { label: 'Qualified', count: 87, color: '#3B82F6' },
+  { label: 'Proposal', count: 54, color: '#8B5CF6' },
+  { label: 'Negotiation', count: 31, color: '#F59E0B' },
+  { label: 'Won', count: 18, color: '#10B981' },
+];
+
+const QUICK_ACTIONS = [
+  { label: 'Buat Quotation', href: '/sales/quotations', icon: FileText, color: '#3B82F6', bg: '#EFF6FF' },
+  { label: 'Terima Pembayaran', href: '/invoice/payments', icon: DollarSign, color: '#10B981', bg: '#ECFDF5' },
+  { label: 'Transfer Stok', href: '/inventory/transfers', icon: Package, color: '#8B5CF6', bg: '#F5F3FF' },
+  { label: 'Purchase Order', href: '/purchasing/purchase-orders', icon: Truck, color: '#F59E0B', bg: '#FFFBEB' },
+  { label: 'Laporan Penjualan', href: '/reports/sales', icon: BarChart2, color: '#6366F1', bg: '#EEF2FF' },
+  { label: 'CRM Pipeline', href: '/crm/pipeline', icon: Target, color: '#14B8A6', bg: '#F0FDFA' },
+];
+
+const STOCK_ALERTS = [
+  { product: 'Semen Portland 50kg', stock: 12, min: 50, unit: 'zak' },
+  { product: 'Cat Tembok 5L', stock: 5, min: 20, unit: 'kaleng' },
+  { product: 'Paku 5cm', stock: 3, min: 10, unit: 'kg' },
+];
+
+const MONTHLY_DATA = [
+  { month: 'Jan', revenue: 820 },
+  { month: 'Feb', revenue: 932 },
+  { month: 'Mar', revenue: 901 },
+  { month: 'Apr', revenue: 1134 },
+  { month: 'Mei', revenue: 1290 },
+  { month: 'Jun', revenue: 1100 },
+  { month: 'Jul', revenue: 1240 },
+];
+
+function MiniBarChart({ data }: { data: { month: string; revenue: number }[] }) {
+  const max = Math.max(...data.map((d) => d.revenue));
   return (
-    <div className="flex items-end gap-2 h-24">
+    <div className="flex items-end gap-1.5 h-20">
       {data.map((d, i) => (
         <div key={i} className="flex-1 flex flex-col items-center gap-1">
-          <div className="w-full flex gap-0.5 items-end" style={{ height: '72px' }}>
-            <div
-              className="flex-1 rounded-t transition-all"
-              style={{ height: `${(d.revenue / maxRev) * 100}%`, backgroundColor: '#5B52D1', opacity: i === data.length - 1 ? 1 : 0.55 }}
-            />
-            <div
-              className="flex-1 rounded-t transition-all"
-              style={{ height: `${(d.order / maxRev) * 100}%`, backgroundColor: '#EDE9FE' }}
-            />
-          </div>
-          <span className="text-[9px]" style={{ color: '#9CA3AF' }}>{d.month}</span>
+          <div
+            className="w-full rounded-t-sm transition-all"
+            style={{
+              height: `${(d.revenue / max) * 100}%`,
+              backgroundColor: i === data.length - 1 ? '#3B82F6' : '#BFDBFE',
+              minHeight: '4px',
+            }}
+          />
+          <span className="text-[9px] text-slate-400">{d.month}</span>
         </div>
       ))}
     </div>
   );
 }
 
-function SkeletonCard() {
-  return (
-    <div className="rounded-2xl p-4 flex flex-col gap-3 animate-pulse" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE' }}>
-      <div className="flex items-center justify-between">
-        <div className="h-9 w-9 rounded-xl bg-gray-100" />
-        <div className="h-4 w-12 rounded bg-gray-100" />
-      </div>
-      <div className="space-y-1.5">
-        <div className="h-5 w-20 rounded bg-gray-100" />
-        <div className="h-3 w-28 rounded bg-gray-100" />
-      </div>
-    </div>
-  );
-}
-
-const STATUS_COLORS: Record<string, string> = {
-  Dikonfirmasi: '#22C55E', confirmed: '#22C55E',
-  Menunggu: '#F59E0B', pending: '#F59E0B',
-  Terkirim: '#3B82F6', shipped: '#3B82F6',
-  Draft: '#6B7280', draft: '#6B7280',
-  done: '#14B8A6', cancelled: '#EF4444',
-};
-
 export default function DashboardPage() {
-  const { token, user, loadProfile } = useAuthStore();
-  const router = useRouter();
-  const [mounted, setMounted] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [apiOnline, setApiOnline] = useState<boolean | null>(null);
-  const [lastRefresh, setLastRefresh] = useState(new Date());
-
-  const [summary, setSummary] = useState<DashboardSummary | null>(null);
-  const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
-  const [chartData, setChartData] = useState([
-    { month: 'Jan', revenue: 62, order: 48 },
-    { month: 'Feb', revenue: 58, order: 44 },
-    { month: 'Mar', revenue: 75, order: 62 },
-    { month: 'Apr', revenue: 82, order: 71 },
-    { month: 'Mei', revenue: 95, order: 84 },
-    { month: 'Jun', revenue: 88, order: 78 },
-  ]);
-
-  const fetchData = useCallback(async () => {
-    setLoading(true);
-    try {
-      const [dash, ordersRes] = await Promise.all([
-        dashboardService.getSummary(),
-        salesService.getOrders({ limit: 5 }).catch(() => null),
-      ]);
-      setSummary(dash);
-      if (dash.recent_orders?.length) setRecentOrders(dash.recent_orders);
-      else if (ordersRes?.data?.length) setRecentOrders(ordersRes.data);
-      if (dash.monthly_revenue?.length) {
-        setChartData(dash.monthly_revenue.map((m) => ({
-          month: m.month,
-          revenue: m.revenue / 1_000_000,
-          order: m.orders,
-        })));
-      }
-      setApiOnline(true);
-    } catch {
-      setApiOnline(false);
-    } finally {
-      setLoading(false);
-      setLastRefresh(new Date());
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!token) { router.push('/login'); return; }
-    loadProfile().catch(() => {});
-    setMounted(true);
-    fetchData();
-  }, [token]);
-
-  if (!mounted || !token) return null;
-
-  const displayName = user?.name ?? user?.email?.split('@')[0] ?? 'Admin';
-
-  const kpiCards = summary
-    ? [
-        {
-          label: 'Revenue Hari Ini', value: formatRp(summary.revenue_today ?? 0),
-          change: `${(summary.revenue_growth ?? 0) >= 0 ? '+' : ''}${(summary.revenue_growth ?? 0).toFixed(1)}%`,
-          up: (summary.revenue_growth ?? 0) >= 0, icon: DollarSign, color: '#22C55E', bg: '#F0FDF4',
-        },
-        {
-          label: 'Total Order', value: String(summary.total_orders ?? 0),
-          change: `${(summary.order_growth ?? 0) >= 0 ? '+' : ''}${(summary.order_growth ?? 0).toFixed(1)}%`,
-          up: (summary.order_growth ?? 0) >= 0, icon: ShoppingCart, color: '#3B82F6', bg: '#EFF6FF',
-        },
-        {
-          label: 'Invoice Outstanding', value: formatRp(summary.invoice_outstanding ?? 0),
-          change: 'Belum lunas', up: false, icon: FileText, color: '#F59E0B', bg: '#FFFBEB',
-        },
-        {
-          label: 'Pelanggan Aktif', value: String(summary.active_customers ?? 0),
-          change: 'Total aktif', up: true, icon: Users, color: '#8B5CF6', bg: '#F5F3FF',
-        },
-        {
-          label: 'Stok Rendah', value: `${summary.low_stock_count ?? 0} Item`,
-          change: 'Perlu restock', up: false, icon: Package, color: '#EF4444', bg: '#FEF2F2',
-        },
-        {
-          label: 'PO Pending', value: String(summary.pending_po ?? 0),
-          change: 'Menunggu', up: true, icon: Truck, color: '#14B8A6', bg: '#F0FDFA',
-        },
-      ]
-    : null;
-
-  const mockKpi = [
-    { label: 'Revenue Hari Ini', value: 'Rp 4,2 M', change: '+12.5%', up: true, icon: DollarSign, color: '#22C55E', bg: '#F0FDF4' },
-    { label: 'Total Order', value: '547', change: '+8.3%', up: true, icon: ShoppingCart, color: '#3B82F6', bg: '#EFF6FF' },
-    { label: 'Invoice Outstanding', value: 'Rp 18,7 M', change: '-5.2%', up: false, icon: FileText, color: '#F59E0B', bg: '#FFFBEB' },
-    { label: 'Pelanggan Aktif', value: '1,284', change: '+3.1%', up: true, icon: Users, color: '#8B5CF6', bg: '#F5F3FF' },
-    { label: 'Stok Rendah', value: '23 Item', change: '+4 baru', up: false, icon: Package, color: '#EF4444', bg: '#FEF2F2' },
-    { label: 'PO Pending', value: '12', change: '+2 hari ini', up: true, icon: Truck, color: '#14B8A6', bg: '#F0FDFA' },
-  ];
-
-  const kpi = kpiCards ?? mockKpi;
-
-  const mockOrders = [
-    { id: 'SO-2026-1842', customer: 'PT Sinar Jaya', amount: 4500000, status: 'Dikonfirmasi', date: '26 Mei 2026' },
-    { id: 'SO-2026-1841', customer: 'CV Maju Bersama', amount: 1250000, status: 'Menunggu', date: '26 Mei 2026' },
-    { id: 'SO-2026-1840', customer: 'UD Berkah Jaya', amount: 8750000, status: 'Terkirim', date: '25 Mei 2026' },
-    { id: 'SO-2026-1839', customer: 'PT Indah Lestari', amount: 2100000, status: 'Dikonfirmasi', date: '25 Mei 2026' },
-    { id: 'SO-2026-1838', customer: 'Toko Sejahtera', amount: 675000, status: 'Draft', date: '24 Mei 2026' },
-  ];
-  const orders = recentOrders.length > 0 ? recentOrders : mockOrders;
-
-  const mockAlerts = [
-    { message: 'Stok Semen Portland hampir habis (5 sak tersisa)', type: 'danger' as const, href: '/inventory/products' },
-    { message: '7 invoice jatuh tempo dalam 3 hari ke depan', type: 'warning' as const, href: '/invoice/aging' },
-    { message: 'Approval PO-2026-0048 menunggu persetujuan', type: 'info' as const, href: '/purchasing/approval-matrix' },
-  ];
-  const alerts = summary?.alerts ?? mockAlerts;
+  const [activeTab, setActiveTab] = useState<'today' | 'week' | 'month'>('month');
 
   return (
-    <OdooLayout title="Dashboard" subtitle="Ringkasan bisnis real-time">
-      <div className="space-y-6">
-
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-bold" style={{ color: '#1E1B4B' }}>
-              Selamat datang, {displayName} 👋
-            </h1>
-            <p className="text-sm mt-0.5 flex items-center gap-2" style={{ color: '#9CA3AF' }}>
-              {new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
-              {apiOnline !== null && (
-                <span className="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full font-semibold" style={{
-                  backgroundColor: apiOnline ? 'rgba(34,197,94,.1)' : 'rgba(239,68,68,.1)',
-                  color: apiOnline ? '#22C55E' : '#EF4444',
-                }}>
-                  {apiOnline ? <Wifi className="h-2.5 w-2.5" /> : <WifiOff className="h-2.5 w-2.5" />}
-                  {apiOnline ? 'API Online' : 'Mode Demo'}
-                </span>
-              )}
-            </p>
+    <div className="space-y-5 max-w-[1400px]">
+      {/* Page header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-lg font-bold text-slate-800">Dashboard</h1>
+          <p className="text-sm text-slate-400 mt-0.5">Selamat datang kembali — ringkasan bisnis Anda hari ini.</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <div
+            className="flex rounded-lg border overflow-hidden text-xs font-medium"
+            style={{ borderColor: '#E2E8F0' }}
+          >
+            {(['today', 'week', 'month'] as const).map((t) => (
+              <button
+                key={t}
+                onClick={() => setActiveTab(t)}
+                className="px-3 py-1.5 transition-colors"
+                style={{
+                  backgroundColor: activeTab === t ? '#3B82F6' : '#FFFFFF',
+                  color: activeTab === t ? '#FFFFFF' : '#64748B',
+                }}
+              >
+                {t === 'today' ? 'Hari Ini' : t === 'week' ? 'Minggu' : 'Bulan'}
+              </button>
+            ))}
           </div>
           <button
-            onClick={fetchData}
-            disabled={loading}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition hover:bg-gray-100 disabled:opacity-60"
-            style={{ border: '1.5px solid #EDE9FE', color: '#6B7280' }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors hover:bg-slate-50"
+            style={{ borderColor: '#E2E8F0', color: '#64748B' }}
           >
-            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-            {loading ? 'Memuat...' : `Refresh · ${lastRefresh.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}`}
+            <RefreshCw className="h-3.5 w-3.5" />
+            Refresh
           </button>
         </div>
+      </div>
 
-        {/* KPI Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
-          {loading
-            ? Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)
-            : kpi.map((k, i) => (
+      {/* KPI Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        {KPI_CARDS.map((card) => {
+          const Icon = card.icon;
+          return (
+            <div
+              key={card.title}
+              className="rounded-xl p-5 border flex flex-col gap-4"
+              style={{ backgroundColor: '#FFFFFF', borderColor: '#E2E8F0' }}
+            >
+              <div className="flex items-start justify-between">
                 <div
-                  key={i}
-                  className="rounded-2xl p-4 flex flex-col gap-3"
-                  style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE', boxShadow: '0 1px 4px rgba(91,82,209,0.05)' }}
+                  className="h-10 w-10 rounded-xl flex items-center justify-center"
+                  style={{ backgroundColor: card.bg }}
                 >
-                  <div className="flex items-center justify-between">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-xl" style={{ backgroundColor: k.bg }}>
-                      <k.icon className="h-4 w-4" style={{ color: k.color }} />
+                  <Icon className="h-5 w-5" style={{ color: card.color }} />
+                </div>
+                <span
+                  className="flex items-center gap-1 text-xs font-medium"
+                  style={{ color: card.trend === 'up' ? '#10B981' : '#EA5455' }}
+                >
+                  {card.trend === 'up'
+                    ? <TrendingUp className="h-3.5 w-3.5" />
+                    : <TrendingDown className="h-3.5 w-3.5" />
+                  }
+                  {card.sub.split(' ')[0]}
+                </span>
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-slate-800">{card.value}</p>
+                <p className="text-sm text-slate-400 mt-0.5">{card.title}</p>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Main grid: Revenue chart + CRM Pipeline */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div
+          className="lg:col-span-2 rounded-xl border p-5"
+          style={{ backgroundColor: '#FFFFFF', borderColor: '#E2E8F0' }}
+        >
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="text-sm font-semibold text-slate-700">Tren Pendapatan</h2>
+              <p className="text-xs text-slate-400">7 bulan terakhir</p>
+            </div>
+            <button className="p-1.5 rounded-lg hover:bg-slate-100">
+              <MoreHorizontal className="h-4 w-4 text-slate-400" />
+            </button>
+          </div>
+          <MiniBarChart data={MONTHLY_DATA} />
+          <div className="flex items-center justify-between mt-4 pt-4 border-t" style={{ borderColor: '#F1F5F9' }}>
+            <div className="text-center">
+              <p className="text-lg font-bold text-slate-800">Rp 1,24 M</p>
+              <p className="text-xs text-slate-400">Total bulan ini</p>
+            </div>
+            <div className="text-center">
+              <p className="text-lg font-bold text-slate-800">284</p>
+              <p className="text-xs text-slate-400">Total order</p>
+            </div>
+            <div className="text-center">
+              <p className="text-lg font-bold text-emerald-500">+12.5%</p>
+              <p className="text-xs text-slate-400">vs bulan lalu</p>
+            </div>
+          </div>
+        </div>
+
+        <div
+          className="rounded-xl border p-5"
+          style={{ backgroundColor: '#FFFFFF', borderColor: '#E2E8F0' }}
+        >
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="text-sm font-semibold text-slate-700">CRM Pipeline</h2>
+              <p className="text-xs text-slate-400">Status prospek aktif</p>
+            </div>
+            <Link href="/crm/pipeline" className="text-xs font-medium" style={{ color: '#3B82F6' }}>
+              Lihat semua
+            </Link>
+          </div>
+          <div className="space-y-3">
+            {PIPELINE_STAGES.map((stage) => (
+              <div key={stage.label}>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs text-slate-600">{stage.label}</span>
+                  <span className="text-xs font-semibold text-slate-700">{stage.count}</span>
+                </div>
+                <div className="h-1.5 rounded-full" style={{ backgroundColor: '#F1F5F9' }}>
+                  <div
+                    className="h-1.5 rounded-full transition-all"
+                    style={{
+                      width: `${(stage.count / PIPELINE_STAGES[0].count) * 100}%`,
+                      backgroundColor: stage.color,
+                    }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="mt-4 pt-4 border-t" style={{ borderColor: '#F1F5F9' }}>
+            <div className="flex items-center justify-between">
+              <p className="text-xs text-slate-400">Win rate</p>
+              <p className="text-sm font-bold" style={{ color: '#10B981' }}>12.7%</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Recent Orders + Alerts + Activity */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div
+          className="lg:col-span-2 rounded-xl border overflow-hidden"
+          style={{ backgroundColor: '#FFFFFF', borderColor: '#E2E8F0' }}
+        >
+          <div className="flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: '#F1F5F9' }}>
+            <h2 className="text-sm font-semibold text-slate-700">Sales Order Terbaru</h2>
+            <Link
+              href="/sales/orders"
+              className="flex items-center gap-1 text-xs font-medium"
+              style={{ color: '#3B82F6' }}
+            >
+              Lihat semua <ChevronRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
+          <div>
+            {RECENT_ORDERS.map((order, i) => {
+              const s = STATUS_STYLE[order.status];
+              return (
+                <div
+                  key={order.id}
+                  className="flex items-center gap-4 px-5 py-3 hover:bg-slate-50 transition-colors"
+                  style={{ borderBottom: i < RECENT_ORDERS.length - 1 ? '1px solid #F8FAFC' : 'none' }}
+                >
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-medium text-slate-700">{order.id}</p>
+                      <span
+                        className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
+                        style={{ color: s.color, backgroundColor: s.bg }}
+                      >
+                        {s.label}
+                      </span>
                     </div>
-                    <span className="flex items-center gap-0.5 text-[11px] font-semibold" style={{ color: k.up ? '#22C55E' : '#EF4444' }}>
-                      {k.up ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
-                      {k.change}
-                    </span>
+                    <p className="text-xs text-slate-400 mt-0.5">{order.customer}</p>
                   </div>
-                  <div>
-                    <p className="text-lg font-bold leading-tight" style={{ color: '#1E1B4B' }}>{k.value}</p>
-                    <p className="text-[11px] mt-0.5" style={{ color: '#9CA3AF' }}>{k.label}</p>
+                  <div className="text-right">
+                    <p className="text-sm font-semibold text-slate-700">{order.amount}</p>
+                    <p className="text-[11px] text-slate-400">{order.date}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-4">
+          {/* Stock alerts */}
+          <div
+            className="rounded-xl border p-5"
+            style={{ backgroundColor: '#FFFFFF', borderColor: '#E2E8F0' }}
+          >
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-sm font-semibold text-slate-700">Stok Menipis</h2>
+              <AlertTriangle className="h-4 w-4" style={{ color: '#F59E0B' }} />
+            </div>
+            <div className="space-y-3">
+              {STOCK_ALERTS.map((item) => (
+                <div key={item.product} className="flex items-center gap-3">
+                  <div
+                    className="h-8 w-8 rounded-lg flex items-center justify-center flex-shrink-0"
+                    style={{ backgroundColor: '#FFFBEB' }}
+                  >
+                    <Package className="h-4 w-4" style={{ color: '#F59E0B' }} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium text-slate-700 truncate">{item.product}</p>
+                    <p className="text-[11px] text-slate-400">
+                      Sisa: <span className="font-semibold text-red-500">{item.stock}</span> / min {item.min} {item.unit}
+                    </p>
                   </div>
                 </div>
               ))}
-        </div>
-
-        {/* Main grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Chart + Orders */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Chart */}
-            <div className="rounded-2xl p-5" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE', boxShadow: '0 1px 4px rgba(91,82,209,0.05)' }}>
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h3 className="font-bold text-sm" style={{ color: '#1E1B4B' }}>Tren Revenue & Order</h3>
-                  <p className="text-xs mt-0.5" style={{ color: '#9CA3AF' }}>6 bulan terakhir</p>
-                </div>
-                <div className="flex items-center gap-3 text-[11px]" style={{ color: '#6B7280' }}>
-                  <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-sm inline-block" style={{ backgroundColor: '#5B52D1' }} /> Revenue</span>
-                  <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-sm inline-block" style={{ backgroundColor: '#EDE9FE' }} /> Order</span>
-                </div>
-              </div>
-              <MiniBarChart data={chartData} />
-              <div className="mt-4 grid grid-cols-3 gap-3">
-                <div className="text-center p-3 rounded-xl" style={{ backgroundColor: '#F5F3FF' }}>
-                  <p className="text-base font-bold" style={{ color: '#1E1B4B' }}>
-                    {summary ? formatRp(summary.revenue_today * 30) : 'Rp 460 M'}
-                  </p>
-                  <p className="text-[10px]" style={{ color: '#9CA3AF' }}>Total Revenue YTD</p>
-                </div>
-                <div className="text-center p-3 rounded-xl" style={{ backgroundColor: '#F5F3FF' }}>
-                  <p className="text-base font-bold" style={{ color: '#1E1B4B' }}>
-                    {summary ? (summary.total_orders ?? 0).toLocaleString('id') : '3,821'}
-                  </p>
-                  <p className="text-[10px]" style={{ color: '#9CA3AF' }}>Total Order YTD</p>
-                </div>
-                <div className="text-center p-3 rounded-xl" style={{ backgroundColor: '#F5F3FF' }}>
-                  <p className="text-base font-bold" style={{ color: '#22C55E' }}>
-                    {summary ? `${(summary.revenue_growth ?? 0) >= 0 ? '+' : ''}${(summary.revenue_growth ?? 0).toFixed(1)}%` : '+18.4%'}
-                  </p>
-                  <p className="text-[10px]" style={{ color: '#9CA3AF' }}>Growth vs Tahun Lalu</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Recent Orders */}
-            <div className="rounded-2xl" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE', boxShadow: '0 1px 4px rgba(91,82,209,0.05)' }}>
-              <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid #EDE9FE' }}>
-                <h3 className="font-bold text-sm" style={{ color: '#1E1B4B' }}>Order Terbaru</h3>
-                <Link href="/sales/orders" className="text-xs font-semibold flex items-center gap-1" style={{ color: '#5B52D1' }}>
-                  Lihat Semua <ArrowUpRight className="h-3.5 w-3.5" />
-                </Link>
-              </div>
-              <div className="divide-y" style={{ borderColor: '#EDE9FE' }}>
-                {loading
-                  ? Array.from({ length: 5 }).map((_, i) => (
-                      <div key={i} className="flex items-center px-5 py-3 gap-3 animate-pulse">
-                        <div className="flex-1 space-y-1.5"><div className="h-3 w-24 rounded bg-gray-100" /><div className="h-2.5 w-32 rounded bg-gray-100" /></div>
-                        <div className="h-3 w-16 rounded bg-gray-100" />
-                        <div className="h-5 w-20 rounded-full bg-gray-100" />
-                      </div>
-                    ))
-                  : orders.map((o, i) => {
-                      const statusLabel = o.status;
-                      const statusColor = STATUS_COLORS[statusLabel] ?? '#6B7280';
-                      const amountDisplay = typeof o.amount === 'number' ? formatRp(o.amount) : String(o.amount);
-                      return (
-                        <div key={i} className="flex items-center px-5 py-3 hover:bg-gray-50 transition-colors">
-                          <div className="flex-1 min-w-0">
-                            <p className="text-xs font-bold" style={{ color: '#1E1B4B' }}>{(o as any).order_number ?? o.id}</p>
-                            <p className="text-[11px] mt-0.5 truncate" style={{ color: '#9CA3AF' }}>{extractName((o as any).customer ?? (o as any).namaCustomer)}</p>
-                          </div>
-                          <div className="text-right mr-4">
-                            <p className="text-xs font-semibold" style={{ color: '#1E1B4B' }}>{amountDisplay}</p>
-                            <p className="text-[11px] mt-0.5" style={{ color: '#9CA3AF' }}>{o.date}</p>
-                          </div>
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold flex-shrink-0" style={{ backgroundColor: statusColor + '15', color: statusColor }}>
-                            {statusLabel}
-                          </span>
-                        </div>
-                      );
-                    })}
-              </div>
             </div>
           </div>
 
-          {/* Right column */}
-          <div className="space-y-6">
-            {/* Alerts */}
-            <div className="rounded-2xl" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE', boxShadow: '0 1px 4px rgba(91,82,209,0.05)' }}>
-              <div className="px-5 py-4" style={{ borderBottom: '1px solid #EDE9FE' }}>
-                <h3 className="font-bold text-sm flex items-center gap-2" style={{ color: '#1E1B4B' }}>
-                  <AlertTriangle className="h-4 w-4 text-amber-500" /> Perhatian
-                </h3>
-              </div>
-              <div className="p-4 space-y-2">
-                {loading
-                  ? Array.from({ length: 3 }).map((_, i) => <div key={i} className="h-10 rounded-xl animate-pulse bg-gray-100" />)
-                  : alerts.map((a, i) => (
-                      <Link
-                        key={i}
-                        href={a.href ?? '#'}
-                        className="flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-gray-50 transition-colors"
-                        style={{
-                          backgroundColor: a.type === 'danger' ? 'rgba(239,68,68,.05)' : a.type === 'warning' ? 'rgba(245,158,11,.05)' : 'rgba(59,130,246,.05)',
-                          border: `1px solid ${a.type === 'danger' ? 'rgba(239,68,68,.15)' : a.type === 'warning' ? 'rgba(245,158,11,.15)' : 'rgba(59,130,246,.15)'}`,
-                        }}
-                      >
-                        <div className="h-1.5 w-1.5 rounded-full mt-1.5 flex-shrink-0" style={{ backgroundColor: a.type === 'danger' ? '#EF4444' : a.type === 'warning' ? '#F59E0B' : '#3B82F6' }} />
-                        <p className="text-xs leading-relaxed" style={{ color: '#1E1B4B' }}>{a.message ?? (a as any).msg}</p>
-                      </Link>
-                    ))}
-              </div>
-            </div>
-
-            {/* Quick Actions */}
-            <div className="rounded-2xl" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE', boxShadow: '0 1px 4px rgba(91,82,209,0.05)' }}>
-              <div className="px-5 py-4" style={{ borderBottom: '1px solid #EDE9FE' }}>
-                <h3 className="font-bold text-sm flex items-center gap-2" style={{ color: '#1E1B4B' }}>
-                  <Zap className="h-4 w-4" style={{ color: '#5B52D1' }} /> Aksi Cepat
-                </h3>
-              </div>
-              <div className="p-4 grid grid-cols-2 gap-2">
-                {QUICK_ACTIONS.map((q, i) => (
-                  <Link
-                    key={i}
-                    href={q.href}
-                    className="flex flex-col items-center gap-2 p-3 rounded-xl text-center hover:bg-gray-50 transition-colors"
-                    style={{ border: '1.5px solid #EDE9FE' }}
-                  >
-                    <div className="flex h-9 w-9 items-center justify-center rounded-xl" style={{ backgroundColor: q.color + '15' }}>
-                      <q.icon className="h-4 w-4" style={{ color: q.color }} />
+          {/* Activity summary */}
+          <div
+            className="rounded-xl border p-5"
+            style={{ backgroundColor: '#FFFFFF', borderColor: '#E2E8F0' }}
+          >
+            <h2 className="text-sm font-semibold text-slate-700 mb-3">Ringkasan Hari Ini</h2>
+            <div className="space-y-2.5">
+              {[
+                { icon: CheckCircle, label: 'Order selesai', value: '23', color: '#10B981', bg: '#ECFDF5' },
+                { icon: Clock, label: 'Menunggu konfirmasi', value: '8', color: '#F59E0B', bg: '#FFFBEB' },
+                { icon: Truck, label: 'Dalam pengiriman', value: '14', color: '#3B82F6', bg: '#EFF6FF' },
+              ].map((item) => {
+                const Icon = item.icon;
+                return (
+                  <div key={item.label} className="flex items-center gap-3">
+                    <div
+                      className="h-7 w-7 rounded-lg flex items-center justify-center flex-shrink-0"
+                      style={{ backgroundColor: item.bg }}
+                    >
+                      <Icon className="h-3.5 w-3.5" style={{ color: item.color }} />
                     </div>
-                    <p className="text-[10px] font-semibold leading-snug" style={{ color: '#1E1B4B' }}>{q.label}</p>
-                  </Link>
-                ))}
-              </div>
-            </div>
-
-            {/* Top Products */}
-            <div className="rounded-2xl" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE', boxShadow: '0 1px 4px rgba(91,82,209,0.05)' }}>
-              <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid #EDE9FE' }}>
-                <h3 className="font-bold text-sm flex items-center gap-2" style={{ color: '#1E1B4B' }}>
-                  <Star className="h-4 w-4 text-amber-400" /> Produk Terlaris
-                </h3>
-                <Link href="/reports/sales?type=product" className="text-xs font-semibold" style={{ color: '#5B52D1' }}>Semua</Link>
-              </div>
-              <div className="p-4 space-y-3">
-                {TOP_PRODUCTS.map((p, i) => (
-                  <div key={i}>
-                    <div className="flex items-center justify-between mb-1">
-                      <p className="text-xs font-medium truncate max-w-[160px]" style={{ color: '#1E1B4B' }}>{p.name}</p>
-                      <p className="text-[10px] font-semibold" style={{ color: '#5B52D1' }}>{p.revenue}</p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="flex-1 rounded-full h-1.5" style={{ backgroundColor: '#EDE9FE' }}>
-                        <div className="h-1.5 rounded-full transition-all" style={{ width: `${p.pct}%`, backgroundColor: '#5B52D1' }} />
-                      </div>
-                      <span className="text-[10px]" style={{ color: '#9CA3AF' }}>{p.sold} terjual</span>
-                    </div>
+                    <span className="flex-1 text-xs text-slate-600">{item.label}</span>
+                    <span className="text-sm font-bold text-slate-700">{item.value}</span>
                   </div>
-                ))}
-              </div>
+                );
+              })}
             </div>
           </div>
         </div>
-
-        {/* Activity Feed */}
-        <div className="rounded-2xl" style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #EDE9FE', boxShadow: '0 1px 4px rgba(91,82,209,0.05)' }}>
-          <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid #EDE9FE' }}>
-            <h3 className="font-bold text-sm flex items-center gap-2" style={{ color: '#1E1B4B' }}>
-              <Activity className="h-4 w-4" style={{ color: '#5B52D1' }} /> Aktivitas Terkini
-            </h3>
-            <Link href="/settings/audit-log" className="text-xs font-semibold" style={{ color: '#5B52D1' }}>Lihat Audit Log</Link>
-          </div>
-          <div className="px-5 py-4">
-            <div className="relative">
-              <div className="absolute left-3 top-0 bottom-0 w-px" style={{ backgroundColor: '#EDE9FE' }} />
-              <div className="space-y-4">
-                {[
-                  { action: 'Sales Order SO-2026-1842 dibuat', user: 'Budi Santoso', time: '5 menit lalu', color: '#22C55E' },
-                  { action: 'Invoice INV-2026-0842 dibayar (Rp 4.500.000)', user: 'Finance Team', time: '18 menit lalu', color: '#3B82F6' },
-                  { action: 'Transfer stok TRF-001 divalidasi', user: 'Warehouse Staff', time: '32 menit lalu', color: '#8B5CF6' },
-                  { action: 'Purchase Order PO-2026-0048 disetujui', user: 'Manager Pembelian', time: '1 jam lalu', color: '#F59E0B' },
-                  { action: 'Karyawan baru Andi Wijaya ditambahkan', user: 'HR Admin', time: '2 jam lalu', color: '#14B8A6' },
-                  { action: 'Backup database otomatis berhasil', user: 'Sistem', time: '3 jam lalu', color: '#6B7280' },
-                ].map((a, i) => (
-                  <div key={i} className="flex items-start gap-4 pl-6 relative">
-                    <div className="absolute left-0 top-1 h-3 w-3 rounded-full border-2 border-white" style={{ backgroundColor: a.color, boxShadow: `0 0 0 1px ${a.color}` }} />
-                    <div className="flex-1">
-                      <p className="text-xs" style={{ color: '#1E1B4B' }}>{a.action}</p>
-                      <div className="flex items-center gap-2 mt-0.5">
-                        <span className="text-[10px] font-semibold" style={{ color: '#5B52D1' }}>{a.user}</span>
-                        <span className="text-[10px]" style={{ color: '#9CA3AF' }}>· {a.time}</span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-
       </div>
-    </OdooLayout>
+
+      {/* Bottom row: Top Products + Quick Actions */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div
+          className="rounded-xl border p-5"
+          style={{ backgroundColor: '#FFFFFF', borderColor: '#E2E8F0' }}
+        >
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-semibold text-slate-700">Produk Terlaris</h2>
+            <Link href="/reports/sales" className="text-xs font-medium" style={{ color: '#3B82F6' }}>
+              Lihat semua
+            </Link>
+          </div>
+          <div className="space-y-3">
+            {TOP_PRODUCTS.map((product, i) => (
+              <div key={product.name} className="flex items-center gap-3">
+                <span className="text-xs font-bold w-5 text-slate-400">{i + 1}</span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-medium text-slate-700 truncate">{product.name}</p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <div className="flex-1 h-1.5 rounded-full" style={{ backgroundColor: '#F1F5F9' }}>
+                      <div
+                        className="h-1.5 rounded-full"
+                        style={{ width: `${product.pct}%`, backgroundColor: '#3B82F6' }}
+                      />
+                    </div>
+                    <span className="text-[10px] text-slate-400 w-16 text-right">{product.sold} terjual</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div
+          className="rounded-xl border p-5"
+          style={{ backgroundColor: '#FFFFFF', borderColor: '#E2E8F0' }}
+        >
+          <h2 className="text-sm font-semibold text-slate-700 mb-4">Aksi Cepat</h2>
+          <div className="grid grid-cols-2 gap-3">
+            {QUICK_ACTIONS.map((action) => {
+              const Icon = action.icon;
+              return (
+                <Link
+                  key={action.label}
+                  href={action.href}
+                  className="flex items-center gap-3 p-3 rounded-xl border transition-all hover:shadow-sm hover:-translate-y-0.5"
+                  style={{ borderColor: '#E2E8F0' }}
+                >
+                  <div
+                    className="h-8 w-8 rounded-lg flex items-center justify-center flex-shrink-0"
+                    style={{ backgroundColor: action.bg }}
+                  >
+                    <Icon className="h-4 w-4" style={{ color: action.color }} />
+                  </div>
+                  <span className="text-xs font-medium text-slate-600 leading-tight">{action.label}</span>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

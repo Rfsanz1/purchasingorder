@@ -34,8 +34,17 @@ outputType = "webview"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "cd apps/frontend && pnpm dev"
-waitForPort = 3000
+args = "cd apps/frontend && pnpm dev -p 5000"
+waitForPort = 5000
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Next.js Frontend"
 
 [agent]
 stack = "BEST_EFFORT_FALLBACK"
@@ -53,6 +62,10 @@ externalPort = 3000
 [[ports]]
 localPort = 6000
 externalPort = 6000
+
+[[ports]]
+localPort = 5000
+externalPort = 80
 
 [nix]
 channel = "stable-25_05"
