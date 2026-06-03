@@ -1,17 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const BACKEND = 'http://localhost:6000';
+const BACKEND = process.env.BACKEND_URL || 'http://127.0.0.1:6000';
 
 async function proxy(req: NextRequest, { params }: { params: { path: string[] } }) {
-  const path = params.path.join('/');
+  const path = (await params).path.join('/');
   const url = `${BACKEND}/api/${path}${req.nextUrl.search}`;
 
-  const headers: Record<string, string> = {};
-  req.headers.forEach((val, key) => {
-    if (!['host', 'connection', 'transfer-encoding'].includes(key)) {
-      headers[key] = val;
-    }
-  });
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+
+  const auth = req.headers.get('authorization');
+  if (auth) headers['authorization'] = auth;
 
   let body: string | undefined;
   if (!['GET', 'HEAD'].includes(req.method)) {
@@ -22,9 +22,8 @@ async function proxy(req: NextRequest, { params }: { params: { path: string[] } 
     const res = await fetch(url, {
       method: req.method,
       headers,
-      body,
-      // @ts-ignore
-      duplex: 'half',
+      body: body || undefined,
+      cache: 'no-store',
     });
 
     const data = await res.text();
@@ -32,7 +31,8 @@ async function proxy(req: NextRequest, { params }: { params: { path: string[] } 
       status: res.status,
       headers: { 'Content-Type': res.headers.get('Content-Type') ?? 'application/json' },
     });
-  } catch {
+  } catch (err) {
+    console.error('[proxy] failed to reach backend:', url, err);
     return NextResponse.json(
       { statusCode: 503, message: 'Backend tidak tersedia. Jalankan NestJS backend terlebih dahulu.' },
       { status: 503 },
