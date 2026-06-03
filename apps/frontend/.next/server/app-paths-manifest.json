@@ -1,9 +1,5 @@
 {
-  "/sales/teams/page": "app/sales/teams/page.js",
-  "/sales/commission/page": "app/sales/commission/page.js",
-  "/sales/orders/page": "app/sales/orders/page.js",
-  "/inventory/products/page": "app/inventory/products/page.js",
-  "/inventory/stock-opnames/page": "app/inventory/stock-opnames/page.js",
-  "/hr/employees/page": "app/hr/employees/page.js",
-  "/login/page": "app/login/page.js"
+  "/login/page": "app/login/page.js",
+  "/page": "app/page.js",
+  "/dashboard/page": "app/dashboard/page.js"
 }

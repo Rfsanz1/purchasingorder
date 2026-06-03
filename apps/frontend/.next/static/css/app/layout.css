@@ -1,6 +1,6 @@
-/*!********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** css ../../node_modules/.pnpm/next@14.2.5_@babel+core@7.29.7_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[13].oneOf[12].use[2]!../../node_modules/.pnpm/next@14.2.5_@babel+core@7.29.7_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[13].oneOf[12].use[3]!./styles/globals.css ***!
-  \********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/*!************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ../../node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[13].oneOf[12].use[2]!../../node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[13].oneOf[12].use[3]!./styles/globals.css ***!
+  \************************************************************************************************************************************************************************************************************************************************************************/
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 *, ::before, ::after{
   --tw-border-spacing-x: 0;
@@ -1506,9 +1506,6 @@ video {
   --tw-border-opacity: 1;
   border-color: rgb(51 65 85 / var(--tw-border-opacity, 1));
 }
-.border-slate-700\/50{
-  border-color: rgb(51 65 85 / 0.5);
-}
 .border-slate-800{
   --tw-border-opacity: 1;
   border-color: rgb(30 41 59 / var(--tw-border-opacity, 1));
@@ -1608,9 +1605,6 @@ video {
   --tw-bg-opacity: 1;
   background-color: rgb(37 99 235 / var(--tw-bg-opacity, 1));
 }
-.bg-blue-600\/30{
-  background-color: rgb(37 99 235 / 0.3);
-}
 .bg-blue-900\/10{
   background-color: rgb(30 58 138 / 0.1);
 }
@@ -1646,9 +1640,6 @@ video {
 .bg-emerald-600{
   --tw-bg-opacity: 1;
   background-color: rgb(5 150 105 / var(--tw-bg-opacity, 1));
-}
-.bg-emerald-600\/30{
-  background-color: rgb(5 150 105 / 0.3);
 }
 .bg-emerald-700{
   --tw-bg-opacity: 1;
@@ -1705,10 +1696,6 @@ video {
   --tw-bg-opacity: 1;
   background-color: rgb(234 88 12 / var(--tw-bg-opacity, 1));
 }
-.bg-pink-600{
-  --tw-bg-opacity: 1;
-  background-color: rgb(219 39 119 / var(--tw-bg-opacity, 1));
-}
 .bg-purple-100{
   --tw-bg-opacity: 1;
   background-color: rgb(243 232 255 / var(--tw-bg-opacity, 1));
@@ -1741,9 +1728,6 @@ video {
   --tw-bg-opacity: 1;
   background-color: rgb(220 38 38 / var(--tw-bg-opacity, 1));
 }
-.bg-red-600\/30{
-  background-color: rgb(220 38 38 / 0.3);
-}
 .bg-red-800{
   --tw-bg-opacity: 1;
   background-color: rgb(153 27 27 / var(--tw-bg-opacity, 1));
@@ -1759,10 +1743,6 @@ video {
 }
 .bg-red-900\/50{
   background-color: rgb(127 29 29 / 0.5);
-}
-.bg-slate-600{
-  --tw-bg-opacity: 1;
-  background-color: rgb(71 85 105 / var(--tw-bg-opacity, 1));
 }
 .bg-slate-700{
   --tw-bg-opacity: 1;
@@ -1804,9 +1784,6 @@ video {
   --tw-bg-opacity: 1;
   background-color: rgb(139 92 246 / var(--tw-bg-opacity, 1));
 }
-.bg-violet-600\/30{
-  background-color: rgb(124 58 237 / 0.3);
-}
 .bg-violet-700{
   --tw-bg-opacity: 1;
   background-color: rgb(109 40 217 / var(--tw-bg-opacity, 1));
@@ -1839,9 +1816,6 @@ video {
 .bg-yellow-50{
   --tw-bg-opacity: 1;
   background-color: rgb(254 252 232 / var(--tw-bg-opacity, 1));
-}
-.bg-yellow-600\/30{
-  background-color: rgb(202 138 4 / 0.3);
 }
 .bg-yellow-900\/30{
   background-color: rgb(113 63 18 / 0.3);
@@ -2642,10 +2616,6 @@ video {
   --tw-text-opacity: 1;
   color: rgb(234 88 12 / var(--tw-text-opacity, 1));
 }
-.text-pink-400{
-  --tw-text-opacity: 1;
-  color: rgb(244 114 182 / var(--tw-text-opacity, 1));
-}
 .text-purple-300{
   --tw-text-opacity: 1;
   color: rgb(216 180 254 / var(--tw-text-opacity, 1));
@@ -2685,10 +2655,6 @@ video {
 .text-slate-100{
   --tw-text-opacity: 1;
   color: rgb(241 245 249 / var(--tw-text-opacity, 1));
-}
-.text-slate-200{
-  --tw-text-opacity: 1;
-  color: rgb(226 232 240 / var(--tw-text-opacity, 1));
 }
 .text-slate-300{
   --tw-text-opacity: 1;
@@ -3011,9 +2977,6 @@ select:focus-visible {
   --tw-bg-opacity: 1;
   background-color: rgb(5 150 105 / var(--tw-bg-opacity, 1));
 }
-.hover\:bg-emerald-600\/50:hover{
-  background-color: rgb(5 150 105 / 0.5);
-}
 .hover\:bg-emerald-900\/40:hover{
   background-color: rgb(6 78 59 / 0.4);
 }
@@ -3048,16 +3011,9 @@ select:focus-visible {
   --tw-bg-opacity: 1;
   background-color: rgb(249 115 22 / var(--tw-bg-opacity, 1));
 }
-.hover\:bg-pink-500:hover{
-  --tw-bg-opacity: 1;
-  background-color: rgb(236 72 153 / var(--tw-bg-opacity, 1));
-}
 .hover\:bg-red-50:hover{
   --tw-bg-opacity: 1;
   background-color: rgb(254 242 242 / var(--tw-bg-opacity, 1));
-}
-.hover\:bg-red-600\/50:hover{
-  background-color: rgb(220 38 38 / 0.5);
 }
 .hover\:bg-red-700:hover{
   --tw-bg-opacity: 1;
@@ -3081,9 +3037,6 @@ select:focus-visible {
 .hover\:bg-slate-700:hover{
   --tw-bg-opacity: 1;
   background-color: rgb(51 65 85 / var(--tw-bg-opacity, 1));
-}
-.hover\:bg-slate-700\/30:hover{
-  background-color: rgb(51 65 85 / 0.3);
 }
 .hover\:bg-slate-800:hover{
   --tw-bg-opacity: 1;
@@ -3301,9 +3254,6 @@ select:focus-visible {
   }
   .md\:flex{
     display: flex;
-  }
-  .md\:table-cell{
-    display: table-cell;
   }
   .md\:hidden{
     display: none;
