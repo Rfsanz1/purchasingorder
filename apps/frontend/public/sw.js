@@ -1,9 +1,8 @@
-const CACHE_NAME = 'gm-erp-v2';
-const API_CACHE_NAME = 'gm-erp-api-v2';
+const CACHE_NAME = 'gm-erp-v3';
+const API_CACHE_NAME = 'gm-erp-api-v3';
 
 const STATIC_ASSETS = [
   '/',
-  '/dashboard',
   '/login',
   '/manifest.json',
   '/icons/icon-192.png',
@@ -44,10 +43,15 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Static assets — cache first
+  // Next.js JS/CSS chunks — ALWAYS network first to pick up new compilations
+  if (url.pathname.startsWith('/_next/')) {
+    event.respondWith(networkFirst(request, CACHE_NAME));
+    return;
+  }
+
+  // Icons / manifest — cache first (rarely change)
   if (
     url.pathname.startsWith('/icons/') ||
-    url.pathname.startsWith('/_next/static/') ||
     url.pathname === '/manifest.json'
   ) {
     event.respondWith(cacheFirst(request));
@@ -65,7 +69,7 @@ async function networkFirst(request, cacheName) {
   try {
     const response = await fetch(request);
     if (response.ok) {
-      const cache = await caches.open(cacheName);
+      const cache = await caches.open(cacheName || CACHE_NAME);
       cache.put(request, response.clone());
     }
     return response;
@@ -90,7 +94,7 @@ async function networkFirstNav(request) {
   } catch {
     const cached = await caches.match(request);
     if (cached) return cached;
-    const fallback = await caches.match('/dashboard') || await caches.match('/login');
+    const fallback = await caches.match('/login');
     if (fallback) return fallback;
     return new Response(
       `<!DOCTYPE html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Gentong Mas ERP</title><style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Inter,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;background:#F5F5F9;padding:1rem}.card{text-align:center;background:#fff;border-radius:16px;padding:2.5rem;max-width:360px;box-shadow:0 4px 16px rgba(47,43,61,.12)}.logo{width:72px;height:72px;border-radius:16px;background:linear-gradient(135deg,#7367F0,#CE9FFC);display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem;font-size:1.75rem;font-weight:700;color:#fff}h2{color:#433C50;margin-bottom:.5rem;font-size:1.25rem}p{color:#6D6777;font-size:.875rem;line-height:1.6;margin-bottom:1.5rem}button{background:#7367F0;color:#fff;border:none;border-radius:8px;padding:.75rem 1.5rem;font-size:.9375rem;font-weight:600;cursor:pointer;width:100%}</style></head><body><div class="card"><div class="logo">GM</div><h2>Tidak Ada Koneksi</h2><p>Gentong Mas ERP memerlukan koneksi internet. Periksa koneksi Anda dan coba lagi.</p><button onclick="location.reload()">Coba Lagi</button></div></body></html>`,
