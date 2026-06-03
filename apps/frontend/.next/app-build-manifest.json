@@ -25,6 +25,51 @@
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/hr/employees/page.js"
+    ],
+    "/payroll/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/payroll/page.js"
+    ],
+    "/hr/payrolls/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/hr/payrolls/page.js"
+    ],
+    "/hr/payrolls/components/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/hr/payrolls/components/page.js"
+    ],
+    "/sales/quotations/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/sales/quotations/page.js"
+    ],
+    "/sales/orders/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/sales/orders/page.js"
+    ],
+    "/sales/teams/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/sales/teams/page.js"
+    ],
+    "/sales/commission/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/sales/commission/page.js"
+    ],
+    "/inventory/products/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/inventory/products/page.js"
+    ],
+    "/inventory/stock-opnames/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/inventory/stock-opnames/page.js"
     ]
   }
 }
