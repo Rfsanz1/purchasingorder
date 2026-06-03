@@ -341,10 +341,12 @@ function SidebarContent({ collapsed, onMobileClose }: { collapsed: boolean; onMo
                             <>
                               <ListItemText
                                 primary={item.label}
-                                primaryTypographyProps={{
-                                  fontSize: '0.875rem',
-                                  fontWeight: active ? 600 : 400,
-                                  color: active ? '#7367F0' : '#6D6777',
+                                slotProps={{
+                                  primary: {
+                                    fontSize: '0.875rem',
+                                    fontWeight: active ? 600 : 400,
+                                    color: active ? '#7367F0' : '#6D6777',
+                                  },
                                 }}
                               />
                               {isOpen
@@ -388,10 +390,12 @@ function SidebarContent({ collapsed, onMobileClose }: { collapsed: boolean; onMo
                                     />
                                     <ListItemText
                                       primary={child.label}
-                                      primaryTypographyProps={{
-                                        fontSize: '0.8125rem',
-                                        fontWeight: ca ? 600 : 400,
-                                        color: ca ? '#7367F0' : '#6D6777',
+                                      slotProps={{
+                                        primary: {
+                                          fontSize: '0.8125rem',
+                                          fontWeight: ca ? 600 : 400,
+                                          color: ca ? '#7367F0' : '#6D6777',
+                                        },
                                       }}
                                     />
                                   </ListItemButton>
@@ -436,10 +440,12 @@ function SidebarContent({ collapsed, onMobileClose }: { collapsed: boolean; onMo
                           <>
                             <ListItemText
                               primary={item.label}
-                              primaryTypographyProps={{
-                                fontSize: '0.875rem',
-                                fontWeight: active ? 600 : 400,
-                                color: active ? '#7367F0' : '#6D6777',
+                              slotProps={{
+                                primary: {
+                                  fontSize: '0.875rem',
+                                  fontWeight: active ? 600 : 400,
+                                  color: active ? '#7367F0' : '#6D6777',
+                                },
                               }}
                             />
                             {item.badge && (

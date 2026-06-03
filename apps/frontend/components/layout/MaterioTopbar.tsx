@@ -18,6 +18,7 @@ import ListItemText from '@mui/material/ListItemText';
 import Divider from '@mui/material/Divider';
 import Button from '@mui/material/Button';
 import MenuItem from '@mui/material/MenuItem';
+import MenuList from '@mui/material/MenuList';
 import { alpha } from '@mui/material/styles';
 import {
   Menu as MenuIcon,
@@ -299,7 +300,7 @@ export function MaterioTopbar({ collapsed, onToggleSidebar, onToggleMobileSideba
           <Typography variant="caption" color="text.secondary">{user?.email ?? 'admin@example.com'}</Typography>
         </Box>
         <Divider />
-        <Box sx={{ py: 0.5 }}>
+        <MenuList sx={{ py: 0.5 }}>
           {[
             { label: 'Profil Saya', icon: User },
             { label: 'Pengaturan', icon: Settings },
@@ -313,9 +314,9 @@ export function MaterioTopbar({ collapsed, onToggleSidebar, onToggleMobileSideba
               {label}
             </MenuItem>
           ))}
-        </Box>
+        </MenuList>
         <Divider />
-        <Box sx={{ py: 0.5 }}>
+        <MenuList sx={{ py: 0.5 }}>
           <MenuItem
             onClick={logout}
             sx={{ gap: 1.5, py: 1, fontSize: '0.875rem', color: '#EA5455', '&:hover': { bgcolor: alpha('#EA5455', 0.06) } }}
@@ -323,7 +324,7 @@ export function MaterioTopbar({ collapsed, onToggleSidebar, onToggleMobileSideba
             <LogOut size={16} />
             Keluar
           </MenuItem>
-        </Box>
+        </MenuList>
       </Popover>
     </AppBar>
   );
