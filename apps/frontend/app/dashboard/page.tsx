@@ -128,7 +128,7 @@ export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState<'today' | 'week' | 'month'>('month');
 
   return (
-    <div className="space-y-5 max-w-[1400px]">
+    <div className="space-y-5 max-w-[1400px]" suppressHydrationWarning>
       {/* Page header */}
       <div className="flex items-center justify-between">
         <div>
@@ -194,7 +194,7 @@ export default function DashboardPage() {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
         {KPI_CARDS.map((card) => {
           const Icon = card.icon;
           return (

@@ -51,7 +51,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* Manifest */}
         <link rel="manifest" href="/manifest.json" />
       </head>
-      <body className="min-h-screen antialiased">
+      <body className="min-h-screen antialiased" suppressHydrationWarning>
         <ThemeRegistry>
           <ConditionalLayout>{children}</ConditionalLayout>
         </ThemeRegistry>

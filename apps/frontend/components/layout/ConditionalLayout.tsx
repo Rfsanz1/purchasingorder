@@ -33,11 +33,35 @@ export function ConditionalLayout({ children }: { children: React.ReactNode }) {
     return <>{children}</>;
   }
 
-  // During SSR / before hydration — render children without sidebar to avoid flash
+  // Before hydration: render a shell that mirrors MaterioLayout's structure
+  // (sticky topbar 64px + same content padding) so there's no layout shift on refresh
   if (!mounted) {
     return (
-      <div className="min-h-screen" style={{ backgroundColor: '#F0F2F5' }}>
-        {children}
+      <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#F0F2F5' }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+          {/* Topbar placeholder — same height as MaterioTopbar (64px) */}
+          <div
+            style={{
+              position: 'sticky',
+              top: 0,
+              zIndex: 99,
+              height: 64,
+              backgroundColor: 'rgba(255,255,255,0.95)',
+              borderBottom: '1px solid #E2E8F0',
+              flexShrink: 0,
+            }}
+          />
+          {/* Content area — matches MaterioLayout's Box padding (xs:16px, sm:24px) */}
+          <div
+            style={{
+              flex: 1,
+              padding: '16px',
+              overflowY: 'auto',
+            }}
+          >
+            {children}
+          </div>
+        </div>
       </div>
     );
   }
