@@ -79,8 +79,8 @@ const PIPELINE_STAGES = [
 ];
 
 const QUICK_ACTIONS = [
-  { label: 'Buat Quotation', href: '/sales/quotations', icon: FileText, color: '#3B82F6', bg: '#EFF6FF' },
-  { label: 'Terima Pembayaran', href: '/invoice/payments', icon: DollarSign, color: '#10B981', bg: '#ECFDF5' },
+  { label: 'Buat Order', href: '/sales/orders', icon: FileText, color: '#3B82F6', bg: '#EFF6FF' },
+  { label: 'Smart Order', href: '/sales/orders', icon: DollarSign, color: '#10B981', bg: '#ECFDF5' },
   { label: 'Transfer Stok', href: '/inventory/transfers', icon: Package, color: '#8B5CF6', bg: '#F5F3FF' },
   { label: 'Purchase Order', href: '/purchasing/purchase-orders', icon: Truck, color: '#F59E0B', bg: '#FFFBEB' },
   { label: 'Laporan Penjualan', href: '/reports/sales', icon: BarChart2, color: '#6366F1', bg: '#EEF2FF' },
@@ -161,6 +161,35 @@ export default function DashboardPage() {
             <RefreshCw className="h-3.5 w-3.5" />
             Refresh
           </button>
+        </div>
+      </div>
+
+      {/* Aksi Cepat */}
+      <div
+        className="rounded-xl border p-5"
+        style={{ backgroundColor: '#FFFFFF', borderColor: '#E2E8F0' }}
+      >
+        <h2 className="text-sm font-semibold text-slate-700 mb-4">Aksi Cepat</h2>
+        <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
+          {QUICK_ACTIONS.map((action) => {
+            const Icon = action.icon;
+            return (
+              <Link
+                key={action.label}
+                href={action.href}
+                className="flex flex-col items-center gap-2 p-3 rounded-xl border transition-all hover:shadow-sm hover:-translate-y-0.5"
+                style={{ borderColor: '#E2E8F0' }}
+              >
+                <div
+                  className="h-9 w-9 rounded-xl flex items-center justify-center"
+                  style={{ backgroundColor: action.bg }}
+                >
+                  <Icon className="h-4 w-4" style={{ color: action.color }} />
+                </div>
+                <span className="text-[11px] font-medium text-slate-600 text-center leading-tight">{action.label}</span>
+              </Link>
+            );
+          })}
         </div>
       </div>
 
@@ -382,65 +411,35 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Bottom row: Top Products + Quick Actions */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div
-          className="rounded-xl border p-5"
-          style={{ backgroundColor: '#FFFFFF', borderColor: '#E2E8F0' }}
-        >
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-semibold text-slate-700">Produk Terlaris</h2>
-            <Link href="/reports/sales" className="text-xs font-medium" style={{ color: '#3B82F6' }}>
-              Lihat semua
-            </Link>
-          </div>
-          <div className="space-y-3">
-            {TOP_PRODUCTS.map((product, i) => (
-              <div key={product.name} className="flex items-center gap-3">
-                <span className="text-xs font-bold w-5 text-slate-400">{i + 1}</span>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-medium text-slate-700 truncate">{product.name}</p>
-                  <div className="flex items-center gap-2 mt-1">
-                    <div className="flex-1 h-1.5 rounded-full" style={{ backgroundColor: '#F1F5F9' }}>
-                      <div
-                        className="h-1.5 rounded-full"
-                        style={{ width: `${product.pct}%`, backgroundColor: '#3B82F6' }}
-                      />
-                    </div>
-                    <span className="text-[10px] text-slate-400 w-16 text-right">{product.sold} terjual</span>
+      {/* Bottom row: Top Products */}
+      <div
+        className="rounded-xl border p-5"
+        style={{ backgroundColor: '#FFFFFF', borderColor: '#E2E8F0' }}
+      >
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-sm font-semibold text-slate-700">Produk Terlaris</h2>
+          <Link href="/reports/sales" className="text-xs font-medium" style={{ color: '#3B82F6' }}>
+            Lihat semua
+          </Link>
+        </div>
+        <div className="space-y-3">
+          {TOP_PRODUCTS.map((product, i) => (
+            <div key={product.name} className="flex items-center gap-3">
+              <span className="text-xs font-bold w-5 text-slate-400">{i + 1}</span>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-medium text-slate-700 truncate">{product.name}</p>
+                <div className="flex items-center gap-2 mt-1">
+                  <div className="flex-1 h-1.5 rounded-full" style={{ backgroundColor: '#F1F5F9' }}>
+                    <div
+                      className="h-1.5 rounded-full"
+                      style={{ width: `${product.pct}%`, backgroundColor: '#3B82F6' }}
+                    />
                   </div>
+                  <span className="text-[10px] text-slate-400 w-16 text-right">{product.sold} terjual</span>
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-
-        <div
-          className="rounded-xl border p-5"
-          style={{ backgroundColor: '#FFFFFF', borderColor: '#E2E8F0' }}
-        >
-          <h2 className="text-sm font-semibold text-slate-700 mb-4">Aksi Cepat</h2>
-          <div className="grid grid-cols-2 gap-3">
-            {QUICK_ACTIONS.map((action) => {
-              const Icon = action.icon;
-              return (
-                <Link
-                  key={action.label}
-                  href={action.href}
-                  className="flex items-center gap-3 p-3 rounded-xl border transition-all hover:shadow-sm hover:-translate-y-0.5"
-                  style={{ borderColor: '#E2E8F0' }}
-                >
-                  <div
-                    className="h-8 w-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                    style={{ backgroundColor: action.bg }}
-                  >
-                    <Icon className="h-4 w-4" style={{ color: action.color }} />
-                  </div>
-                  <span className="text-xs font-medium text-slate-600 leading-tight">{action.label}</span>
-                </Link>
-              );
-            })}
-          </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>
