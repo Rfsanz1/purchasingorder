@@ -3,13 +3,18 @@
   "private": true,
   "version": "0.0.1",
   "scripts": {
-    "dev": "next dev -p 3000",
+    "dev": "next dev -p 5000",
     "build": "next build",
     "start": "next start",
     "lint": "eslint . --ext .ts,.tsx",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@emotion/cache": "^11.14.0",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/icons-material": "^9.0.1",
+    "@mui/material": "^9.0.1",
     "axios": "^1.8.5",
     "clsx": "^2.1.1",
     "lucide-react": "^0.467.0",

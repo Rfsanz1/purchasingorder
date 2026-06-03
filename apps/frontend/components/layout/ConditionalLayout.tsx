@@ -3,7 +3,7 @@
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useAuthStore } from '../../lib/store/useAuthStore';
-import { YetiLayout } from './YetiLayout';
+import { MaterioLayout } from './MaterioLayout';
 
 const PUBLIC_PATHS = ['/', '/login', '/install'];
 
@@ -46,5 +46,5 @@ export function ConditionalLayout({ children }: { children: React.ReactNode }) {
     return null;
   }
 
-  return <YetiLayout>{children}</YetiLayout>;
+  return <MaterioLayout>{children}</MaterioLayout>;
 }
