@@ -289,6 +289,9 @@ model Supplier {
   purchaseOrders PurchaseOrder[]
   rfqs           RequestForQuotation[]
   pricelist      VendorPricelist[]
+  vendorBills    VendorBill[]
+  purchaseReturns PurchaseReturn[]
+  ratings        SupplierRating[]
 }
 
 // SALES & ORDERS
@@ -364,23 +367,25 @@ model SaleItem {
 
 // PURCHASING
 model PurchaseOrder {
-  id            String              @id @default(uuid())
-  noPo          String              @unique
-  supplierId    String
-  supplier      Supplier            @relation(fields: [supplierId], references: [id])
-  warehouseId   String?
-  warehouse     Warehouse?          @relation(fields: [warehouseId], references: [id])
-  tanggal       DateTime
-  tanggalKirim  DateTime?
-  totalHarga    Decimal             @default(0) @db.Decimal(15, 2)
-  status        String              @default("draft")
-  note          String?
-  approvedBy    String?
-  approvedAt    DateTime?
-  createdAt     DateTime            @default(now())
-  updatedAt     DateTime            @updatedAt
-  items         PurchaseOrderItem[]
-  goodsReceipts GoodsReceipt[]
+  id              String              @id @default(uuid())
+  noPo            String              @unique
+  supplierId      String
+  supplier        Supplier            @relation(fields: [supplierId], references: [id])
+  warehouseId     String?
+  warehouse       Warehouse?          @relation(fields: [warehouseId], references: [id])
+  tanggal         DateTime
+  tanggalKirim    DateTime?
+  totalHarga      Decimal             @default(0) @db.Decimal(15, 2)
+  status          String              @default("draft")
+  note            String?
+  approvedBy      String?
+  approvedAt      DateTime?
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  items           PurchaseOrderItem[]
+  goodsReceipts   GoodsReceipt[]
+  vendorBills     VendorBill[]
+  purchaseReturns PurchaseReturn[]
 }
 
 model PurchaseOrderItem {
@@ -407,6 +412,8 @@ model GoodsReceipt {
   createdAt       DateTime           @default(now())
   updatedAt       DateTime           @updatedAt
   items           GoodsReceiptItem[]
+  vendorBills     VendorBill[]
+  purchaseReturns PurchaseReturn[]
 }
 
 model GoodsReceiptItem {
@@ -418,6 +425,10 @@ model GoodsReceiptItem {
   nama           String
   qtyOrdered     Int
   qtyReceived    Int
+  unitCost       Decimal      @db.Decimal(15, 2) @default(0)
+  lotNumber      String?
+  expiryDate     DateTime?
+  note           String?
 }
 
 // FINANCE & ACCOUNTING
@@ -1071,6 +1082,7 @@ model RfqItem {
   rfqId     String
   rfq       RequestForQuotation @relation(fields: [rfqId], references: [id])
   productId String?
+  product   Product?            @relation(fields: [productId], references: [id])
   nama      String
   qty       Int
   hargaBeli Decimal             @db.Decimal(15, 2)
@@ -1089,6 +1101,77 @@ model VendorPricelist {
   validTo      DateTime?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+}
+
+model VendorBill {
+  id              String          @id @default(uuid())
+  noBill          String          @unique
+  supplierId      String
+  supplier        Supplier        @relation(fields: [supplierId], references: [id])
+  purchaseOrderId String?
+  purchaseOrder   PurchaseOrder?  @relation(fields: [purchaseOrderId], references: [id])
+  goodsReceiptId  String?
+  goodsReceipt    GoodsReceipt?   @relation(fields: [goodsReceiptId], references: [id])
+  totalAmount     Decimal         @default(0) @db.Decimal(15, 2)
+  status          String          @default("draft")
+  dueDate         DateTime?
+  note            String?
+  items           VendorBillItem[]
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+}
+
+model VendorBillItem {
+  id           String      @id @default(uuid())
+  vendorBillId String
+  vendorBill   VendorBill  @relation(fields: [vendorBillId], references: [id])
+  productId    String?
+  product      Product?    @relation(fields: [productId], references: [id])
+  nama         String
+  qty          Int
+  unitPrice    Decimal     @db.Decimal(15, 2)
+  subtotal     Decimal     @db.Decimal(15, 2)
+  landedCost   Decimal     @db.Decimal(15, 2) @default(0)
+}
+
+model PurchaseReturn {
+  id              String               @id @default(uuid())
+  noReturn        String               @unique
+  supplierId      String
+  supplier        Supplier             @relation(fields: [supplierId], references: [id])
+  purchaseOrderId String?
+  purchaseOrder   PurchaseOrder?       @relation(fields: [purchaseOrderId], references: [id])
+  goodsReceiptId  String?
+  goodsReceipt    GoodsReceipt?        @relation(fields: [goodsReceiptId], references: [id])
+  status          String               @default("draft")
+  note            String?
+  totalAmount     Decimal              @default(0) @db.Decimal(15, 2)
+  items           PurchaseReturnItem[]
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+}
+
+model PurchaseReturnItem {
+  id               String         @id @default(uuid())
+  purchaseReturnId String
+  purchaseReturn   PurchaseReturn @relation(fields: [purchaseReturnId], references: [id])
+  productId        String?
+  product          Product?       @relation(fields: [productId], references: [id])
+  nama             String
+  qty              Int
+  unitPrice        Decimal        @db.Decimal(15, 2)
+  subtotal         Decimal        @db.Decimal(15, 2)
+}
+
+model SupplierRating {
+  id         String   @id @default(uuid())
+  supplierId String
+  supplier   Supplier @relation(fields: [supplierId], references: [id])
+  rating     Int
+  comment    String?
+  reviewerId String?
+  reviewer   User?    @relation(fields: [reviewerId], references: [id])
+  createdAt  DateTime @default(now())
 }
 
 model ReorderingRule {
@@ -1272,33 +1355,65 @@ enum FiscalStatus {
 }
 
 model Account {
-  id            String      @id @default(uuid())
-  code          String      @unique
-  name          String
-  type          AccountType
-  parentId      String?
-  parent        Account?    @relation("AccountTree", fields: [parentId], references: [id])
-  children      Account[]   @relation("AccountTree")
-  description   String?
-  isActive      Boolean     @default(true)
-  normalBalance String      @default("DEBIT")
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-  journalLines  JournalLine[]
+  id             String      @id @default(uuid())
+  code           String      @unique
+  name           String
+  type           AccountType
+  parentId       String?
+  parent         Account?    @relation("AccountTree", fields: [parentId], references: [id])
+  children       Account[]   @relation("AccountTree")
+  description    String?
+  isActive       Boolean     @default(true)
+  openingBalance Decimal     @default(0) @db.Decimal(15, 2)
+  normalBalance  String      @default("DEBIT")
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  journalLines   JournalLine[]
+  recurringLines JournalRecurringLine[]
+}
+
+model JournalRecurring {
+  id           String           @id @default(uuid())
+  name         String
+  description  String?
+  frequency    String
+  interval     Int              @default(1)
+  startDate    DateTime         @default(now())
+  nextRunAt    DateTime
+  endDate      DateTime?
+  status       String           @default("ACTIVE")
+  journalId    String?
+  journal      Journal?         @relation("JournalRecurringJournal", fields: [journalId], references: [id])
+  createdById  String?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  lines        JournalRecurringLine[]
+}
+
+model JournalRecurringLine {
+  id                 String             @id @default(uuid())
+  journalRecurringId String
+  journalRecurring   JournalRecurring   @relation(fields: [journalRecurringId], references: [id], onDelete: Cascade)
+  accountId          String
+  account            Account            @relation(fields: [accountId], references: [id], name: "AccountJournalRecurringLines")
+  debit              Decimal            @default(0) @db.Decimal(15, 2)
+  kredit             Decimal            @default(0) @db.Decimal(15, 2)
+  deskripsi          String?
 }
 
 model Journal {
-  id          String        @id @default(uuid())
-  nomor       String        @unique
-  tanggal     DateTime
-  referensi   String?
-  deskripsi   String?
-  status      JournalStatus @default(DRAFT)
-  createdById String?
-  reversalOf  String?
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  lines       JournalLine[]
+  id               String        @id @default(uuid())
+  nomor            String        @unique
+  tanggal          DateTime
+  referensi        String?
+  deskripsi        String?
+  status           JournalStatus @default(DRAFT)
+  createdById      String?
+  reversalOf       String?
+  recurringJournals JournalRecurring[] @relation("JournalRecurringJournal")
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  lines            JournalLine[]
 }
 
 model JournalLine {
