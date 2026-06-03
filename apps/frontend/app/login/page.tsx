@@ -11,7 +11,7 @@ import {
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, loadProfile, token, error, loading } = useAuthStore();
+  const { login, loginDemo, loadProfile, token, error, loading } = useAuthStore();
   const [email, setEmail] = useState('admin@example.com');
   const [password, setPassword] = useState('admin123');
   const [showPass, setShowPass] = useState(false);
@@ -20,13 +20,18 @@ export default function LoginPage() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => { setMounted(true); }, []);
-  useEffect(() => { if (token) router.push('/'); }, [token]);
+  useEffect(() => { if (token) router.push('/dashboard'); }, [token]);
   if (token) return null;
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     const ok = await login(email, password);
-    if (ok) { await loadProfile(); router.push('/'); }
+    if (ok) { await loadProfile(); router.push('/dashboard'); }
+  }
+
+  function handleDemo() {
+    loginDemo();
+    router.push('/dashboard');
   }
 
   return (
@@ -382,6 +387,34 @@ export default function LoginPage() {
                     <ArrowUpRight className="h-4 w-4" />
                   </>
                 )}
+              </button>
+
+              {/* Demo Mode button */}
+              <button
+                type="button"
+                onClick={handleDemo}
+                className="w-full flex items-center justify-center gap-2 text-[13px] font-semibold transition-all duration-200"
+                style={{
+                  borderRadius: 14,
+                  padding: '12px 20px',
+                  backgroundColor: '#F0FDF4',
+                  border: '1.5px solid #BBF7D0',
+                  color: '#15803D',
+                  boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.backgroundColor = '#DCFCE7';
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.backgroundColor = '#F0FDF4';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                }}
+              >
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
+                </svg>
+                Coba Demo Mode (tanpa backend)
               </button>
 
               {/* Divider */}

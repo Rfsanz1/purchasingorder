@@ -3,6 +3,15 @@
 import { create } from 'zustand';
 import { api, setAuthToken } from '../api';
 
+const DEMO_TOKEN = 'demo_token_gentong_mas';
+const DEMO_USER = {
+  id: 'demo',
+  email: 'admin@example.com',
+  name: 'Admin Demo',
+  roles: ['Administrator'],
+  permissions: [],
+};
+
 interface AuthUser {
   id: string;
   email: string;
@@ -17,13 +26,16 @@ interface AuthState {
   user: AuthUser | null;
   error: string | null;
   loading: boolean;
+  isDemo: boolean;
   login: (email: string, password: string) => Promise<boolean>;
+  loginDemo: () => void;
   logout: () => void;
   loadProfile: () => Promise<void>;
 }
 
 const storedToken = typeof window !== 'undefined' ? window.localStorage.getItem('erp_token') : null;
 const storedRefreshToken = typeof window !== 'undefined' ? window.localStorage.getItem('erp_refresh_token') : null;
+const storedDemo = typeof window !== 'undefined' ? window.localStorage.getItem('erp_demo') === '1' : false;
 
 export const useAuthStore = create<AuthState>((set) => {
   if (storedToken) {
@@ -33,35 +45,61 @@ export const useAuthStore = create<AuthState>((set) => {
   return {
     token: storedToken,
     refreshToken: storedRefreshToken,
-    user: null,
+    user: storedDemo ? DEMO_USER : null,
     error: null,
     loading: false,
+    isDemo: storedDemo,
+
+    loginDemo: () => {
+      if (typeof window !== 'undefined') {
+        window.localStorage.setItem('erp_token', DEMO_TOKEN);
+        window.localStorage.setItem('erp_demo', '1');
+      }
+      setAuthToken(DEMO_TOKEN);
+      set({ token: DEMO_TOKEN, user: DEMO_USER, isDemo: true, error: null });
+    },
+
     login: async (email: string, password: string) => {
       set({ loading: true, error: null });
       try {
         const response = await api.post('/auth/login', { email, password });
         const { accessToken, refreshToken, user } = response.data;
 
-        window.localStorage.setItem('erp_token', accessToken);
-        window.localStorage.setItem('erp_refresh_token', refreshToken);
+        if (typeof window !== 'undefined') {
+          window.localStorage.setItem('erp_token', accessToken);
+          window.localStorage.setItem('erp_refresh_token', refreshToken);
+          window.localStorage.removeItem('erp_demo');
+        }
         setAuthToken(accessToken);
-        set({ token: accessToken, refreshToken, user, loading: false });
+        set({ token: accessToken, refreshToken, user, loading: false, isDemo: false });
         return true;
-      } catch (err) {
-        const message = err instanceof Error ? err.message : 'Unable to login';
-        set({ error: message, loading: false });
+      } catch (err: any) {
+        const msg =
+          err?.response?.data?.message ??
+          (err?.response?.status === 503
+            ? 'Server backend tidak aktif. Coba Demo Mode untuk melihat tampilan dashboard.'
+            : 'Login gagal. Periksa email dan password.');
+        set({ error: msg, loading: false });
         return false;
       }
     },
+
     logout: () => {
       if (typeof window !== 'undefined') {
         window.localStorage.removeItem('erp_token');
         window.localStorage.removeItem('erp_refresh_token');
+        window.localStorage.removeItem('erp_demo');
       }
       setAuthToken(null);
-      set({ token: null, refreshToken: null, user: null, error: null });
+      set({ token: null, refreshToken: null, user: null, error: null, isDemo: false });
     },
+
     loadProfile: async () => {
+      const isDemo = typeof window !== 'undefined' && window.localStorage.getItem('erp_demo') === '1';
+      if (isDemo) {
+        set({ user: DEMO_USER, isDemo: true });
+        return;
+      }
       const currentToken = typeof window !== 'undefined' ? window.localStorage.getItem('erp_token') : null;
       if (!currentToken) return;
       try {
