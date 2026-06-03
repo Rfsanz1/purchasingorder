@@ -23,7 +23,6 @@ outputType = "console"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "cd apps/backend && DATABASE_URL=$DATABASE_URL /home/runner/workspace/node_modules/.bin/prisma generate 2>/dev/null; PORT=6000 npm run start:dev"
-waitForPort = 6000
 
 [[workflows.workflow]]
 name = "Next.js Frontend"
