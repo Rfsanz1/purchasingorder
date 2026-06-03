@@ -1,76 +1,71 @@
-const CACHE_NAME = 'gentong-mas-erp-v1';
+const CACHE_NAME = 'gm-erp-v2';
+const API_CACHE_NAME = 'gm-erp-api-v2';
+
 const STATIC_ASSETS = [
   '/',
-  '/erp/dashboard',
+  '/dashboard',
+  '/login',
   '/manifest.json',
   '/icons/icon-192.png',
   '/icons/icon-512.png',
-  'https://cdn.tailwindcss.com',
-  'https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js',
-  'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap',
 ];
-
-const API_CACHE_NAME = 'gentong-mas-api-v1';
-const API_CACHE_DURATION = 5 * 60 * 1000;
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(STATIC_ASSETS.filter(url => !url.startsWith('http')));
-    }).catch(() => {})
+      return cache.addAll(STATIC_ASSETS).catch(() => {});
+    })
   );
   self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
+    caches.keys().then((cacheNames) =>
+      Promise.all(
         cacheNames
           .filter((name) => name !== CACHE_NAME && name !== API_CACHE_NAME)
           .map((name) => caches.delete(name))
-      );
-    })
+      )
+    )
   );
   self.clients.claim();
 });
 
 self.addEventListener('fetch', (event) => {
   const { request } = event;
-  const url = new URL(request.url);
-
   if (request.method !== 'GET') return;
 
+  const url = new URL(request.url);
+
+  // API calls — network first, fallback to cache
   if (url.pathname.startsWith('/api/')) {
-    event.respondWith(networkFirstWithCache(request));
+    event.respondWith(networkFirst(request, API_CACHE_NAME));
     return;
   }
 
-  if (
-    url.pathname.startsWith('/erp/') ||
-    url.pathname === '/pos' ||
-    url.pathname === '/' ||
-    url.pathname === '/erp/dashboard'
-  ) {
-    event.respondWith(networkFirstFallback(request));
-    return;
-  }
-
+  // Static assets — cache first
   if (
     url.pathname.startsWith('/icons/') ||
-    url.pathname === '/manifest.json' ||
-    url.pathname.startsWith('/pos/assets/')
+    url.pathname.startsWith('/_next/static/') ||
+    url.pathname === '/manifest.json'
   ) {
     event.respondWith(cacheFirst(request));
     return;
   }
+
+  // Navigation — network first, fallback to offline shell
+  if (request.mode === 'navigate') {
+    event.respondWith(networkFirstNav(request));
+    return;
+  }
 });
 
-async function networkFirstWithCache(request) {
+async function networkFirst(request, cacheName) {
   try {
     const response = await fetch(request);
     if (response.ok) {
-      const cache = await caches.open(API_CACHE_NAME);
+      const cache = await caches.open(cacheName);
       cache.put(request, response.clone());
     }
     return response;
@@ -78,13 +73,13 @@ async function networkFirstWithCache(request) {
     const cached = await caches.match(request);
     if (cached) return cached;
     return new Response(
-      JSON.stringify({ error: 'Offline - data tidak tersedia', offline: true }),
+      JSON.stringify({ error: 'Offline', offline: true }),
       { status: 503, headers: { 'Content-Type': 'application/json' } }
     );
   }
 }
 
-async function networkFirstFallback(request) {
+async function networkFirstNav(request) {
   try {
     const response = await fetch(request);
     if (response.ok) {
@@ -95,8 +90,10 @@ async function networkFirstFallback(request) {
   } catch {
     const cached = await caches.match(request);
     if (cached) return cached;
-    return caches.match('/erp/dashboard') || new Response(
-      '<html><body style="font-family:sans-serif;text-align:center;padding:50px"><h2>Gentong Mas ERP</h2><p>Tidak ada koneksi internet. Silakan coba lagi.</p></body></html>',
+    const fallback = await caches.match('/dashboard') || await caches.match('/login');
+    if (fallback) return fallback;
+    return new Response(
+      `<!DOCTYPE html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Gentong Mas ERP</title><style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Inter,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;background:#F5F5F9;padding:1rem}.card{text-align:center;background:#fff;border-radius:16px;padding:2.5rem;max-width:360px;box-shadow:0 4px 16px rgba(47,43,61,.12)}.logo{width:72px;height:72px;border-radius:16px;background:linear-gradient(135deg,#7367F0,#CE9FFC);display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem;font-size:1.75rem;font-weight:700;color:#fff}h2{color:#433C50;margin-bottom:.5rem;font-size:1.25rem}p{color:#6D6777;font-size:.875rem;line-height:1.6;margin-bottom:1.5rem}button{background:#7367F0;color:#fff;border:none;border-radius:8px;padding:.75rem 1.5rem;font-size:.9375rem;font-weight:600;cursor:pointer;width:100%}</style></head><body><div class="card"><div class="logo">GM</div><h2>Tidak Ada Koneksi</h2><p>Gentong Mas ERP memerlukan koneksi internet. Periksa koneksi Anda dan coba lagi.</p><button onclick="location.reload()">Coba Lagi</button></div></body></html>`,
       { headers: { 'Content-Type': 'text/html' } }
     );
   }
@@ -117,15 +114,17 @@ async function cacheFirst(request) {
   }
 }
 
+// Push notifications
 self.addEventListener('push', (event) => {
   if (!event.data) return;
-  const data = event.data.json();
+  let data = {};
+  try { data = event.data.json(); } catch { data = { title: 'Gentong Mas ERP', body: event.data.text() }; }
   event.waitUntil(
     self.registration.showNotification(data.title || 'Gentong Mas ERP', {
       body: data.body || '',
       icon: '/icons/icon-192.png',
       badge: '/icons/icon-72.png',
-      data: { url: data.url || '/erp/dashboard' },
+      data: { url: data.url || '/dashboard' },
       actions: [
         { action: 'open', title: 'Buka' },
         { action: 'close', title: 'Tutup' },
@@ -137,6 +136,6 @@ self.addEventListener('push', (event) => {
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   if (event.action === 'close') return;
-  const url = event.notification.data?.url || '/erp/dashboard';
+  const url = event.notification.data?.url || '/dashboard';
   event.waitUntil(clients.openWindow(url));
 });

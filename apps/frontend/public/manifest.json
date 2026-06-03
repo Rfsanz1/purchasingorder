@@ -1,13 +1,13 @@
 {
-  "name": "ERP Gentong Mas",
-  "short_name": "Gentong Mas",
+  "name": "Gentong Mas ERP",
+  "short_name": "GM ERP",
   "description": "Sistem ERP terpadu untuk sales, inventory, finance, pengiriman & CRM",
-  "start_url": "/erp/dashboard",
+  "start_url": "/dashboard",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "background_color": "#0f172a",
-  "theme_color": "#1d4ed8",
+  "background_color": "#7367F0",
+  "theme_color": "#7367F0",
   "lang": "id",
   "categories": ["business", "productivity"],
   "icons": [
@@ -15,31 +15,31 @@
       "src": "/icons/icon-72.png",
       "sizes": "72x72",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "/icons/icon-96.png",
       "sizes": "96x96",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "/icons/icon-128.png",
       "sizes": "128x128",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "/icons/icon-144.png",
       "sizes": "144x144",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "/icons/icon-152.png",
       "sizes": "152x152",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "/icons/icon-192.png",
@@ -51,7 +51,7 @@
       "src": "/icons/icon-384.png",
       "sizes": "384x384",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "/icons/icon-512.png",
@@ -65,45 +65,29 @@
       "name": "Dashboard",
       "short_name": "Dashboard",
       "description": "Dashboard utama ERP",
-      "url": "/erp/dashboard",
+      "url": "/dashboard",
       "icons": [{ "src": "/icons/icon-96.png", "sizes": "96x96" }]
     },
     {
-      "name": "Buat Order",
-      "short_name": "Order",
-      "description": "Buat purchase order baru",
-      "url": "/po-form",
+      "name": "Sales Orders",
+      "short_name": "Orders",
+      "description": "Lihat dan kelola sales order",
+      "url": "/sales/orders",
       "icons": [{ "src": "/icons/icon-96.png", "sizes": "96x96" }]
     },
     {
       "name": "POS / Kasir",
       "short_name": "Kasir",
       "description": "Point of Sale",
-      "url": "/pos",
+      "url": "/pos/orders",
       "icons": [{ "src": "/icons/icon-96.png", "sizes": "96x96" }]
     },
     {
       "name": "Inventory",
       "short_name": "Stok",
       "description": "Kelola produk dan stok",
-      "url": "/products",
+      "url": "/inventory/products",
       "icons": [{ "src": "/icons/icon-96.png", "sizes": "96x96" }]
-    }
-  ],
-  "screenshots": [
-    {
-      "src": "/icons/screenshot-wide.png",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "Dashboard ERP Gentong Mas"
-    },
-    {
-      "src": "/icons/screenshot-narrow.png",
-      "sizes": "390x844",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "ERP di mobile"
     }
   ]
 }
