@@ -1,7 +1,12 @@
 {
-  "/login/page": "app/login/page.js",
-  "/finance/reports/page": "app/finance/reports/page.js",
   "/crm/leads/page": "app/crm/leads/page.js",
+  "/login/page": "app/login/page.js",
+  "/page": "app/page.js",
   "/dashboard/page": "app/dashboard/page.js",
+  "/crm/opportunities/page": "app/crm/opportunities/page.js",
+  "/crm/pipeline/page": "app/crm/pipeline/page.js",
+  "/crm/activities/page": "app/crm/activities/page.js",
+  "/api/[...path]/route": "app/api/[...path]/route.js",
+  "/sales/quotations/page": "app/sales/quotations/page.js",
   "/settings/page": "app/settings/page.js"
 }
