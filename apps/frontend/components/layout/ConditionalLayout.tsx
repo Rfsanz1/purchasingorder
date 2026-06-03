@@ -17,6 +17,7 @@ export function ConditionalLayout({ children }: { children: React.ReactNode }) {
     PUBLIC_PATHS.includes(pathname) || pathname.startsWith('/install');
 
   useEffect(() => {
+    useAuthStore.getState().rehydrate();
     setMounted(true);
   }, []);
 
