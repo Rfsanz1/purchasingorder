@@ -1,4 +1,4 @@
-import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../../database/prisma.service.js';
 import * as bcrypt from 'bcrypt';
@@ -27,14 +27,26 @@ export class AuthService {
   ) {}
 
   async validateUser(email: string, password: string) {
+    if (!email || typeof email !== 'string' || !email.includes('@')) {
+      throw new BadRequestException('Email tidak valid');
+    }
+    if (!password || typeof password !== 'string') {
+      throw new BadRequestException('Password harus diisi');
+    }
+
     const user = await this.prisma.user.findUnique({
-      where: { email },
+      where: { email: email.toLowerCase().trim() },
       include: {
         role: { include: { permissions: { include: { permission: true } } } },
       },
     });
 
-    if (!user || !(await bcrypt.compare(password, user.password))) {
+    if (!user) {
+      throw new UnauthorizedException('Kredensial tidak valid');
+    }
+
+    const passwordValid = await bcrypt.compare(password, user.password);
+    if (!passwordValid) {
       throw new UnauthorizedException('Kredensial tidak valid');
     }
 
