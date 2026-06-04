@@ -1,8 +1,9 @@
 {
-  "/notifications/page": "app/notifications/page.js",
-  "/sales/quotations/page": "app/sales/quotations/page.js",
-  "/sales/teams/page": "app/sales/teams/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
   "/sales/orders/page": "app/sales/orders/page.js",
+  "/sales/teams/page": "app/sales/teams/page.js",
   "/sales/smart-order/page": "app/sales/smart-order/page.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/pos/orders/page": "app/pos/orders/page.js",
   "/login/page": "app/login/page.js"
 }

@@ -7,6 +7,7 @@ import {
   Users, FileText, AlertTriangle, CheckCircle, Clock, BarChart2,
   RefreshCw, Truck, Target, MoreHorizontal, ChevronRight,
 } from 'lucide-react';
+import CreateOrderModal from '../../components/orders/CreateOrderModal';
 
 const KPI_CARDS = [
   {
@@ -126,8 +127,10 @@ function MiniBarChart({ data }: { data: { month: string; revenue: number }[] }) 
 
 export default function DashboardContent() {
   const [activeTab, setActiveTab] = useState<'today' | 'week' | 'month'>('month');
+  const [showCreateOrder, setShowCreateOrder] = useState(false);
 
   return (
+    <>
     <div className="space-y-5 max-w-[1400px]">
       {/* Page header */}
       <div className="flex items-center justify-between">
@@ -173,6 +176,21 @@ export default function DashboardContent() {
         <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
           {QUICK_ACTIONS.map((action) => {
             const Icon = action.icon;
+            if (action.label === 'Buat Order') {
+              return (
+                <button
+                  key={action.label}
+                  onClick={() => setShowCreateOrder(true)}
+                  className="flex flex-col items-center gap-2 p-3 rounded-xl border transition-all hover:shadow-sm hover:-translate-y-0.5 w-full"
+                  style={{ borderColor: '#E2E8F0' }}
+                >
+                  <div className="h-9 w-9 rounded-xl flex items-center justify-center" style={{ backgroundColor: action.bg }}>
+                    <Icon className="h-4 w-4" style={{ color: action.color }} />
+                  </div>
+                  <span className="text-[11px] font-medium text-slate-600 text-center leading-tight">{action.label}</span>
+                </button>
+              );
+            }
             return (
               <Link
                 key={action.label}
@@ -443,5 +461,13 @@ export default function DashboardContent() {
         </div>
       </div>
     </div>
+
+    {showCreateOrder && (
+      <CreateOrderModal
+        onClose={() => setShowCreateOrder(false)}
+        onSuccess={() => setShowCreateOrder(false)}
+      />
+    )}
+    </>
   );
 }
