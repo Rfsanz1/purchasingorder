@@ -172,6 +172,7 @@ model Product {
   stockAdjustmentItems StockAdjustmentItem[]
   salesQuotationItems SalesQuotationItem[]
   reorderRules        ReorderRule[]
+  warehouseStocks     ProductWarehouseStock[]
 }
 
 model StockMovement {
@@ -213,6 +214,61 @@ model StockLot {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   @@unique([productId, nomorLot])
+}
+
+model ProductWarehouseStock {
+  id          String   @id @default(uuid())
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id])
+  warehouseId String
+  warehouse   Warehouse @relation(fields: [warehouseId], references: [id])
+  qty         Decimal  @db.Decimal(15, 4) @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  @@unique([productId, warehouseId])
+}
+
+model ProductVariant {
+  id         String   @id @default(cuid())
+  productId  String
+  product    Product  @relation(fields: [productId], references: [id])
+  sku        String   @unique
+  name       String
+  attributes Json
+  price      Decimal? @db.Decimal(15, 2)
+  stock      Decimal  @db.Decimal(15, 4) @default(0)
+  barcode    String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model ProductBundle {
+  id          String  @id @default(cuid())
+  productId   String
+  product     Product @relation(fields: [productId], references: [id])
+  componentId String
+  component   Product @relation(fields: [componentId], references: [id])
+  qty         Decimal @db.Decimal(15, 4)
+  createdAt   DateTime @default(now())
+}
+
+model ProductTierPrice {
+  id        String   @id @default(cuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  minQty    Decimal  @db.Decimal(15, 4)
+  maxQty    Decimal? @db.Decimal(15, 4)
+  price     Decimal  @db.Decimal(15, 2)
+  currency  String   @default("IDR")
+  createdAt DateTime @default(now())
+}
+
+model UnitConversion {
+  id       String   @id @default(cuid())
+  fromUnit String
+  toUnit   String
+  factor   Decimal  @db.Decimal(15, 8)
+  createdAt DateTime @default(now())
 }
 
 model LandedCost {

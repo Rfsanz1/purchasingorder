@@ -1,4 +1,6 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, Query, Inject, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body, Query, Inject, UseGuards, UploadedFile, UseInterceptors, Res } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { Response } from 'express';
 import { InventoryService } from './inventory.service.js';
 import { CostingService } from './costing.service.js';
 import { LandedCostService } from './landed-cost.service.js';
@@ -27,9 +29,69 @@ export class InventoryController {
     @Param('id') id: string,
     @Body() dto: { qty: number; type: 'in' | 'out'; note?: string },
   ) { return this.svc.updateStok(id, dto.qty, dto.type, dto.note); }
+  // Product variants
+  @Get('products/:id/variants') getVariants(@Param('id') id: string) { return this.svc.getVariants(id); }
+  @Post('products/:id/variants') createVariant(@Param('id') id: string, @Body() dto: any) { return this.svc.createVariant(id, dto); }
+  @Put('products/:id/variants/:variantId') updateVariant(@Param('id') id: string, @Param('variantId') variantId: string, @Body() dto: any) { return this.svc.updateVariant(id, variantId, dto); }
+  @Delete('products/:id/variants/:variantId') deleteVariant(@Param('id') id: string, @Param('variantId') variantId: string) { return this.svc.deleteVariant(id, variantId); }
+
+  // Product bundle components
+  @Get('products/:id/bundle-components') getBundleComponents(@Param('id') id: string) { return this.svc.getBundleComponents(id); }
+  @Post('products/:id/bundle-components') addBundleComponent(@Param('id') id: string, @Body() dto: any) { return this.svc.addBundleComponent(id, dto); }
+
+  // Tier prices
+  @Get('products/:id/tier-prices') getTierPrices(@Param('id') id: string) { return this.svc.getTierPrices(id); }
+  @Post('products/:id/tier-prices') addTierPrice(@Param('id') id: string, @Body() dto: any) { return this.svc.addTierPrice(id, dto); }
+
+  // Unit conversions
+  @Get('unit-conversions') getUnitConversions() { return this.svc.getUnitConversions(); }
+  @Post('unit-conversions') addUnitConversion(@Body() dto: any) { return this.svc.addUnitConversion(dto); }
+
+  // Import / Export products
+  @Post('products/import') @UseInterceptors(FileInterceptor('file')) importProducts(@UploadedFile() file: any, @Body() body: any) {
+    if (file && file.buffer) return this.svc.importProducts(file.buffer);
+    if (body && body.fileBase64) return this.svc.importProducts(body.fileBase64);
+    return { message: 'No file provided' };
+  }
+  @Get('products/export') async exportProducts(@Query() q: any, @Res({ passthrough: true }) res: Response) {
+    const out = await this.svc.exportProducts(q);
+    if (q && q.download === 'true') {
+      const buf = Buffer.from(out.content, 'base64');
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      res.setHeader('Content-Disposition', `attachment; filename="${out.filename}"`);
+      return res.send(buf);
+    }
+    return out;
+  }
+  @Get('products/import-template') async importTemplate(@Res({ passthrough: true }) res: Response, @Query() q: any) {
+    const out = await this.svc.importTemplate();
+    if (q && q.download === 'true') {
+      const buf = Buffer.from(out.content, 'base64');
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      res.setHeader('Content-Disposition', `attachment; filename="${out.filename}"`);
+      return res.send(buf);
+    }
+    return out;
+  }
   @Get('stock-movements') getMovements(@Query() q: any) { return this.svc.getStockMovements(q); }
   @Get('stock-opnames') getOpnames(@Query() q: any) { return this.svc.getStockOpnames(q); }
   @Post('stock-opnames') createOpname(@Body() dto: any) { return this.svc.createStockOpname(dto); }
+  @Post('stock-opnames/:id/validate') validateOpname(@Param('id') id: string) { return this.svc.validateStockOpname(id); }
+  @Get('stock-opnames/:id/export') async exportOpname(@Param('id') id: string, @Query() q: any, @Res({ passthrough: true }) res: Response) {
+    const out = await this.svc.exportStockOpname(id);
+    if (q && q.download === 'true') {
+      const buf = Buffer.from(out.content, 'base64');
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      res.setHeader('Content-Disposition', `attachment; filename="${out.filename}"`);
+      return res.send(buf);
+    }
+    return out;
+  }
+  @Post('stock-opnames/:id/import') @UseInterceptors(FileInterceptor('file')) importOpname(@Param('id') id: string, @UploadedFile() file: any, @Body() body: any) {
+    if (file && file.buffer) return this.svc.importStockOpname(id, file.buffer);
+    if (body && body.fileBase64) return this.svc.importStockOpname(id, body.fileBase64);
+    return { message: 'No file provided' };
+  }
   @Get('warehouses') getWarehouses() { return this.svc.getWarehouses(); }
   @Get('categories') getCategories() { return this.svc.getCategories(); }
   @Get('units') getUnits() { return this.svc.getUnits(); }
@@ -56,7 +118,7 @@ export class InventoryController {
   }
 
   @Post('costing/lots')
-  createLot(@Body() dto: {
+  createCostLot(@Body() dto: {
     productId: string; nomorLot: string; qtyAwal: number;
     unitCost: number; expiryDate?: string; referenceId?: string;
   }) {
@@ -130,10 +192,24 @@ export class InventoryController {
     return this.valuation.getStockLots(q);
   }
 
+  // Lots / Serials
+  @Get('lots') getLots(@Query() q: any) { return this.svc.getLots(q); }
+  @Get('lots/:id') getLot(@Param('id') id: string) { return this.svc.getLot(id); }
+  @Post('lots') createLot(@Body() dto: any) { return this.svc.createLot(dto); }
+  @Get('lots/:id/trace') traceLot(@Param('id') id: string) { return this.svc.getLotTrace(id); }
+  @Get('products/:id/lots') getProductLots(@Param('id') id: string) { return this.svc.getProductLots(id); }
+
   @Get('valuation/history/:productId')
   getValuationHistory(@Param('productId') productId: string) {
     return this.valuation.getValuationHistory(productId);
   }
+
+  // Reports
+  @Get('reports/stock-current') getReportStockCurrent(@Query() q: any) { return this.svc.getStockCurrent(q); }
+  @Get('reports/stock-movement') getReportStockMovement(@Query() q: any) { return this.svc.getStockMovementReport(q); }
+  @Get('reports/stock-aging') getReportStockAging(@Query() q: any) { return this.svc.getStockAging(q); }
+  @Get('reports/stock-valuation') getReportStockValuation(@Query() q: any) { return this.svc.getStockValuationReport(q); }
+  @Get('reports/product-performance') getReportProductPerformance(@Query() q: any) { return this.svc.getProductPerformance(q); }
 
   // ─── Stock Transfers ───────────────────────────────────────────────────────
   @Get('stock-transfers')
@@ -147,6 +223,24 @@ export class InventoryController {
 
   @Post('stock-transfers/:id/confirm')
   confirmTransfer(@Param('id') id: string) { return this.svc.confirmTransfer(id); }
+
+  // Aliases with simpler paths as requested
+  @Get('transfers') getTransfersV2(@Query() q: any) { return this.svc.getTransfers(q); }
+  @Get('transfers/:id') getTransferV2(@Param('id') id: string) { return this.svc.getTransfer(id); }
+  @Post('transfers') createTransferV2(@Body() dto: any) { return this.svc.createTransfer(dto); }
+  @Put('transfers/:id') updateTransferV2(@Param('id') id: string, @Body() dto: any) { return this.svc.updateTransfer(id, dto); }
+  @Post('transfers/:id/validate') validateTransfer(@Param('id') id: string) { return this.svc.validateTransfer(id); }
+  @Post('transfers/:id/cancel') cancelTransfer(@Param('id') id: string) { return this.svc.cancelTransfer(id); }
+  @Get('transfers/:id/pdf') async getTransferPdf(@Param('id') id: string, @Query() q: any, @Res({ passthrough: true }) res: Response) {
+    const out = await this.svc.generateTransferPdf(id);
+    if (q && q.download === 'true') {
+      const buf = Buffer.from(out.content, 'base64');
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="${out.filename}"`);
+      return res.send(buf);
+    }
+    return out;
+  }
 
   // ─── Stock Adjustments ─────────────────────────────────────────────────────
   @Get('stock-adjustments')

@@ -61,4 +61,13 @@ export const financeService = {
 
   getCashFlow: (params?: { year?: number }) =>
     api.get<CashFlow[]>('/finance/cash-flow', { params }).then((r) => r.data),
+
+  getTaxSummary: (params?: { dateFrom?: string; dateTo?: string }) =>
+    api.get('/finance/reports/tax-summary', { params }).then((r) => r.data),
+
+  getEFakturs: (params?: { status?: string; search?: string; page?: number; limit?: number; dateFrom?: string; dateTo?: string }) =>
+    api.get('/finance/reports/efakturs', { params }).then((r) => r.data),
+
+  exportReport: (params: { type: string; format?: 'xlsx' | 'pdf'; date?: string; dateFrom?: string; dateTo?: string }) =>
+    api.get('/finance/reports/export', { params, responseType: 'arraybuffer' }).then((r) => r.data),
 };

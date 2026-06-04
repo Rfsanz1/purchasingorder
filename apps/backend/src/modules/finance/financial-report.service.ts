@@ -1,5 +1,7 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service.js';
+import ExcelJS from 'exceljs';
+import PDFDocument from 'pdfkit';
 
 @Injectable()
 export class FinancialReportService {
@@ -117,6 +119,226 @@ export class FinancialReportService {
       otherExpenses: { items: otherExpItems, total: totalOtherExp },
       netIncome,
     };
+  }
+
+  async getStatementOfEquity(dateFrom: string, dateTo: string) {
+    const balanceSheet = await this.getBalanceSheet(dateTo);
+    const incomeStatement = await this.getIncomeStatement(dateFrom, dateTo);
+    return {
+      period: { dateFrom, dateTo },
+      equity: balanceSheet.equity,
+      netIncome: incomeStatement.netIncome,
+      beginningEquity: balanceSheet.equity.total - incomeStatement.netIncome,
+      endingEquity: balanceSheet.equity.total,
+    };
+  }
+
+  async getExecutiveSummary(dateFrom: string, dateTo: string) {
+    const balanceSheet = await this.getBalanceSheet(dateTo);
+    const incomeStatement = await this.getIncomeStatement(dateFrom, dateTo);
+    const cashFlow = await this.getCashFlow(dateFrom, dateTo);
+    return {
+      period: { dateFrom, dateTo },
+      balanceSheet,
+      incomeStatement,
+      cashFlow,
+      metrics: {
+        totalAssets: balanceSheet.assets.total,
+        totalLiabilities: balanceSheet.liabilities.total,
+        totalEquity: balanceSheet.equity.total,
+        netIncome: incomeStatement.netIncome,
+        cashFlow: cashFlow.netCashFlow,
+      },
+    };
+  }
+
+  private async bufferFromPdf(doc: PDFDocument) {
+    return new Promise<Buffer>((resolve, reject) => {
+      const buffers: Buffer[] = [];
+      doc.on('data', (chunk) => buffers.push(Buffer.from(chunk)));
+      doc.on('end', () => resolve(Buffer.concat(buffers)));
+      doc.on('error', reject);
+      doc.end();
+    });
+  }
+
+  private renderTableToSheet(sheet: ExcelJS.Worksheet, rows: any[][]) {
+    rows.forEach((row) => sheet.addRow(row));
+    sheet.columns?.forEach((column) => {
+      if (column && column.width === undefined) column.width = 20;
+    });
+  }
+
+  private async exportAsExcel(reportType: string, payload: any) {
+    const workbook = new ExcelJS.Workbook();
+    const sheet = workbook.addWorksheet(reportType.replace(/\s+/g, '_'));
+    sheet.addRow([reportType.toUpperCase()]);
+    sheet.addRow([]);
+
+    if (reportType === 'Balance Sheet') {
+      sheet.addRow(['Date', payload.date]);
+      sheet.addRow([]);
+      sheet.addRow(['Assets']);
+      this.renderTableToSheet(sheet, [['Code', 'Name', 'Balance'], ...payload.assets.items.map((item: any) => [item.code, item.name, item.balance])]);
+      sheet.addRow(['Total Assets', payload.assets.total]);
+      sheet.addRow([]);
+      sheet.addRow(['Liabilities']);
+      this.renderTableToSheet(sheet, [['Code', 'Name', 'Balance'], ...payload.liabilities.items.map((item: any) => [item.code, item.name, item.balance])]);
+      sheet.addRow(['Total Liabilities', payload.liabilities.total]);
+      sheet.addRow([]);
+      sheet.addRow(['Equity']);
+      this.renderTableToSheet(sheet, [['Code', 'Name', 'Balance'], ...payload.equity.items.map((item: any) => [item.code, item.name, item.balance])]);
+      sheet.addRow(['Total Equity', payload.equity.total]);
+    } else if (reportType === 'Income Statement') {
+      sheet.addRow(['Period', `${payload.period.dateFrom} - ${payload.period.dateTo}`]);
+      sheet.addRow([]);
+      sheet.addRow(['Revenues']);
+      this.renderTableToSheet(sheet, [['Code', 'Name', 'Amount'], ...payload.revenues.items.map((item: any) => [item.code, item.name, item.balance])]);
+      sheet.addRow(['Total Revenue', payload.revenues.total]);
+      sheet.addRow([]);
+      sheet.addRow(['HPP']);
+      this.renderTableToSheet(sheet, [['Code', 'Name', 'Amount'], ...payload.hpp.items.map((item: any) => [item.code, item.name, item.balance])]);
+      sheet.addRow(['Total HPP', payload.hpp.total]);
+      sheet.addRow([]);
+      sheet.addRow(['Operational Expenses']);
+      this.renderTableToSheet(sheet, [['Code', 'Name', 'Amount'], ...payload.operationalExpenses.items.map((item: any) => [item.code, item.name, item.balance])]);
+      sheet.addRow(['Total Operational Expenses', payload.operationalExpenses.total]);
+      sheet.addRow([]);
+      sheet.addRow(['Net Income', payload.netIncome]);
+    } else if (reportType === 'Cash Flow') {
+      sheet.addRow(['Period', `${payload.period.dateFrom} - ${payload.period.dateTo}`]);
+      sheet.addRow([]);
+      sheet.addRow(['Operating']);
+      this.renderTableToSheet(sheet, [
+        ['Description', 'Amount'],
+        ['Net Income', payload.operating.netIncome],
+        ['Perubahan Piutang', payload.operating.adjustments.perubahanPiutang],
+        ['Perubahan Persediaan', payload.operating.adjustments.perubahanPersediaan],
+        ['Perubahan Hutang Dagang', payload.operating.adjustments.perubahanHutangDagang],
+        ['Total Operating', payload.operating.total],
+      ]);
+      sheet.addRow([]);
+      sheet.addRow(['Investing', payload.investing.total]);
+      sheet.addRow(['Financing', payload.financing.total]);
+      sheet.addRow(['Net Cash Flow', payload.netCashFlow]);
+    } else if (reportType === 'Statement of Equity') {
+      sheet.addRow(['Period', `${payload.period.dateFrom} - ${payload.period.dateTo}`]);
+      sheet.addRow([]);
+      sheet.addRow(['Equity Accounts']);
+      this.renderTableToSheet(sheet, [['Code', 'Name', 'Amount'], ...payload.equity.items.map((item: any) => [item.code, item.name, item.balance])]);
+      sheet.addRow([]);
+      sheet.addRow(['Beginning Equity', payload.beginningEquity]);
+      sheet.addRow(['Net Income', payload.netIncome]);
+      sheet.addRow(['Ending Equity', payload.endingEquity]);
+    } else if (reportType === 'Executive Summary') {
+      sheet.addRow(['Period', `${payload.period.dateFrom} - ${payload.period.dateTo}`]);
+      sheet.addRow([]);
+      sheet.addRow(['Total Assets', payload.metrics.totalAssets]);
+      sheet.addRow(['Total Liabilities', payload.metrics.totalLiabilities]);
+      sheet.addRow(['Total Equity', payload.metrics.totalEquity]);
+      sheet.addRow(['Net Income', payload.metrics.netIncome]);
+      sheet.addRow(['Net Cash Flow', payload.metrics.cashFlow]);
+    }
+
+    return workbook.xlsx.writeBuffer();
+  }
+
+  private async exportAsPdf(reportType: string, payload: any) {
+    const doc = new PDFDocument({ margin: 36 });
+    doc.fontSize(16).text(reportType, { underline: true });
+    doc.moveDown();
+    if (reportType === 'Balance Sheet') {
+      doc.fontSize(12).text(`Date: ${payload.date}`);
+      doc.moveDown();
+      const writeSection = (title: string, section: any) => {
+        doc.fontSize(12).text(title);
+        section.items.forEach((item: any) => {
+          doc.fontSize(10).text(`- ${item.code} ${item.name}: ${item.balance}`);
+        });
+        doc.fontSize(10).text(`Total: ${section.total}`);
+        doc.moveDown();
+      };
+      writeSection('Assets', payload.assets);
+      writeSection('Liabilities', payload.liabilities);
+      writeSection('Equity', payload.equity);
+    } else if (reportType === 'Income Statement') {
+      doc.fontSize(12).text(`Period: ${payload.period.dateFrom} - ${payload.period.dateTo}`);
+      doc.moveDown();
+      const section = (label: string, items: any[]) => {
+        doc.fontSize(12).text(label);
+        items.forEach((item: any) => doc.fontSize(10).text(`- ${item.code} ${item.name}: ${item.balance}`));
+        doc.moveDown();
+      };
+      section('Revenues', payload.revenues.items);
+      doc.fontSize(10).text(`Total Revenue: ${payload.revenues.total}`);
+      doc.moveDown();
+      section('HPP', payload.hpp.items);
+      doc.fontSize(10).text(`Total HPP: ${payload.hpp.total}`);
+      doc.moveDown();
+      section('Operational Expenses', payload.operationalExpenses.items);
+      doc.fontSize(10).text(`Total Operational Expenses: ${payload.operationalExpenses.total}`);
+      doc.moveDown();
+      doc.fontSize(12).text(`Net Income: ${payload.netIncome}`);
+    } else if (reportType === 'Cash Flow') {
+      doc.fontSize(12).text(`Period: ${payload.period.dateFrom} - ${payload.period.dateTo}`);
+      doc.moveDown();
+      doc.fontSize(12).text('Operating');
+      Object.entries(payload.operating.adjustments).forEach(([key, value]) => {
+        doc.fontSize(10).text(`- ${key}: ${value}`);
+      });
+      doc.fontSize(10).text(`Total Operating: ${payload.operating.total}`);
+      doc.moveDown();
+      doc.fontSize(12).text(`Investing: ${payload.investing.total}`);
+      doc.fontSize(12).text(`Financing: ${payload.financing.total}`);
+      doc.fontSize(12).text(`Net Cash Flow: ${payload.netCashFlow}`);
+    } else if (reportType === 'Statement of Equity') {
+      doc.fontSize(12).text(`Period: ${payload.period.dateFrom} - ${payload.period.dateTo}`);
+      doc.moveDown();
+      payload.equity.items.forEach((item: any) => doc.fontSize(10).text(`- ${item.code} ${item.name}: ${item.balance}`));
+      doc.moveDown();
+      doc.fontSize(12).text(`Beginning Equity: ${payload.beginningEquity}`);
+      doc.fontSize(12).text(`Net Income: ${payload.netIncome}`);
+      doc.fontSize(12).text(`Ending Equity: ${payload.endingEquity}`);
+    } else if (reportType === 'Executive Summary') {
+      doc.fontSize(12).text(`Period: ${payload.period.dateFrom} - ${payload.period.dateTo}`);
+      doc.moveDown();
+      doc.fontSize(12).text(`Total Assets: ${payload.metrics.totalAssets}`);
+      doc.fontSize(12).text(`Total Liabilities: ${payload.metrics.totalLiabilities}`);
+      doc.fontSize(12).text(`Total Equity: ${payload.metrics.totalEquity}`);
+      doc.fontSize(12).text(`Net Income: ${payload.metrics.netIncome}`);
+      doc.fontSize(12).text(`Net Cash Flow: ${payload.metrics.cashFlow}`);
+    }
+
+    return this.bufferFromPdf(doc);
+  }
+
+  async exportReport(reportType: string, format: string, date?: string, dateFrom?: string, dateTo?: string) {
+    const normalized = (reportType || 'balance-sheet').toString().toLowerCase();
+    const typeName = {
+      'balance-sheet': 'Balance Sheet',
+      'profit-loss': 'Income Statement',
+      'income-statement': 'Income Statement',
+      'cash-flow': 'Cash Flow',
+      'equity-statement': 'Statement of Equity',
+      'executive-summary': 'Executive Summary',
+    }[normalized] ?? 'Balance Sheet';
+
+    let payload: any;
+    if (typeName === 'Balance Sheet') payload = await this.getBalanceSheet(date);
+    else if (typeName === 'Income Statement') payload = await this.getIncomeStatement(dateFrom, dateTo);
+    else if (typeName === 'Cash Flow') payload = await this.getCashFlow(dateFrom, dateTo);
+    else if (typeName === 'Statement of Equity') payload = await this.getStatementOfEquity(dateFrom, dateTo);
+    else if (typeName === 'Executive Summary') payload = await this.getExecutiveSummary(dateFrom, dateTo);
+    else payload = await this.getBalanceSheet(date);
+
+    const outputFormat = (format || 'xlsx').toString().toLowerCase();
+    if (outputFormat === 'pdf') {
+      const buffer = await this.exportAsPdf(typeName, payload);
+      return { buffer, filename: `${normalized}-${new Date().toISOString().slice(0, 10)}.pdf`, contentType: 'application/pdf' };
+    }
+
+    const buffer = await this.exportAsExcel(typeName, payload);
+    return { buffer, filename: `${normalized}-${new Date().toISOString().slice(0, 10)}.xlsx`, contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' };
   }
 
   async getCashFlow(dateFrom: string, dateTo: string) {

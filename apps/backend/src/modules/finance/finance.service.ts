@@ -1,9 +1,13 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service.js';
+import { AutoJournalService } from './auto-journal.service.js';
 
 @Injectable()
 export class FinanceService {
-  constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
+  constructor(
+    @Inject(PrismaService) private readonly prisma: PrismaService,
+    @Inject(AutoJournalService) private readonly autoJournal: AutoJournalService,
+  ) {}
 
   async getJournalEntries(query: any) {
     const { search, status, type, page = 1, limit = 20 } = query;
@@ -64,7 +68,80 @@ export class FinanceService {
     return { data, total, page: Number(page), totalPages: Math.ceil(total / Number(limit)) };
   }
 
-  async createBankTransaction(dto: any) { return this.prisma.bankTransaction.create({ data: dto }); }
+  async createBankTransaction(dto: any) {
+    const data = {
+      ...dto,
+      tanggal: dto.tanggal ? new Date(dto.tanggal) : new Date(),
+      amount: Number(dto.amount || 0),
+    };
+    const transaction = await this.prisma.bankTransaction.create({ data });
+    if (transaction.bankAccountId) {
+      const delta = data.type === 'in' ? data.amount : -data.amount;
+      await this.prisma.bankAccount.update({
+        where: { id: transaction.bankAccountId },
+        data: { balance: { increment: delta } },
+      });
+    }
+    return transaction;
+  }
+
+  async createBankReceive(dto: any) {
+    const transaction = await this.createBankTransaction({ ...dto, type: 'in' });
+    await this.autoJournal.onPaymentReceived(
+      dto.referenceId ?? transaction.id,
+      Number(transaction.amount),
+      new Date(transaction.tanggal),
+      dto.referenceId ?? transaction.id,
+      true,
+    );
+    return { data: transaction, message: 'Penerimaan bank berhasil dicatat' };
+  }
+
+  async createBankPayment(dto: any) {
+    const transaction = await this.createBankTransaction({ ...dto, type: 'out' });
+    await this.autoJournal.onPaymentMade(
+      dto.referenceId ?? transaction.id,
+      Number(transaction.amount),
+      new Date(transaction.tanggal),
+      dto.referenceId ?? transaction.id,
+      true,
+    );
+    return { data: transaction, message: 'Pembayaran bank berhasil dicatat' };
+  }
+
+  async transferBankFunds(dto: any) {
+    const date = dto.tanggal ? new Date(dto.tanggal) : new Date();
+    const amount = Number(dto.amount || 0);
+    const [debit, credit] = await this.prisma.$transaction([
+      this.prisma.bankTransaction.create({
+        data: {
+          bankAccountId: dto.fromBankAccountId,
+          tanggal: date,
+          type: 'out',
+          amount,
+          keterangan: dto.description ?? `Transfer ke ${dto.toBankAccountId}`,
+          referenceId: dto.referenceId,
+        },
+      }),
+      this.prisma.bankTransaction.create({
+        data: {
+          bankAccountId: dto.toBankAccountId,
+          tanggal: date,
+          type: 'in',
+          amount,
+          keterangan: dto.description ?? `Transfer dari ${dto.fromBankAccountId}`,
+          referenceId: dto.referenceId,
+        },
+      }),
+    ]);
+
+    await Promise.all([
+      this.prisma.bankAccount.update({ where: { id: dto.fromBankAccountId }, data: { balance: { increment: -amount } } }),
+      this.prisma.bankAccount.update({ where: { id: dto.toBankAccountId }, data: { balance: { increment: amount } } }),
+    ]);
+
+    return { data: { debit, credit }, message: 'Transfer antar rekening bank berhasil' };
+  }
 
   async getCashTransactions(query: any) {
     const { type, page = 1, limit = 20 } = query;
@@ -82,7 +159,38 @@ export class FinanceService {
     return { data, total, page: Number(page), totalPages: Math.ceil(total / Number(limit)) };
   }
 
-  async createCashTransaction(dto: any) { return this.prisma.cashTransaction.create({ data: dto }); }
+  async createCashTransaction(dto: any) {
+    const data = {
+      ...dto,
+      tanggal: dto.tanggal ? new Date(dto.tanggal) : new Date(),
+      amount: Number(dto.amount || 0),
+    };
+    return this.prisma.cashTransaction.create({ data });
+  }
+
+  async createCashReceive(dto: any) {
+    const transaction = await this.createCashTransaction({ ...dto, type: 'in' });
+    await this.autoJournal.onPaymentReceived(
+      dto.referenceId ?? transaction.id,
+      Number(transaction.amount),
+      new Date(transaction.tanggal),
+      dto.referenceId ?? transaction.id,
+      false,
+    );
+    return { data: transaction, message: 'Penerimaan kas berhasil dicatat' };
+  }
+
+  async createCashPayment(dto: any) {
+    const transaction = await this.createCashTransaction({ ...dto, type: 'out' });
+    await this.autoJournal.onPaymentMade(
+      dto.referenceId ?? transaction.id,
+      Number(transaction.amount),
+      new Date(transaction.tanggal),
+      dto.referenceId ?? transaction.id,
+      false,
+    );
+    return { data: transaction, message: 'Pengeluaran kas berhasil dicatat' };
+  }
 
   async getCashFlow(query: any) {
     const { dateFrom, dateTo } = query;

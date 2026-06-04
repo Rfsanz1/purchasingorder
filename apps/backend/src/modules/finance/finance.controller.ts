@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, Query, Inject, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body, Query, Inject, UseGuards, Res, StreamableFile } from '@nestjs/common';
+import { Response } from 'express';
 import { FinanceService } from './finance.service.js';
 import { AccountService } from './account.service.js';
 import { JournalService } from './journal.service.js';
@@ -8,6 +9,8 @@ import { ARAgingService } from './ar-aging.service.js';
 import { APAgingService } from './ap-aging.service.js';
 import { BudgetService } from './budget.service.js';
 import { CreditLimitService } from './credit-limit.service.js';
+import { JournalRecurringService } from './journal-recurring.service.js';
+import { TaxService } from './tax.service.js';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard.js';
 
 @Controller('finance')
@@ -23,6 +26,8 @@ export class FinanceController {
     @Inject(APAgingService) private readonly apAgingSvc: APAgingService,
     @Inject(BudgetService) private readonly budgetSvc: BudgetService,
     @Inject(CreditLimitService) private readonly creditSvc: CreditLimitService,
+    @Inject(JournalRecurringService) private readonly recurringSvc: JournalRecurringService,
+    @Inject(TaxService) private readonly taxSvc: TaxService,
   ) {}
 
   // ─── Stats ────────────────────────────────────────────────────────────
@@ -41,8 +46,13 @@ export class FinanceController {
   @Get('bank-accounts') getBankAccounts() { return this.svc.getBankAccounts(); }
   @Get('bank-transactions') getBankTx(@Query() q: any) { return this.svc.getBankTransactions(q); }
   @Post('bank-transactions') createBankTx(@Body() dto: any) { return this.svc.createBankTransaction(dto); }
+  @Post('bank-transactions/receive') createBankReceive(@Body() dto: any) { return this.svc.createBankReceive(dto); }
+  @Post('bank-transactions/payment') createBankPayment(@Body() dto: any) { return this.svc.createBankPayment(dto); }
+  @Post('bank-transactions/transfer') transferBankFunds(@Body() dto: any) { return this.svc.transferBankFunds(dto); }
   @Get('cash-transactions') getCashTx(@Query() q: any) { return this.svc.getCashTransactions(q); }
   @Post('cash-transactions') createCashTx(@Body() dto: any) { return this.svc.createCashTransaction(dto); }
+  @Post('cash-transactions/receive') createCashReceive(@Body() dto: any) { return this.svc.createCashReceive(dto); }
+  @Post('cash-transactions/payment') createCashPayment(@Body() dto: any) { return this.svc.createCashPayment(dto); }
   @Get('cash-flow') getCashFlow(@Query() q: any) { return this.svc.getCashFlow(q); }
 
   // ─── Accounts (Chart of Accounts — double entry) ─────────────────────
@@ -73,6 +83,22 @@ export class FinanceController {
   @Get('reports/balance-sheet') getBalanceSheet(@Query() q: any) { return this.reportSvc.getBalanceSheet(q.date); }
   @Get('reports/income-statement') getIncomeStatement(@Query() q: any) { return this.reportSvc.getIncomeStatement(q.dateFrom, q.dateTo); }
   @Get('reports/cash-flow') getCashFlowReport(@Query() q: any) { return this.reportSvc.getCashFlow(q.dateFrom, q.dateTo); }
+  @Get('reports/equity-statement') getEquityStatement(@Query() q: any) { return this.reportSvc.getStatementOfEquity(q.dateFrom, q.dateTo); }
+  @Get('reports/executive-summary') getExecutiveSummary(@Query() q: any) { return this.reportSvc.getExecutiveSummary(q.dateFrom, q.dateTo); }
+  @Get('reports/tax-summary') getTaxSummary(@Query() q: any) { return this.taxSvc.getTaxSummary(q); }
+  @Get('reports/efakturs') getEfakturs(@Query() q: any) { return this.taxSvc.getEFakturs(q); }
+  @Get('reports/efakturs/export') async exportEfakturs(@Query() q: any, @Res({ passthrough: true }) res: Response) {
+    const { buffer, filename } = await this.taxSvc.exportEFaktursCsv(q);
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    return new StreamableFile(buffer);
+  }
+  @Get('reports/export') async exportReport(@Query() q: any, @Res({ passthrough: true }) res: Response) {
+    const { buffer, filename, contentType } = await this.reportSvc.exportReport(q.type, q.format, q.date, q.dateFrom, q.dateTo);
+    res.setHeader('Content-Type', contentType);
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    return new StreamableFile(buffer);
+  }
 
   // ─── AR/AP Aging ─────────────────────────────────────────────────────
   @Get('ar-aging') getARAgingReport(@Query() q: any) { return this.arAgingSvc.getARAgingReport(q.asOf ? new Date(q.asOf) : undefined, q.branchId); }
@@ -89,6 +115,15 @@ export class FinanceController {
   @Post('credit-limits/bulk') setBulkCreditLimit(@Body() dto: { items: { customerId: string; creditLimit: number }[] }) {
     return this.creditSvc.setBulkCreditLimit(dto.items);
   }
+
+  // ─── Recurring Journals ───────────────────────────────────────────────
+  @Get('journals/recurring') getRecurringJournals(@Query() q: any) { return this.recurringSvc.findAll(q); }
+  @Get('journals/recurring/:id') getRecurringJournal(@Param('id') id: string) { return this.recurringSvc.findOne(id); }
+  @Post('journals/recurring') createRecurringJournal(@Body() dto: any) { return this.recurringSvc.create(dto); }
+  @Put('journals/recurring/:id') updateRecurringJournal(@Param('id') id: string, @Body() dto: any) { return this.recurringSvc.update(id, dto); }
+  @Delete('journals/recurring/:id') deleteRecurringJournal(@Param('id') id: string) { return this.recurringSvc.remove(id); }
+  @Post('journals/recurring/:id/run') runRecurringJournal(@Param('id') id: string) { return this.recurringSvc.runDueRecurring(id); }
+  @Post('journals/recurring/run') runDueRecurringJournals() { return this.recurringSvc.runDueRecurring(); }
 
   // ─── Budget ───────────────────────────────────────────────────────────
   @Get('budgets') getBudgets(@Query() q: any) { return this.budgetSvc.getBudgets(q); }
