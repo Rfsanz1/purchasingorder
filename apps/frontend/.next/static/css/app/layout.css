@@ -1,6 +1,6 @@
-/*!********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** css ../../node_modules/.pnpm/next@14.2.5_@babel+core@7.29.7_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[13].oneOf[12].use[2]!../../node_modules/.pnpm/next@14.2.5_@babel+core@7.29.7_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[13].oneOf[12].use[3]!./styles/globals.css ***!
-  \********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/*!************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ../../node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[13].oneOf[12].use[2]!../../node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[13].oneOf[12].use[3]!./styles/globals.css ***!
+  \************************************************************************************************************************************************************************************************************************************************************************/
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 *, ::before, ::after{
   --tw-border-spacing-x: 0;
@@ -1129,6 +1129,9 @@ video {
 .resize-none{
   resize: none;
 }
+.resize{
+  resize: both;
+}
 .appearance-none{
   -webkit-appearance: none;
      -moz-appearance: none;
@@ -2174,6 +2177,10 @@ video {
   padding-top: 3rem;
   padding-bottom: 3rem;
 }
+.py-14{
+  padding-top: 3.5rem;
+  padding-bottom: 3.5rem;
+}
 .py-16{
   padding-top: 4rem;
   padding-bottom: 4rem;
@@ -2216,6 +2223,9 @@ video {
 }
 .pb-1{
   padding-bottom: 0.25rem;
+}
+.pb-2{
+  padding-bottom: 0.5rem;
 }
 .pb-2\.5{
   padding-bottom: 0.625rem;
@@ -3010,6 +3020,10 @@ select:focus-visible {
 .hover\:bg-orange-500:hover{
   --tw-bg-opacity: 1;
   background-color: rgb(249 115 22 / var(--tw-bg-opacity, 1));
+}
+.hover\:bg-purple-50:hover{
+  --tw-bg-opacity: 1;
+  background-color: rgb(250 245 255 / var(--tw-bg-opacity, 1));
 }
 .hover\:bg-red-50:hover{
   --tw-bg-opacity: 1;

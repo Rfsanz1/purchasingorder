@@ -1,0 +1,95 @@
+CONTEXT:
+Proyek: Gentong Mas ERP (NestJS + Prisma + PostgreSQL + Next.js 15)
+Kondisi saat ini: Ada model Customer dan Supplier terpisah.
+Belum ada sistem Kontak terpadu seperti Kledo.
+
+TASK:
+Buat modul Contact terpadu yang menggabungkan Customer dan Supplier.
+
+=== BACKEND ===
+
+1. Tambah Prisma model baru (jangan hapus Customer & Supplier lama dulu):
+
+model Contact {
+  id              String    @id @default(cuid())
+  code            String    @unique
+  name            String
+  type            String[]  // ["customer", "supplier", "both", "employee", "other"]
+  email           String?
+  phone           String?
+  mobile          String?
+  address         String?
+  city            String?
+  province        String?
+  postalCode      String?
+  country         String    @default("Indonesia")
+  npwp            String?
+  nik             String?
+  termOfPayment   Int?      // default hari: 0=cash, 7, 14, 30, 45, 60
+  creditLimit     Float?    @default(0)
+  currency        String    @default("IDR")
+  discountPercent Float?    @default(0)
+  bankName        String?
+  bankAccountNo   String?
+  bankAccountName String?
+  notes           String?
+  isActive        Boolean   @default(true)
+  companyId       String?
+  branchId        String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+2. Buat ContactModule dengan file:
+   - contact.module.ts
+   - contact.controller.ts
+   - contact.service.ts
+   - dto/create-contact.dto.ts
+   - dto/update-contact.dto.ts
+   - dto/query-contact.dto.ts
+
+3. Endpoint yang harus ada:
+GET    /api/contacts                    (list, filter: type, isActive, search, branchId)
+GET    /api/contacts/:id                (detail)
+POST   /api/contacts                    (create, auto-generate code: KON-0001)
+PUT    /api/contacts/:id                (update)
+DELETE /api/contacts/:id                (soft delete, set isActive=false)
+GET    /api/contacts/:id/transactions   (semua transaksi: invoice, PO, expense)
+GET    /api/contacts/:id/statement      (laporan hutang-piutang per kontak dengan aging)
+GET    /api/contacts/:id/balance        (saldo hutang/piutang saat ini)
+POST   /api/contacts/import             (import dari Excel/CSV)
+GET    /api/contacts/export             (export ke Excel)
+GET    /api/contacts/import-template    (download template Excel)
+
+4. Di service, method getStatement() harus:
+   - Ambil semua Invoice terkait contactId (piutang)
+   - Ambil semua VendorBill terkait contactId (hutang)
+   - Hitung saldo outstanding masing-masing
+   - Return: { receivables: [], payables: [], totalReceivable, totalPayable, netBalance }
+
+5. Auto-generate code:
+   - Format: KON-{4digit} → KON-0001, KON-0002 dst
+   - Cek nomor terakhir di DB, increment +1
+
+=== FRONTEND (apps/frontend) ===
+
+Buat halaman di apps/frontend/app/contacts/:
+
+File yang dibuat:
+- app/contacts/page.tsx           (list contacts dengan filter dan search)
+- app/contacts/[id]/page.tsx      (detail contact + tab transactions + tab statement)
+- app/contacts/[id]/edit/page.tsx (form edit)
+- app/contacts/new/page.tsx       (form create)
+- components/contacts/ContactTable.tsx
+- components/contacts/ContactForm.tsx
+- components/contacts/ContactStatement.tsx
+
+UI requirements:
+- Tabel dengan kolom: Kode, Nama, Tipe (badge), Telepon, Email, Termin, Saldo Piutang, Saldo Hutang, Status
+- Filter by tipe: Semua / Pelanggan / Pemasok / Keduanya
+- Search by nama/kode/telepon/email
+- Badge warna: customer=biru, supplier=hijau, both=ungu
+- Detail page ada 4 tab: Info, Transaksi, Hutang-Piutang, Riwayat
+- Form ada section: Info Dasar, Alamat, Info Bisnis (NPWP), Bank, Pengaturan Default
+
+Ikuti design system yang sudah ada di proyek (Tailwind + komponen existing).

@@ -14,8 +14,11 @@
         "build:all": "pnpm build:backend && pnpm build:frontend"
     },
     "dependencies": {
+        "@prisma/client": "^7.8.0",
         "concurrently": "^8.2.2",
         "eventemitter3": "^5.0.4",
-        "pnpm": "^10.34.1"
+        "pnpm": "^10.34.1",
+        "prisma": "^7.8.0",
+        "tsx": "^4.22.4"
     }
 }

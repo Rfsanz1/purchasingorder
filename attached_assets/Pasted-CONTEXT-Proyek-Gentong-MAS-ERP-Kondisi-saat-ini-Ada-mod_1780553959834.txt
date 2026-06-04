@@ -1,0 +1,142 @@
+CONTEXT:
+Proyek: Gentong MAS ERP
+Kondisi saat ini: Ada model Invoice, InvoiceItem, InvoicePayment, Quotation, SalesReturn.
+Invoice module controller sudah ada tapi belum lengkap.
+Sales module sudah ada order, quotation dasar.
+
+TASK:
+Lengkapi modul Invoice dan Penjualan agar setara Kledo.
+
+=== BAGIAN A: INVOICE ===
+
+1. Lengkapi InvoiceService dengan method yang belum ada:
+
+a) Recurring Invoice:
+   - Tambah model InvoiceRecurring jika belum ada:
+     model InvoiceRecurring {
+       id          String   @id @default(cuid())
+       invoiceId   String
+       frequency   String   // "daily","weekly","monthly","yearly"
+       startDate   DateTime
+       endDate     DateTime?
+       nextRunDate DateTime
+       isActive    Boolean  @default(true)
+     }
+   - Endpoint: POST /api/invoices/:id/set-recurring
+   - Endpoint: DELETE /api/invoices/:id/recurring
+   - Cron job: setiap hari jam 00.00 cek InvoiceRecurring yang nextRunDate <= hari ini,
+     duplikat invoice tersebut, update nextRunDate ke periode berikutnya
+
+b) Invoice Reminder:
+   - Tambah field reminderDays Int[] di Invoice (misal: [3, 7, 14] hari sebelum/sesudah jatuh tempo)
+   - Cron job harian: cek invoice overdue atau mau jatuh tempo → kirim notifikasi
+   - Endpoint: POST /api/invoices/:id/send-reminder (manual trigger)
+
+c) Payment Link:
+   - Tambah model PaymentLink (sudah ada referensi di schema? cek dulu)
+   - Endpoint: POST /api/invoices/:id/payment-link
+   - Body: { provider: "midtrans"|"xendit", expiredHours: 24 }
+   - Return: { paymentUrl, token, expiredAt }
+   - Endpoint GET /api/payment/:token (PUBLIC, no auth) → cek status payment
+
+d) Print PDF:
+   - Endpoint: GET /api/invoices/:id/pdf
+   - Generate PDF menggunakan puppeteer atau @react-pdf/renderer
+   - Template: logo perusahaan (dari settings), nama perusahaan, alamat, NPWP
+     header invoice: nomor, tanggal, jatuh tempo, termin
+     tabel item: no, produk, deskripsi, qty, satuan, harga, diskon, pajak, subtotal
+     footer: subtotal, diskon global, pajak total, grand total
+     tanda tangan: nama penandatangan, jabatan (dari settings template)
+     pesan footer
+
+e) Kirim WhatsApp:
+   - Endpoint: POST /api/invoices/:id/send-whatsapp
+   - Body: { phone: string, message?: string }
+   - Format WA: "Halo [nama customer], berikut invoice [nomor] senilai [jumlah] jatuh tempo [tanggal]. [link payment]"
+
+2. Endpoint yang harus ditambah (yang belum ada):
+POST   /api/invoices/:id/set-recurring
+DELETE /api/invoices/:id/recurring
+POST   /api/invoices/:id/payment-link
+GET    /api/payment/:token               (public)
+POST   /api/payment/webhook/midtrans     (public, webhook)
+GET    /api/invoices/:id/pdf
+POST   /api/invoices/:id/send-whatsapp
+POST   /api/invoices/:id/send-reminder
+GET    /api/invoices/aging               (AR aging report: 0-30, 31-60, 61-90, >90 hari)
+POST   /api/invoices/import              (import invoice dari Excel)
+GET    /api/invoices/import-template
+
+3. Auto-jurnal saat invoice dibayar (tambah ke addPayment method):
+   DEBIT  : akun Kas/Bank (dari paymentAccountId)
+   KREDIT : akun Piutang Usaha
+   Jika ada pajak (PPN):
+   KREDIT : akun PPN Keluaran (amount pajak)
+   KREDIT : akun Piutang (amount setelah pajak)
+
+=== BAGIAN B: QUOTATION / PENAWARAN ===
+
+Cek: sudah ada model Quotation dan SalesQuotation (duplikasi!).
+Pilih satu: gunakan Quotation, hapus SalesQuotation atau sebaliknya.
+Pastikan endpoint berikut lengkap:
+
+GET    /api/sales/quotations
+GET    /api/sales/quotations/:id
+POST   /api/sales/quotations
+PUT    /api/sales/quotations/:id
+DELETE /api/sales/quotations/:id
+POST   /api/sales/quotations/:id/send-email
+POST   /api/sales/quotations/:id/send-whatsapp
+POST   /api/sales/quotations/:id/confirm         (→ jadi Sales Order)
+POST   /api/sales/quotations/:id/convert-invoice (→ langsung jadi Invoice, skip SO)
+GET    /api/sales/quotations/:id/pdf
+
+Status flow Quotation: draft → sent → confirmed → converted → expired → cancelled
+
+=== BAGIAN C: PRICELIST ===
+
+Model Pricelist dan PricelistItem sudah ada di schema.
+Pastikan endpoint ini ada dan berfungsi:
+
+GET    /api/sales/pricelists
+GET    /api/sales/pricelists/:id
+POST   /api/sales/pricelists
+PUT    /api/sales/pricelists/:id
+DELETE /api/sales/pricelists/:id
+GET    /api/sales/pricelists/:id/items
+POST   /api/sales/pricelists/:id/items
+
+Di InvoiceService, saat create invoice:
+- Cek apakah customer punya assigned pricelist
+- Jika ya, gunakan harga dari pricelist untuk setiap produk
+- Override dengan manual price jika user mengubah
+
+=== BAGIAN D: RETUR PENJUALAN ===
+
+Model SalesReturn dan SalesReturnItem sudah ada.
+Lengkapi endpoint:
+
+GET    /api/sales/returns
+GET    /api/sales/returns/:id
+POST   /api/sales/returns                (referensi ke invoiceId)
+PUT    /api/sales/returns/:id
+POST   /api/sales/returns/:id/validate  (approve retur)
+
+Saat retur divalidate:
+- Stok bertambah kembali ke gudang
+- Jurnal: DEBIT Retur Penjualan, KREDIT Piutang (jika belum bayar) ATAU DEBIT Kas, KREDIT Pendapatan (jika refund tunai)
+
+=== FRONTEND ===
+
+Buat/lengkapi halaman:
+- app/sales/invoices/page.tsx          (list dengan filter status, customer, tanggal)
+- app/sales/invoices/[id]/page.tsx     (detail + tab pembayaran + tab jurnal)
+- app/sales/invoices/new/page.tsx      (form buat invoice)
+- app/sales/quotations/page.tsx
+- app/sales/quotations/new/page.tsx
+- app/sales/returns/page.tsx
+
+Status badge warna:
+- draft=abu, sent=biru, partial=kuning, paid=hijau, overdue=merah, cancelled=abu gelap
+
+Ikuti design system existing.
