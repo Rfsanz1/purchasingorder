@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module.js';
 import { ValidationPipe } from '@nestjs/common';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -53,8 +54,65 @@ async function bootstrap() {
     next();
   });
 
-  await app.listen(process.env.PORT ? Number(process.env.PORT) : 4000);
-  console.log(`Modern backend running on http://localhost:${process.env.PORT ?? 4000}`);
+  // Swagger API Documentation
+  const swaggerConfig = new DocumentBuilder()
+    .setTitle('Gentong Mas ERP — API')
+    .setDescription(
+      'REST API untuk sistem ERP Gentong Mas. Mencakup modul: Auth, Sales, Inventory, Finance, HR, CRM, Fleet, Payroll, Tax, dan lainnya.',
+    )
+    .setVersion('1.0')
+    .addBearerAuth(
+      { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
+      'access-token',
+    )
+    .addTag('auth', 'Autentikasi & otorisasi')
+    .addTag('dashboard', 'KPI & statistik dashboard')
+    .addTag('sales', 'Manajemen penjualan & order')
+    .addTag('inventory', 'Stok & gudang')
+    .addTag('finance', 'Keuangan & akuntansi')
+    .addTag('hr', 'Sumber daya manusia')
+    .addTag('crm', 'CRM & relasi pelanggan')
+    .addTag('purchasing', 'Pembelian & vendor')
+    .addTag('fleet', 'Armada & pengiriman')
+    .addTag('payroll', 'Penggajian karyawan')
+    .addTag('tax', 'Perpajakan & e-Faktur')
+    .addTag('assets', 'Aset tetap & penyusutan')
+    .addTag('maintenance', 'Pemeliharaan peralatan')
+    .addTag('manufacturing', 'Produksi & BOM')
+    .addTag('project', 'Manajemen proyek')
+    .addTag('pos', 'Point of Sale')
+    .addTag('branch', 'Cabang & perusahaan')
+    .addTag('users', 'Manajemen pengguna')
+    .addTag('settings', 'Pengaturan sistem')
+    .build();
+
+  const document = SwaggerModule.createDocument(app, swaggerConfig);
+  SwaggerModule.setup('docs', app, document, {
+    swaggerOptions: {
+      persistAuthorization: true,
+      docExpansion: 'none',
+      filter: true,
+      showRequestDuration: true,
+    },
+    customSiteTitle: 'Gentong Mas ERP — API Docs',
+    customCss: `
+      .swagger-ui .topbar { background: linear-gradient(135deg, #7367F0, #CE9FFC); }
+      .swagger-ui .topbar-wrapper img { display: none; }
+      .swagger-ui .topbar-wrapper::before {
+        content: '🏢 Gentong Mas ERP';
+        color: white;
+        font-size: 1.25rem;
+        font-weight: 700;
+        font-family: Inter, sans-serif;
+      }
+      .swagger-ui .info .title { color: #7367F0; }
+    `,
+  });
+
+  const port = process.env.PORT ? Number(process.env.PORT) : 6000;
+  await app.listen(port);
+  console.log(`Modern backend running on http://localhost:${port}`);
+  console.log(`Swagger docs: http://localhost:${port}/docs`);
 }
 
 bootstrap();

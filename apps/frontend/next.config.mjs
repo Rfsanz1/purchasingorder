@@ -10,6 +10,14 @@ const config = {
         source: '/api/:path*',
         destination: `${BACKEND}/api/:path*`,
       },
+      {
+        source: '/docs',
+        destination: `${BACKEND}/docs`,
+      },
+      {
+        source: '/docs/:path*',
+        destination: `${BACKEND}/docs/:path*`,
+      },
     ];
   },
 
