@@ -20,18 +20,18 @@ export default function LoginPage() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => { setMounted(true); }, []);
-  useEffect(() => { if (token) router.push('/dashboard'); }, [token]);
+  useEffect(() => { if (token) router.push('/sales/orders?new=1'); }, [token]);
   if (token) return null;
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     const ok = await login(email, password);
-    if (ok) { await loadProfile(); router.push('/dashboard'); }
+    if (ok) { await loadProfile(); router.push('/sales/orders?new=1'); }
   }
 
   function handleDemo() {
     loginDemo();
-    router.push('/dashboard');
+    router.push('/sales/orders?new=1');
   }
 
   return (

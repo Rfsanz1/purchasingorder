@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuthStore } from '../../../lib/store/useAuthStore';
 import AppShell from '../../../components/layout/AppShell';
 import { SALES_CONFIG, SALES_NAV } from '../../../lib/nav-configs';
@@ -344,6 +344,7 @@ function CreateOrderModal({ onClose, onSuccess }: { onClose: () => void; onSucce
 export default function SalesOrdersPage() {
   const { token } = useAuthStore();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [orders, setOrders] = useState<any[]>([]);
   const [summary, setSummary] = useState<any>(null);
   const [search, setSearch] = useState('');
@@ -354,6 +355,13 @@ export default function SalesOrdersPage() {
   const [showCreate, setShowCreate] = useState(false);
 
   useEffect(() => { if (!token) router.push('/login'); }, [token]);
+
+  useEffect(() => {
+    if (token && searchParams.get('new') === '1') {
+      setShowCreate(true);
+      router.replace('/sales/orders');
+    }
+  }, [token, searchParams]);
 
   const load = async () => {
     setLoading(true);
