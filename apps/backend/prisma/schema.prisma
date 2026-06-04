@@ -1982,3 +1982,27 @@ model Contact {
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 }
+
+model InvoiceRecurring {
+  id          String    @id @default(cuid())
+  invoiceId   String    @unique
+  frequency   String
+  startDate   DateTime
+  endDate     DateTime?
+  nextRunDate DateTime
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model PaymentLink {
+  id           String    @id @default(cuid())
+  invoiceId    String
+  token        String    @unique
+  provider     String    @default("midtrans")
+  paymentUrl   String
+  status       String    @default("pending")
+  expiredAt    DateTime
+  paidAt       DateTime?
+  createdAt    DateTime  @default(now())
+}

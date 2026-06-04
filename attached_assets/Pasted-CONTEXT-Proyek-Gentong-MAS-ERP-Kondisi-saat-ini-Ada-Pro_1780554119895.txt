@@ -1,0 +1,169 @@
+CONTEXT:
+Proyek: Gentong MAS ERP
+Kondisi saat ini: Ada Product, StockMovement, StockOpname, StockLot, StockTransfer,
+StockAdjustment, ReorderRule, Warehouse, LotSerial di schema.
+InventoryModule sudah ada tapi beberapa fitur belum lengkap.
+
+TASK:
+Lengkapi modul Inventori agar setara Kledo.
+
+=== BAGIAN A: PRODUK LENGKAP ===
+
+Pastikan ProductService punya semua fitur ini:
+
+a) Produk Varian:
+   Tambah model jika belum ada:
+   model ProductVariant {
+     id         String  @id @default(cuid())
+     productId  String
+     sku        String  @unique
+     name       String  // misal: "Merah - XL"
+     attributes Json    // { warna: "Merah", ukuran: "XL" }
+     price      Float?
+     stock      Float   @default(0)
+     barcode    String?
+   }
+   Endpoint:
+   GET    /api/inventory/products/:id/variants
+   POST   /api/inventory/products/:id/variants
+   PUT    /api/inventory/products/:id/variants/:variantId
+   DELETE /api/inventory/products/:id/variants/:variantId
+
+b) Produk Paket (Bundle):
+   Saat buat produk, bisa set tipe = "bundle" dan tambahkan komponen:
+   model ProductBundle {
+     id          String @id @default(cuid())
+     productId   String  // produk bundle
+     componentId String  // produk komponen
+     qty         Float
+   }
+   Endpoint:
+   GET    /api/inventory/products/:id/bundle-components
+   POST   /api/inventory/products/:id/bundle-components
+
+c) Harga Bertingkat (Tiered Pricing):
+   model ProductTierPrice {
+     id        String @id @default(cuid())
+     productId String
+     minQty    Float
+     maxQty    Float?
+     price     Float
+     currency  String @default("IDR")
+   }
+   Endpoint:
+   GET    /api/inventory/products/:id/tier-prices
+   POST   /api/inventory/products/:id/tier-prices
+
+d) Konversi Satuan:
+   model UnitConversion {
+     id       String @id @default(cuid())
+     fromUnit String
+     toUnit   String
+     factor   Float  // 1 fromUnit = factor toUnit
+   }
+   Endpoint:
+   GET    /api/inventory/unit-conversions
+   POST   /api/inventory/unit-conversions
+
+e) Import/Export Produk:
+POST   /api/inventory/products/import          (upload Excel)
+GET    /api/inventory/products/export          (download Excel)
+GET    /api/inventory/products/import-template (template Excel)
+
+=== BAGIAN B: TRANSFER GUDANG ===
+
+Model StockTransfer dan StockTransferItem sudah ada.
+Pastikan endpoint lengkap:
+
+GET    /api/inventory/transfers
+GET    /api/inventory/transfers/:id
+POST   /api/inventory/transfers
+PUT    /api/inventory/transfers/:id
+POST   /api/inventory/transfers/:id/validate   (konfirmasi transfer, update stok)
+POST   /api/inventory/transfers/:id/cancel
+GET    /api/inventory/transfers/:id/pdf        (surat jalan transfer)
+
+Status flow: draft → confirmed → in_transit → done → cancelled
+
+Saat validate:
+- Kurangi stok dari gudang asal
+- Tambah stok ke gudang tujuan
+- Catat di StockMovement (2 entries: keluar dan masuk)
+
+=== BAGIAN C: PENYESUAIAN STOK ===
+
+Model StockAdjustment dan StockAdjustmentItem sudah ada.
+Pastikan endpoint:
+
+GET    /api/inventory/adjustments
+GET    /api/inventory/adjustments/:id
+POST   /api/inventory/adjustments
+POST   /api/inventory/adjustments/:id/validate
+
+Saat validate:
+- Update qty stok produk sesuai selisih
+- Catat StockMovement
+- AUTO-JURNAL:
+  Jika stok berkurang: DEBIT Selisih Persediaan, KREDIT Persediaan
+  Jika stok bertambah: DEBIT Persediaan, KREDIT Pendapatan Lain-lain
+  Akun CoA diambil dari AppSetting (konfigurasi di Settings)
+
+=== BAGIAN D: STOK OPNAME ===
+
+Model StockOpname dan StockOpnameItem sudah ada.
+Perbaiki/lengkapi:
+
+GET    /api/inventory/stock-opnames
+GET    /api/inventory/stock-opnames/:id
+POST   /api/inventory/stock-opnames            (buat stok opname, snapshot stok sistem saat ini)
+POST   /api/inventory/stock-opnames/:id/validate (input stok fisik → hitung selisih → jurnal)
+GET    /api/inventory/stock-opnames/:id/export  (export ke Excel untuk diisi fisik)
+POST   /api/inventory/stock-opnames/:id/import  (import Excel yang sudah diisi fisik)
+
+Di validate():
+- Bandingkan qty sistem vs qty fisik dari StockOpnameItem
+- Untuk setiap item yang berbeda: buat StockAdjustment + jurnal otomatis
+- Buat summary: berapa item cocok, berapa selisih lebih, berapa selisih kurang
+
+=== BAGIAN E: LOT/SERIAL/BATCH ===
+
+Model LotSerial dan StockLot sudah ada (ada duplikasi? cek dulu, pilih satu).
+
+Endpoint:
+GET    /api/inventory/lots
+GET    /api/inventory/lots/:id
+POST   /api/inventory/lots                     (buat lot/serial)
+GET    /api/inventory/lots/:id/trace           (traceability dari PO sampai invoice)
+GET    /api/inventory/products/:id/lots        (semua lot untuk produk tertentu)
+
+=== BAGIAN F: REORDER RULE ===
+
+Model ReorderRule dan ReorderingRule sudah ada (duplikasi? pilih satu).
+
+GET    /api/inventory/reorder-rules
+POST   /api/inventory/reorder-rules
+PUT    /api/inventory/reorder-rules/:id
+DELETE /api/inventory/reorder-rules/:id
+
+Cron job harian: cek produk yang stoknya <= minimumQty dari ReorderRule
+→ Buat notifikasi "Stok [nama produk] di [gudang] tinggal [qty], perlu reorder [reorderQty]"
+→ Optionally auto-buat draft Purchase Order
+
+=== BAGIAN G: LAPORAN INVENTORI ===
+
+GET    /api/inventory/reports/stock-current     (?warehouseId&categoryId)
+GET    /api/inventory/reports/stock-movement    (?startDate&endDate&productId&warehouseId)
+GET    /api/inventory/reports/stock-aging       (?warehouseId&asOf)
+GET    /api/inventory/reports/stock-valuation   (?asOf&method=average)
+GET    /api/inventory/reports/product-performance (?startDate&endDate)
+
+=== FRONTEND ===
+
+Buat/lengkapi halaman:
+- app/inventory/products/page.tsx
+- app/inventory/products/[id]/page.tsx     (detail + tab stok per gudang + tab lot + tab history)
+- app/inventory/transfers/page.tsx
+- app/inventory/transfers/new/page.tsx
+- app/inventory/adjustments/page.tsx
+- app/inventory/stock-opname/page.tsx
+- app/inventory/reports/page.tsx           (pilih jenis laporan)

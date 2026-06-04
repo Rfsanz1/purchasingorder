@@ -846,6 +846,9 @@ video {
 .h-screen{
   height: 100vh;
 }
+.h-64{
+  height: 16rem;
+}
 .max-h-52{
   max-height: 13rem;
 }
@@ -2287,6 +2290,9 @@ video {
 .pt-5{
   padding-top: 1.25rem;
 }
+.pr-2{
+  padding-right: 0.5rem;
+}
 .text-left{
   text-align: left;
 }
@@ -3283,6 +3289,9 @@ select:focus-visible {
   }
   .md\:grid-cols-4{
     grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .md\:grid-cols-6{
+    grid-template-columns: repeat(6, minmax(0, 1fr));
   }
   .md\:flex-row{
     flex-direction: row;

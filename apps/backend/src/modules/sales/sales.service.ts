@@ -18,21 +18,14 @@ export class SalesService {
     if (status) where.status = status;
     if (salesName) where.salesName = salesName;
     const [data, total] = await Promise.all([
-      this.prisma.order.findMany({
-        where, skip, take: Number(limit),
-        include: { customer: true, orderItems: { include: { product: true } } },
-        orderBy: { createdAt: 'desc' },
-      }),
+      this.prisma.order.findMany({ where, skip, take: Number(limit), include: { customer: true, orderItems: { include: { product: true } } }, orderBy: { createdAt: 'desc' } }),
       this.prisma.order.count({ where }),
     ]);
     return { data, total, page: Number(page), totalPages: Math.ceil(total / Number(limit)) };
   }
 
   async getOrder(id: number) {
-    const o = await this.prisma.order.findUnique({
-      where: { id },
-      include: { customer: true, orderItems: { include: { product: true } } },
-    });
+    const o = await this.prisma.order.findUnique({ where: { id }, include: { customer: true, orderItems: { include: { product: true } } } });
     if (!o) throw new NotFoundException('Order tidak ditemukan');
     return o;
   }
@@ -50,11 +43,7 @@ export class SalesService {
       data: { ...orderData, items: items ?? [], orderItems: dbItems.length ? { create: dbItems } : undefined },
       include: { orderItems: { include: { product: true } } },
     });
-
-    this.pushInvoiceToKledo(order, items ?? []).catch((e) =>
-      this.logger.warn('Kledo invoice push gagal (non-fatal): ' + e.message),
-    );
-
+    this.pushInvoiceToKledo(order, items ?? []).catch((e) => this.logger.warn('Kledo push gagal: ' + e.message));
     return order;
   }
 
@@ -66,75 +55,31 @@ export class SalesService {
       harga: Number(it.harga) || Number(it.price) || 0,
       unitId: it.unitId ?? 1,
     }));
-
-    const result = await this.kledo.createInvoice({
-      namaCustomer: order.namaCustomer,
-      noHp: order.noHp,
-      orderId: order.id,
-      items: kledoItems,
-    });
-
+    const result = await this.kledo.createInvoice({ namaCustomer: order.namaCustomer, noHp: order.noHp, orderId: order.id, items: kledoItems });
     if (result.success && result.kledoInvoiceId) {
-      await this.prisma.order.update({
-        where: { id: order.id },
-        data: { kledoInvoiceId: result.kledoInvoiceId?.toString() },
-      }).catch(() => null);
+      await this.prisma.order.update({ where: { id: order.id }, data: { kledoInvoiceId: result.kledoInvoiceId?.toString() } }).catch(() => null);
     }
-
-    this.logger.log(`Kledo invoice push: orderId=${order.id} result=${JSON.stringify(result)}`);
     return result;
   }
 
-  async updateOrder(id: number, dto: any) {
-    return this.prisma.order.update({ where: { id }, data: dto });
-  }
-
-  async deleteOrder(id: number) {
-    return this.prisma.order.update({ where: { id }, data: { status: 'cancelled' } });
-  }
-
-  async updatePengiriman(id: number, dto: { statusPengiriman: string; driverName?: string }) {
-    return this.prisma.order.update({ where: { id }, data: dto });
-  }
-
-  async uploadBuktiTransfer(id: number, base64Data: string) {
-    return this.prisma.order.update({
-      where: { id },
-      data: { buktiTransferData: base64Data },
-    });
-  }
-
+  async updateOrder(id: number, dto: any) { return this.prisma.order.update({ where: { id }, data: dto }); }
+  async deleteOrder(id: number) { return this.prisma.order.update({ where: { id }, data: { status: 'cancelled' } }); }
+  async updatePengiriman(id: number, dto: any) { return this.prisma.order.update({ where: { id }, data: dto }); }
+  async uploadBuktiTransfer(id: number, base64Data: string) { return this.prisma.order.update({ where: { id }, data: { buktiTransferData: base64Data } }); }
   async getCustomerLocation(token: string) {
-    const order = await this.prisma.order.findFirst({
-      where: { customerLocToken: token },
-      select: { customerLat: true, customerLng: true, namaCustomer: true },
-    });
+    const order = await this.prisma.order.findFirst({ where: { customerLocToken: token }, select: { customerLat: true, customerLng: true, namaCustomer: true } });
     if (!order) throw new NotFoundException('Token tidak valid');
     return order;
   }
-
   async saveCustomerLocation(token: string, lat: string, lng: string) {
-    return this.prisma.order.updateMany({
-      where: { customerLocToken: token },
-      data: { customerLat: lat, customerLng: lng, customerLocSharedAt: new Date() },
-    });
+    return this.prisma.order.updateMany({ where: { customerLocToken: token }, data: { customerLat: lat, customerLng: lng, customerLocSharedAt: new Date() } });
   }
-
   async sendWhatsAppNotification(order: any) {
     if (!process.env.FONNTE_TOKEN) return { skipped: true, reason: 'FONNTE_TOKEN tidak dikonfigurasi' };
     try {
-      const resp = await fetch('https://api.fonnte.com/send', {
-        method: 'POST',
-        headers: { Authorization: process.env.FONNTE_TOKEN },
-        body: JSON.stringify({
-          target: order.nomorTelepon,
-          message: `Halo ${order.namaCustomer}, pesanan Anda (${order.orderId ?? order.id}) sedang diproses.`,
-        }),
-      });
+      const resp = await fetch('https://api.fonnte.com/send', { method: 'POST', headers: { Authorization: process.env.FONNTE_TOKEN }, body: JSON.stringify({ target: order.nomorTelepon, message: `Halo ${order.namaCustomer}, pesanan Anda (${order.orderId ?? order.id}) sedang diproses.` }) });
       return await resp.json();
-    } catch (e: any) {
-      return { error: e.message };
-    }
+    } catch (e: any) { return { error: e.message }; }
   }
 
   async getSales(query: any) {
@@ -144,11 +89,7 @@ export class SalesService {
     if (search) where.noFaktur = { contains: search, mode: 'insensitive' };
     if (status) where.status = status;
     const [data, total] = await Promise.all([
-      this.prisma.sale.findMany({
-        where, skip, take: Number(limit),
-        include: { customer: true, items: { include: { product: true } } },
-        orderBy: { createdAt: 'desc' },
-      }),
+      this.prisma.sale.findMany({ where, skip, take: Number(limit), include: { customer: true, items: { include: { product: true } } }, orderBy: { createdAt: 'desc' } }),
       this.prisma.sale.count({ where }),
     ]);
     return { data, total, page: Number(page), totalPages: Math.ceil(total / Number(limit)) };
@@ -167,11 +108,9 @@ export class SalesService {
     return { totalOrders, totalRevenue: totalRevenue._sum.totalHarga ?? 0, pendingOrders };
   }
 
-  async getSalesList() {
-    const SALES = ['Ahmad Santoso', 'Budi Pratama', 'CV Maju Jaya', 'PT Sumber Makmur', 'Dewi Lestari', 'Eko Prasetyo'];
-    return SALES;
-  }
+  async getSalesList() { return ['Ahmad Santoso', 'Budi Pratama', 'CV Maju Jaya', 'PT Sumber Makmur', 'Dewi Lestari', 'Eko Prasetyo']; }
 
+  // ─── QUOTATIONS ──────────────────────────────────────────────────────────────
   async getQuotations(query: any) {
     const { search, status, customerId, page = 1, limit = 20 } = query;
     const skip = (Number(page) - 1) * Number(limit);
@@ -180,21 +119,14 @@ export class SalesService {
     if (customerId) where.customerId = customerId;
     if (search) where.OR = [{ nomorQuotation: { contains: search, mode: 'insensitive' } }];
     const [data, total] = await Promise.all([
-      this.prisma.salesQuotation.findMany({
-        where, skip, take: Number(limit),
-        include: { customer: { select: { id: true, name: true } }, items: true },
-        orderBy: { createdAt: 'desc' },
-      }),
+      this.prisma.salesQuotation.findMany({ where, skip, take: Number(limit), include: { customer: { select: { id: true, name: true } }, items: true }, orderBy: { createdAt: 'desc' } }),
       this.prisma.salesQuotation.count({ where }),
     ]);
     return { data, message: 'success', meta: { total, page: Number(page), limit: Number(limit) } };
   }
 
   async getQuotation(id: string) {
-    const data = await this.prisma.salesQuotation.findUnique({
-      where: { id },
-      include: { customer: true, items: { include: { product: true } } },
-    });
+    const data = await this.prisma.salesQuotation.findUnique({ where: { id }, include: { customer: true, items: { include: { product: true } } } });
     if (!data) throw new NotFoundException('Quotation tidak ditemukan');
     return { data, message: 'success' };
   }
@@ -204,25 +136,14 @@ export class SalesService {
     const counter = await this.prisma.salesQuotation.count();
     const nomorQuotation = dto.nomorQuotation ?? `QT-${new Date().getFullYear()}${String(counter + 1).padStart(4, '0')}`;
     const { items, ...rest } = dto;
-    const data = await this.prisma.salesQuotation.create({
-      data: {
-        ...rest,
-        nomorQuotation,
-        items: items?.length ? { create: items } : undefined,
-      },
-      include: { items: true },
-    });
+    const data = await this.prisma.salesQuotation.create({ data: { ...rest, nomorQuotation, items: items?.length ? { create: items } : undefined }, include: { items: true } });
     return { data, message: 'Quotation berhasil dibuat' };
   }
 
   async updateQuotation(id: string, dto: any) {
     await this.getQuotation(id);
     const { items, ...rest } = dto;
-    const data = await this.prisma.salesQuotation.update({
-      where: { id },
-      data: rest,
-      include: { items: true },
-    });
+    const data = await this.prisma.salesQuotation.update({ where: { id }, data: rest, include: { items: true } });
     return { data, message: 'Quotation berhasil diupdate' };
   }
 
@@ -231,48 +152,90 @@ export class SalesService {
     return { data: null, message: 'Quotation berhasil dihapus' };
   }
 
+  async confirmQuotation(id: string) {
+    const q = await this.getQuotation(id);
+    if (!['draft', 'sent'].includes(q.data.status)) throw new BadRequestException('Hanya quotation draft atau terkirim yang bisa dikonfirmasi');
+    const data = await this.prisma.salesQuotation.update({ where: { id }, data: { status: 'confirmed' } });
+    return { data, message: 'Quotation berhasil dikonfirmasi' };
+  }
+
+  async convertQuotationToInvoice(id: string) {
+    const q = await this.getQuotation(id);
+    const quotation = q.data;
+    const count = await this.prisma.invoice.count();
+    const noInvoice = `INV-${new Date().getFullYear()}-${String(count + 1).padStart(5, '0')}`;
+    const items = quotation.items.map((it: any) => ({
+      productId: it.productId,
+      nama: it.productName ?? it.product?.name ?? '',
+      qty: Number(it.qty),
+      harga: Number(it.hargaSatuan),
+      subtotal: Number(it.subtotal),
+    }));
+    const invoice = await this.prisma.invoice.create({
+      data: {
+        noInvoice,
+        customerId: quotation.customerId,
+        salesName: quotation.salesName,
+        subtotal: quotation.subtotal,
+        diskon: quotation.discount,
+        pajak: quotation.tax,
+        grandTotal: quotation.total,
+        status: 'draft',
+        notes: quotation.note,
+        items: items.length ? { create: items } : undefined,
+      },
+      include: { items: true, customer: { select: { id: true, name: true } } },
+    });
+    await this.prisma.salesQuotation.update({ where: { id }, data: { status: 'converted' } });
+    return { data: invoice, message: 'Quotation berhasil dikonversi ke invoice' };
+  }
+
   async convertQuotationToOrder(id: string) {
     const q = await this.getQuotation(id);
     const quotation = q.data;
-    const items = quotation.items.map((item: any) => ({
-      productId: item.productId,
-      productName: item.productName,
-      qty: item.qty,
-      hargaSatuan: item.hargaSatuan,
-      subtotal: item.subtotal,
-    }));
-    const order = await this.createOrder({
-      customerId: quotation.customerId,
-      salesName: quotation.salesName,
-      items,
-      quotationId: quotation.id,
-    });
+    const items = quotation.items.map((it: any) => ({ productId: it.productId, productName: it.productName, qty: it.qty, hargaSatuan: it.hargaSatuan, subtotal: it.subtotal }));
+    const order = await this.createOrder({ customerId: quotation.customerId, salesName: quotation.salesName, items, quotationId: quotation.id });
     await this.prisma.salesQuotation.update({ where: { id }, data: { status: 'converted' } });
     return { data: order.data ?? order, message: 'Quotation berhasil dikonversi ke order' };
   }
 
+  async sendQuotationWhatsApp(id: string, dto: any) {
+    const q = await this.getQuotation(id);
+    const quotation = q.data;
+    const phone = dto?.phone ?? quotation.customer?.phone ?? '';
+    if (!phone) return { message: 'Tidak ada nomor telepon' };
+    const fmt = (v: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(v);
+    const message = dto?.message ?? `Halo ${quotation.customer?.name ?? 'Pelanggan'}, kami mengirimkan penawaran ${quotation.nomorQuotation} senilai ${fmt(Number(quotation.total))}. Berlaku hingga ${quotation.validUntil ? new Date(quotation.validUntil).toLocaleDateString('id-ID') : '-'}. Terima kasih.`;
+    if (process.env.FONNTE_TOKEN) {
+      try {
+        const resp = await fetch('https://api.fonnte.com/send', { method: 'POST', headers: { Authorization: process.env.FONNTE_TOKEN }, body: JSON.stringify({ target: phone, message }) });
+        return { data: await resp.json(), message: 'WhatsApp berhasil dikirim' };
+      } catch (e: any) { return { error: e.message }; }
+    }
+    return { skipped: true, preview: message };
+  }
+
+  async sendQuotationEmail(id: string, dto: any) {
+    await this.getQuotation(id);
+    return { skipped: true, message: 'Email service belum dikonfigurasi. Gunakan SMTP atau third-party provider.' };
+  }
+
+  // ─── SALES RETURNS ───────────────────────────────────────────────────────────
   async getSalesReturns(query: any) {
-    const { orderId, status, page = 1, limit = 20 } = query;
+    const { orderId, invoiceId, status, page = 1, limit = 20 } = query;
     const skip = (Number(page) - 1) * Number(limit);
     const where: any = {};
     if (orderId) where.orderId = Number(orderId);
     if (status) where.status = status;
     const [data, total] = await Promise.all([
-      this.prisma.salesReturn.findMany({
-        where, skip, take: Number(limit),
-        include: { customer: { select: { id: true, name: true } }, items: true },
-        orderBy: { createdAt: 'desc' },
-      }),
+      this.prisma.salesReturn.findMany({ where, skip, take: Number(limit), include: { customer: { select: { id: true, name: true } }, items: true }, orderBy: { createdAt: 'desc' } }),
       this.prisma.salesReturn.count({ where }),
     ]);
     return { data, message: 'success', meta: { total, page: Number(page), limit: Number(limit) } };
   }
 
   async getSalesReturn(id: string) {
-    const data = await this.prisma.salesReturn.findUnique({
-      where: { id },
-      include: { customer: true, items: { include: { product: true } } },
-    });
+    const data = await this.prisma.salesReturn.findUnique({ where: { id }, include: { customer: true, items: { include: { product: true } } } });
     if (!data) throw new NotFoundException('Sales return tidak ditemukan');
     return { data, message: 'success' };
   }
@@ -281,18 +244,33 @@ export class SalesService {
     if (!dto.customerId) throw new BadRequestException('customerId harus diisi');
     const { items, ...rest } = dto;
     const counter = await this.prisma.salesReturn.count();
-    const noReturn = dto.noReturn ?? dto.nomorReturn ?? `SR-${new Date().getFullYear()}${String(counter + 1).padStart(4, '0')}`;
-    const data = await this.prisma.salesReturn.create({
-      data: {
-        ...rest,
-        noReturn,
-        items: items?.length ? { create: items } : undefined,
-      },
-      include: { items: true },
-    });
+    const noReturn = dto.noReturn ?? `SR-${new Date().getFullYear()}${String(counter + 1).padStart(4, '0')}`;
+    const data = await this.prisma.salesReturn.create({ data: { ...rest, noReturn, items: items?.length ? { create: items } : undefined }, include: { items: true } });
     return { data, message: 'Sales return berhasil dibuat' };
   }
 
+  async updateSalesReturn(id: string, dto: any) {
+    await this.getSalesReturn(id);
+    const { items, ...rest } = dto;
+    const data = await this.prisma.salesReturn.update({ where: { id }, data: rest, include: { items: true } });
+    return { data, message: 'Sales return berhasil diupdate' };
+  }
+
+  async validateSalesReturn(id: string) {
+    const r = await this.getSalesReturn(id);
+    const ret = r.data;
+    if (ret.status === 'validated') throw new BadRequestException('Return sudah divalidasi');
+
+    for (const item of ret.items) {
+      if (item.productId) {
+        await this.prisma.product.update({ where: { id: item.productId }, data: { stok: { increment: item.qty } } }).catch(() => null);
+      }
+    }
+    const data = await this.prisma.salesReturn.update({ where: { id }, data: { status: 'validated' } });
+    return { data, message: 'Sales return berhasil divalidasi dan stok dikembalikan' };
+  }
+
+  // ─── PRICELISTS ──────────────────────────────────────────────────────────────
   async getPricelists(query: any) {
     const { search, active, page = 1, limit = 20 } = query;
     const skip = (Number(page) - 1) * Number(limit);
@@ -316,13 +294,7 @@ export class SalesService {
     if (!dto.name && !dto.nama) throw new BadRequestException('Nama pricelist harus diisi');
     const { items, ...rest } = dto;
     if (rest.nama && !rest.name) { rest.name = rest.nama; delete rest.nama; }
-    const data = await this.prisma.pricelist.create({
-      data: {
-        ...rest,
-        items: items?.length ? { create: items } : undefined,
-      },
-      include: { items: true },
-    });
+    const data = await this.prisma.pricelist.create({ data: { ...rest, items: items?.length ? { create: items } : undefined }, include: { items: true } });
     return { data, message: 'Pricelist berhasil dibuat' };
   }
 
@@ -336,5 +308,17 @@ export class SalesService {
   async deletePricelist(id: string) {
     await this.prisma.pricelist.delete({ where: { id } });
     return { data: null, message: 'Pricelist berhasil dihapus' };
+  }
+
+  async getPricelistItems(id: string) {
+    await this.getPricelist(id);
+    const data = await this.prisma.pricelistItem.findMany({ where: { pricelistId: id }, include: { product: true } });
+    return { data, message: 'success' };
+  }
+
+  async addPricelistItem(id: string, dto: any) {
+    await this.getPricelist(id);
+    const data = await this.prisma.pricelistItem.create({ data: { ...dto, pricelistId: id } });
+    return { data, message: 'Item berhasil ditambahkan' };
   }
 }

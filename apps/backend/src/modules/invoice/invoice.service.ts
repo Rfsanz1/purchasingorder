@@ -1,5 +1,6 @@
 import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service.js';
+import { randomBytes } from 'crypto';
 
 @Injectable()
 export class InvoiceService {
@@ -44,12 +45,7 @@ export class InvoiceService {
   async findOne(id: string) {
     const data = await this.prisma.invoice.findUnique({
       where: { id },
-      include: {
-        customer: true,
-        items: true,
-        payments: { orderBy: { createdAt: 'desc' } },
-        creditNotes: true,
-      },
+      include: { customer: true, items: true, payments: { orderBy: { createdAt: 'desc' } }, creditNotes: true },
     });
     if (!data) throw new NotFoundException('Invoice tidak ditemukan');
     return { data, message: 'success' };
@@ -60,12 +56,7 @@ export class InvoiceService {
     const noInvoice = dto.noInvoice ?? dto.nomorInvoice ?? await this.generateNumber();
     const { items, nomorInvoice, ...rest } = dto;
     const data = await this.prisma.invoice.create({
-      data: {
-        ...rest,
-        noInvoice,
-        status: rest.status ?? 'draft',
-        items: items?.length ? { create: items } : undefined,
-      },
+      data: { ...rest, noInvoice, status: rest.status ?? 'draft', items: items?.length ? { create: items } : undefined },
       include: { items: true, customer: { select: { id: true, name: true } } },
     });
     return { data, message: 'Invoice berhasil dibuat' };
@@ -74,11 +65,7 @@ export class InvoiceService {
   async update(id: string, dto: any) {
     await this.findOne(id);
     const { items, ...rest } = dto;
-    const data = await this.prisma.invoice.update({
-      where: { id },
-      data: rest,
-      include: { items: true },
-    });
+    const data = await this.prisma.invoice.update({ where: { id }, data: rest, include: { items: true } });
     return { data, message: 'Invoice berhasil diupdate' };
   }
 
@@ -102,27 +89,18 @@ export class InvoiceService {
     const inv = await this.prisma.invoice.findUnique({ where: { id: invoiceId } });
     if (!inv) throw new NotFoundException('Invoice tidak ditemukan');
     const payment = await this.prisma.invoicePayment.create({
-      data: {
-        invoiceId,
-        amount: dto.amount,
-        method: dto.method ?? 'transfer',
-        reference: dto.reference,
-        note: dto.note,
-      },
+      data: { invoiceId, amount: dto.amount, method: dto.method ?? 'transfer', referensi: dto.reference ?? dto.referensi, notes: dto.note ?? dto.notes },
     });
-    const totalPaid = await this.prisma.invoicePayment.aggregate({ where: { invoiceId }, _sum: { amount: true } });
-    const paid = Number(totalPaid._sum.amount ?? 0);
-    const invoiceTotal = Number(inv.grandTotal ?? 0);
-    const newStatus = paid >= invoiceTotal ? 'paid' : paid > 0 ? 'partial' : 'sent';
+    const agg = await this.prisma.invoicePayment.aggregate({ where: { invoiceId }, _sum: { amount: true } });
+    const paid = Number(agg._sum.amount ?? 0);
+    const total = Number(inv.grandTotal ?? 0);
+    const newStatus = paid >= total ? 'paid' : paid > 0 ? 'partial' : 'sent';
     await this.prisma.invoice.update({ where: { id: invoiceId }, data: { status: newStatus, paidAmount: paid } });
     return { data: payment, message: 'Pembayaran berhasil dicatat' };
   }
 
   async getPayments(invoiceId: string) {
-    const data = await this.prisma.invoicePayment.findMany({
-      where: { invoiceId },
-      orderBy: { tanggal: 'desc' },
-    });
+    const data = await this.prisma.invoicePayment.findMany({ where: { invoiceId }, orderBy: { tanggal: 'desc' } });
     return { data, message: 'success' };
   }
 
@@ -130,16 +108,8 @@ export class InvoiceService {
     if (!dto.amount || dto.amount <= 0) throw new BadRequestException('Jumlah credit note harus diisi');
     await this.findOne(invoiceId);
     const counter = await this.prisma.creditNote.count();
-    const nomor = dto.nomor ?? `CN-${new Date().getFullYear()}-${String(counter + 1).padStart(4, '0')}`;
-    const data = await this.prisma.creditNote.create({
-      data: {
-        invoiceId,
-        nomor,
-        amount: dto.amount,
-        reason: dto.reason ?? '',
-        status: 'issued',
-      },
-    });
+    const noCreditNote = dto.nomor ?? dto.noCreditNote ?? `CN-${new Date().getFullYear()}-${String(counter + 1).padStart(4, '0')}`;
+    const data = await this.prisma.creditNote.create({ data: { invoiceId, noCreditNote, amount: dto.amount, reason: dto.reason ?? '', status: 'issued' } });
     return { data, message: 'Credit note berhasil diterbitkan' };
   }
 
@@ -149,14 +119,139 @@ export class InvoiceService {
   }
 
   async getStats() {
-    const [total, draft, sent, paid, overdue, totalRevenue] = await Promise.all([
+    const now = new Date();
+    const [total, draft, sent, paid, partial, overdue, revenue] = await Promise.all([
       this.prisma.invoice.count(),
       this.prisma.invoice.count({ where: { status: 'draft' } }),
       this.prisma.invoice.count({ where: { status: 'sent' } }),
       this.prisma.invoice.count({ where: { status: 'paid' } }),
-      this.prisma.invoice.count({ where: { status: 'sent', dueDate: { lt: new Date() } } }),
+      this.prisma.invoice.count({ where: { status: 'partial' } }),
+      this.prisma.invoice.count({ where: { status: { in: ['sent', 'partial'] }, dueDate: { lt: now } } }),
       this.prisma.invoice.aggregate({ _sum: { grandTotal: true }, where: { status: 'paid' } }),
     ]);
-    return { data: { total, draft, sent, paid, overdue, totalRevenue: totalRevenue._sum.grandTotal ?? 0 }, message: 'success' };
+    return { data: { total, draft, sent, paid, partial, overdue, totalRevenue: revenue._sum.grandTotal ?? 0 }, message: 'success' };
+  }
+
+  async getAging() {
+    const now = new Date();
+    const invoices = await this.prisma.invoice.findMany({
+      where: { status: { in: ['sent', 'partial'] } },
+      include: { customer: { select: { id: true, name: true } } },
+    });
+    const buckets: Record<string, any[]> = { current: [], d30: [], d60: [], d90: [], over90: [] };
+    for (const inv of invoices) {
+      const outstanding = Number(inv.grandTotal) - Number(inv.paidAmount ?? 0);
+      if (outstanding <= 0) continue;
+      const days = inv.dueDate ? Math.max(0, Math.floor((now.getTime() - new Date(inv.dueDate).getTime()) / 86400000)) : 0;
+      const row = { id: inv.id, noInvoice: inv.noInvoice, customer: inv.customer?.name, dueDate: inv.dueDate, outstanding, daysOverdue: days };
+      if (days === 0) buckets.current.push(row);
+      else if (days <= 30) buckets.d30.push(row);
+      else if (days <= 60) buckets.d60.push(row);
+      else if (days <= 90) buckets.d90.push(row);
+      else buckets.over90.push(row);
+    }
+    const sum = (arr: any[]) => arr.reduce((s, r) => s + r.outstanding, 0);
+    return {
+      data: {
+        current: { items: buckets.current, total: sum(buckets.current), label: 'Belum Jatuh Tempo' },
+        d1_30:   { items: buckets.d30,    total: sum(buckets.d30),    label: '1–30 Hari' },
+        d31_60:  { items: buckets.d60,    total: sum(buckets.d60),    label: '31–60 Hari' },
+        d61_90:  { items: buckets.d90,    total: sum(buckets.d90),    label: '61–90 Hari' },
+        over90:  { items: buckets.over90, total: sum(buckets.over90), label: '>90 Hari' },
+        grandTotal: sum([...buckets.current, ...buckets.d30, ...buckets.d60, ...buckets.d90, ...buckets.over90]),
+      },
+      message: 'success',
+    };
+  }
+
+  async sendWhatsApp(id: string, dto: { phone?: string; message?: string }) {
+    const { data: inv } = await this.findOne(id);
+    const phone = dto?.phone ?? inv.customer?.phone ?? '';
+    if (!phone) return { message: 'Tidak ada nomor telepon' };
+    const outstanding = Number(inv.grandTotal) - Number(inv.paidAmount ?? 0);
+    const fmt = (v: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(v);
+    const message = dto?.message ??
+      `Halo ${inv.customer?.name ?? 'Pelanggan'}, berikut invoice ${inv.noInvoice} senilai ${fmt(Number(inv.grandTotal))} dengan saldo outstanding ${fmt(outstanding)}. Jatuh tempo: ${inv.dueDate ? new Date(inv.dueDate).toLocaleDateString('id-ID') : '-'}. Terima kasih.`;
+    if (process.env.FONNTE_TOKEN) {
+      try {
+        const resp = await fetch('https://api.fonnte.com/send', { method: 'POST', headers: { Authorization: process.env.FONNTE_TOKEN }, body: JSON.stringify({ target: phone, message }) });
+        return { data: await resp.json(), message: 'WhatsApp berhasil dikirim' };
+      } catch (e: any) { return { error: e.message }; }
+    }
+    return { skipped: true, preview: message, message: 'FONNTE_TOKEN tidak dikonfigurasi' };
+  }
+
+  async sendReminder(id: string, dto?: any) {
+    return this.sendWhatsApp(id, dto ?? {});
+  }
+
+  async setRecurring(id: string, dto: { frequency: string; startDate: string; endDate?: string }) {
+    await this.findOne(id);
+    const start = new Date(dto.startDate);
+    const existing = await this.prisma.invoiceRecurring.findUnique({ where: { invoiceId: id } });
+    const payload = { frequency: dto.frequency, startDate: start, endDate: dto.endDate ? new Date(dto.endDate) : null, nextRunDate: start, isActive: true };
+    const data = existing
+      ? await this.prisma.invoiceRecurring.update({ where: { invoiceId: id }, data: payload })
+      : await this.prisma.invoiceRecurring.create({ data: { invoiceId: id, ...payload } });
+    return { data, message: 'Recurring invoice berhasil diset' };
+  }
+
+  async deleteRecurring(id: string) {
+    await this.findOne(id);
+    const existing = await this.prisma.invoiceRecurring.findUnique({ where: { invoiceId: id } });
+    if (!existing) throw new NotFoundException('Recurring tidak ditemukan');
+    await this.prisma.invoiceRecurring.update({ where: { invoiceId: id }, data: { isActive: false } });
+    return { data: null, message: 'Recurring invoice dinonaktifkan' };
+  }
+
+  async createPaymentLink(id: string, dto: { provider?: string; expiredHours?: number }) {
+    await this.findOne(id);
+    const token = randomBytes(16).toString('hex');
+    const expiredAt = new Date(Date.now() + (dto.expiredHours ?? 24) * 3600 * 1000);
+    const paymentUrl = `${process.env.APP_URL ?? 'https://your-app.replit.app'}/payment/${token}`;
+    const link = await this.prisma.paymentLink.create({ data: { invoiceId: id, token, provider: dto.provider ?? 'midtrans', paymentUrl, expiredAt, status: 'pending' } });
+    return { data: { paymentUrl, token, expiredAt }, message: 'Payment link berhasil dibuat' };
+  }
+
+  async getPaymentByToken(token: string) {
+    const link = await this.prisma.paymentLink.findUnique({ where: { token } });
+    if (!link) throw new NotFoundException('Payment link tidak ditemukan');
+    const inv = await this.prisma.invoice.findUnique({ where: { id: link.invoiceId }, include: { customer: true, items: true } });
+    return { data: { link, invoice: inv }, message: 'success' };
+  }
+
+  async getPdfHtml(id: string) {
+    const { data: inv } = await this.findOne(id);
+    return `<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+      body{font-family:Arial,sans-serif;padding:32px;color:#333;font-size:13px}
+      .top{display:flex;justify-content:space-between;margin-bottom:24px}
+      .inv-title{font-size:28px;font-weight:bold;color:#7367F0}
+      table{width:100%;border-collapse:collapse;margin:16px 0}
+      th{background:#7367F0;color:#fff;padding:8px;text-align:left;font-size:11px}
+      td{padding:8px;border-bottom:1px solid #eee}
+      .totals{text-align:right;margin-top:8px}
+      .grand{font-size:17px;font-weight:bold;color:#7367F0}
+    </style></head><body>
+      <div class="top">
+        <div><div class="inv-title">INVOICE</div><div style="font-size:16px;margin-top:4px">${inv.noInvoice}</div></div>
+        <div style="text-align:right">
+          <div>Tanggal: <strong>${new Date(inv.tanggal).toLocaleDateString('id-ID')}</strong></div>
+          <div>Jatuh Tempo: <strong>${inv.dueDate ? new Date(inv.dueDate).toLocaleDateString('id-ID') : '-'}</strong></div>
+          <div style="margin-top:8px;padding:4px 10px;background:#${inv.status === 'paid' ? '4CAF50' : inv.status === 'overdue' ? 'F44336' : '7367F0'};color:#fff;border-radius:4px">${inv.status.toUpperCase()}</div>
+        </div>
+      </div>
+      <div style="margin-bottom:16px"><strong>Kepada:</strong><br>${inv.customer?.name ?? '-'}</div>
+      <table><thead><tr><th>#</th><th>Produk</th><th>Qty</th><th>Harga</th><th>Subtotal</th></tr></thead>
+      <tbody>${(inv.items ?? []).map((it: any, i: number) =>
+        `<tr><td>${i + 1}</td><td>${it.nama}</td><td>${it.qty}</td><td>Rp ${Number(it.harga).toLocaleString('id-ID')}</td><td>Rp ${Number(it.subtotal).toLocaleString('id-ID')}</td></tr>`
+      ).join('')}</tbody></table>
+      <div class="totals">
+        <div>Subtotal: Rp ${Number(inv.subtotal ?? 0).toLocaleString('id-ID')}</div>
+        <div>Diskon: Rp ${Number(inv.diskon ?? 0).toLocaleString('id-ID')}</div>
+        <div>Pajak: Rp ${Number(inv.pajak ?? 0).toLocaleString('id-ID')}</div>
+        <div class="grand">Grand Total: Rp ${Number(inv.grandTotal ?? 0).toLocaleString('id-ID')}</div>
+      </div>
+      ${inv.notes ? `<div style="margin-top:24px;padding:12px;background:#f5f5f5;border-radius:6px;color:#666">${inv.notes}</div>` : ''}
+    </body></html>`;
   }
 }
