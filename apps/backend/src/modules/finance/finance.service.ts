@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service.js';
 
 @Injectable()
@@ -114,5 +114,54 @@ export class FinanceService {
       cashIn: cashIn._sum.amount ?? 0,
       cashOut: cashOut._sum.amount ?? 0,
     };
+  }
+
+  async createBankAccount(dto: any) {
+    const data = await this.prisma.bankAccount.create({ data: dto });
+    return { data, message: 'Rekening bank berhasil dibuat' };
+  }
+
+  async updateBankAccount(id: string, dto: any) {
+    const data = await this.prisma.bankAccount.update({ where: { id }, data: dto });
+    return { data, message: 'Rekening bank berhasil diupdate' };
+  }
+
+  async deleteBankAccount(id: string) {
+    await this.prisma.bankAccount.update({ where: { id }, data: { active: false } });
+    return { data: null, message: 'Rekening bank berhasil dinonaktifkan' };
+  }
+
+  async getBankReconciliations(query: any) {
+    const { bankAccountId, status, page = 1, limit = 20 } = query;
+    const skip = (Number(page) - 1) * Number(limit);
+    const where: any = {};
+    if (bankAccountId) where.bankAccountId = bankAccountId;
+    if (status) where.status = status;
+    const [data, total] = await Promise.all([
+      this.prisma.bankReconciliation.findMany({ where, skip, take: Number(limit), orderBy: { createdAt: 'desc' } }),
+      this.prisma.bankReconciliation.count({ where }),
+    ]);
+    return { data, message: 'success', meta: { total, page: Number(page), limit: Number(limit) } };
+  }
+
+  async getBankReconciliation(id: string) {
+    const data = await this.prisma.bankReconciliation.findUnique({ where: { id } });
+    if (!data) throw new NotFoundException('Rekonsiliasi tidak ditemukan');
+    return { data, message: 'success' };
+  }
+
+  async createBankReconciliation(dto: any) {
+    const data = await this.prisma.bankReconciliation.create({ data: dto });
+    return { data, message: 'Rekonsiliasi berhasil dibuat' };
+  }
+
+  async updateBankReconciliation(id: string, dto: any) {
+    const data = await this.prisma.bankReconciliation.update({ where: { id }, data: dto });
+    return { data, message: 'Rekonsiliasi berhasil diupdate' };
+  }
+
+  async deleteCoa(id: string) {
+    await this.prisma.chartOfAccount.delete({ where: { id } });
+    return { data: null, message: 'COA berhasil dihapus' };
   }
 }

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, Inject, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service.js';
 
 // PTKP 2024 (tahunan)
@@ -27,7 +27,7 @@ function hitungPPh21Tahunan(pkp: number): number {
 
 @Injectable()
 export class PayrollService {
-  constructor(private prisma: PrismaService) {}
+  constructor(@Inject(PrismaService) private prisma: PrismaService) {}
 
   // ─── PERIODS ─────────────────────────────────────────────────────────────
   async getPeriods(query: any) {
@@ -310,6 +310,39 @@ export class PayrollService {
       create: { employeeId, ...dto },
       update: dto,
     });
+  }
+
+  async bankExport(periodId: string, format: string = 'csv') {
+    const slips = await this.prisma.payrollSlip.findMany({
+      where: { periodId, status: 'PAID' as any },
+      include: { employee: { select: { id: true, name: true, nik: true } } },
+    });
+    const rows = slips.map((s) => ({
+      nik: s.employee?.nik ?? '',
+      nama: s.employee?.name ?? '',
+      netto: s.netto,
+    }));
+    return { data: rows, format, message: `Export data transfer bank untuk ${slips.length} karyawan`, meta: { total: rows.length } };
+  }
+
+  async sendSlipEmail(slipId: string) {
+    const slip = await this.prisma.payrollSlip.findUnique({
+      where: { id: slipId },
+      include: { employee: { select: { name: true, email: true } }, period: true },
+    });
+    if (!slip) throw new NotFoundException('Slip tidak ditemukan');
+    console.log(`[PAYROLL EMAIL] Kirim slip ${slip.id} ke ${slip.employee?.email ?? 'no-email'}`);
+    return { data: null, message: `Slip gaji ${slip.employee?.name} akan dikirim ke email (fitur segera hadir)` };
+  }
+
+  async sendAllSlipEmails(periodId: string) {
+    const slips = await this.prisma.payrollSlip.findMany({
+      where: { periodId },
+      include: { employee: { select: { name: true, email: true } } },
+    });
+    const withEmail = slips.filter((s) => !!s.employee?.email);
+    console.log(`[PAYROLL EMAIL BULK] ${withEmail.length}/${slips.length} karyawan punya email`);
+    return { data: null, message: `Email slip gaji akan dikirim ke ${withEmail.length} karyawan` };
   }
 
   private async findOrCreateAccountId(code: string, name: string, type: string): Promise<string> {

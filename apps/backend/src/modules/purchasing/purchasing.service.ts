@@ -601,6 +601,22 @@ export class PurchasingService {
   async updateSupplier(id: string, dto: any) { return this.prisma.supplier.update({ where: { id }, data: dto }); }
   async deleteSupplier(id: string) { return this.prisma.supplier.update({ where: { id }, data: { active: false } }); }
 
+  async cancelPurchaseOrder(id: string) {
+    return this.prisma.purchaseOrder.update({ where: { id }, data: { status: 'cancelled' } });
+  }
+
+  async getSupplier(id: string) {
+    const data = await this.prisma.supplier.findUnique({
+      where: { id },
+      include: {
+        purchaseOrders: { orderBy: { createdAt: 'desc' }, take: 5 },
+        ratings: { orderBy: { createdAt: 'desc' }, take: 10 },
+      },
+    });
+    if (!data) throw new NotFoundException('Supplier tidak ditemukan');
+    return { data, message: 'success' };
+  }
+
   async getDeliveryNote(id: string) {
     const gr = await this.prisma.goodsReceipt.findUnique({
       where: { id },

@@ -14,9 +14,17 @@ export class FinancialReportService {
 
   private async getBalancesInPeriod(dateFrom: string, dateTo: string): Promise<Map<string, number>> {
     const accounts = await this.prisma.account.findMany({ where: { isActive: true } });
-    const where: any = {
-      journal: { status: 'POSTED', tanggal: { gte: new Date(dateFrom), lte: new Date(dateTo) } },
-    };
+    const where: any = { journal: { status: 'POSTED' } };
+    const tanggal: any = {};
+    if (dateFrom) {
+      const d = new Date(dateFrom);
+      if (!isNaN(d.getTime())) tanggal.gte = d;
+    }
+    if (dateTo) {
+      const d = new Date(dateTo);
+      if (!isNaN(d.getTime())) tanggal.lte = d;
+    }
+    if (Object.keys(tanggal).length > 0) where.journal.tanggal = tanggal;
     return this._buildMap(accounts, where);
   }
 

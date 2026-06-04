@@ -103,4 +103,35 @@ export class FinanceController {
 
   // ─── Fixed Assets ─────────────────────────────────────────────────────
   @Get('fixed-assets') getAssets(@Query() q: any) { return { redirect: '/api/assets', q }; }
+
+  // ─── Bank Account CRUD ─────────────────────────────────────────────────
+  @Post('bank-accounts')
+  createBankAccount(@Body() dto: any) { return this.svc.createBankAccount(dto); }
+
+  @Put('bank-accounts/:id')
+  updateBankAccount(@Param('id') id: string, @Body() dto: any) { return this.svc.updateBankAccount(id, dto); }
+
+  @Delete('bank-accounts/:id')
+  deleteBankAccount(@Param('id') id: string) { return this.svc.deleteBankAccount(id); }
+
+  // ─── Bank Reconciliation ───────────────────────────────────────────────
+  @Get('bank-reconciliations')
+  getReconciliations(@Query() q: any) { return this.svc.getBankReconciliations(q); }
+
+  @Get('bank-reconciliations/:id')
+  getReconciliation(@Param('id') id: string) { return this.svc.getBankReconciliation(id); }
+
+  @Post('bank-reconciliations')
+  createReconciliation(@Body() dto: any) { return this.svc.createBankReconciliation(dto); }
+
+  @Put('bank-reconciliations/:id')
+  updateReconciliation(@Param('id') id: string, @Body() dto: any) { return this.svc.updateBankReconciliation(id, dto); }
+
+  // ─── COA delete ────────────────────────────────────────────────────────
+  @Delete('coa/:id')
+  deleteCoa(@Param('id') id: string) { return this.svc.deleteCoa(id); }
+
+  // ─── Profit & Loss alias ───────────────────────────────────────────────
+  @Get('reports/profit-loss')
+  getProfitLoss(@Query() q: any) { return this.reportSvc.getIncomeStatement(q.dateFrom, q.dateTo); }
 }

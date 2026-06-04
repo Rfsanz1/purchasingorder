@@ -21,6 +21,7 @@ model User {
   orders          Order[]
   auditLogs       AuditLog[]
   supplierRatings SupplierRating[]
+  passwordResetTokens PasswordResetToken[]
 }
 
 model Role {
@@ -167,6 +168,10 @@ model Product {
   rfqItems           RfqItem[]
   vendorBillItems    VendorBillItem[]
   purchaseReturnItems PurchaseReturnItem[]
+  stockTransferItems  StockTransferItem[]
+  stockAdjustmentItems StockAdjustmentItem[]
+  salesQuotationItems SalesQuotationItem[]
+  reorderRules        ReorderRule[]
 }
 
 model StockMovement {
@@ -274,6 +279,9 @@ model Customer {
   updatedAt   DateTime @updatedAt
   orders      Order[]
   sales       Sale[]
+  invoices    Invoice[]
+  salesReturns SalesReturn[]
+  salesQuotations SalesQuotation[]
 }
 
 model Supplier {
@@ -486,7 +494,8 @@ model BankAccount {
   active       Boolean           @default(true)
   createdAt    DateTime          @default(now())
   updatedAt    DateTime          @updatedAt
-  transactions BankTransaction[]
+  transactions    BankTransaction[]
+  reconciliations BankReconciliation[]
 }
 
 model BankTransaction {
@@ -537,6 +546,8 @@ model Employee {
   leaveRequests    LeaveRequest[]
   payrollSlips     PayrollSlip[]
   bpjsConfig       BPJSConfig?
+  contracts        EmployeeContract[]
+  mutasi           EmployeeMutasi[]
 }
 
 model Payroll {
@@ -1651,4 +1662,293 @@ model Branch {
   isActive     Boolean @default(true)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+}
+
+// ==================== AUTH EXTENSIONS ====================
+
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+}
+
+// ==================== INVOICE ====================
+
+model Invoice {
+  id           String           @id @default(uuid())
+  noInvoice    String           @unique
+  customerId   String?
+  customer     Customer?        @relation(fields: [customerId], references: [id])
+  orderId      Int?
+  salesName    String?
+  tanggal      DateTime         @default(now())
+  dueDate      DateTime?
+  subtotal     Decimal          @default(0) @db.Decimal(15, 2)
+  diskon       Decimal          @default(0) @db.Decimal(15, 2)
+  pajak        Decimal          @default(0) @db.Decimal(15, 2)
+  grandTotal   Decimal          @default(0) @db.Decimal(15, 2)
+  paidAmount   Decimal          @default(0) @db.Decimal(15, 2)
+  status       String           @default("draft")
+  notes        String?
+  sentAt       DateTime?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  items        InvoiceItem[]
+  payments     InvoicePayment[]
+  creditNotes  CreditNote[]
+}
+
+model InvoiceItem {
+  id        String   @id @default(uuid())
+  invoiceId String
+  invoice   Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  productId String?
+  nama      String
+  qty       Int
+  harga     Decimal  @db.Decimal(15, 2)
+  subtotal  Decimal  @db.Decimal(15, 2)
+}
+
+model InvoicePayment {
+  id          String   @id @default(uuid())
+  invoiceId   String
+  invoice     Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  amount      Decimal  @db.Decimal(15, 2)
+  method      String   @default("transfer")
+  tanggal     DateTime @default(now())
+  referensi   String?
+  notes       String?
+  createdAt   DateTime @default(now())
+}
+
+model CreditNote {
+  id        String   @id @default(uuid())
+  invoiceId String
+  invoice   Invoice  @relation(fields: [invoiceId], references: [id])
+  noCreditNote String @unique
+  amount    Decimal  @db.Decimal(15, 2)
+  reason    String?
+  status    String   @default("draft")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ==================== SALES EXTENSIONS ====================
+
+model SalesReturn {
+  id          String            @id @default(uuid())
+  noReturn    String            @unique
+  customerId  String?
+  customer    Customer?         @relation(fields: [customerId], references: [id])
+  orderId     Int?
+  reason      String?
+  status      String            @default("draft")
+  totalAmount Decimal           @default(0) @db.Decimal(15, 2)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  items       SalesReturnItem[]
+}
+
+model SalesReturnItem {
+  id           String      @id @default(uuid())
+  returnId     String
+  return       SalesReturn @relation(fields: [returnId], references: [id], onDelete: Cascade)
+  productId    String?
+  nama         String
+  qty          Int
+  harga        Decimal     @db.Decimal(15, 2)
+  subtotal     Decimal     @db.Decimal(15, 2)
+}
+
+// ==================== INVENTORY EXTENSIONS ====================
+
+model StockTransfer {
+  id            String              @id @default(uuid())
+  noTransfer    String              @unique
+  fromWarehouse String
+  toWarehouse   String
+  status        String              @default("draft")
+  notes         String?
+  createdBy     String?
+  approvedBy    String?
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  items         StockTransferItem[]
+}
+
+model StockTransferItem {
+  id         String        @id @default(uuid())
+  transferId String
+  transfer   StockTransfer @relation(fields: [transferId], references: [id], onDelete: Cascade)
+  productId  String
+  product    Product       @relation(fields: [productId], references: [id])
+  qty        Decimal       @db.Decimal(15, 4)
+  notes      String?
+}
+
+model StockAdjustment {
+  id          String                @id @default(uuid())
+  noAdjust    String                @unique
+  warehouseId String?
+  reason      String?
+  status      String                @default("draft")
+  notes       String?
+  createdBy   String?
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
+  items       StockAdjustmentItem[]
+}
+
+model StockAdjustmentItem {
+  id           String          @id @default(uuid())
+  adjustmentId String
+  adjustment   StockAdjustment @relation(fields: [adjustmentId], references: [id], onDelete: Cascade)
+  productId    String
+  product      Product         @relation(fields: [productId], references: [id])
+  qtySystem    Decimal         @db.Decimal(15, 4)
+  qtyActual    Decimal         @db.Decimal(15, 4)
+  qtyDiff      Decimal         @db.Decimal(15, 4)
+  notes        String?
+}
+
+// ==================== HR EXTENSIONS ====================
+
+model EmployeeContract {
+  id           String    @id @default(uuid())
+  employeeId   String
+  employee     Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  tipeKontrak  String    @default("PKWT")
+  startDate    DateTime
+  endDate      DateTime?
+  gapok        Decimal   @db.Decimal(15, 2)
+  tunjangan    Decimal   @default(0) @db.Decimal(15, 2)
+  status       String    @default("aktif")
+  notes        String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model WorkShift {
+  id        String   @id @default(uuid())
+  nama      String
+  jamMasuk  String
+  jamKeluar String
+  toleransi Int      @default(15)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model EmployeeMutasi {
+  id             String    @id @default(uuid())
+  employeeId     String
+  employee       Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  fromDepartemen String?
+  toDepartemen   String?
+  fromJabatan    String?
+  toJabatan      String?
+  effectiveDate  DateTime
+  reason         String?
+  approvedBy     String?
+  createdAt      DateTime  @default(now())
+}
+
+// ==================== BANK EXTENSIONS ====================
+
+model BankReconciliation {
+  id            String      @id @default(uuid())
+  bankAccountId String
+  bankAccount   BankAccount @relation(fields: [bankAccountId], references: [id])
+  periodeAwal   DateTime
+  periodeAkhir  DateTime
+  saldoBuku     Decimal     @db.Decimal(15, 2)
+  saldoBank     Decimal     @db.Decimal(15, 2)
+  selisih       Decimal     @db.Decimal(15, 2)
+  status        String      @default("draft")
+  notes         String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+// ==================== SETTINGS EXTENSIONS ====================
+
+model SmtpSetting {
+  id        String   @id @default(uuid())
+  host      String
+  port      Int      @default(587)
+  secure    Boolean  @default(false)
+  username  String
+  fromName  String?
+  fromEmail String?
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model DocumentNumberConfig {
+  id        String   @id @default(uuid())
+  docType   String   @unique
+  prefix    String
+  separator String   @default("/")
+  useYear   Boolean  @default(true)
+  useMonth  Boolean  @default(true)
+  padLength Int      @default(4)
+  lastSeq   Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SalesQuotation {
+  id              String               @id @default(cuid())
+  nomorQuotation  String               @unique
+  customerId      String?
+  customer        Customer?            @relation(fields: [customerId], references: [id])
+  salesName       String?
+  tanggal         DateTime             @default(now())
+  validUntil      DateTime?
+  status          String               @default("draft")
+  subtotal        Decimal              @default(0)
+  discount        Decimal              @default(0)
+  tax             Decimal              @default(0)
+  total           Decimal              @default(0)
+  note            String?
+  quotationId     String?
+  deletedAt       DateTime?
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+  items           SalesQuotationItem[]
+}
+
+model SalesQuotationItem {
+  id          String         @id @default(cuid())
+  quotationId String
+  quotation   SalesQuotation @relation(fields: [quotationId], references: [id], onDelete: Cascade)
+  productId   String?
+  product     Product?       @relation(fields: [productId], references: [id])
+  productName String
+  qty         Decimal        @default(1)
+  hargaSatuan Decimal        @default(0)
+  discount    Decimal        @default(0)
+  subtotal    Decimal        @default(0)
+  unit        String?
+  note        String?
+}
+
+model ReorderRule {
+  id                String    @id @default(cuid())
+  productId         String
+  product           Product   @relation(fields: [productId], references: [id])
+  warehouseId       String?
+  minQty            Decimal   @default(0)
+  maxQty            Decimal?
+  reorderQty        Decimal   @default(1)
+  leadTimeDays      Int       @default(1)
+  active            Boolean   @default(true)
+  lastTriggeredAt   DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 }

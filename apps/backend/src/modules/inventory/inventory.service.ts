@@ -1,4 +1,4 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service.js';
 
 @Injectable()
@@ -127,5 +127,136 @@ export class InventoryService {
       where: { active: true, stok: { lte: 5 } },
     });
     return { totalProducts, lowStock, totalStok: totalStokResult._sum.stok ?? 0 };
+  }
+
+  async getTransfers(query: any) {
+    const { status, fromWarehouseId, toWarehouseId, page = 1, limit = 20 } = query;
+    const skip = (Number(page) - 1) * Number(limit);
+    const where: any = {};
+    if (status) where.status = status;
+    if (fromWarehouseId) where.fromWarehouseId = fromWarehouseId;
+    if (toWarehouseId) where.toWarehouseId = toWarehouseId;
+    const [data, total] = await Promise.all([
+      this.prisma.stockTransfer.findMany({
+        where, skip, take: Number(limit),
+        include: { items: { include: { product: true } } },
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.stockTransfer.count({ where }),
+    ]);
+    return { data, message: 'success', meta: { total, page: Number(page), limit: Number(limit) } };
+  }
+
+  async getTransfer(id: string) {
+    const data = await this.prisma.stockTransfer.findUnique({ where: { id }, include: { items: { include: { product: true } } } });
+    if (!data) throw new NotFoundException('Transfer tidak ditemukan');
+    return { data, message: 'success' };
+  }
+
+  async createTransfer(dto: any) {
+    if (!dto.fromWarehouseId || !dto.toWarehouseId) throw new BadRequestException('fromWarehouseId dan toWarehouseId harus diisi');
+    const { items, ...rest } = dto;
+    const count = await this.prisma.stockTransfer.count();
+    const noTransfer = dto.noTransfer ?? `ST-${new Date().getFullYear()}-${String(count + 1).padStart(4, '0')}`;
+    const data = await this.prisma.stockTransfer.create({
+      data: { ...rest, noTransfer, status: 'draft', items: items?.length ? { create: items } : undefined },
+      include: { items: true },
+    });
+    return { data, message: 'Transfer stok berhasil dibuat' };
+  }
+
+  async confirmTransfer(id: string) {
+    const transfer = await this.prisma.stockTransfer.findUnique({ where: { id }, include: { items: { include: { product: true } } } });
+    if (!transfer) throw new NotFoundException('Transfer tidak ditemukan');
+    if (transfer.status !== 'draft') throw new BadRequestException('Hanya transfer draft yang dapat dikonfirmasi');
+    await this.prisma.$transaction(async (prisma) => {
+      for (const item of transfer.items) {
+        await prisma.product.update({ where: { id: item.productId }, data: { stok: { decrement: Number(item.qty) } } });
+      }
+      await prisma.stockTransfer.update({ where: { id }, data: { status: 'confirmed', confirmedAt: new Date() } });
+    });
+    return { data: null, message: 'Transfer berhasil dikonfirmasi. Stok telah dikurangi.' };
+  }
+
+  async getAdjustments(query: any) {
+    const { status, warehouseId, page = 1, limit = 20 } = query;
+    const skip = (Number(page) - 1) * Number(limit);
+    const where: any = {};
+    if (status) where.status = status;
+    if (warehouseId) where.warehouseId = warehouseId;
+    const [data, total] = await Promise.all([
+      this.prisma.stockAdjustment.findMany({
+        where, skip, take: Number(limit),
+        include: { items: { include: { product: true } } },
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.stockAdjustment.count({ where }),
+    ]);
+    return { data, message: 'success', meta: { total, page: Number(page), limit: Number(limit) } };
+  }
+
+  async getAdjustment(id: string) {
+    const data = await this.prisma.stockAdjustment.findUnique({ where: { id }, include: { items: { include: { product: true } } } });
+    if (!data) throw new NotFoundException('Penyesuaian stok tidak ditemukan');
+    return { data, message: 'success' };
+  }
+
+  async createAdjustment(dto: any) {
+    const { items, ...rest } = dto;
+    const count = await this.prisma.stockAdjustment.count();
+    const noAdjustment = dto.noAdjustment ?? `ADJ-${new Date().getFullYear()}-${String(count + 1).padStart(4, '0')}`;
+    const data = await this.prisma.stockAdjustment.create({
+      data: { ...rest, noAdjustment, status: 'draft', items: items?.length ? { create: items } : undefined },
+      include: { items: true },
+    });
+    return { data, message: 'Penyesuaian stok berhasil dibuat' };
+  }
+
+  async validateAdjustment(id: string) {
+    const adj = await this.prisma.stockAdjustment.findUnique({ where: { id }, include: { items: { include: { product: true } } } });
+    if (!adj) throw new NotFoundException('Penyesuaian stok tidak ditemukan');
+    if (adj.status !== 'draft') throw new BadRequestException('Hanya penyesuaian draft yang dapat divalidasi');
+    await this.prisma.$transaction(async (prisma) => {
+      for (const item of adj.items) {
+        const diff = Number(item.qtyAktual ?? 0) - Number(item.qtySistem ?? 0);
+        if (diff !== 0) {
+          await prisma.product.update({
+            where: { id: item.productId },
+            data: { stok: { increment: diff } },
+          });
+        }
+      }
+      await prisma.stockAdjustment.update({ where: { id }, data: { status: 'validated', validatedAt: new Date() } });
+    });
+    return { data: null, message: 'Penyesuaian stok berhasil divalidasi' };
+  }
+
+  async getReorderRules(query: any) {
+    const { productId, active } = query;
+    const where: any = {};
+    if (productId) where.productId = productId;
+    if (active !== undefined) where.active = active === 'true' || active === true;
+    const data = await this.prisma.reorderRule.findMany({
+      where,
+      include: { product: { select: { id: true, name: true, stok: true } } },
+      orderBy: { createdAt: 'desc' },
+    });
+    return { data, message: 'success' };
+  }
+
+  async createReorderRule(dto: any) {
+    if (!dto.productId) throw new BadRequestException('productId harus diisi');
+    const data = await this.prisma.reorderRule.create({ data: dto });
+    return { data, message: 'Reorder rule berhasil dibuat' };
+  }
+
+  async updateReorderRule(id: string, dto: any) {
+    const data = await this.prisma.reorderRule.update({ where: { id }, data: dto });
+    return { data, message: 'Reorder rule berhasil diupdate' };
+  }
+
+  async deleteReorderRule(id: string) {
+    await this.prisma.reorderRule.delete({ where: { id } });
+    return { data: null, message: 'Reorder rule berhasil dihapus' };
   }
 }

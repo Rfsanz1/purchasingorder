@@ -32,6 +32,19 @@ export class NotificationService {
     return notification;
   }
 
+  async markAllAsRead(recipient: string) {
+    await this.prisma.notification.updateMany({
+      where: { recipient, readAt: null },
+      data: { readAt: new Date(), status: 'read' },
+    });
+    return { data: null, message: 'Semua notifikasi telah dibaca' };
+  }
+
+  async deleteOne(id: string) {
+    await this.prisma.notification.delete({ where: { id } });
+    return { data: null, message: 'Notifikasi berhasil dihapus' };
+  }
+
   async sendWhatsApp(target: string, message: string) {
     if (!process.env.FONNTE_TOKEN) return { skipped: true, reason: 'FONNTE_TOKEN tidak dikonfigurasi' };
     try {

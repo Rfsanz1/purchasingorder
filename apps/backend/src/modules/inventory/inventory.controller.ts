@@ -134,4 +134,43 @@ export class InventoryController {
   getValuationHistory(@Param('productId') productId: string) {
     return this.valuation.getValuationHistory(productId);
   }
+
+  // ─── Stock Transfers ───────────────────────────────────────────────────────
+  @Get('stock-transfers')
+  getTransfers(@Query() q: any) { return this.svc.getTransfers(q); }
+
+  @Get('stock-transfers/:id')
+  getTransfer(@Param('id') id: string) { return this.svc.getTransfer(id); }
+
+  @Post('stock-transfers')
+  createTransfer(@Body() dto: any) { return this.svc.createTransfer(dto); }
+
+  @Post('stock-transfers/:id/confirm')
+  confirmTransfer(@Param('id') id: string) { return this.svc.confirmTransfer(id); }
+
+  // ─── Stock Adjustments ─────────────────────────────────────────────────────
+  @Get('stock-adjustments')
+  getAdjustments(@Query() q: any) { return this.svc.getAdjustments(q); }
+
+  @Get('stock-adjustments/:id')
+  getAdjustment(@Param('id') id: string) { return this.svc.getAdjustment(id); }
+
+  @Post('stock-adjustments')
+  createAdjustment(@Body() dto: any) { return this.svc.createAdjustment(dto); }
+
+  @Post('stock-adjustments/:id/validate')
+  validateAdjustment(@Param('id') id: string) { return this.svc.validateAdjustment(id); }
+
+  // ─── Reorder Rules ─────────────────────────────────────────────────────────
+  @Get('reorder-rules')
+  getReorderRules(@Query() q: any) { return this.svc.getReorderRules(q); }
+
+  @Post('reorder-rules')
+  createReorderRule(@Body() dto: any) { return this.svc.createReorderRule(dto); }
+
+  @Put('reorder-rules/:id')
+  updateReorderRule(@Param('id') id: string, @Body() dto: any) { return this.svc.updateReorderRule(id, dto); }
+
+  @Delete('reorder-rules/:id')
+  deleteReorderRule(@Param('id') id: string) { return this.svc.deleteReorderRule(id); }
 }

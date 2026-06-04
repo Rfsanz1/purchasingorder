@@ -1,11 +1,11 @@
-import { Controller, Get, Post, Put, Param, Body, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Inject, Post, Put, Param, Body, Query, UseGuards } from '@nestjs/common';
 import { PayrollService } from './payroll.service.js';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard.js';
 
 @Controller('payroll')
 @UseGuards(JwtAuthGuard)
 export class PayrollController {
-  constructor(private readonly svc: PayrollService) {}
+  constructor(@Inject(PayrollService) private readonly svc: PayrollService) {}
 
   // Periods
   @Get('periods')          getPeriods(@Query() q: any)                    { return this.svc.getPeriods(q); }
@@ -30,4 +30,17 @@ export class PayrollController {
   // Reports
   @Get('reports/bpjs/:periodId')  bpjsReport(@Param('periodId') id: string)  { return this.svc.getBPJSReport(id); }
   @Get('reports/pph21/:periodId') pph21Report(@Param('periodId') id: string) { return this.svc.getPPh21Report(id); }
+
+  // Bank Export
+  @Get('bank-export/:periodId')
+  bankExport(@Param('periodId') id: string, @Query('format') format?: string) {
+    return this.svc.bankExport(id, format ?? 'csv');
+  }
+
+  // Send Slip Email
+  @Post('slips/:id/send-email')
+  sendSlipEmail(@Param('id') id: string) { return this.svc.sendSlipEmail(id); }
+
+  @Post('periods/:id/send-emails')
+  sendAllEmails(@Param('id') id: string) { return this.svc.sendAllSlipEmails(id); }
 }

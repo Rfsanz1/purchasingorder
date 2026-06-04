@@ -29,4 +29,25 @@ export class SalesController {
   saveCustomerLoc(@Param('token') token: string, @Body() dto: { lat: string; lng: string }) {
     return this.svc.saveCustomerLocation(token, dto.lat, dto.lng);
   }
+
+  // ─── Quotations ──────────────────────────────────────────────────────────
+  @Get('quotations')             getQuotations(@Query() q: any)                                   { return this.svc.getQuotations(q); }
+  @Get('quotations/:id')         getQuotation(@Param('id') id: string)                            { return this.svc.getQuotation(id); }
+  @Post('quotations')            createQuotation(@Body() dto: any)                                { return this.svc.createQuotation(dto); }
+  @Put('quotations/:id')         updateQuotation(@Param('id') id: string, @Body() dto: any)      { return this.svc.updateQuotation(id, dto); }
+  @Delete('quotations/:id')      deleteQuotation(@Param('id') id: string)                        { return this.svc.deleteQuotation(id); }
+  @Post('quotations/:id/convert-to-order')
+  convertQuotation(@Param('id') id: string) { return this.svc.convertQuotationToOrder(id); }
+
+  // ─── Sales Returns ───────────────────────────────────────────────────────
+  @Get('returns')                getSalesReturns(@Query() q: any)                                 { return this.svc.getSalesReturns(q); }
+  @Get('returns/:id')            getSalesReturn(@Param('id') id: string)                         { return this.svc.getSalesReturn(id); }
+  @Post('returns')               createSalesReturn(@Body() dto: any)                             { return this.svc.createSalesReturn(dto); }
+
+  // ─── Pricelists ──────────────────────────────────────────────────────────
+  @Get('pricelists')             getPricelists(@Query() q: any)                                   { return this.svc.getPricelists(q); }
+  @Get('pricelists/:id')         getPricelist(@Param('id') id: string)                           { return this.svc.getPricelist(id); }
+  @Post('pricelists')            createPricelist(@Body() dto: any)                               { return this.svc.createPricelist(dto); }
+  @Put('pricelists/:id')         updatePricelist(@Param('id') id: string, @Body() dto: any)     { return this.svc.updatePricelist(id, dto); }
+  @Delete('pricelists/:id')      deletePricelist(@Param('id') id: string)                       { return this.svc.deletePricelist(id); }
 }
