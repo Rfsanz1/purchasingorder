@@ -1,33 +1,83 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service.js';
+import { v4 as uuid } from 'uuid';
 
 @Injectable()
 export class AssetService {
   constructor(private prisma: PrismaService) {}
 
+  // ─── KATEGORI CRUD ───────────────────────────────────────────────────────
+  async getCategories() {
+    return this.prisma.assetCategory.findMany({ orderBy: { name: 'asc' } });
+  }
+
+  async getCategory(id: string) {
+    const cat = await this.prisma.assetCategory.findUnique({ where: { id } });
+    if (!cat) throw new NotFoundException('Kategori aset tidak ditemukan');
+    return cat;
+  }
+
+  async createCategory(dto: any) {
+    const { name, depreciationAccountId, accDepAccountId, defaultUsefulLife, defaultMethod } = dto;
+    return this.prisma.assetCategory.create({
+      data: { name, depreciationAccountId, accDepAccountId, defaultUsefulLife: defaultUsefulLife || 60, defaultMethod: defaultMethod || 'straight_line' },
+    });
+  }
+
+  async updateCategory(id: string, dto: any) {
+    return this.prisma.assetCategory.update({ where: { id }, data: dto });
+  }
+
+  async deleteCategory(id: string) {
+    // Check if category is used
+    const count = await this.prisma.fixedAsset.count({ where: { categoryId: id } });
+    if (count > 0) throw new BadRequestException('Kategori tidak bisa dihapus karena masih digunakan');
+    return this.prisma.assetCategory.delete({ where: { id } });
+  }
+
+  // ─── GENERATE KODE ASET ──────────────────────────────────────────────────
+  private async generateAssetCode(): Promise<string> {
+    const today = new Date();
+    const prefix = `AST-${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, '0')}`;
+    const lastAsset = await this.prisma.fixedAsset.findFirst({
+      where: { code: { startsWith: prefix } },
+      orderBy: { code: 'desc' },
+    });
+    const nextNum = lastAsset ? parseInt(lastAsset.code.split('-').pop() || '0') + 1 : 1;
+    return `${prefix}-${String(nextNum).padStart(4, '0')}`;
+  }
+
   // ─── CRUD ─────────────────────────────────────────────────────────────────
   async getAssets(query: any) {
-    const { search, kategori, status, branchId, page = 1, limit = 20 } = query;
+    const { search, categoryId, status, warehouseId, branchId, page = 1, limit = 20 } = query;
     const skip = (Number(page) - 1) * Number(limit);
     const where: any = {};
-    if (search) where.OR = [{ nama: { contains: search, mode: 'insensitive' } }, { kode: { contains: search, mode: 'insensitive' } }];
-    if (kategori) where.kategori = kategori;
+    
+    if (search) where.OR = [
+      { name: { contains: search, mode: 'insensitive' } },
+      { code: { contains: search, mode: 'insensitive' } },
+      { serialNumber: { contains: search, mode: 'insensitive' } },
+    ];
+    if (categoryId) where.categoryId = categoryId;
     if (status) where.status = status;
+    if (warehouseId) where.warehouseId = warehouseId;
     if (branchId) where.branchId = branchId;
 
     const [data, total] = await Promise.all([
       this.prisma.fixedAsset.findMany({
         where, skip, take: Number(limit),
-        include: { depreciations: { orderBy: [{ tahun: 'desc' }, { bulan: 'desc' }], take: 1 } },
+        include: { category: true, depreciations: { orderBy: [{ tahun: 'desc' }, { bulan: 'desc' }], take: 1 } },
         orderBy: { createdAt: 'desc' },
       }),
       this.prisma.fixedAsset.count({ where }),
     ]);
 
     const enriched = data.map(a => {
+      const acquisitionValue = Number(a.acquisitionValue || a.nilaiPerolehan || 0);
       const lastDep = a.depreciations[0];
-      const nilaiBuku = lastDep ? Number(lastDep.nilaiBuku) : Number(a.nilaiPerolehan);
-      return { ...a, nilaiBuku, akumDepresiasi: Number(a.nilaiPerolehan) - nilaiBuku };
+      const currentBookValue = lastDep ? Number(lastDep.nilaiBuku) : acquisitionValue;
+      const accumulatedDep = acquisitionValue - currentBookValue;
+      return { ...a, currentBookValue, accumulatedDep };
     });
 
     return { data: enriched, total, page: Number(page), totalPages: Math.ceil(total / Number(limit)) };
@@ -36,18 +86,96 @@ export class AssetService {
   async getAsset(id: string) {
     const a = await this.prisma.fixedAsset.findUnique({
       where: { id },
-      include: { depreciations: { orderBy: [{ tahun: 'asc' }, { bulan: 'asc' }] } },
+      include: { category: true, depreciations: { orderBy: [{ tahun: 'asc' }, { bulan: 'asc' }] } },
     });
     if (!a) throw new NotFoundException('Aset tidak ditemukan');
-    const nilaiBuku = a.depreciations.length > 0
+    
+    const acquisitionValue = Number(a.acquisitionValue || a.nilaiPerolehan || 0);
+    const currentBookValue = a.depreciations.length > 0
       ? Number(a.depreciations[a.depreciations.length - 1].nilaiBuku)
-      : Number(a.nilaiPerolehan);
-    return { ...a, nilaiBuku, akumDepresiasi: Number(a.nilaiPerolehan) - nilaiBuku };
+      : acquisitionValue;
+    const accumulatedDep = acquisitionValue - currentBookValue;
+    
+    return { ...a, currentBookValue, accumulatedDep };
   }
 
   async createAsset(dto: any) {
-    const asset = await this.prisma.fixedAsset.create({ data: dto });
-    // Jurnal perolehan aset
+    // Support both new fields and legacy fields
+    const code = dto.code || await this.generateAssetCode();
+    const createData: any = {
+      name: dto.name || dto.nama,
+      code,
+      kode: code,
+      categoryId: dto.categoryId,
+      acquisitionDate: dto.acquisitionDate || dto.tanggalPerolehan,
+      acquisitionValue: dto.acquisitionValue || dto.nilaiPerolehan,
+      usefulLifeMonths: dto.usefulLifeMonths || dto.umurEkonomi || 60,
+      depreciationMethod: dto.depreciationMethod || dto.metodeDepresiasi || 'STRAIGHT_LINE',
+      residualValue: dto.residualValue || dto.nilaiResidu || 0,
+      location: dto.location,
+      serialNumber: dto.serialNumber,
+      warrantyExpiry: dto.warrantyExpiry,
+      vendor: dto.vendor,
+      attachment: dto.attachment,
+      status: dto.status || 'ACTIVE',
+      warehouseId: dto.warehouseId,
+      accountAssetId: dto.accountAssetId,
+      accountDepreciasiId: dto.accountDepreciasiId,
+      accountAkumDepId: dto.accountAkumDepId,
+      branchId: dto.branchId,
+      // Legacy
+      nama: dto.nama,
+      kategori: dto.kategori,
+      tanggalPerolehan: dto.tanggalPerolehan,
+      nilaiPerolehan: dto.nilaiPerolehan,
+      nilaiResidu: dto.nilaiResidu,
+      umurEkonomi: dto.umurEkonomi,
+      metodeDepresiasi: dto.metodeDepresiasi,
+    };
+
+    const asset = await this.prisma.fixedAsset.create({ data: createData });
+
+    // Auto journal untuk perolehan aset
+    try {
+      const accountId = dto.accountAssetId || await this.findOrCreateAccountId('1100', 'Aset Tetap', 'ASSET');
+      const counterAccountId = await this.findOrCreateAccountId('1000', 'Kas/Bank', 'ASSET');
+      const acquisitionValue = Number(dto.acquisitionValue || dto.nilaiPerolehan || 0);
+      
+      await this.prisma.journal.create({
+        data: {
+          nomor: `JNL-ASSET-ACQ-${code}`,
+          tanggal: new Date(dto.acquisitionDate || dto.tanggalPerolehan),
+          deskripsi: `Perolehan Aset: ${dto.name || dto.nama}`,
+          status: 'POSTED',
+          lines: {
+            create: [
+              { accountId, debit: acquisitionValue, kredit: 0, deskripsi: `Aset Tetap: ${dto.name || dto.nama}` },
+              { accountId: counterAccountId, debit: 0, kredit: acquisitionValue, deskripsi: 'Kas/Bank' },
+            ],
+          },
+        },
+      });
+    } catch { /* journal optional */ }
+
+    return asset;
+  }
+
+  async updateAsset(id: string, dto: any) {
+    const updateData: any = {};
+    if (dto.name) updateData.name = dto.name;
+    if (dto.nama) updateData.nama = dto.nama;
+    if (dto.categoryId) updateData.categoryId = dto.categoryId;
+    if (dto.location) updateData.location = dto.location;
+    if (dto.serialNumber) updateData.serialNumber = dto.serialNumber;
+    if (dto.warrantyExpiry) updateData.warrantyExpiry = dto.warrantyExpiry;
+    if (dto.vendor) updateData.vendor = dto.vendor;
+    if (dto.attachment) updateData.attachment = dto.attachment;
+    if (dto.status) updateData.status = dto.status;
+    if (dto.warehouseId) updateData.warehouseId = dto.warehouseId;
+    if (dto.note) updateData.note = dto.note;
+
+    return this.prisma.fixedAsset.update({ where: { id }, data: updateData });
+  }
     try {
       if (dto.accountAssetId) {
         await this.prisma.journal.create({
@@ -82,9 +210,11 @@ export class AssetService {
     if (!asset) throw new NotFoundException('Aset tidak ditemukan');
     if (asset.status !== 'ACTIVE') throw new BadRequestException('Aset tidak aktif');
 
-    const nilaiPerolehan = Number(asset.nilaiPerolehan);
-    const nilaiResidu    = Number(asset.nilaiResidu);
-    const umurBulan      = asset.umurEkonomi;
+    // Support both new and legacy fields
+    const nilaiPerolehan = Number(asset.acquisitionValue || asset.nilaiPerolehan || 0);
+    const nilaiResidu    = Number(asset.residualValue || asset.nilaiResidu || 0);
+    const umurBulan      = asset.usefulLifeMonths || asset.umurEkonomi || 60;
+    const metode         = asset.depreciationMethod || asset.metodeDepresiasi || 'STRAIGHT_LINE';
 
     const prevDep = asset.depreciations[asset.depreciations.length - 1];
     const prevNilaiBuku   = prevDep ? Number(prevDep.nilaiBuku)   : nilaiPerolehan;
@@ -93,7 +223,7 @@ export class AssetService {
     if (prevNilaiBuku <= nilaiResidu) return null;
 
     let beban = 0;
-    if (asset.metodeDepresiasi === 'STRAIGHT_LINE') {
+    if (metode === 'STRAIGHT_LINE') {
       beban = (nilaiPerolehan - nilaiResidu) / umurBulan;
     } else {
       const rate = 2 / umurBulan;
@@ -231,24 +361,46 @@ export class AssetService {
     const asOf = asOfDate ?? new Date();
     const assets = await this.prisma.fixedAsset.findMany({
       where: { status: 'ACTIVE' },
-      include: { depreciations: { orderBy: [{ tahun: 'desc' }, { bulan: 'desc' }], take: 1 } },
-      orderBy: { tanggalPerolehan: 'asc' },
+      include: { category: true, depreciations: { orderBy: [{ tahun: 'desc' }, { bulan: 'desc' }], take: 1 } },
+      orderBy: { acquisitionDate: 'asc' },
     });
 
     return assets.map(a => {
+      const acquisitionValue = Number(a.acquisitionValue || a.nilaiPerolehan || 0);
       const lastDep = a.depreciations[0];
-      const nilaiBuku = lastDep ? Number(lastDep.nilaiBuku) : Number(a.nilaiPerolehan);
+      const currentBookValue = lastDep ? Number(lastDep.nilaiBuku) : acquisitionValue;
       return {
-        kode: a.kode, nama: a.nama, kategori: a.kategori,
-        tanggalPerolehan: a.tanggalPerolehan,
-        nilaiPerolehan: Number(a.nilaiPerolehan),
-        nilaiResidu: Number(a.nilaiResidu),
-        akumDepresiasi: Number(a.nilaiPerolehan) - nilaiBuku,
-        nilaiBuku,
-        umurEkonomi: a.umurEkonomi,
-        metode: a.metodeDepresiasi,
+        code: a.code || a.kode,
+        name: a.name || a.nama,
+        category: a.category?.name || a.kategori,
+        acquisitionDate: a.acquisitionDate || a.tanggalPerolehan,
+        acquisitionValue,
+        residualValue: Number(a.residualValue || a.nilaiResidu || 0),
+        accumulatedDep: acquisitionValue - currentBookValue,
+        currentBookValue,
+        usefulLifeMonths: a.usefulLifeMonths || a.umurEkonomi,
+        depreciationMethod: a.depreciationMethod || a.metodeDepresiasi,
       };
     });
+  }
+
+  async getDepreciationReport(year?: number) {
+    const targetYear = year ?? new Date().getFullYear();
+    const depreciations = await this.prisma.assetDepreciation.findMany({
+      where: { tahun: targetYear },
+      include: { asset: { include: { category: true } } },
+      orderBy: [{ tahun: 'asc' }, { bulan: 'asc' }],
+    });
+
+    return depreciations.map(d => ({
+      assetCode: d.asset.code || d.asset.kode,
+      assetName: d.asset.name || d.asset.nama,
+      category: d.asset.category?.name || d.asset.kategori,
+      periode: `${d.bulan}/${d.tahun}`,
+      bebanDepresiasi: Number(d.bebanDepresiasi),
+      akumDepresiasi: Number(d.akumDepresiasi),
+      nilaiBuku: Number(d.nilaiBuku),
+    }));
   }
 
   async getKategori() {

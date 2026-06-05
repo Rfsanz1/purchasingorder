@@ -1673,26 +1673,69 @@ enum AssetStatus {
   ACTIVE
   DISPOSED
   SOLD
+  UNDER_MAINTENANCE
+}
+
+model AssetCategory {
+  id                    String   @id @default(cuid())
+  name                  String
+  depreciationAccountId String?  // akun Beban Penyusutan
+  accDepAccountId       String?  // akun Akumulasi Penyusutan
+  defaultUsefulLife     Int      @default(60) // bulan
+  defaultMethod         String   @default("straight_line")
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  assets                FixedAsset[]
 }
 
 model FixedAsset {
   id                  String           @id @default(uuid())
-  kode                String           @unique
-  nama                String
-  kategori            String
-  tanggalPerolehan    DateTime
-  nilaiPerolehan      Decimal          @db.Decimal(15, 2)
-  nilaiResidu         Decimal          @default(0) @db.Decimal(15, 2)
-  umurEkonomi         Int
-  metodeDepresiasi    DepreciasiMethod @default(STRAIGHT_LINE)
+  
+  // Primary fields (new schema)
+  code                String?          @unique
+  name                String?
+  categoryId          String?
+  category            AssetCategory?   @relation(fields: [categoryId], references: [id])
+  
+  // Acquisition
+  acquisitionDate     DateTime?
+  acquisitionValue    Decimal?         @db.Decimal(15, 2)
+  
+  // Depreciation
+  usefulLifeMonths    Int?             // umur manfaat dalam bulan
+  depreciationMethod  DepreciasiMethod @default(STRAIGHT_LINE)
+  residualValue       Decimal          @default(0) @db.Decimal(15, 2)
+  currentBookValue    Decimal?         @db.Decimal(15, 2) // nilai buku saat ini (calculated)
+  
+  // Details
+  location            String?
+  serialNumber        String?
+  warrantyExpiry      DateTime?
+  vendor              String?          // contactId atau nama vendor
+  attachment          String?          // URL foto/dokumen
+  status              AssetStatus      @default(ACTIVE)
+  warehouseId         String?
+  
+  // Accounting
   accountAssetId      String?
   accountDepreciasiId String?
   accountAkumDepId    String?
   branchId            String?
-  status              AssetStatus      @default(ACTIVE)
+  
   note                String?
   createdAt           DateTime         @default(now())
   updatedAt           DateTime         @updatedAt
+  
+  // Legacy fields (backward compatibility)
+  kode                String?          @unique
+  nama                String?
+  kategori            String?
+  tanggalPerolehan    DateTime?
+  nilaiPerolehan      Decimal?         @db.Decimal(15, 2)
+  nilaiResidu         Decimal?         @db.Decimal(15, 2)
+  umurEkonomi         Int?
+  metodeDepresiasi    DepreciasiMethod? @default(STRAIGHT_LINE)
+  
   depreciations       AssetDepreciation[]
 }
 
@@ -2003,6 +2046,97 @@ model DocumentNumberConfig {
   lastSeq   Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model CompanyProfile {
+  id        String   @id @default(cuid())
+  name      String
+  logo      String?
+  address   String?
+  phone     String?
+  email     String?
+  website   String?
+  npwp      String?
+  currency  String   @default("IDR")
+  timezone  String   @default("Asia/Jakarta")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Currency {
+  id        String   @id @default(cuid())
+  code      String   @unique
+  name      String
+  symbol    String
+  rate      Float    @default(1)
+  isDefault Boolean  @default(false)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model InvoiceTemplate {
+  id                  String   @id @default(cuid())
+  templateType        String   @unique
+  showLogo            Boolean  @default(true)
+  showBarcode         Boolean  @default(false)
+  primaryColor        String   @default("#000000")
+  headerColor         String   @default("#F3F4F6")
+  fontFamily          String   @default("Arial")
+  columns             String[] @default(["no", "product", "qty", "price", "total"])
+  showSignature       Boolean  @default(true)
+  signerName          String?
+  signerTitle         String?
+  showStamp           Boolean  @default(false)
+  footerText          String?
+  showCurrencySymbol  Boolean  @default(true)
+  showProductImage    Boolean  @default(false)
+  defaultMessage      String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model WorkflowConfig {
+  id                       String   @id @default(cuid())
+  salesFlow                String   @default("quotation_to_invoice")
+  purchaseFlow             String   @default("po_to_bill")
+  requireApprovalPO        Boolean  @default(false)
+  poApprovalLimit          Float    @default(0)
+  requireApprovalExpense   Boolean  @default(false)
+  expenseApprovalLimit     Float    @default(0)
+  requireApprovalLeave     Boolean  @default(false)
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+}
+
+model DefaultAccounts {
+  id                    String   @id @default(cuid())
+  arAccount             String?
+  apAccount             String?
+  inventoryAccount      String?
+  cogsAccount           String?
+  salesRevenueAccount   String?
+  purchaseAccount       String?
+  taxInputAccount       String?
+  taxOutputAccount      String?
+  cashAdjustmentAccount String?
+  stockAdjustmentAccount String?
+  depreciationAccount   String?
+  wageExpenseAccount    String?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}
+
+model NotificationConfig {
+  id                      String   @id @default(cuid())
+  emailOnInvoiceDue       Boolean  @default(false)
+  invoiceDueDaysBefore    Int      @default(3)
+  emailOnLowStock         Boolean  @default(false)
+  emailOnPaymentReceived  Boolean  @default(false)
+  slackWebhook            String?
+  wapiKey                 String?
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
 }
 
 model SalesQuotation {

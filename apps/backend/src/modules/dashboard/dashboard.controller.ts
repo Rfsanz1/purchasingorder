@@ -1,4 +1,4 @@
-import { Controller, Get, Inject, UseGuards } from '@nestjs/common';
+import { Controller, Get, Inject, UseGuards, Query } from '@nestjs/common';
 import { DashboardService } from './dashboard.service.js';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard.js';
 import { RolesGuard } from '../../common/guards/roles.guard.js';
@@ -8,6 +8,13 @@ import { Roles } from '../../common/decorators/roles.decorator.js';
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class DashboardController {
   constructor(@Inject(DashboardService) private readonly dashboardService: DashboardService) {}
+
+  // ─── EXECUTIVE DASHBOARD (COMPREHENSIVE) ───────────────────────────────────
+  @Get()
+  @Roles('admin', 'owner', 'super admin', 'manager', 'finance')
+  async executiveDashboard(@Query('branchId') branchId?: string) {
+    return this.dashboardService.getExecutiveDashboard(branchId);
+  }
 
   @Get('summary')
   async summary() {
@@ -43,4 +50,5 @@ export class DashboardController {
   async driverDashboard() {
     return this.dashboardService.getDriverSummary();
   }
+}
 }

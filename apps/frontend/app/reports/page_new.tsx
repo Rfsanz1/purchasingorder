@@ -31,7 +31,7 @@ const REPORT_CATEGORIES: ReportCategory[] = [
       { name: 'Laporan Laba Rugi (P&L)', href: '/reports/finance?type=pl', description: 'Revenue, Cost, Profit' },
       { name: 'Neraca Akuntansi', href: '/reports/finance?type=balance', description: 'Assets, Liabilities, Equity' },
       { name: 'Arus Kas', href: '/reports/finance?type=cashflow', description: 'Cash movements' },
-      { name: 'Executive Summary', href: '/reports/finance?type=summary', description: 'Key metrics overview' },
+      { name: 'Executive Summary', href: '/reports/finance?type=summary', description: 'Key metrics' },
     ],
   },
   {
@@ -40,8 +40,8 @@ const REPORT_CATEGORIES: ReportCategory[] = [
     color: '#7C3AED',
     bgColor: '#EDE9FE',
     reports: [
-      { name: 'Buku Besar', href: '/reports/finance?type=ledger', description: 'GL account transactions' },
-      { name: 'Jurnal Umum', href: '/reports/finance?type=journal', description: 'All journal entries' },
+      { name: 'Buku Besar', href: '/reports/finance?type=ledger', description: 'GL transactions' },
+      { name: 'Jurnal Umum', href: '/reports/finance?type=journal', description: 'All entries' },
       { name: 'Trial Balance', href: '/reports/finance?type=trial', description: 'Account balances' },
       { name: 'Rekonsiliasi Bank', href: '/reports/finance?type=reconciliation', description: 'Bank reconciliation' },
     ],
@@ -52,11 +52,11 @@ const REPORT_CATEGORIES: ReportCategory[] = [
     color: '#059669',
     bgColor: '#DCFCE7',
     reports: [
-      { name: 'Detail Penjualan', href: '/reports/sales?type=detail', description: 'Individual transactions' },
-      { name: 'Piutang Aging', href: '/reports/sales?type=aging', description: 'Outstanding invoices' },
-      { name: 'Per Produk', href: '/reports/sales?type=product', description: 'Sales by product' },
-      { name: 'Per Pelanggan', href: '/reports/sales?type=customer', description: 'Sales by customer' },
-      { name: 'Per Salesperson', href: '/reports/sales?type=salesperson', description: 'Sales by person' },
+      { name: 'Detail Penjualan', href: '/reports/sales?type=detail', description: 'Transactions' },
+      { name: 'Piutang Aging', href: '/reports/sales?type=aging', description: 'Outstanding' },
+      { name: 'Per Produk', href: '/reports/sales?type=product', description: 'By product' },
+      { name: 'Per Pelanggan', href: '/reports/sales?type=customer', description: 'By customer' },
+      { name: 'Per Salesperson', href: '/reports/sales?type=salesperson', description: 'By sales person' },
       { name: 'Profitabilitas', href: '/reports/sales?type=profitability', description: 'Profit margins' },
     ],
   },
@@ -66,10 +66,10 @@ const REPORT_CATEGORIES: ReportCategory[] = [
     color: '#DC2626',
     bgColor: '#FEE2E2',
     reports: [
-      { name: 'Detail Pembelian', href: '/reports/purchasing?type=detail', description: 'Purchase transactions' },
+      { name: 'Detail Pembelian', href: '/reports/purchasing?type=detail', description: 'Transactions' },
       { name: 'Hutang Aging', href: '/reports/purchasing?type=aging', description: 'Outstanding bills' },
-      { name: 'Per Produk', href: '/reports/purchasing?type=product', description: 'Purchases by product' },
-      { name: 'Per Supplier', href: '/reports/purchasing?type=supplier', description: 'Purchases by supplier' },
+      { name: 'Per Produk', href: '/reports/purchasing?type=product', description: 'By product' },
+      { name: 'Per Supplier', href: '/reports/purchasing?type=supplier', description: 'By supplier' },
     ],
   },
   {
@@ -78,8 +78,8 @@ const REPORT_CATEGORIES: ReportCategory[] = [
     color: '#EA580C',
     bgColor: '#FFEDD5',
     reports: [
-      { name: 'Stok Saat Ini', href: '/reports/inventory?type=current', description: 'Current inventory levels' },
-      { name: 'Mutasi Stok', href: '/reports/inventory?type=movement', description: 'Stock in/out history' },
+      { name: 'Stok Saat Ini', href: '/reports/inventory?type=current', description: 'Current levels' },
+      { name: 'Mutasi Stok', href: '/reports/inventory?type=movement', description: 'In/out history' },
       { name: 'Stok Opname', href: '/reports/inventory?type=opname', description: 'Physical count' },
       { name: 'Nilai Persediaan', href: '/reports/inventory?type=valuation', description: 'Inventory value' },
       { name: 'Produk Terlaris', href: '/reports/inventory?type=topproducts', description: 'Best sellers' },
@@ -92,9 +92,9 @@ const REPORT_CATEGORIES: ReportCategory[] = [
     color: '#2563EB',
     bgColor: '#DBEAFE',
     reports: [
-      { name: 'Kehadiran', href: '/reports/hr?type=attendance', description: 'Employee attendance' },
+      { name: 'Kehadiran', href: '/reports/hr?type=attendance', description: 'Attendance' },
       { name: 'Rekap Cuti', href: '/reports/hr?type=leave', description: 'Leave records' },
-      { name: 'Summary Payroll', href: '/reports/hr?type=payroll', description: 'Salary summary' },
+      { name: 'Summary Payroll', href: '/reports/hr?type=payroll', description: 'Salary' },
       { name: 'PPh 21', href: '/reports/hr?type=pph21', description: 'Tax withholding' },
       { name: 'BPJS', href: '/reports/hr?type=bpjs', description: 'Social security' },
     ],
@@ -107,7 +107,7 @@ const REPORT_CATEGORIES: ReportCategory[] = [
     reports: [
       { name: 'Daftar Aset', href: '/reports/finance?type=assetlist', description: 'Asset register' },
       { name: 'Penyusutan', href: '/reports/finance?type=depreciation', description: 'Depreciation' },
-      { name: 'Nilai Buku', href: '/reports/finance?type=bookvalue', description: 'Net asset values' },
+      { name: 'Nilai Buku', href: '/reports/finance?type=bookvalue', description: 'Net values' },
     ],
   },
   {
@@ -116,9 +116,9 @@ const REPORT_CATEGORIES: ReportCategory[] = [
     color: '#EA580C',
     bgColor: '#FFEDD5',
     reports: [
-      { name: 'Rekap PPN', href: '/reports/finance?type=vat', description: 'VAT collection' },
+      { name: 'Rekap PPN', href: '/reports/finance?type=vat', description: 'VAT' },
       { name: 'Export e-Faktur', href: '/reports/finance?type=einvoice', description: 'Digital invoices' },
-      { name: 'SPT Tahunan', href: '/reports/finance?type=annualtax', description: 'Annual tax return' },
+      { name: 'SPT Tahunan', href: '/reports/finance?type=annualtax', description: 'Annual tax' },
     ],
   },
 ];
@@ -165,7 +165,7 @@ export default function ReportsPage() {
         <div className="space-y-6">
           {filteredCategories.length === 0 ? (
             <div className="text-center py-12 text-gray-600">
-              <p>Tidak ada laporan yang sesuai dengan pencarian "{searchQuery}"</p>
+              <p>Tidak ada laporan yang sesuai</p>
             </div>
           ) : (
             filteredCategories.map((category) => {
@@ -212,6 +212,15 @@ export default function ReportsPage() {
             })
           )}
         </div>
+
+        {/* Info Section */}
+        <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-6">
+          <h3 className="font-semibold text-gray-900 mb-2">Tips Menggunakan Laporan</h3>
+          <ul className="space-y-2 text-sm text-gray-700">
+            <li>✓ Gunakan filter tanggal untuk membandingkan periode</li>
+            <li>✓ Export laporan dalam Excel untuk analisis lebih lanjut</li>
+            <li>✓ Semua laporan real-time diperbarui setiap jam</li>
+          </ul>
         </div>
       </div>
     </AppShell>

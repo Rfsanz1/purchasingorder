@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import DashboardContent from './_DashboardContent';
+import { PageLoader } from '@gm/ui';
 
 export default function DashboardPage() {
   const [mounted, setMounted] = useState(false);
@@ -10,7 +11,7 @@ export default function DashboardPage() {
     setMounted(true);
   }, []);
 
-  if (!mounted) return null;
+  if (!mounted) return <PageLoader />;
 
   return <DashboardContent />;
 }
