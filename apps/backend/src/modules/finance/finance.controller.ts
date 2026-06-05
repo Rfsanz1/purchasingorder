@@ -81,25 +81,25 @@ export class FinanceController {
   }
 
   // ─── Financial Reports ────────────────────────────────────────────────
-  @Get('reports/balance-sheet') getBalanceSheet(@Query() q: any) { return this.reportSvc.getBalanceSheet(q.asOf || q.date, q.branchId); }
-  @Get('reports/income-statement') getIncomeStatement(@Query() q: any) { return this.reportSvc.getIncomeStatement(q.startDate || q.dateFrom, q.endDate || q.dateTo, q.compare === 'true' || q.compare === true, q.branchId); }
-  @Get('reports/cash-flow') getCashFlowReport(@Query() q: any) { return this.reportSvc.getCashFlow(q.startDate || q.dateFrom, q.endDate || q.dateTo, q.branchId); }
-  @Get('reports/equity-statement') getEquityStatement(@Query() q: any) { return this.reportSvc.getStatementOfEquity(q.startDate || q.dateFrom, q.endDate || q.dateTo, q.branchId); }
-  @Get('reports/executive-summary') getExecutiveSummary(@Query() q: any) { return this.reportSvc.getExecutiveSummary(q.startDate || q.dateFrom, q.endDate || q.dateTo, q.branchId); }
+  @Get('reports/balance-sheet') getBalanceSheet(@Query() q: any) { return this.reportSvc.getBalanceSheet(q.asOf || q.date); }
+  @Get('reports/income-statement') getIncomeStatement(@Query() q: any) { return this.reportSvc.getIncomeStatement(q.startDate || q.dateFrom, q.endDate || q.dateTo, q.compare === 'true' || q.compare === true); }
+  @Get('reports/cash-flow') getCashFlowReport(@Query() q: any) { return this.reportSvc.getCashFlow(q.startDate || q.dateFrom, q.endDate || q.dateTo); }
+  @Get('reports/equity-statement') getEquityStatement(@Query() q: any) { return this.reportSvc.getStatementOfEquity(q.startDate || q.dateFrom, q.endDate || q.dateTo); }
+  @Get('reports/executive-summary') getExecutiveSummary(@Query() q: any) { return this.reportSvc.getExecutiveSummary(q.startDate || q.dateFrom, q.endDate || q.dateTo); }
   @Get('reports/tax-summary') getTaxSummary(@Query() q: any) { return this.taxSvc.getTaxSummary(q); }
   @Get('reports/efakturs') getEfakturs(@Query() q: any) { return this.taxSvc.getEFakturs(q); }
   @Get('reports/efakturs/export') async exportEfakturs(@Query() q: any, @Res({ passthrough: true }) res: Response) {
     const { buffer, filename } = await this.taxSvc.exportEFaktursCsv(q);
     res.setHeader('Content-Type', 'text/csv');
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-    return new StreamableFile(buffer);
+    return new StreamableFile(Buffer.from(buffer as any));
   }
   @Get('reports/export') async exportReport(@Query() q: any, @Res({ passthrough: true }) res: Response) {
     const compare = q.compare === 'true' || q.compare === true;
     const { buffer, filename, contentType } = await this.reportSvc.exportReport(q.type, q.format, q.date, q.dateFrom, q.dateTo, compare);
     res.setHeader('Content-Type', contentType);
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-    return new StreamableFile(buffer);
+    return new StreamableFile(Buffer.from(buffer as any));
   }
 
   // ─── AR/AP Aging ─────────────────────────────────────────────────────
@@ -195,7 +195,7 @@ export class FinanceController {
     const { buffer, filename, contentType } = await this.reportSvc.exportReport('profit-loss', 'pdf', undefined, q.dateFrom, q.dateTo);
     res.setHeader('Content-Type', contentType);
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-    return new StreamableFile(buffer);
+    return new StreamableFile(Buffer.from(buffer as any));
   }
 
   @Get('reports/profit-loss/excel')
@@ -203,6 +203,6 @@ export class FinanceController {
     const { buffer, filename, contentType } = await this.reportSvc.exportReport('profit-loss', 'xlsx', undefined, q.dateFrom, q.dateTo);
     res.setHeader('Content-Type', contentType);
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-    return new StreamableFile(buffer);
+    return new StreamableFile(Buffer.from(buffer as any));
   }
 }

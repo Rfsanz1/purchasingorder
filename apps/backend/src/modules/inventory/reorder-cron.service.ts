@@ -22,14 +22,9 @@ export class ReorderCronService {
           const ag = await this.prisma.product.aggregate({ _sum: { stok: true }, where: { id: rule.productId } });
           qty = Number(ag._sum.stok ?? 0);
         }
-        if (qty <= Number(rule.minimumQty ?? 0)) {
+        if (qty <= Number(rule.minQty ?? 0)) {
           const message = `Stok ${rule.product?.name ?? rule.productId} di ${rule.warehouseId ?? 'semua gudang'} tinggal ${qty}, perlu reorder ${rule.reorderQty}`;
           await this.prisma.notification.create({ data: { recipient: 'stock-team', title: 'Reorder Needed', message } });
-          // optionally create draft PO if flag set
-          if (rule.autoCreatePo) {
-            const po = await this.prisma.purchaseOrder.create({ data: { noPo: `PO-${Date.now()}`, supplierId: rule.preferredSupplierId ?? '', warehouseId: rule.warehouseId ?? undefined, tanggal: new Date(), status: 'draft', totalHarga: 0, items: { create: [{ productId: rule.productId, nama: rule.product?.name ?? '', qty: Number(rule.reorderQty ?? 0), hargaBeli: rule.estimatedUnitPrice ?? 0, subtotal: (Number(rule.reorderQty ?? 0) * Number(rule.estimatedUnitPrice ?? 0)) }] } } });
-            await this.prisma.notification.create({ data: { recipient: 'purchasing', title: 'Draft PO Created', message: `Draft PO ${po.noPo} untuk produk ${rule.product?.name}` } });
-          }
         }
       } catch (err) {
         this.logger.error('Error checking reorder rule', err);

@@ -324,7 +324,7 @@ export class HrService {
 
   // ─── LEAVE TYPES ─────────────────────────────────────────────────────────
   async getLeaveTypes() {
-    const data = await this.prisma.leaveType.findMany({ where: { active: true }, orderBy: { nama: 'asc' } });
+    const data = await this.prisma.leaveType.findMany({ where: { active: true }, orderBy: { name: 'asc' } });
     return { data };
   }
 

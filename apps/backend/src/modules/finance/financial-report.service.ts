@@ -189,7 +189,7 @@ export class FinancialReportService {
     };
   }
 
-  private async bufferFromPdf(doc: PDFDocument) {
+  private async bufferFromPdf(doc: any) {
     return new Promise<Buffer>((resolve, reject) => {
       const buffers: Buffer[] = [];
       doc.on('data', (chunk) => buffers.push(Buffer.from(chunk)));

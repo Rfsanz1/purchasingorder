@@ -1,0 +1,120 @@
+import { CustomersService } from './customers.service.js';
+export declare class CustomersController {
+    private readonly svc;
+    constructor(svc: CustomersService);
+    getSummary(): Promise<{
+        total: number;
+        active: number;
+        inactive: number;
+    }>;
+    findAll(q: any): Promise<{
+        data: {
+            id: string;
+            email: string | null;
+            name: string;
+            active: boolean;
+            createdAt: Date;
+            updatedAt: Date;
+            address: string | null;
+            kledoId: string | null;
+            phone: string | null;
+            city: string | null;
+            province: string | null;
+            npwp: string | null;
+            creditLimit: import("@prisma/client/runtime/library").Decimal;
+            creditUsed: import("@prisma/client/runtime/library").Decimal;
+        }[];
+        total: number;
+        page: number;
+        totalPages: number;
+    }>;
+    findOne(id: string): Promise<{
+        orders: {
+            status: string;
+            id: number;
+            createdAt: Date;
+            updatedAt: Date;
+            userId: string | null;
+            items: import("@prisma/client/runtime/library").JsonValue;
+            customerId: string | null;
+            salesName: string | null;
+            totalHarga: import("@prisma/client/runtime/library").Decimal;
+            kledoInvoiceId: string | null;
+            namaCustomer: string;
+            noHp: string | null;
+            alamat: string | null;
+            catatan: string | null;
+            statusPengiriman: string | null;
+            driverName: string | null;
+            fotoPengiriman: string | null;
+            lokasiToken: string | null;
+            lokasiLat: string | null;
+            lokasiLng: string | null;
+            lokasiUpdatedAt: Date | null;
+            kledoSynced: boolean;
+        }[];
+    } & {
+        id: string;
+        email: string | null;
+        name: string;
+        active: boolean;
+        createdAt: Date;
+        updatedAt: Date;
+        address: string | null;
+        kledoId: string | null;
+        phone: string | null;
+        city: string | null;
+        province: string | null;
+        npwp: string | null;
+        creditLimit: import("@prisma/client/runtime/library").Decimal;
+        creditUsed: import("@prisma/client/runtime/library").Decimal;
+    }>;
+    create(dto: any): Promise<{
+        id: string;
+        email: string | null;
+        name: string;
+        active: boolean;
+        createdAt: Date;
+        updatedAt: Date;
+        address: string | null;
+        kledoId: string | null;
+        phone: string | null;
+        city: string | null;
+        province: string | null;
+        npwp: string | null;
+        creditLimit: import("@prisma/client/runtime/library").Decimal;
+        creditUsed: import("@prisma/client/runtime/library").Decimal;
+    }>;
+    update(id: string, dto: any): Promise<{
+        id: string;
+        email: string | null;
+        name: string;
+        active: boolean;
+        createdAt: Date;
+        updatedAt: Date;
+        address: string | null;
+        kledoId: string | null;
+        phone: string | null;
+        city: string | null;
+        province: string | null;
+        npwp: string | null;
+        creditLimit: import("@prisma/client/runtime/library").Decimal;
+        creditUsed: import("@prisma/client/runtime/library").Decimal;
+    }>;
+    remove(id: string): Promise<{
+        id: string;
+        email: string | null;
+        name: string;
+        active: boolean;
+        createdAt: Date;
+        updatedAt: Date;
+        address: string | null;
+        kledoId: string | null;
+        phone: string | null;
+        city: string | null;
+        province: string | null;
+        npwp: string | null;
+        creditLimit: import("@prisma/client/runtime/library").Decimal;
+        creditUsed: import("@prisma/client/runtime/library").Decimal;
+    }>;
+}

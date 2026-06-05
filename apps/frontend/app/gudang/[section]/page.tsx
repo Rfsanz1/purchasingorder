@@ -10,7 +10,8 @@ export default function GudangSectionPage() {
   const { token } = useAuthStore();
   const router = useRouter();
   const params = useParams();
-  const section = params?.section ?? 'dashboard';
+  const rawSection = Array.isArray(params?.section) ? params.section[0] : params?.section;
+  const section = rawSection ?? 'dashboard';
 
   useEffect(() => {
     if (!token) router.push('/login');

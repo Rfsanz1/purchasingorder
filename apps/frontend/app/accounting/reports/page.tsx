@@ -1,5 +1,7 @@
 'use client';
-import { useEffect, useState, useCallback } from 'react';
+
+export const dynamic = 'force-dynamic';
+import { Suspense, useEffect, useState, useCallback } from 'react';
 import { ModernLayout } from '../../../components/layout/ModernLayout';
 import { api } from '../../../lib/api';
 import { useSearchParams } from 'next/navigation';
@@ -27,7 +29,7 @@ function ReportRow({ label, amount, bold, indent, color, separator }: any) {
   );
 }
 
-export default function FinancialReportsPage() {
+function FinancialReportsPageContent() {
   const searchParams = useSearchParams();
   const [tab, setTab] = useState<Tab>((searchParams.get('tab') as Tab) || 'balance-sheet');
   const [date, setDate] = useState(() => new Date().toISOString().split('T')[0]);

@@ -131,7 +131,7 @@ export function YetiTopbar({ onToggleSidebar, onToggleMobileSidebar }: TopbarPro
               {unreadCount === 0 ? (
                 <div className="py-8 text-center text-sm text-slate-400">Tidak ada notifikasi baru</div>
               ) : (
-                <div className="divide-y" style={{ divideColor: '#F1F5F9' }}>
+                <div className="divide-y">
                   {[...Array(Math.min(unreadCount, 3))].map((_, i) => (
                     <div key={i} className="flex gap-3 px-4 py-3 hover:bg-slate-50 cursor-pointer">
                       <div className="h-8 w-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#EFF6FF' }}>

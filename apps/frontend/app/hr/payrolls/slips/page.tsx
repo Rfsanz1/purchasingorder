@@ -1,5 +1,7 @@
 'use client';
-import { useEffect, useState, useCallback } from 'react';
+
+export const dynamic = 'force-dynamic';
+import { Suspense, useEffect, useState, useCallback } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useAuthStore } from '../../../../lib/store/useAuthStore';
 import AppShell from '../../../../components/layout/AppShell';
@@ -17,7 +19,7 @@ const STATUS_MAP: Record<string, { label: string; color: string; bg: string }> =
   PAID:     { label: 'Dibayar',   color: '#4CAF50', bg: 'rgba(76,175,80,.1)' },
 };
 
-export default function PayrollSlipsPage() {
+function PayrollSlipsPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [slips, setSlips] = useState<any[]>([]);
@@ -185,5 +187,13 @@ export default function PayrollSlipsPage() {
         )}
       </div>
     </AppShell>
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div className="p-6 text-slate-400">Memuat slip gaji…</div>}>
+      <PayrollSlipsPageContent />
+    </Suspense>
   );
 }

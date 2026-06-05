@@ -1,5 +1,7 @@
 'use client';
-import { useEffect, useState, useCallback } from 'react';
+
+export const dynamic = 'force-dynamic';
+import { Suspense, useEffect, useState, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useAuthStore } from '../../../../lib/store/useAuthStore';
 import AppShell from '../../../../components/layout/AppShell';
@@ -11,7 +13,7 @@ const C = PAYROLL_CONFIG.appColor;
 const fmtIDR = (n: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(n);
 const MONTHS = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
 
-export default function PayrollReportsPage() {
+function PayrollReportsPageContent() {
   const searchParams = useSearchParams();
   const type = searchParams.get('type') || 'summary';
 
@@ -89,6 +91,14 @@ export default function PayrollReportsPage() {
         )}
       </div>
     </AppShell>
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div className="p-6 text-slate-400">Memuat laporan payroll…</div>}>
+      <PayrollReportsPageContent />
+    </Suspense>
   );
 }
 

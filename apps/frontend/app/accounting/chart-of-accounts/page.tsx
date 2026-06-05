@@ -1,5 +1,7 @@
 'use client';
-import { useEffect, useState, useCallback } from 'react';
+
+export const dynamic = 'force-dynamic';
+import { Suspense, useEffect, useState, useCallback } from 'react';
 import { ModernLayout } from '../../../components/layout/ModernLayout';
 import { api } from '../../../lib/api';
 import { useSearchParams } from 'next/navigation';
@@ -81,7 +83,7 @@ function Modal({ title, children, onClose }: any) {
   );
 }
 
-export default function ChartOfAccountsPage() {
+function ChartOfAccountsPageContent() {
   const searchParams = useSearchParams();
   const [tree, setTree] = useState<any[]>([]);
   const [flat, setFlat] = useState<any[]>([]);
@@ -269,5 +271,13 @@ export default function ChartOfAccountsPage() {
         </Modal>
       )}
     </ModernLayout>
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div className="p-6 text-slate-400">Memuat data akun…</div>}>
+      <ChartOfAccountsPageContent />
+    </Suspense>
   );
 }

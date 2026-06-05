@@ -21,7 +21,7 @@ const APPROVERS = ['Supervisor Gudang', 'Manajer Gudang', 'Manajer Keuangan', 'M
 export default function ApprovalMatrixPage() {
   const { token } = useAuthStore();
   const router = useRouter();
-  const [matrix, setMatrix] = useState(SAMPLE_MATRIX);
+  const [matrix, setMatrix] = useState<Array<{ id: number; name: string; min_amount: number; max_amount: number; approver_1: string; approver_2: string | null; approver_3: string | null; active: boolean }>>(SAMPLE_MATRIX);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ name: '', min_amount: '', max_amount: '', approver_1: '', approver_2: '', approver_3: '' });
   const [msg, setMsg] = useState('');

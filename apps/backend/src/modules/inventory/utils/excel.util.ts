@@ -45,7 +45,7 @@ export async function stockOpnameToExcelBuffer(opname: any) {
 
 export async function excelBufferToStockOpnameItems(buffer: Buffer) {
   const wb = new ExcelJS.Workbook();
-  await wb.xlsx.load(buffer);
+  await wb.xlsx.load(buffer as any);
   const ws = wb.getWorksheet('StockOpname') || wb.worksheets[0];
   const rows: any[] = [];
   ws.eachRow((row, idx) => {
@@ -64,7 +64,7 @@ export async function excelBufferToStockOpnameItems(buffer: Buffer) {
 
 export async function excelBufferToProducts(buffer: Buffer) {
   const wb = new ExcelJS.Workbook();
-  await wb.xlsx.load(buffer);
+  await wb.xlsx.load(buffer as any);
   const ws = wb.getWorksheet('Products') || wb.worksheets[0];
   const rows: any[] = [];
   ws.eachRow((row, idx) => {

@@ -1,6 +1,5 @@
 'use client';
 
-import { motion } from 'framer-motion';
 import { Card } from '../ui/Card';
 
 interface DashboardSummaryProps {
@@ -19,23 +18,18 @@ const metrics = [
 export function DashboardSummary({ summary, isLoading, error }: DashboardSummaryProps) {
   return (
     <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-      {metrics.map((metric, index) => (
-        <motion.div
-          key={metric.key}
-          initial={{ opacity: 0, y: 18 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: index * 0.08, duration: 0.35 }}
-        >
+      {metrics.map((metric) => (
+        <div key={metric.key}>
           <Card>
             <p className="text-sm uppercase tracking-[0.28em] text-cyan-300">{metric.label}</p>
             <p className="mt-4 text-4xl font-semibold text-white">
               {isLoading ? '...' : summary ? summary[metric.key] : '0'}
             </p>
           </Card>
-        </motion.div>
+        </div>
       ))}
 
-      <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35, duration: 0.35 }}>
+      <div>
         <Card>
           <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between">
@@ -46,7 +40,7 @@ export function DashboardSummary({ summary, isLoading, error }: DashboardSummary
             {error ? <p className="text-sm text-rose-400">{error}</p> : null}
           </div>
         </Card>
-      </motion.div>
+      </div>
     </section>
   );
 }

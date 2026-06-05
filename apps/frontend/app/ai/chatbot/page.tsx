@@ -1,6 +1,8 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+export const dynamic = 'force-dynamic';
+
+import { Suspense, useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuthStore } from '../../../lib/store/useAuthStore';
 import { OdooLayout } from '../../../components/layout/OdooLayout';
@@ -51,7 +53,7 @@ function getAIResponse(input: string): string {
   return `Terima kasih atas pertanyaan Anda tentang "${input}".\n\nSaat ini saya sedang menganalisis data dari sistem ERP Gentong Mas. Fitur AI analitik real-time akan segera tersedia sepenuhnya dan akan terhubung langsung dengan seluruh modul ERP.\n\nUntuk sementara, Anda dapat mengakses:\n• Laporan Penjualan di menu Laporan\n• Data Stok di menu Inventory\n• Laporan Keuangan di menu Akuntansi`;
 }
 
-export default function AiChatbotPage() {
+function AiChatbotPageContent() {
   const { token } = useAuthStore();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -202,5 +204,13 @@ export default function AiChatbotPage() {
         </div>
       </div>
     </OdooLayout>
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div className="p-6 text-slate-400">Memuat chatbot…</div>}>
+      <AiChatbotPageContent />
+    </Suspense>
   );
 }

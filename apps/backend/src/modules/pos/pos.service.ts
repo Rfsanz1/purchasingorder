@@ -497,15 +497,16 @@ export class PosService {
     const cashAccount = await this.prisma.account.findFirst({ where: { OR: [{ name: { contains: 'cash', mode: 'insensitive' } }, { code: { contains: '110', mode: 'insensitive' } }] } });
     const revenueAccount = await this.prisma.account.findFirst({ where: { OR: [{ type: 'REVENUE' }, { name: { contains: 'revenue', mode: 'insensitive' } }, { name: { contains: 'pendapatan', mode: 'insensitive' } }] } });
     if (!cashAccount || !revenueAccount) return null;
-    return this.prisma.jurnal.create({
+    return this.prisma.journal.create({
       data: {
+        nomor: `POS-${session.id}`,
         tanggal: new Date(),
         referensi: `POS-${session.id}`,
-        keterangan: `Close session ${session.id}`,
-        jurnalDetail: {
+        deskripsi: `Close session ${session.id}`,
+        lines: {
           create: [
-            { accountId: cashAccount.id, debit: cashRevenue, kredit: 0 },
-            { accountId: revenueAccount.id, debit: 0, kredit: cashRevenue },
+            { accountId: cashAccount.id, debit: cashRevenue, kredit: 0, deskripsi: 'Cash revenue' },
+            { accountId: revenueAccount.id, debit: 0, kredit: cashRevenue, deskripsi: 'POS revenue' },
           ],
         },
       },

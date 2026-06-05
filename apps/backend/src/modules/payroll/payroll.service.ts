@@ -251,7 +251,7 @@ export class PayrollService {
       include: { employee: true, period: true },
     });
     const rows = slips.map(s => ({
-      nik: s.employee.nik, nama: s.employee.nama ?? s.employee.name,
+      nik: s.employee.nik, nama: s.employee.name,
       gapok: Number(s.gajiPokok),
       bpjsKesEmployee: Number(s.bpjsKesEmployee), bpjsKesEmployer: Number(s.bpjsKesEmployer),
       bpjsTKEmployee: Number(s.bpjsTKEmployee), bpjsTKEmployer: Number(s.bpjsTKEmployer),
@@ -320,7 +320,7 @@ export class PayrollService {
     const rows = slips.map((s) => ({
       nik: s.employee?.nik ?? '',
       nama: s.employee?.name ?? '',
-      netto: s.netto,
+      netto: s.netSalary,
     }));
     return { data: rows, format, message: `Export data transfer bank untuk ${slips.length} karyawan`, meta: { total: rows.length } };
   }

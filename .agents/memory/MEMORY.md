@@ -1,4 +1,0 @@
-- [Prisma DB setup](prisma-db-setup.md) — tabel Prisma tidak otomatis terbuat; wajib jalankan `prisma db push` + seed manual sebelum pertama kali bisa login.
-- [App Store kategori baru](app-store-categories.md) — App Store didesain ulang dengan 13 kategori besar; category-first view, sub-menu on click, badge Installed/Core/Coming Soon.
-- [Next.js proxy ke backend](nextjs-proxy-fix.md) — jangan pakai Route Handler + fetch untuk proxy; gunakan next.config.mjs rewrites ke http://127.0.0.1:6000 agar tidak kena undici "bad port" error.
-- [NestJS tsx injection rules](nestjs-tsx-injection.md) — tsx/esbuild tidak support emitDecoratorMetadata; SELALU pakai @Inject(Token) eksplisit di semua constructor, termasuk Service (bukan cuma Controller).

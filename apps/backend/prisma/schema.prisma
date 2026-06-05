@@ -92,6 +92,7 @@ model Warehouse {
   products       Product[]
   stockMovements StockMovement[]
   purchaseOrders PurchaseOrder[]
+  warehouseStocks ProductWarehouseStock[]
 }
 
 model ProductCategory {
@@ -173,6 +174,10 @@ model Product {
   salesQuotationItems SalesQuotationItem[]
   reorderRules        ReorderRule[]
   warehouseStocks     ProductWarehouseStock[]
+  variants            ProductVariant[]
+  tierPrices          ProductTierPrice[]
+  bundleParents       ProductBundle[]      @relation("BundleParent")
+  bundleComponents    ProductBundle[]      @relation("BundleComponent")
 }
 
 model StockMovement {
@@ -245,9 +250,9 @@ model ProductVariant {
 model ProductBundle {
   id          String  @id @default(cuid())
   productId   String
-  product     Product @relation(fields: [productId], references: [id])
+  product     Product @relation("BundleParent", fields: [productId], references: [id])
   componentId String
-  component   Product @relation(fields: [componentId], references: [id])
+  component   Product @relation("BundleComponent", fields: [componentId], references: [id])
   qty         Decimal @db.Decimal(15, 4)
   createdAt   DateTime @default(now())
 }
@@ -552,6 +557,7 @@ model BankAccount {
   updatedAt    DateTime          @updatedAt
   transactions    BankTransaction[]
   reconciliations BankReconciliation[]
+  expensePayments Expense[]
 }
 
 model BankTransaction {
@@ -1412,6 +1418,7 @@ model Tax {
   updatedAt DateTime  @updatedAt
   taxLines  TaxLine[]
   efakturs  EFaktur[]
+  expenses  Expense[]
 }
 
 model TaxLine {
@@ -1479,6 +1486,7 @@ model Account {
   updatedAt      DateTime    @updatedAt
   journalLines   JournalLine[]
   recurringLines JournalRecurringLine[] @relation("AccountJournalRecurringLines")
+  expenses       Expense[]
 }
 
 model JournalRecurring {
@@ -1754,6 +1762,7 @@ model Branch {
   alamat       String?
   isHeadOffice Boolean @default(false)
   isActive     Boolean @default(true)
+  expenses     Expense[]
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }
@@ -2073,6 +2082,7 @@ model Contact {
   isActive        Boolean   @default(true)
   companyId       String?
   branchId        String?
+  expenses        Expense[]
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 }

@@ -268,8 +268,8 @@ export class FinanceService {
       data: [...(Array.isArray(bankData) ? bankData : []), ...(Array.isArray(cashData) ? cashData : [])],
       message: 'success',
       meta: {
-        bank: bank?.meta ?? null,
-        cash: cash?.meta ?? null,
+        bank: typeof bank === 'object' && bank && 'meta' in bank ? (bank as any).meta : null,
+        cash: typeof cash === 'object' && cash && 'meta' in cash ? (cash as any).meta : null,
       },
     };
   }
@@ -309,8 +309,8 @@ export class FinanceService {
     return { data, message: 'Rekonsiliasi berhasil diupdate' };
   }
 
-  private parseAmount(v?: string) {
-    if (!v && v !== 0) return 0;
+  private parseAmount(v?: string | number | null) {
+    if (v === undefined || v === null || v === '') return 0;
     const s = String(v).replace(/[^0-9,.-]/g, '').replace(',', '.');
     const n = Number(s);
     return isNaN(n) ? 0 : n;
@@ -482,7 +482,7 @@ export class FinanceService {
     const recon = await this.prisma.bankReconciliation.findUnique({ where: { id } });
     if (!recon) throw new NotFoundException('Rekonsiliasi tidak ditemukan');
     const txs = await this.prisma.bankTransaction.findMany({ where: { referenceId: { contains: `recon:${id}` } } });
-    const saldoBank = txs.reduce((s, t) => s + Number(t.amount) * (t.type === 'in' ? 1 : -1), 0);
+    const saldoBank = txs.reduce((s: number, t: any) => s + Number(t.amount) * (t.type === 'in' ? 1 : -1), 0);
     const selisih = Number(saldoBank) - Number(recon.saldoBuku ?? 0);
     const updated = await this.prisma.bankReconciliation.update({ where: { id }, data: { saldoBank: saldoBank as any, selisih: selisih as any, status: 'completed' } });
     return { data: updated, message: 'Rekonsiliasi diselesaikan' };

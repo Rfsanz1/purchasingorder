@@ -340,14 +340,12 @@ function SidebarContent({ collapsed, onMobileClose }: { collapsed: boolean; onMo
                           {!collapsed && (
                             <>
                               <ListItemText
-                                primary={item.label}
-                                slotProps={{
-                                  primary: {
-                                    fontSize: '0.875rem',
-                                    fontWeight: active ? 600 : 400,
-                                    color: active ? '#7367F0' : '#6D6777',
-                                  },
-                                }}
+                                disableTypography
+                                primary={(
+                                  <Typography variant="body2" sx={{ fontSize: '0.875rem', fontWeight: active ? 600 : 400, color: active ? '#7367F0' : '#6D6777' }}>
+                                    {item.label}
+                                  </Typography>
+                                )}
                               />
                               {isOpen
                                 ? <ChevronDown size={14} color="#A5A3AE" />
@@ -389,14 +387,12 @@ function SidebarContent({ collapsed, onMobileClose }: { collapsed: boolean; onMo
                                       }}
                                     />
                                     <ListItemText
-                                      primary={child.label}
-                                      slotProps={{
-                                        primary: {
-                                          fontSize: '0.8125rem',
-                                          fontWeight: ca ? 600 : 400,
-                                          color: ca ? '#7367F0' : '#6D6777',
-                                        },
-                                      }}
+                                      disableTypography
+                                      primary={(
+                                        <Typography variant="body2" sx={{ fontSize: '0.8125rem', fontWeight: ca ? 600 : 400, color: ca ? '#7367F0' : '#6D6777' }}>
+                                          {child.label}
+                                        </Typography>
+                                      )}
                                     />
                                   </ListItemButton>
                                 </Link>
@@ -439,14 +435,12 @@ function SidebarContent({ collapsed, onMobileClose }: { collapsed: boolean; onMo
                         {!collapsed && (
                           <>
                             <ListItemText
-                              primary={item.label}
-                              slotProps={{
-                                primary: {
-                                  fontSize: '0.875rem',
-                                  fontWeight: active ? 600 : 400,
-                                  color: active ? '#7367F0' : '#6D6777',
-                                },
-                              }}
+                              disableTypography
+                              primary={(
+                                <Typography variant="body2" sx={{ fontSize: '0.875rem', fontWeight: active ? 600 : 400, color: active ? '#7367F0' : '#6D6777' }}>
+                                  {item.label}
+                                </Typography>
+                              )}
                             />
                             {item.badge && (
                               <Chip
@@ -505,7 +499,7 @@ function SidebarContent({ collapsed, onMobileClose }: { collapsed: boolean; onMo
             <Box sx={{ flex: 1, minWidth: 0 }}>
               <Typography
                 variant="body2"
-                sx={{ fontWeight: 600, color: '#433C50', lineHeight: 1.3, noWrap: true, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                sx={{ fontWeight: 600, color: '#433C50', lineHeight: 1.3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
               >
                 {user?.name ?? 'Admin'}
               </Typography>

@@ -198,7 +198,10 @@ export class InventoryService {
     const whereUnique = { productId_warehouseId: { productId, warehouseId } as any };
     const existing = await this.prisma.productWarehouseStock.findUnique({ where: { productId_warehouseId: { productId, warehouseId } } as any }).catch(() => null);
     if (existing) {
-      await this.prisma.productWarehouseStock.update({ where: { productId_warehouseId: { productId, warehouseId } } as any, data: { qty: { increment: delta } } as any);
+      await this.prisma.productWarehouseStock.update({
+        where: { productId_warehouseId: { productId, warehouseId } } as any,
+        data: { qty: { increment: delta } } as any,
+      });
     } else {
       await this.prisma.productWarehouseStock.create({ data: { productId, warehouseId, qty: delta } });
     }
@@ -532,7 +535,7 @@ export class InventoryService {
           }
         }
       }
-      await prisma.stockAdjustment.update({ where: { id }, data: { status: 'validated', validatedAt: new Date() } });
+      await prisma.stockAdjustment.update({ where: { id }, data: { status: 'validated' } });
     });
     return { data: null, message: 'Penyesuaian stok berhasil divalidasi' };
   }

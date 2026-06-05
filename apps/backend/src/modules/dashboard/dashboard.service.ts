@@ -27,7 +27,7 @@ export class DashboardService {
     const [users, roles, notifications, permissions] = await Promise.all([
       this.prisma.user.count(),
       this.prisma.role.count(),
-      this.prisma.notification.count({ where: { read: false } }),
+      this.prisma.notification.count({ where: { readAt: null } }),
       this.prisma.permission.count(),
     ]);
 
@@ -43,7 +43,7 @@ export class DashboardService {
 
   async getSalesSummary() {
     const [notifications] = await Promise.all([
-      this.prisma.notification.count({ where: { read: false } }),
+      this.prisma.notification.count({ where: { readAt: null } }),
     ]);
 
     return {
@@ -54,7 +54,7 @@ export class DashboardService {
 
   async getGudangSummary() {
     const [notifications] = await Promise.all([
-      this.prisma.notification.count({ where: { read: false } }),
+      this.prisma.notification.count({ where: { readAt: null } }),
     ]);
 
     return {
@@ -65,7 +65,7 @@ export class DashboardService {
 
   async getPosSummary() {
     const [notifications] = await Promise.all([
-      this.prisma.notification.count({ where: { read: false } }),
+      this.prisma.notification.count({ where: { readAt: null } }),
     ]);
 
     return {
@@ -76,7 +76,7 @@ export class DashboardService {
 
   async getDriverSummary() {
     const [notifications] = await Promise.all([
-      this.prisma.notification.count({ where: { read: false } }),
+      this.prisma.notification.count({ where: { readAt: null } }),
     ]);
 
     return {

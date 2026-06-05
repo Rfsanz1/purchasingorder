@@ -106,12 +106,6 @@ const materioTheme = createTheme({
           padding: '8px 20px',
           fontWeight: 500,
         },
-        containedPrimary: {
-          boxShadow: '0 4px 8px rgba(115, 103, 240, 0.3)',
-          '&:hover': {
-            boxShadow: '0 6px 12px rgba(115, 103, 240, 0.4)',
-          },
-        },
       },
     },
     MuiChip: {

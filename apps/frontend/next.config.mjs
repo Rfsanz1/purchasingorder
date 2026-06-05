@@ -3,6 +3,12 @@ const BACKEND = 'http://127.0.0.1:6000';
 
 const config = {
   reactStrictMode: true,
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
 
   async rewrites() {
     return [

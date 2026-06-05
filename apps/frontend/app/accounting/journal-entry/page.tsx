@@ -1,5 +1,7 @@
 'use client';
-import { useEffect, useState, useCallback } from 'react';
+
+export const dynamic = 'force-dynamic';
+import { Suspense, useEffect, useState, useCallback } from 'react';
 import { ModernLayout } from '../../../components/layout/ModernLayout';
 import { api } from '../../../lib/api';
 import { useSearchParams } from 'next/navigation';
@@ -28,7 +30,7 @@ function Modal({ title, children, onClose, wide }: any) {
   );
 }
 
-export default function JournalEntryPage() {
+function JournalEntryPageContent() {
   const searchParams = useSearchParams();
   const [journals, setJournals] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
@@ -319,5 +321,13 @@ export default function JournalEntryPage() {
         </Modal>
       )}
     </ModernLayout>
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div className="p-6 text-slate-400">Memuat jurnal…</div>}>
+      <JournalEntryPageContent />
+    </Suspense>
   );
 }

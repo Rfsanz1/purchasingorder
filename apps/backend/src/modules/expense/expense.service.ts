@@ -195,12 +195,13 @@ export class ExpenseService {
   async import(fileBuffer: Buffer) {
     const ExcelJS = await import('exceljs');
     const workbook = new ExcelJS.Workbook();
-    await workbook.xlsx.load(fileBuffer);
+    await workbook.xlsx.load(fileBuffer as any);
     const sheet = workbook.worksheets[0];
     const imported: any[] = [];
     sheet.eachRow({ includeEmpty: false }, (row, index) => {
       if (index === 1) return;
-      const [number, date, contactCode, accountCode, paymentAccountNo, amount, taxCode, taxAmount, totalAmount, description, tags, branchCode] = row.values.slice(1);
+      const values = Array.isArray(row.values) ? row.values.slice(1) : [];
+      const [number, date, contactCode, accountCode, paymentAccountNo, amount, taxCode, taxAmount, totalAmount, description, tags, branchCode] = values;
       imported.push({ number, date, contactCode, accountCode, paymentAccountNo, amount, taxCode, taxAmount, totalAmount, description, tags, branchCode });
     });
     const results = [];
