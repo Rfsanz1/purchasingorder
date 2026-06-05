@@ -13,6 +13,7 @@ import { PurchasingModule } from './modules/purchasing/purchasing.module.js';
 import { CustomersModule } from './modules/customers/customers.module.js';
 import { HrModule } from './modules/hr/hr.module.js';
 import { FinanceModule } from './modules/finance/finance.module.js';
+import { ExpenseModule } from './modules/expense/expense.module.js';
 import { KledoModule } from './modules/kledo/kledo.module.js';
 import { SettingsModule } from './modules/settings/settings.module.js';
 import { DriverAreasModule } from './modules/driver-areas/driver-areas.module.js';
@@ -54,6 +55,7 @@ import { APP_GUARD } from '@nestjs/core';
     CustomersModule,
     HrModule,
     FinanceModule,
+    ExpenseModule,
     KledoModule,
     SettingsModule,
     DriverAreasModule,

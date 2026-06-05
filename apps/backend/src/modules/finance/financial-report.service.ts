@@ -88,7 +88,7 @@ export class FinancialReportService {
     };
   }
 
-  async getIncomeStatement(dateFrom: string, dateTo: string) {
+  async getIncomeStatement(dateFrom: string, dateTo: string, compare = false) {
     const balances = await this.getBalancesInPeriod(dateFrom, dateTo);
 
     const [revenues, allExpenses] = await Promise.all([
@@ -110,7 +110,7 @@ export class FinancialReportService {
     const totalOtherExp = otherExpItems.reduce((s, a) => s + a.balance, 0);
     const netIncome = grossProfit - totalOpex - totalOtherExp;
 
-    return {
+    const result: any = {
       period: { dateFrom, dateTo },
       revenues: { items: revenueItems, total: totalRevenue },
       hpp: { items: hppItems, total: totalHPP },
@@ -119,6 +119,43 @@ export class FinancialReportService {
       otherExpenses: { items: otherExpItems, total: totalOtherExp },
       netIncome,
     };
+
+    if (compare && dateFrom && dateTo) {
+      const from = new Date(dateFrom);
+      const to = new Date(dateTo);
+      const diff = to.getTime() - from.getTime();
+      const prevTo = new Date(from.getTime() - 1);
+      const prevFrom = new Date(prevTo.getTime() - diff);
+      const prevFromStr = prevFrom.toISOString().slice(0, 10);
+      const prevToStr = prevTo.toISOString().slice(0, 10);
+
+      const prevBalances = await this.getBalancesInPeriod(prevFromStr, prevToStr);
+
+      const revenueItemsPrev = this.groupByType(revenues, prevBalances);
+      const expenseItemsPrev = this.groupByType(allExpenses, prevBalances);
+      const hppItemsPrev = expenseItemsPrev.filter((e) => e.code.startsWith('5'));
+      const opexItemsPrev = expenseItemsPrev.filter((e) => e.code.startsWith('6'));
+      const otherExpItemsPrev = expenseItemsPrev.filter((e) => e.code.startsWith('7'));
+
+      const totalRevenuePrev = revenueItemsPrev.reduce((s, a) => s + a.balance, 0);
+      const totalHppPrev = hppItemsPrev.reduce((s, a) => s + a.balance, 0);
+      const grossProfitPrev = totalRevenuePrev - totalHppPrev;
+      const totalOpexPrev = opexItemsPrev.reduce((s, a) => s + a.balance, 0);
+      const totalOtherExpPrev = otherExpItemsPrev.reduce((s, a) => s + a.balance, 0);
+      const netIncomePrev = grossProfitPrev - totalOpexPrev - totalOtherExpPrev;
+
+      result.previous = {
+        period: { dateFrom: prevFromStr, dateTo: prevToStr },
+        revenues: { items: revenueItemsPrev, total: totalRevenuePrev },
+        hpp: { items: hppItemsPrev, total: totalHppPrev },
+        grossProfit: grossProfitPrev,
+        operationalExpenses: { items: opexItemsPrev, total: totalOpexPrev },
+        otherExpenses: { items: otherExpItemsPrev, total: totalOtherExpPrev },
+        netIncome: netIncomePrev,
+      };
+    }
+
+    return result;
   }
 
   async getStatementOfEquity(dateFrom: string, dateTo: string) {
@@ -312,7 +349,7 @@ export class FinancialReportService {
     return this.bufferFromPdf(doc);
   }
 
-  async exportReport(reportType: string, format: string, date?: string, dateFrom?: string, dateTo?: string) {
+  async exportReport(reportType: string, format: string, date?: string, dateFrom?: string, dateTo?: string, compare = false) {
     const normalized = (reportType || 'balance-sheet').toString().toLowerCase();
     const typeName = {
       'balance-sheet': 'Balance Sheet',
@@ -325,7 +362,7 @@ export class FinancialReportService {
 
     let payload: any;
     if (typeName === 'Balance Sheet') payload = await this.getBalanceSheet(date);
-    else if (typeName === 'Income Statement') payload = await this.getIncomeStatement(dateFrom, dateTo);
+    else if (typeName === 'Income Statement') payload = await this.getIncomeStatement(dateFrom, dateTo, compare);
     else if (typeName === 'Cash Flow') payload = await this.getCashFlow(dateFrom, dateTo);
     else if (typeName === 'Statement of Equity') payload = await this.getStatementOfEquity(dateFrom, dateTo);
     else if (typeName === 'Executive Summary') payload = await this.getExecutiveSummary(dateFrom, dateTo);

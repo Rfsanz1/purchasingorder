@@ -151,6 +151,7 @@ export class ExpenseService {
           nomor: `EXP/${new Date().getFullYear()}${String(new Date().getMonth() + 1).padStart(2, '0')}/${String(Date.now()).slice(-6)}`,
           tanggal: new Date(),
           deskripsi: `Pembayaran expense ${expense.number}`,
+          referensi: expense.id,
           status: 'POSTED',
           lines: { create: journalLines.map((l) => ({ ...l })) },
         },
@@ -181,6 +182,14 @@ export class ExpenseService {
       amount: Number(g._sum.amount ?? 0),
       taxAmount: Number(g._sum.taxAmount ?? 0),
     }));
+  }
+
+  async getExpenseJournals(expenseId: string) {
+    return this.prisma.journal.findMany({
+      where: { referensi: expenseId },
+      include: { lines: { include: { account: true } } },
+      orderBy: { tanggal: 'desc' },
+    });
   }
 
   async import(fileBuffer: Buffer) {

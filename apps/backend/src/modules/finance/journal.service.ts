@@ -11,10 +11,11 @@ export class JournalService {
   }
 
   async findAll(query: any) {
-    const { status, dateFrom, dateTo, search, page = 1, limit = 20 } = query;
+    const { status, dateFrom, dateTo, search, referensi, page = 1, limit = 20 } = query;
     const skip = (Number(page) - 1) * Number(limit);
     const where: any = {};
     if (status) where.status = status;
+    if (referensi) where.referensi = referensi;
     if (search) where.OR = [
       { nomor: { contains: search, mode: 'insensitive' } },
       { deskripsi: { contains: search, mode: 'insensitive' } },

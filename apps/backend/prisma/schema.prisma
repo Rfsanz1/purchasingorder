@@ -719,23 +719,31 @@ model PosProduct {
 }
 
 model PosSale {
-  id          String             @id @default(uuid())
-  noStruk     String             @unique
-  sessionId   String?
-  session     PosCashierSession? @relation(fields: [sessionId], references: [id])
-  posUserId   String?
-  posUser     PosUser?           @relation(fields: [posUserId], references: [id])
-  tanggal     DateTime           @default(now())
-  totalHarga  Decimal            @default(0) @db.Decimal(15, 2)
-  diskon      Decimal            @default(0) @db.Decimal(15, 2)
-  pajak       Decimal            @default(0) @db.Decimal(15, 2)
-  grandTotal  Decimal            @default(0) @db.Decimal(15, 2)
-  bayar       Decimal            @default(0) @db.Decimal(15, 2)
-  kembalian   Decimal            @default(0) @db.Decimal(15, 2)
-  metodeBayar String             @default("tunai")
-  status      String             @default("selesai")
-  createdAt   DateTime           @default(now())
-  items       PosSaleItem[]
+  id                   String    @id @default(uuid())
+  noStruk              String    @unique
+  sessionId            String?
+  session              PosCashierSession? @relation(fields: [sessionId], references: [id])
+  posUserId            String?
+  posUser              PosUser?  @relation(fields: [posUserId], references: [id])
+  customerId           String?
+  tanggal              DateTime  @default(now())
+  totalHarga           Decimal   @default(0) @db.Decimal(15, 2)
+  diskon               Decimal   @default(0) @db.Decimal(15, 2)
+  pajak                Decimal   @default(0) @db.Decimal(15, 2)
+  grandTotal           Decimal   @default(0) @db.Decimal(15, 2)
+  bayar                Decimal   @default(0) @db.Decimal(15, 2)
+  kembalian            Decimal   @default(0) @db.Decimal(15, 2)
+  metodeBayar          String    @default("tunai")
+  splitPayments        Json?
+  loyaltyPointsEarned  Float?    @default(0)
+  loyaltyPointsUsed    Float?    @default(0)
+  discountType         String?
+  discountValue        Float?    @default(0)
+  holdReference        String?
+  returnReference      String?
+  status               String    @default("selesai")
+  createdAt            DateTime  @default(now())
+  items                PosSaleItem[]
 }
 
 model PosSaleItem {
@@ -748,6 +756,22 @@ model PosSaleItem {
   qty          Int
   harga        Decimal    @db.Decimal(15, 2)
   subtotal     Decimal    @db.Decimal(15, 2)
+}
+
+model LoyaltyConfig {
+  id              String @id @default(cuid())
+  pointsPerAmount Float  @default(100000)
+  redeemRate      Float  @default(100)
+  minRedeemPoints Float  @default(100)
+  isActive        Boolean @default(true)
+}
+
+model CustomerLoyalty {
+  id             String  @id @default(cuid())
+  customerId     String  @unique
+  points         Float   @default(0)
+  totalEarned    Float   @default(0)
+  totalRedeemed  Float   @default(0)
 }
 
 // ==================== CRM ====================
@@ -2051,6 +2075,35 @@ model Contact {
   branchId        String?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
+}
+
+model Expense {
+  id               String    @id @default(cuid())
+  number           String    @unique
+  date             DateTime
+  contactId        String?
+  contact          Contact?  @relation(fields: [contactId], references: [id])
+  accountId        String
+  account          Account   @relation(fields: [accountId], references: [id])
+  paymentAccountId String?
+  paymentAccount   BankAccount? @relation(fields: [paymentAccountId], references: [id])
+  amount           Float
+  taxId            String?
+  tax              Tax?      @relation(fields: [taxId], references: [id])
+  taxAmount        Float     @default(0)
+  totalAmount      Float
+  description      String?
+  attachment       String?
+  status           String    @default("draft")
+  tags             String[]  @default([])
+  branchId         String?
+  branch           Branch?   @relation(fields: [branchId], references: [id])
+  createdBy        String
+  approvedBy       String?
+  approvedAt       DateTime?
+  paidAt           DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 }
 
 model InvoiceRecurring {
