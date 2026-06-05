@@ -1,7 +1,6 @@
 /** @type {import('next').NextConfig} */
 const config = {
   reactStrictMode: true,
-  transpilePackages: ['@gm/ui', '@gm/utils', '@gm/types'],
   async rewrites() {
     return [
       {
