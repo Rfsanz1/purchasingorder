@@ -24,3 +24,9 @@ dist/
 .next/
 *.tsbuildinfo
 package-lock.json
+node_modules/
+dist/
+.next/
+*.tsbuildinfo
+package-lock.json
+.pnpm-store/
